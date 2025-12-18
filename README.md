@@ -1,7 +1,8 @@
 # TEAM 돌아왕
-> 매주 왕이 돌아왕 👑  
 
-### 현실 공간 위에 추억을 남기고 공유하는 기반 AR SNS
+> 매주 왕이 돌아왕 👑
+
+### 포토부스를 찾아갈 필요 없이, 애플 기기만 있으면 어디서나 시작되는 인생N컷
 
 <table>
   <thead>
@@ -15,16 +16,16 @@
   <tbody>
     <tr>
       <td align="center">
-        <img width="170" alt="S022" src="https://github.com/user-attachments/assets/9db96ba7-a21d-4916-bcee-51ace4c07480" />
+        <img width="170" alt="S022" src="https://github.com/user-attachments/assets/674f6f68-c659-49cc-b9ed-966345e6baf4" />
       </td>
       <td align="center">
-        <img width="146" alt="S024" src="https://github.com/user-attachments/assets/db0011e5-4a92-49ca-8c45-7e8817539171" />
+        <img width="146" alt="S024" src="https://github.com/user-attachments/assets/c25cf5ee-b660-4910-a085-8fadbf6187ac" />
       </td>
       <td align="center">
-        <img width="172" height="226" alt="S029" src="https://github.com/user-attachments/assets/ebf2290b-8b2d-4db1-8f71-4a69132cfa17" />
+        <img width="172" height="226" alt="S029" src="https://github.com/user-attachments/assets/8c70aeed-9469-4bf1-a87c-00349a9d2957" />
       </td>
       <td align="center">
-        <img width="170" alt="S038" src="https://github.com/user-attachments/assets/0fa89a42-5262-4fd6-911f-4e6cc8fb1240" />
+        <img width="170" height="218" alt="S038" src="https://github.com/user-attachments/assets/f9ef5669-ab71-469e-9f6c-b59ca3f9c934" />
       </td>
     </tr>
     <tr>
@@ -32,6 +33,12 @@
       <td align="center">ISTJ</td>
       <td align="center">ISTJ</td>
       <td align="center">ISTJ</td>
+    </tr>
+    <tr>
+      <td align="center">위키 리더</td>
+      <td align="center">UI/UX 리더</td>
+      <td align="center">팀 리더</td>
+      <td align="center">테크 리더</td>
     </tr>
   </tbody>
 </table>
