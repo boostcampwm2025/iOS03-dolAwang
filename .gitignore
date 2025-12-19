@@ -1,0 +1,12 @@
+# MACOS
+.DS_Store
+
+# Auth
+*.p8
+*.p12
+
+# Xcode
+Config.xcconfig
+xcuserdata/
+*.xcuserstate
+Breakpoints_v2.xcbkptlist
