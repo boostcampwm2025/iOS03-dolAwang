@@ -18,6 +18,13 @@ final class MPCSessionManager: NSObject {
         case notConnected
     }
 
+    // MARK: - Protocol Messages
+    enum ProtocolMessage: String {
+        case disconnect
+
+        var dataValue: Data { self.rawValue.data(using: .utf8)! }
+    }
+
     // MARK: - Private
     private let serviceType = "mirroring-booth"
     private var advertiser: MCNearbyServiceAdvertiser?
@@ -94,7 +101,10 @@ final class MPCSessionManager: NSObject {
     }
 
     func disconnect(_ peerID: MCPeerID) {
-        guard let session = self.session else { return }
+        guard let session else { return }
+
+        let payload = ProtocolMessage.disconnect.dataValue
+        try? session.send(payload, toPeers: [peerID], with: .reliable)
 
         session.cancelConnectPeer(peerID)
     }
@@ -125,7 +135,13 @@ extension MPCSessionManager: MCSessionDelegate {
         _ session: MCSession,
         didReceive data: Data,
         fromPeer peerID: MCPeerID
-    ) { }
+    ) {
+        if data == ProtocolMessage.disconnect.dataValue {
+            DispatchQueue.main.async {
+                self.connectedPeers.removeAll { $0.displayName == peerID.displayName }
+            }
+        }
+    }
 
     func session(
         _ session: MCSession,
@@ -162,9 +178,6 @@ extension MPCSessionManager: MCNearbyServiceAdvertiserDelegate {
             return
         }
 
-        DispatchQueue.main.async {
-            self.connectionStateByPeerDisplayName[peerID.displayName] = .connecting
-        }
         invitationHandler(true, session)
     }
 }
