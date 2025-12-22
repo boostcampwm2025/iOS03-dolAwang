@@ -5,9 +5,12 @@
 //  Created by 최윤진 on 12/20/25.
 //
 
-import Combine
 import Foundation
 import MultipeerConnectivity
+
+enum P2PPacketType: UInt8 {
+    case disconnect = 0
+}
 
 @Observable
 final class MPCSessionManager: NSObject {
@@ -18,20 +21,13 @@ final class MPCSessionManager: NSObject {
         case notConnected
     }
 
-    // MARK: - Protocol Messages
-    enum ProtocolMessage: String {
-        case disconnect
-
-        var dataValue: Data { self.rawValue.data(using: .utf8)! }
-    }
-
     // MARK: - Private
     private let serviceType = "mirroring-booth"
     private var advertiser: MCNearbyServiceAdvertiser?
     private var browser: MCNearbyServiceBrowser?
     private var session: MCSession?
 
-    // MARK: - Published
+    // MARK: - Local (Published)
     var connectedPeers: [MCPeerID] = []
     var foundPeers: [MCPeerID] = []
     var isAdvertising: Bool = false
@@ -103,13 +99,47 @@ final class MPCSessionManager: NSObject {
     func disconnect(_ peerID: MCPeerID) {
         guard let session else { return }
 
-        let payload = ProtocolMessage.disconnect.dataValue
-        try? session.send(payload, toPeers: [peerID], with: .reliable)
+        let packetData = Self.makePacket(type: .disconnect)
+        try? session.send(packetData, toPeers: [peerID], with: .reliable)
 
         session.cancelConnectPeer(peerID)
     }
 }
 
+extension MPCSessionManager {
+    // MARK: - Packet Utilities
+    private static func makePacket(type: P2PPacketType, body: Data? = nil) -> Data {
+        let bodyCount = body?.count ?? 0
+
+        var bodyLength = UInt32(bodyCount).littleEndian
+        var packetData = Data(bytes: &bodyLength, count: 4)
+        packetData.append(type.rawValue)
+
+        if let bodyValue: Data = body {
+            packetData.append(bodyValue)
+        }
+
+        return packetData
+    }
+
+    private static func parsePacket(_ packetData: Data) -> (type: P2PPacketType, body: Data)? {
+        guard 5 <= packetData.count else { return nil }
+
+        let lengthData = packetData.prefix(4)
+        let typeByte = packetData[4]
+
+        let bodyLength = lengthData.withUnsafeBytes { rawBufferPointer in
+            rawBufferPointer.load(as: UInt32.self)
+        }.littleEndian
+
+        let expectedTotalLength = 5 + Int(bodyLength)
+        guard expectedTotalLength <= packetData.count else { return nil }
+
+        let bodyData = packetData.subdata(in: 5..<(5 + Int(bodyLength)))
+        guard let packetType = P2PPacketType(rawValue: typeByte) else { return nil }
+
+        return (type: packetType, body: bodyData)
+    }
 extension MPCSessionManager: MCSessionDelegate {
     func session(
         _ session: MCSession,
@@ -136,9 +166,13 @@ extension MPCSessionManager: MCSessionDelegate {
         didReceive data: Data,
         fromPeer peerID: MCPeerID
     ) {
-        if data == ProtocolMessage.disconnect.dataValue {
+        guard let parsed = Self.parsePacket(data) else { return }
+
+        switch parsed.type {
+        case .disconnect:
             DispatchQueue.main.async {
                 self.connectedPeers.removeAll { $0.displayName == peerID.displayName }
+                self.connectionStateByPeerDisplayName[peerID.displayName] = .notConnected
             }
         }
     }
