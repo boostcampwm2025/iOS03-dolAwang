@@ -10,8 +10,8 @@ import CoreImage
 
 final class CameraCaptureManager: NSObject {
     typealias PixelBufferHandler = (_ pixelBuffer: CVPixelBuffer) -> Void
-    private let captureQueue: DispatchQueue = DispatchQueue(label: "camera.captureQueue")
-    private let outputQueue: DispatchQueue = DispatchQueue(label: "camera.outputQueue")
+    private let captureQueue = DispatchQueue(label: "camera.captureQueue")
+    private let outputQueue = DispatchQueue(label: "camera.outputQueue")
     private var captureSession: AVCaptureSession?
     private var videoDataOutput: AVCaptureVideoDataOutput?
     private var currentCIImage: CIImage?
