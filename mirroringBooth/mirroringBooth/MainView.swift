@@ -13,7 +13,9 @@ struct MainView: View {
     @State private var sessionManager = MPCSessionManager()
     private let captureManager = CameraCaptureManager()
     @State private var selectedPeerID: MCPeerID?
-    @State private var showFullScreenCover = false
+    @State private var cameraFrameSender: CameraFrameSender?
+    @State private var isStreaming: Bool = false
+    @State private var receivedCIImage: CIImage? = nil
 
     var body: some View {
         NavigationStack {
@@ -70,7 +72,30 @@ struct MainView: View {
                                     }
                                     .buttonStyle(.borderless)
                                 } else if connections[peerID.displayName] == .connected {
+                                    Button {
+                                        if self.isStreaming == true {
+                                            self.isStreaming = false
+                                            if self.cameraFrameSender != nil {
+                                                self.cameraFrameSender = nil
+                                                self.captureManager.stopCapture()
+                                            }
+                                        } else {
+                                            self.captureManager.startCapture()
+
+                                            let sender = CameraFrameSender(
+                                                provider: { self.captureManager.latestCIImage },
+                                                manager: self.sessionManager,
+                                                targetFps: 30
+                                            )
+
+                                            self.cameraFrameSender = sender
+                                            self.isStreaming = true
+                                        }
+                                    } label: {
+                                        Text(self.isStreaming ? "스트리밍 종료" : "스트리밍 시작")
+                                    }
                                     .buttonStyle(.borderless)
+
                                     Button {
                                         sessionManager.disconnect(peerID)
                                     } label: {
@@ -95,6 +120,10 @@ struct MainView: View {
                     Button {
                         selectedPeerID = nil
                         sessionManager.stop()
+
+                        self.isStreaming = false
+                        self.cameraFrameSender = nil
+                        self.captureManager.stopCapture()
                     } label: {
                         Text("Stop")
                     }
@@ -109,21 +138,37 @@ struct MainView: View {
                     }
                     .disabled(sessionManager.isBrowsing && sessionManager.isAdvertising)
                 }
-
-                ToolbarItem(placement: .automatic) {
-                    Button {
-                        self.captureManager.startCapture()
-                        self.showFullScreenCover = true
-                    } label: {
-                        Text(self.showFullScreenCover ? "카메라 종료" : "카메라 보기")
+            }
+            .fullScreenCover(isPresented: $isStreaming) {
+                if self.cameraFrameSender != nil {
+                    self.captureManager.stopCapture()
+                }
+            } content: {
+                CameraPreview {
+                    if self.cameraFrameSender != nil {
+                        self.cameraFrameSender?.tickSend()
+                        return self.captureManager.latestCIImage
+                    } else {
+                        return self.receivedCIImage
                     }
                 }
             }
-            .fullScreenCover(isPresented: $showFullScreenCover) {
-                self.captureManager.stopCapture()
-            } content: {
-                CameraPreview {
-                    captureManager.latestCIImage
+            .onChange(of: sessionManager.receivedMjpegFrameData) { _, mjpegFrameData in
+                guard let mjpegFrameData: Data = mjpegFrameData else {
+                    return
+                }
+
+                autoreleasepool {
+                    guard let ciImage: CIImage = CIImage(data: mjpegFrameData) else {
+                        self.receivedCIImage = nil
+                        return
+                    }
+
+                    self.receivedCIImage = ciImage
+
+                    if self.isStreaming == false {
+                        self.isStreaming = true
+                    }
                 }
             }
         }
