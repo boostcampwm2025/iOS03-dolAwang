@@ -26,6 +26,7 @@ struct CameraPreview: View {
                 if let renderedImage = renderedImage {
                     renderedImage
                         .resizable()
+                        .scaledToFit()
                 } else {
                     ProgressView()
                 }
