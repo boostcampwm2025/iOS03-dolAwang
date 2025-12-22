@@ -85,7 +85,7 @@ struct MainView: View {
                                             let sender = CameraFrameSender(
                                                 provider: { self.captureManager.latestCIImage },
                                                 manager: self.sessionManager,
-                                                targetFps: 30
+                                                targetFps: 24
                                             )
 
                                             self.cameraFrameSender = sender
