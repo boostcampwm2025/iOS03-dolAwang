@@ -68,12 +68,15 @@ struct MainView: View {
                                     } label: {
                                         Text("연결")
                                     }
+                                    .buttonStyle(.borderless)
                                 } else if connections[peerID.displayName] == .connected {
+                                    .buttonStyle(.borderless)
                                     Button {
                                         sessionManager.disconnect(peerID)
                                     } label: {
                                         Text("연결 종료")
                                     }
+                                    .buttonStyle(.borderless)
                                 } else {
                                     Text("연결 중...")
                                         .foregroundColor(.accentColor)
