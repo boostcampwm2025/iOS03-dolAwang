@@ -11,7 +11,9 @@ import SwiftUI
 struct MainView: View {
     @AppStorage("peerID") private var peerID = UIDevice.current.name
     @State private var sessionManager = MPCSessionManager()
+    private let captureManager = CameraCaptureManager()
     @State private var selectedPeerID: MCPeerID?
+    @State private var showFullScreenCover = false
 
     var body: some View {
         NavigationStack {
@@ -103,6 +105,22 @@ struct MainView: View {
                         Text("Start")
                     }
                     .disabled(sessionManager.isBrowsing && sessionManager.isAdvertising)
+                }
+
+                ToolbarItem(placement: .automatic) {
+                    Button {
+                        self.captureManager.startCapture()
+                        self.showFullScreenCover = true
+                    } label: {
+                        Text(self.showFullScreenCover ? "카메라 종료" : "카메라 보기")
+                    }
+                }
+            }
+            .fullScreenCover(isPresented: $showFullScreenCover) {
+                self.captureManager.stopCapture()
+            } content: {
+                CameraPreview {
+                    captureManager.latestCIImage
                 }
             }
         }
