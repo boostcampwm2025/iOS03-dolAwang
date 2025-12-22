@@ -159,7 +159,7 @@ struct MainView: View {
                 }
 
                 autoreleasepool {
-                    guard let ciImage: CIImage = CIImage(data: mjpegFrameData) else {
+                    guard let ciImage = CIImage(data: mjpegFrameData) else {
                         self.receivedCIImage = nil
                         return
                     }

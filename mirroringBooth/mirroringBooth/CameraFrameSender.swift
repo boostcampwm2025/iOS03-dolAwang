@@ -34,15 +34,15 @@ final class CameraFrameSender {
 
     func tickSend() {
         self.sendQueue.async { [weak self] in
-            guard let self: CameraFrameSender = self else { return }
-            guard self.manager.connectedPeers.isEmpty == false else { return }
-            guard self.isEncodingOrSending == false else { return }
+            guard let self = self,
+                  self.manager.connectedPeers.isEmpty == false,
+                  self.isEncodingOrSending == false else { return }
 
-            let now: CFTimeInterval = CACurrentMediaTime()
-            let elapsed: CFTimeInterval = now - self.lastSentTime
-            guard elapsed >= self.minSendInterval else { return }
+            let now = CACurrentMediaTime()
+            let elapsed = now - self.lastSentTime
+            guard self.minSendInterval <= elapsed else { return }
 
-            guard let ciImage: CIImage = self.latestCiImageProvider() else { return }
+            guard let ciImage = self.latestCiImageProvider() else { return }
 
             self.lastSentTime = now
             self.isEncodingOrSending = true
