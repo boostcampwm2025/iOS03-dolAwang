@@ -48,7 +48,7 @@ final class CameraCaptureManager: NSObject {
     private func configureSession() {
         let session = AVCaptureSession()
         session.beginConfiguration()
-        session.sessionPreset = .high
+        session.sessionPreset = .photo
 
         guard let captureDevice = AVCaptureDevice.default(
             .builtInWideAngleCamera, for: .video, position: .back) else {
