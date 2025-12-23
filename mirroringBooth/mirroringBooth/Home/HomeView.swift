@@ -9,24 +9,30 @@ import SwiftUI
 
 struct HomeView: View {
     
-    private var router: Router
-    
-    init(_ router: Router) {
-        self.router = router
-    }
-    var body: some View {
-        Button {
-            router.push(to: .connection)
-        } label: {
-            Text("촬영하기")
-                .font(.headline)
-                .padding(5)
-        }
+    @State private var router: Router = .init()
 
+    var body: some View {
+        NavigationStack(path: $router.path) {
+            Button {
+                router.push(to: .connection)
+            } label: {
+                Text("촬영하기")
+                    .font(.headline)
+                    .padding(5)
+            }
+            .navigationDestination(for: Route.self) { viewType in
+                switch viewType {
+                case .connection:
+                    BrowserView(router)
+                case .camera:
+                    ShootingView()
+                }
+            }
+        }
     }
     
 }
 
 #Preview {
-    HomeView(Router())
+    HomeView()
 }

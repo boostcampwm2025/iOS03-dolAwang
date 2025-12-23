@@ -8,8 +8,24 @@
 import Foundation
 import MultipeerConnectivity
 
+protocol Advertiser: AnyObject {
+    var connectionState: [String: String] { get }
+    
+    func startAdvertising()
+    func stopAdvertising()
+}
+
+protocol Browser: AnyObject {
+    var connectionState: [String: String] { get }
+    var peers: [String] { get }
+    
+    func startBrowsing()
+    func stopBrowsing()
+    func invite(to id: String)
+}
+
 @Observable
-final class ConnectionManager: NSObject {
+final class ConnectionManager: NSObject, Advertiser, Browser {
 
     var connectionState: [String: String] = [:]
     var peers: [String] = []
@@ -41,18 +57,25 @@ final class ConnectionManager: NSObject {
         advertiser.delegate = self
         browser.delegate = self
     }
+    
+    func startAdvertising() {
+        advertiser.startAdvertisingPeer()
+    }
+    
+    func stopAdvertising() {
+        advertiser.stopAdvertisingPeer()
+    }
 
     func startBrowsing() {
         peers.removeAll()
         discoveredPeers.removeAll()
-        advertiser.startAdvertisingPeer()
         browser.startBrowsingForPeers()
     }
 
     func stopBrowsing() {
-        advertiser.stopAdvertisingPeer()
         browser.stopBrowsingForPeers()
     }
+    
 
     func invite(to id: String) {
         guard let peerID = discoveredPeers[id] else { return }

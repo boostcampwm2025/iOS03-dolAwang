@@ -26,4 +26,5 @@ final class Router {
 
 enum Route {
     case connection
+    case camera
 }

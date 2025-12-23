@@ -10,7 +10,7 @@ import SwiftUI
 struct BrowserView: View {
 
     private var router: Router
-    @State private var connectionManager = ConnectionManager()
+    @State private var connectionManager: Advertiser & Browser = ConnectionManager()
 
     init(_ router: Router) {
         self.router = router
@@ -35,9 +35,11 @@ struct BrowserView: View {
         }
         .onAppear {
             connectionManager.startBrowsing()
+            connectionManager.startAdvertising()
         }
         .onDisappear {
             connectionManager.stopBrowsing()
+            connectionManager.stopAdvertising()
         }
     }
     
