@@ -21,7 +21,7 @@ final class ConnectionManager: NSObject {
     private let browser: MCNearbyServiceBrowser
     private var discoveredPeers: [String: MCPeerID] = [:]
     
-    init(serviceType: String = "MirroringBooth") {
+    init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
         self.identifier = MCPeerID(displayName: UIDevice.current.name)
         self.session = MCSession(peer: identifier)
@@ -117,6 +117,7 @@ extension ConnectionManager: MCNearbyServiceBrowserDelegate {
     ) {
         let displayName = peerID.displayName
         discoveredPeers[displayName] = peerID
+        guard !peers.contains(displayName) else { return }
         peers.append(displayName)
     }
     
