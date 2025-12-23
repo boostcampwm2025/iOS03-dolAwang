@@ -19,6 +19,7 @@ final class ConnectionManager: NSObject {
     private let session: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
     private let browser: MCNearbyServiceBrowser
+    private var discoveredPeers: [String: MCPeerID] = [:]
     
     init(serviceType: String = "MirroringBooth") {
         self.serviceType = serviceType
@@ -39,6 +40,7 @@ final class ConnectionManager: NSObject {
 
     func startBrowsing() {
         peers.removeAll()
+        discoveredPeers.removeAll()
         advertiser.startAdvertisingPeer()
         browser.startBrowsingForPeers()
     }
@@ -49,7 +51,7 @@ final class ConnectionManager: NSObject {
     }
 
     func invite(to id: String) {
-        let peerID = MCPeerID(displayName: id)
+        guard let peerID = discoveredPeers[id] else { return }
         browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
     }
 }
@@ -113,7 +115,9 @@ extension ConnectionManager: MCNearbyServiceBrowserDelegate {
         foundPeer peerID: MCPeerID,
         withDiscoveryInfo info: [String : String]?
     ) {
-        peers.append(peerID.displayName)
+        let displayName = peerID.displayName
+        discoveredPeers[displayName] = peerID
+        peers.append(displayName)
     }
     
     func browser(
