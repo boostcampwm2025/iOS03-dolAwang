@@ -154,7 +154,7 @@ struct MainView: View {
                 }
             }
             .onChange(of: sessionManager.receivedMjpegFrameData) { _, mjpegFrameData in
-                guard let mjpegFrameData: Data = mjpegFrameData else {
+                guard let mjpegFrameData = mjpegFrameData else {
                     return
                 }
 
