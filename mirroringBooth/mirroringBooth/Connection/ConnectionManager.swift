@@ -11,7 +11,7 @@ import MultipeerConnectivity
 @Observable
 final class ConnectionManager: NSObject {
 
-    var connectionState: String = ""
+    var connectionState: [String: String] = [:]
     var peers: [String] = []
 
     private let serviceType: String
@@ -24,10 +24,14 @@ final class ConnectionManager: NSObject {
     init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
         self.identifier = MCPeerID(displayName: UIDevice.current.name)
-        self.session = MCSession(peer: identifier)
+        self.session = MCSession(
+            peer: identifier,
+            securityIdentity: nil,
+            encryptionPreference: .none
+        )
         self.advertiser = MCNearbyServiceAdvertiser(peer: identifier, discoveryInfo: nil, serviceType: serviceType)
         self.browser = MCNearbyServiceBrowser(peer: identifier, serviceType: serviceType)
-        
+
         super.init()
         setup()
     }
@@ -52,7 +56,7 @@ final class ConnectionManager: NSObject {
 
     func invite(to id: String) {
         guard let peerID = discoveredPeers[id] else { return }
-        browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
+        browser.invitePeer(peerID, to: session, withContext: nil, timeout: 30)
     }
 }
 
@@ -62,11 +66,11 @@ extension ConnectionManager: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         switch state {
         case .connected:
-            connectionState = "✅ \(peerID.displayName)와 연결 완료"
+            connectionState[peerID.displayName] = "✅ \(peerID.displayName)와 연결 완료"
         case .connecting:
-            connectionState = "⏳ \(peerID.displayName)와 연결 중"
+            connectionState[peerID.displayName] = "⏳ \(peerID.displayName)와 연결 중"
         case .notConnected:
-            connectionState = "❌ \(peerID.displayName)와 연결 끊김"
+            connectionState[peerID.displayName] = "❌ \(peerID.displayName)와 연결 안 됨"
         default:
             break
         }

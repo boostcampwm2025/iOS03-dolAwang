@@ -26,7 +26,7 @@ struct BrowserView: View {
                     .padding(5)
             }
 
-            Text(connectionManager.connectionState)
+            Text(connectionManager.connectionState.values.joined(separator: "\n"))
                 .font(.subheadline)
 
             ForEach(connectionManager.peers, id: \.self) { peer in
