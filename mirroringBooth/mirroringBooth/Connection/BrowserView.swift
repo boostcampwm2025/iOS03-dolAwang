@@ -29,13 +29,29 @@ struct BrowserView: View {
             Text(connectionManager.connectionState)
                 .font(.subheadline)
 
-            Text(connectionManager.peers.joined(separator: ", "))
+            ForEach(connectionManager.peers, id: \.self) { peer in
+                deviceRow(peer)
+            }
         }
         .onAppear {
             connectionManager.startBrowsing()
         }
         .onDisappear {
             connectionManager.stopBrowsing()
+        }
+    }
+    
+    @ViewBuilder
+    func deviceRow(_ peer: String) -> some View {
+        Button {
+            connectionManager.invite(to: peer)
+        } label: {
+            Text(peer)
+                .padding(5)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(style: StrokeStyle(lineWidth: 1))
+                }
         }
     }
 }
