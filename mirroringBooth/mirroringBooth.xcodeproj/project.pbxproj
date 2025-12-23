@@ -10,9 +10,22 @@
 		8C796EAA2EF52FB200280FED /* mirroringBooth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mirroringBooth.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8CC632842EFB1909006EA0E1 /* Exceptions for "mirroringBooth" folder in "mirroringBooth" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8C796EAC2EF52FB200280FED /* mirroringBooth */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8CC632842EFB1909006EA0E1 /* Exceptions for "mirroringBooth" folder in "mirroringBooth" target */,
+			);
 			path = mirroringBooth;
 			sourceTree = "<group>";
 		};
@@ -254,7 +267,9 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = mirroringBooth/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "이 앱은 같은 네트워크의 기기와 연결하기 위해 로컬 네트워크 접근이 필요합니다.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -302,7 +317,9 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = mirroringBooth/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "이 앱은 같은 네트워크의 기기와 연결하기 위해 로컬 네트워크 접근이 필요합니다.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
