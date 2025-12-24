@@ -161,13 +161,12 @@ struct MainView: View {
             }
             .onChange(of: sessionManager.receivedHEVCFrameData) { _, hevcFrameData in
                 guard let hevcFrameData else { return }
-                print(hevcFrameData.count / 1024, "KB received")
+
                 if self.hevcDecoder == nil {
                     let decoder = HEVCDecoder()
 
                     decoder.setDecodedImageHandler { ciImage in
                         self.receivedCIImage = ciImage
-                        print(ciImage.extent)
                         if self.isStreaming == false {
                             self.isStreaming = true
                         }
