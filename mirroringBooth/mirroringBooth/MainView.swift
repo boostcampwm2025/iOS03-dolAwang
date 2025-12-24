@@ -13,7 +13,10 @@ struct MainView: View {
     @State private var sessionManager = MPCSessionManager()
     private let captureManager = CameraCaptureManager()
     @State private var selectedPeerID: MCPeerID?
-    @State private var cameraFrameSender: CameraFrameSender?
+
+    @State private var hevcFrameSender: HEVCFrameSender?
+    @State private var hevcDecoder: HEVCDecoder?
+
     @State private var isStreaming: Bool = false
     @State private var receivedCIImage: CIImage? = nil
 
@@ -75,20 +78,20 @@ struct MainView: View {
                                     Button {
                                         if self.isStreaming == true {
                                             self.isStreaming = false
-                                            if self.cameraFrameSender != nil {
-                                                self.cameraFrameSender = nil
-                                                self.captureManager.stopCapture()
-                                            }
+                                            self.hevcFrameSender?.invalidate()
+                                            self.hevcFrameSender = nil
+                                            self.captureManager.stopCapture()
                                         } else {
                                             self.captureManager.startCapture()
 
-                                            let sender = CameraFrameSender(
+                                            let sender = HEVCFrameSender(
                                                 provider: { self.captureManager.latestCIImage },
                                                 manager: self.sessionManager,
-                                                targetFps: 24
+                                                bitrate: 2_000_000,
+                                                targetFrameRate: 24
                                             )
 
-                                            self.cameraFrameSender = sender
+                                            self.hevcFrameSender = sender
                                             self.isStreaming = true
                                         }
                                     } label: {
@@ -122,7 +125,10 @@ struct MainView: View {
                         sessionManager.stop()
 
                         self.isStreaming = false
-                        self.cameraFrameSender = nil
+                        self.hevcFrameSender?.invalidate()
+                        self.hevcFrameSender = nil
+                        self.hevcDecoder?.invalidate()
+                        self.hevcDecoder = nil
                         self.captureManager.stopCapture()
                     } label: {
                         Text("Stop")
@@ -140,36 +146,36 @@ struct MainView: View {
                 }
             }
             .fullScreenCover(isPresented: $isStreaming) {
-                if self.cameraFrameSender != nil {
+                if self.hevcFrameSender != nil {
                     self.captureManager.stopCapture()
                 }
             } content: {
                 CameraPreview {
-                    if self.cameraFrameSender != nil {
-                        self.cameraFrameSender?.tickSend()
+                    if self.hevcFrameSender != nil {
+                        self.hevcFrameSender?.tickSend()
                         return self.captureManager.latestCIImage
                     } else {
                         return self.receivedCIImage
                     }
                 }
             }
-            .onChange(of: sessionManager.receivedMjpegFrameData) { _, mjpegFrameData in
-                guard let mjpegFrameData = mjpegFrameData else {
-                    return
+            .onChange(of: sessionManager.receivedHEVCFrameData) { _, hevcFrameData in
+                guard let hevcFrameData else { return }
+                print(hevcFrameData.count / 1024, "KB received")
+                if self.hevcDecoder == nil {
+                    let decoder = HEVCDecoder()
+
+                    decoder.setDecodedImageHandler { ciImage in
+                        self.receivedCIImage = ciImage
+                        print(ciImage.extent)
+                        if self.isStreaming == false {
+                            self.isStreaming = true
+                        }
+                    }
+                    self.hevcDecoder = decoder
                 }
 
-                autoreleasepool {
-                    guard let ciImage = CIImage(data: mjpegFrameData) else {
-                        self.receivedCIImage = nil
-                        return
-                    }
-
-                    self.receivedCIImage = ciImage
-
-                    if self.isStreaming == false {
-                        self.isStreaming = true
-                    }
-                }
+                self.hevcDecoder?.decode(hevcFrameData)
             }
         }
     }

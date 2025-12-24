@@ -10,7 +10,7 @@ import MultipeerConnectivity
 
 enum P2PPacketType: UInt8 {
     case disconnect = 0
-    case mjpegFrame = 1
+    case hevcFrame = 1
 }
 
 @Observable
@@ -36,7 +36,7 @@ final class MPCSessionManager: NSObject {
     var connectionStateByPeerDisplayName: [String: ConnectionState] = [:]
 
     // MARK: - P2P Payload (Published)
-    var receivedMjpegFrameData: Data? = nil
+    var receivedHEVCFrameData: Data? = nil
 
     func start(_ peerID: String) {
         guard session == nil else { return }
@@ -146,11 +146,11 @@ extension MPCSessionManager {
     }
 
     // MARK: - P2P Send
-    func sendMjpegFrameData(_ mjpegFrameData: Data) {
+    func sendHEVCFrameData(_ data: Data) {
         guard let session = self.session,
               session.connectedPeers.isEmpty == false else { return }
 
-        let packetData = Self.makePacket(type: .mjpegFrame, body: mjpegFrameData)
+        let packetData = Self.makePacket(type: .hevcFrame, body: data)
 
         try? session.send(packetData, toPeers: session.connectedPeers, with: .unreliable)
     }
@@ -190,9 +190,9 @@ extension MPCSessionManager: MCSessionDelegate {
                 self.connectedPeers.removeAll { $0.displayName == peerID.displayName }
                 self.connectionStateByPeerDisplayName[peerID.displayName] = .notConnected
             }
-        case .mjpegFrame:
+        case .hevcFrame:
             DispatchQueue.main.async {
-                self.receivedMjpegFrameData = parsed.body
+                self.receivedHEVCFrameData = parsed.body
             }
         }
     }
