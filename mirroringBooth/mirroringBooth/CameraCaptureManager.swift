@@ -48,7 +48,7 @@ final class CameraCaptureManager: NSObject {
     private func configureSession() {
         let session = AVCaptureSession()
         session.beginConfiguration()
-        session.sessionPreset = .photo
+        session.sessionPreset = .hd4K3840x2160
 
         guard let captureDevice = AVCaptureDevice.default(
             .builtInWideAngleCamera, for: .video, position: .back) else {
@@ -103,7 +103,16 @@ extension CameraCaptureManager: AVCaptureVideoDataOutputSampleBufferDelegate {
 
         self.outputQueue.async { [weak self] in
             guard let self = self else { return }
-            self.currentCIImage = CIImage(cvPixelBuffer: pixelBuffer)
+            let fullImage = CIImage(cvPixelBuffer: pixelBuffer)
+
+            let originalHeight = fullImage.extent.height
+            let targetWidth: CGFloat = 2160
+            let targetHeight: CGFloat = 2880
+
+            let cropY = (originalHeight - targetHeight) / 2
+            let cropRect = CGRect(x: 0, y: cropY, width: targetWidth, height: targetHeight)
+
+            self.currentCIImage = fullImage.cropped(to: cropRect)
         }
     }
 }
