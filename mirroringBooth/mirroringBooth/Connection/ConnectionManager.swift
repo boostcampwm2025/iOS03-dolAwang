@@ -83,10 +83,24 @@ final class ConnectionManager: NSObject, Advertiser, Browser {
     }
     
     func sendVideo(_ data: Data) {
+        // 패킷 타입에 따라 전송 모드 결정
+        // SPS/PPS는 반드시 전달되어야 하므로 reliable 모드 사용
+        // 프레임 데이터는 실시간성이 중요하므로 unreliable 모드 사용
+        let sendMode: MCSessionSendDataMode = {
+            guard data.count > 0 else { return .unreliable }
+
+            let packetType = data[0]
+            // SPS(0x01) 또는 PPS(0x02)인 경우 reliable 모드
+            if packetType == 0x01 || packetType == 0x02 {
+                return .reliable
+            }
+            return .unreliable
+        }()
+
         do {
-            try session.send(data, toPeers: session.connectedPeers, with: .unreliable)
+            try session.send(data, toPeers: session.connectedPeers, with: sendMode)
         } catch {
-            print("Failed to send data: \(error)")
+            print("Failed to send video data: \(error)")
         }
     }
     
