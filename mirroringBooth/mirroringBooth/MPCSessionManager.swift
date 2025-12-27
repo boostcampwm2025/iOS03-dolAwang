@@ -20,6 +20,15 @@ final class MPCSessionManager: NSObject {
         case connected
         case connecting
         case notConnected
+
+        init(from state: MCSessionState) {
+            switch state {
+            case .connected: self = .connected
+            case .connecting: self = .connecting
+            case .notConnected: self = .notConnected
+            @unknown default: self = .notConnected
+            }
+        }
     }
 
     // MARK: - Private
@@ -163,16 +172,7 @@ extension MPCSessionManager: MCSessionDelegate {
         didChange state: MCSessionState
     ) {
         DispatchQueue.main.async {
-            switch state {
-            case .connected:
-                self.connectionStateByPeerDisplayName[peerID.displayName] = .connected
-            case .connecting:
-                self.connectionStateByPeerDisplayName[peerID.displayName] = .connecting
-            case .notConnected:
-                self.connectionStateByPeerDisplayName[peerID.displayName] = .notConnected
-            @unknown default:
-                self.connectionStateByPeerDisplayName[peerID.displayName] = .notConnected
-            }
+            self.connectionStateByDisplayName[peerID.displayName] = ConnectionState(from: state)
             self.connectedPeers = session.connectedPeers
         }
     }
