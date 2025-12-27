@@ -22,6 +22,7 @@ protocol Browser: AnyObject {
     func startBrowsing()
     func stopBrowsing()
     func invite(to id: String)
+    func sendVideo(_ data: Data)
 }
 
 @Observable
@@ -75,12 +76,20 @@ final class ConnectionManager: NSObject, Advertiser, Browser {
     func stopBrowsing() {
         browser.stopBrowsingForPeers()
     }
-    
 
     func invite(to id: String) {
         guard let peerID = discoveredPeers[id] else { return }
         browser.invitePeer(peerID, to: session, withContext: nil, timeout: 30)
     }
+    
+    func sendVideo(_ data: Data) {
+        do {
+            try session.send(data, toPeers: session.connectedPeers, with: .unreliable)
+        } catch {
+            print("Failed to send data: \(error)")
+        }
+    }
+    
 }
 
 // MARK: - Session Delegate

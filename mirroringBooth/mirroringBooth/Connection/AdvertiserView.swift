@@ -9,7 +9,11 @@ import SwiftUI
 
 struct AdvertiserView: View {
     
-    @State private var connectionManager: Advertiser = ConnectionManager()
+    private var connectionManager: Advertiser
+    
+    init(_ connectionManager: Advertiser) {
+        self.connectionManager = connectionManager
+    }
     
     var body: some View {
         VStack{
@@ -30,5 +34,5 @@ struct AdvertiserView: View {
 }
 
 #Preview {
-    AdvertiserView()
+    AdvertiserView(ConnectionManager())
 }

@@ -10,6 +10,11 @@ import SwiftUI
 struct HomeView: View {
     
     @State private var router: Router = .init()
+    private let connectionManager: Browser & Advertiser
+    
+    init(_ connectionManager: Browser & Advertiser) {
+        self.connectionManager = connectionManager
+    }
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -23,9 +28,9 @@ struct HomeView: View {
             .navigationDestination(for: Route.self) { viewType in
                 switch viewType {
                 case .connection:
-                    BrowserView(router)
+                    BrowserView(router, connectionManager)
                 case .camera:
-                    CameraView()
+                    CameraView(connectionManager)
                 }
             }
         }
@@ -34,5 +39,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView()
+    HomeView(ConnectionManager())
 }

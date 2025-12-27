@@ -10,10 +10,11 @@ import SwiftUI
 struct BrowserView: View {
 
     private var router: Router
-    @State private var connectionManager: Advertiser & Browser = ConnectionManager()
+    private var connectionManager: Advertiser & Browser
 
-    init(_ router: Router) {
+    init(_ router: Router, _ connectionManager: Advertiser & Browser) {
         self.router = router
+        self.connectionManager = connectionManager
     }
 
     var body: some View {
@@ -47,6 +48,7 @@ struct BrowserView: View {
     func deviceRow(_ peer: String) -> some View {
         Button {
             connectionManager.invite(to: peer)
+            router.push(to: .camera)
         } label: {
             Text(peer)
                 .padding(5)
@@ -59,5 +61,5 @@ struct BrowserView: View {
 }
 
 #Preview {
-    BrowserView(Router())
+    BrowserView(Router(), ConnectionManager())
 }
