@@ -33,7 +33,7 @@ final class MPCSessionManager: NSObject {
     var foundPeers: [MCPeerID] = []
     var isAdvertising: Bool = false
     var isBrowsing: Bool = false
-    var connectionStateByPeerDisplayName: [String: ConnectionState] = [:]
+    var connectionStateByDisplayName: [String: ConnectionState] = [:]
 
     // MARK: - P2P Payload (Published)
     var receivedHEVCFrameData: Data? = nil
@@ -51,7 +51,7 @@ final class MPCSessionManager: NSObject {
 
         advertiser = MCNearbyServiceAdvertiser(
             peer: peer,
-            discoveryInfo: nil,
+            discoveryInfo: ["peerID": peerID],
             serviceType: serviceType
         )
         advertiser?.delegate = self
@@ -64,7 +64,7 @@ final class MPCSessionManager: NSObject {
 
         foundPeers.removeAll()
         connectedPeers.removeAll()
-        connectionStateByPeerDisplayName.removeAll()
+        connectionStateByDisplayName.removeAll()
 
         isAdvertising = true
         isBrowsing = true
@@ -87,7 +87,7 @@ final class MPCSessionManager: NSObject {
 
         foundPeers.removeAll()
         connectedPeers.removeAll()
-        connectionStateByPeerDisplayName.removeAll()
+        connectionStateByDisplayName.removeAll()
     }
 
     func invite(_ peerID: MCPeerID) {
@@ -95,7 +95,7 @@ final class MPCSessionManager: NSObject {
               let browser = self.browser else { return }
 
         DispatchQueue.main.async {
-            self.connectionStateByPeerDisplayName[peerID.displayName] = .connecting
+            self.connectionStateByDisplayName[peerID.displayName] = .connecting
         }
         browser.invitePeer(peerID, to: session, withContext: nil, timeout: 15)
     }
@@ -188,7 +188,7 @@ extension MPCSessionManager: MCSessionDelegate {
         case .disconnect:
             DispatchQueue.main.async {
                 self.connectedPeers.removeAll { $0.displayName == peerID.displayName }
-                self.connectionStateByPeerDisplayName[peerID.displayName] = .notConnected
+                self.connectionStateByDisplayName[peerID.displayName] = .notConnected
             }
         case .hevcFrame:
             DispatchQueue.main.async {

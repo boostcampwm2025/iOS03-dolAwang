@@ -58,13 +58,13 @@ struct MainView: View {
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(peerID.displayName)
-                                    Text(sessionManager.connectionStateByPeerDisplayName[peerID.displayName]?.rawValue ?? MPCSessionManager.ConnectionState.notConnected.rawValue)
+                                    Text(sessionManager.connectionStateByDisplayName[peerID.displayName]?.rawValue ?? MPCSessionManager.ConnectionState.notConnected.rawValue)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
                                 Spacer()
 
-                                let connections = sessionManager.connectionStateByPeerDisplayName
+                                let connections = sessionManager.connectionStateByDisplayName
                                 if connections[peerID.displayName] == nil ||
                                     connections[peerID.displayName] == .notConnected {
                                     Button {
@@ -73,7 +73,6 @@ struct MainView: View {
                                     } label: {
                                         Text("연결")
                                     }
-                                    .buttonStyle(.borderless)
                                 } else if connections[peerID.displayName] == .connected {
                                     Button {
                                         if self.isStreaming == true {
