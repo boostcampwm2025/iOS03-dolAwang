@@ -64,21 +64,29 @@ final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
         if session.canAddOutput(output) {
             session.addOutput(output)
         }
-        
-        session.startRunning()
+
+        // 카메라 세션은 백그라운드 스레드에서 시작
+        // 메인 스레드에서 시작하면 UI 응답성 저하 가능
+        cameraQueue.async { [weak self] in
+            self?.session.startRunning()
+        }
     }
     
     // 카메라 캡처 세션 중지
     func stopSession() {
-        session.stopRunning()
-        
-        if let encoder = compressingSession {
-            VTCompressionSessionCompleteFrames(encoder, untilPresentationTimeStamp: .invalid)
-            VTCompressionSessionInvalidate(encoder)
-            compressingSession = nil
+        // 카메라 세션 중지도 백그라운드 스레드에서 수행
+        cameraQueue.async { [weak self] in
+            guard let self else { return }
+            self.session.stopRunning()
+
+            if let encoder = self.compressingSession {
+                VTCompressionSessionCompleteFrames(encoder, untilPresentationTimeStamp: .invalid)
+                VTCompressionSessionInvalidate(encoder)
+                self.compressingSession = nil
+            }
+
+            self.hasSentParameterSets = false
         }
-        
-        hasSentParameterSets = false
     }
     
 }
@@ -277,8 +285,6 @@ extension LiveVideoSource {
         let ppsData = Data(bytes: ppsPointer, count: ppsSize)
         let ppsPacket = VideoPacket(type: .pps, data: ppsData)
         onEncodedFrame?(ppsPacket.serialize())
-
-        print("SPS/PPS sent - SPS size: \(spsSize), PPS size: \(ppsSize)")
     }
     
 }

@@ -10,6 +10,7 @@ import MultipeerConnectivity
 
 protocol Advertiser: AnyObject {
     var connectionState: [String: String] { get }
+    var onVideoReceived: ((Data) -> Void)? { get set }
     
     func startAdvertising()
     func stopAdvertising()
@@ -31,6 +32,9 @@ final class ConnectionManager: NSObject, Advertiser, Browser {
     var connectionState: [String: String] = [:]
     var peers: [String] = []
 
+    /// 비디오 데이터 수신 콜백 (Advertiser용)
+    var onVideoReceived: ((Data) -> Void)?
+    
     private let serviceType: String
     private let identifier: MCPeerID
     private let session: MCSession
@@ -83,6 +87,11 @@ final class ConnectionManager: NSObject, Advertiser, Browser {
     }
     
     func sendVideo(_ data: Data) {
+        // 연결된 피어가 없으면 전송하지 않음
+        guard !session.connectedPeers.isEmpty else {
+            return
+        }
+
         // 패킷 타입에 따라 전송 모드 결정
         // SPS/PPS는 반드시 전달되어야 하므로 reliable 모드 사용
         // 프레임 데이터는 실시간성이 중요하므로 unreliable 모드 사용
@@ -123,20 +132,15 @@ extension ConnectionManager: MCSessionDelegate {
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        
+        // 수신된 비디오 데이터를 디코더로 전달
+        onVideoReceived?(data)
     }
     
-    func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
-        
-    }
+    func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) { }
     
-    func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {
-        
-    }
+    func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) { }
     
-    func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: (any Error)?) {
-        
-    }
+    func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: (any Error)?) { }
     
 }
 

@@ -11,6 +11,7 @@ struct BrowserView: View {
 
     private var router: Router
     private var connectionManager: Advertiser & Browser
+    @State private var isConnecting = false
 
     init(_ router: Router, _ connectionManager: Advertiser & Browser) {
         self.router = router
@@ -25,6 +26,13 @@ struct BrowserView: View {
                 Text("뒤로가기")
                     .font(.headline)
                     .padding(5)
+            }
+
+            if isConnecting {
+                ProgressView()
+                    .padding()
+                Text("연결 중...")
+                    .font(.subheadline)
             }
 
             Text(connectionManager.connectionState.values.joined(separator: "\n"))
@@ -42,13 +50,20 @@ struct BrowserView: View {
             connectionManager.stopBrowsing()
             connectionManager.stopAdvertising()
         }
+        .onChange(of: connectionManager.connectionState) { _, newValue in
+            // 연결이 완료되면 카메라 화면으로 이동
+            if newValue.values.contains(where: { $0.contains("연결 완료") }) && isConnecting {
+                isConnecting = false
+                router.push(to: .camera)
+            }
+        }
     }
     
     @ViewBuilder
     func deviceRow(_ peer: String) -> some View {
         Button {
             connectionManager.invite(to: peer)
-            router.push(to: .camera)
+            isConnecting = true
         } label: {
             Text(peer)
                 .padding(5)
@@ -57,6 +72,7 @@ struct BrowserView: View {
                         .stroke(style: StrokeStyle(lineWidth: 1))
                 }
         }
+        .disabled(isConnecting)
     }
 }
 
