@@ -25,7 +25,7 @@ struct HomeView: View {
                 case .connection:
                     BrowserView(router)
                 case .camera:
-                    ShootingView()
+                    CameraView()
                 }
             }
         }
