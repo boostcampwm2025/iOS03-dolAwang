@@ -10,11 +10,14 @@ import os
 
 final class MultipeerManager: NSObject {
     private lazy var logger = AppLogger.make(for: Self.self)
+
     private let serviceType: String
     private let peerID: MCPeerID
     private let session: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
     private let browser: MCNearbyServiceBrowser
+
+    private(set) var nearbyPeers: Set<MCPeerID> = [] // 주변에 있는 피어 목록
 
     init(serviceType: String = "mirroring-booth") {
         self.serviceType = serviceType
@@ -116,11 +119,13 @@ extension MultipeerManager: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser,
                  foundPeer peerID: MCPeerID,
                  withDiscoveryInfo info: [String : String]?) {
+        nearbyPeers.insert(peerID)
         logger.info("발견된 기기: \(peerID.displayName)")
     }
 
     func browser(_ browser: MCNearbyServiceBrowser,
                  lostPeer peerID: MCPeerID) {
+        nearbyPeers.remove(peerID)
         logger.info("사라진 기기: \(peerID.displayName)")
     }
 }
