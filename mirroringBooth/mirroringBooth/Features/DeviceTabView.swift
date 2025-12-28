@@ -13,29 +13,29 @@ struct DeviceTabView: View {
     @State private var multipeerManager = MultipeerManager()
 
     var body: some View {
-        VStack {
-            List {
-                if multipeerManager.nearbyDevices.isEmpty {
-                    Text(multipeerManager.isSearching ? "주변 기기를 검색 중입니다.." : "기기 검색을 시작해주세요.")
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(
-                        Array(multipeerManager.nearbyDevices),
-                        id: \.self
-                    ) { device in
-                        Text(device.name)
-                    }
+        List {
+            if multipeerManager.nearbyDevices.isEmpty {
+                Text(multipeerManager.isSearching ? "주변 기기를 검색 중입니다.." : "기기 검색을 시작해주세요.")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(
+                    Array(multipeerManager.nearbyDevices),
+                    id: \.self
+                ) { device in
+                    Text(device.name)
                 }
             }
-
+        }
+        .safeAreaInset(edge: .bottom) {
             Button {
                 multipeerManager.toggleSearching()
             } label: {
                 Text(multipeerManager.isSearching ? "검색 종료" : "검색 시작")
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: 200)
             }
+            .padding(.bottom, 12)
+            .buttonStyle(.borderedProminent)
         }
-        .navigationTitle("주변 기기")
     }
 }
 
