@@ -9,7 +9,7 @@ import MultipeerConnectivity
 import os
 
 final class MultipeerManager: NSObject {
-
+    private lazy var logger = AppLogger.make(for: Self.self)
     private let serviceType: String
     private let peerID: MCPeerID
     private let session: MCSession
@@ -32,13 +32,13 @@ final class MultipeerManager: NSObject {
     func start() {
         advertiser.startAdvertisingPeer()
         browser.startBrowsingForPeers()
-        print("주변 기기를 검색합니다.")
+        logger.info("주변 기기를 검색합니다.")
     }
 
     func stop() {
         advertiser.stopAdvertisingPeer()
         browser.stopBrowsingForPeers()
-        print("주변 기기 검색을 중지합니다.")
+        logger.info("주변 기기 검색을 중지합니다.")
     }
 }
 
@@ -55,7 +55,7 @@ extension MultipeerManager: MCSessionDelegate {
         peer peerID: MCPeerID,
         didChange state: MCSessionState
     ) {
-        print("세션 상태 변경 감지: ", peerID.displayName, state)
+        logger.debug("세션 상태 변경: \(peerID.displayName), \(state.rawValue)")
     }
 
     /// 연결된 피어로부터 Data 타입의 메세지를 수신합니다.
@@ -106,7 +106,7 @@ extension MultipeerManager: MCNearbyServiceAdvertiserDelegate {
                     didReceiveInvitationFromPeer peerID: MCPeerID,
                     withContext context: Data?,
                     invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        print("초대 수신:", peerID.displayName)
+        logger.info("초대 수신: \(peerID.displayName)")
     }
 }
 
@@ -116,11 +116,11 @@ extension MultipeerManager: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser,
                  foundPeer peerID: MCPeerID,
                  withDiscoveryInfo info: [String : String]?) {
-        print("발견된 기기:", peerID.displayName)
+        logger.info("발견된 기기: \(peerID.displayName)")
     }
 
     func browser(_ browser: MCNearbyServiceBrowser,
                  lostPeer peerID: MCPeerID) {
-        print("사라진 기기:", peerID.displayName)
+        logger.info("사라진 기기: \(peerID.displayName)")
     }
 }
