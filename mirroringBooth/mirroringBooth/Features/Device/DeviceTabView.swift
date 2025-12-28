@@ -59,3 +59,4 @@ struct DeviceTabView: View {
 #Preview {
     DeviceTabView()
 }
+

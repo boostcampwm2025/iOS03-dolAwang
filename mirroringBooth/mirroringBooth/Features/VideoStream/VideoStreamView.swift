@@ -17,3 +17,4 @@ struct VideoStreamView: View {
 #Preview {
     VideoStreamView()
 }
+

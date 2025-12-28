@@ -9,20 +9,6 @@ import MultipeerConnectivity
 import Observation
 import os
 
-/// 기기 연결 상태
-enum ConnectionState: String {
-    case notConnected = "연결 안됨"
-    case connecting = "연결 중"
-    case connected = "연결됨"
-}
-
-/// View 표시용 모델
-struct NearbyDevice: Hashable, Identifiable {
-    let id: String
-    let name: String
-    var state: ConnectionState = .notConnected
-}
-
 @Observable
 final class MultipeerManager: NSObject {
     private let logger = AppLogger.make(for: MultipeerManager.self)
@@ -200,3 +186,4 @@ extension MultipeerManager: MCNearbyServiceBrowserDelegate {
         logger.info("사라진 기기: \(peerID.displayName)")
     }
 }
+
