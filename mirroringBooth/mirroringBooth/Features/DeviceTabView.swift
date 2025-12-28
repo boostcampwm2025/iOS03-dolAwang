@@ -19,7 +19,19 @@ struct DeviceTabView: View {
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(multipeerManager.nearbyDevices) { device in
-                    Text(device.name)
+                    Button {
+                        multipeerManager.connect(to: device)
+                    } label: {
+                        HStack {
+                            Text(device.name)
+                            Spacer()
+                            Text(device.state.rawValue)
+                                .font(.caption)
+                                .foregroundStyle(stateColor(for: device.state))
+                        }
+                    }
+                    // 연결 중이거나 연결된 기기는 버튼을 비활성화합니다.
+                    .disabled(device.state == .connecting || device.state == .connected)
                 }
             }
         }
@@ -32,6 +44,14 @@ struct DeviceTabView: View {
             }
             .padding(.bottom, 12)
             .buttonStyle(.borderedProminent)
+        }
+    }
+
+    private func stateColor(for state: ConnectionState) -> Color {
+        switch state {
+        case .notConnected: .secondary
+        case .connecting: .orange
+        case .connected: .green
         }
     }
 }

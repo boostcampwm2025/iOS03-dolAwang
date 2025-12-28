@@ -9,10 +9,18 @@ import MultipeerConnectivity
 import Observation
 import os
 
-/// View용 순수 데이터 모델
+/// 기기 연결 상태
+enum ConnectionState: String {
+    case notConnected = "연결 안됨"
+    case connecting = "연결 중"
+    case connected = "연결됨"
+}
+
+/// View 표시용 모델
 struct NearbyDevice: Hashable, Identifiable {
     let id: String
     let name: String
+    var state: ConnectionState = .notConnected
 }
 
 @Observable
@@ -24,13 +32,26 @@ final class MultipeerManager: NSObject {
     private let session: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
     private let browser: MCNearbyServiceBrowser
-    /// 발견된 기기 목록
-    private var discoveredPeers: [String: MCPeerID] = [:]
+
+    /// 발견된 기기 정보
+    private struct DiscoveredPeer {
+        let peerID: MCPeerID
+        var state: ConnectionState = .notConnected
+    }
+
+    private var discoveredPeers: [String: DiscoveredPeer] = [:]
 
     var isSearching: Bool = false
-    /// View에 표시할 기기 목록
+
+    /// View 표시용 기기 목록
     var nearbyDevices: [NearbyDevice] {
-        discoveredPeers.map { NearbyDevice(id: $0.key, name: $0.value.displayName) }
+        discoveredPeers.map {
+            NearbyDevice(
+                id: $0.key,
+                name: $0.value.peerID.displayName,
+                state: $0.value.state
+            )
+        }
     }
 
     init(serviceType: String = "mirroring-booth") {
@@ -67,22 +88,46 @@ final class MultipeerManager: NSObject {
             startSearching()
         }
     }
+
+    func connect(to device: NearbyDevice) {
+        guard let peer = discoveredPeers[device.id] else {
+            logger.warning("[연결 실패] 기기를 찾을 수 없음 : \(device.name)")
+            return
+        }
+
+        browser.invitePeer(peer.peerID, to: session, withContext: nil, timeout: 10)
+        logger.info("연결 요청 전송: \(device.name)")
+    }
 }
 
 // MARK: - MCSessionDelegate
 // 피어 간 연결 상태의 변화 및 데이터 수신을 처리합니다.
 extension MultipeerManager: MCSessionDelegate {
     /// 피어의 연결 상태 변화를 감지합니다.
-    ///
-    /// `.notConnected`
-    /// `.connecting`
-    /// `.connected`
     func session(
         _ session: MCSession,
         peer peerID: MCPeerID,
         didChange state: MCSessionState
     ) {
-        logger.debug("세션 상태 변경: \(peerID.displayName), \(state.rawValue)")
+        let deviceID = peerID.displayName
+        let newState: ConnectionState
+
+        switch state {
+        case .notConnected:
+            newState = .notConnected
+            logger.info("[\(deviceID)] 연결 안됨")
+        case .connecting:
+            newState = .connecting
+            logger.info("[\(deviceID)] 연결 중..")
+        case .connected:
+            newState = .connected
+            logger.info("[\(deviceID)] 연결됨 ✅")
+        @unknown default:
+            newState = .notConnected
+            logger.warning("[\(deviceID)] 알 수 없는 상태")
+        }
+
+        discoveredPeers[deviceID]?.state = newState
     }
 
     /// 연결된 피어로부터 Data 타입의 메세지를 수신합니다.
@@ -134,6 +179,8 @@ extension MultipeerManager: MCNearbyServiceAdvertiserDelegate {
                     withContext context: Data?,
                     invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         logger.info("초대 수신: \(peerID.displayName)")
+        // 임시적으로 수신된 초대가 자동으로 수락되도록 작성했습니다.
+        invitationHandler(true, session)
     }
 }
 
@@ -143,7 +190,7 @@ extension MultipeerManager: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser,
                  foundPeer peerID: MCPeerID,
                  withDiscoveryInfo info: [String : String]?) {
-        discoveredPeers[peerID.displayName] = peerID
+        discoveredPeers[peerID.displayName] = DiscoveredPeer(peerID: peerID)
         logger.info("발견된 기기: \(peerID.displayName)")
     }
 
