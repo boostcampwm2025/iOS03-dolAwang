@@ -113,7 +113,9 @@ extension MultipeerManager: MCSessionDelegate {
             logger.warning("[\(deviceID)] 알 수 없는 상태")
         }
 
-        discoveredPeers[deviceID]?.state = newState
+        DispatchQueue.main.async {
+            self.discoveredPeers[deviceID]?.state = newState
+        }
     }
 
     /// 연결된 피어로부터 Data 타입의 메세지를 수신합니다.
@@ -176,14 +178,18 @@ extension MultipeerManager: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser,
                  foundPeer peerID: MCPeerID,
                  withDiscoveryInfo info: [String : String]?) {
-        discoveredPeers[peerID.displayName] = DiscoveredPeer(peerID: peerID)
         logger.info("발견된 기기: \(peerID.displayName)")
+        DispatchQueue.main.async {
+            self.discoveredPeers[peerID.displayName] = DiscoveredPeer(peerID: peerID)
+        }
     }
 
     func browser(_ browser: MCNearbyServiceBrowser,
                  lostPeer peerID: MCPeerID) {
-        discoveredPeers.removeValue(forKey: peerID.displayName)
         logger.info("사라진 기기: \(peerID.displayName)")
+        DispatchQueue.main.async {
+            self.discoveredPeers.removeValue(forKey: peerID.displayName)
+        }
     }
 }
 
