@@ -18,10 +18,7 @@ struct DeviceTabView: View {
                 Text(multipeerManager.isSearching ? "주변 기기를 검색 중입니다.." : "기기 검색을 시작해주세요.")
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(
-                    Array(multipeerManager.nearbyDevices),
-                    id: \.self
-                ) { device in
+                ForEach(multipeerManager.nearbyDevices) { device in
                     Text(device.name)
                 }
             }

@@ -9,6 +9,7 @@ import MultipeerConnectivity
 import Observation
 import os
 
+/// View용 순수 데이터 모델
 struct NearbyDevice: Hashable, Identifiable {
     let id: String
     let name: String
@@ -23,9 +24,14 @@ final class MultipeerManager: NSObject {
     private let session: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
     private let browser: MCNearbyServiceBrowser
+    /// 발견된 기기 목록
+    private var discoveredPeers: [String: MCPeerID] = [:]
 
     var isSearching: Bool = false
-    var nearbyDevices: Set<NearbyDevice> = [] // 주변에 있는 기기 목록
+    /// View에 표시할 기기 목록
+    var nearbyDevices: [NearbyDevice] {
+        discoveredPeers.map { NearbyDevice(id: $0.key, name: $0.value.displayName) }
+    }
 
     init(serviceType: String = "mirroring-booth") {
         self.serviceType = serviceType
@@ -137,13 +143,13 @@ extension MultipeerManager: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser,
                  foundPeer peerID: MCPeerID,
                  withDiscoveryInfo info: [String : String]?) {
-        nearbyDevices.insert(NearbyDevice(id: peerID.displayName, name: peerID.displayName))
+        discoveredPeers[peerID.displayName] = peerID
         logger.info("발견된 기기: \(peerID.displayName)")
     }
 
     func browser(_ browser: MCNearbyServiceBrowser,
                  lostPeer peerID: MCPeerID) {
-        nearbyDevices.remove(NearbyDevice(id: peerID.displayName, name: peerID.displayName))
+        discoveredPeers.removeValue(forKey: peerID.displayName)
         logger.info("사라진 기기: \(peerID.displayName)")
     }
 }
