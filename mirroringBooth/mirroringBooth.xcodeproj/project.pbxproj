@@ -10,9 +10,22 @@
 		8C796EAA2EF52FB200280FED /* mirroringBooth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mirroringBooth.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D7DCC4DC2F017DCC004D1EDA /* Exceptions for "mirroringBooth" folder in "mirroringBooth" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/Info.plist,
+			);
+			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8C796EAC2EF52FB200280FED /* mirroringBooth */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D7DCC4DC2F017DCC004D1EDA /* Exceptions for "mirroringBooth" folder in "mirroringBooth" target */,
+			);
 			path = mirroringBooth;
 			sourceTree = "<group>";
 		};
