@@ -15,13 +15,15 @@ struct CameraPreview: View {
     @State private var displayLink: CADisplayLink?
     private let ciContext = CIContext()
     private let provider: () -> CIImage?
+    var tapCameraButton: (() -> Void)?
 
-    init(_ provider: @escaping () -> CIImage?) {
+    init(_ provider: @escaping () -> CIImage?, tapCameraButton: (() -> Void)? = nil) {
         self.provider = provider
+        self.tapCameraButton = tapCameraButton
     }
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack {
             Group {
                 if let renderedImage = renderedImage {
                     renderedImage
@@ -33,19 +35,34 @@ struct CameraPreview: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            Button {
-                dismiss()
-            } label: {
-                Text("닫기")
+            VStack(alignment: .trailing) {
+                Button {
+                    self.stopDisplayLink()
+                    dismiss()
+                } label: {
+                    Text("닫기")
+                }
+                .buttonStyle(.borderedProminent)
+                .padding()
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button {
+                        tapCameraButton?()
+                    } label: {
+                        Circle()
+                            .fill(Color.white)
+                            .strokeBorder(Color.gray, lineWidth: 3)
+                            .frame(width: 60)
+                    }
+                    Spacer()
+                }
+                .frame(height: 60)
+                .padding(.bottom, 32)
             }
-            .buttonStyle(.borderedProminent)
-            .padding()
         }
         .onAppear {
             self.startDisplayLink()
-        }
-        .onDisappear {
-            self.stopDisplayLink()
         }
     }
 
@@ -91,4 +108,8 @@ private final class DisplayLinkProxy: NSObject {
     @objc func tick() {
         self.onTick()
     }
+}
+
+#Preview {
+    CameraPreview { nil }
 }

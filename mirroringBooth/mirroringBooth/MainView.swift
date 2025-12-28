@@ -134,8 +134,24 @@ struct MainView: View {
                     }
                     .disabled(!sessionManager.isBrowsing && !sessionManager.isAdvertising)
                 }
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        self.captureManager.startCapture()
 
-                ToolbarItem(placement: .topBarTrailing) {
+                        let sender = HEVCFrameSender(
+                            provider: { self.captureManager.latestCIImage },
+                            manager: self.sessionManager,
+                            bitrate: 2_000_000,
+                            targetFrameRate: 24
+                        )
+
+                        self.hevcFrameSender = sender
+                        self.isStreaming = true
+                    } label: {
+                        Image(systemName: "camera")
+                            .font(.caption)
+                    }
+
                     Button {
                         sessionManager.start(peerID)
                     } label: {
@@ -156,6 +172,8 @@ struct MainView: View {
                     } else {
                         return self.receivedCIImage
                     }
+                } tapCameraButton: {
+                    
                 }
             }
             .onChange(of: sessionManager.receivedHEVCFrameData) { _, hevcFrameData in
