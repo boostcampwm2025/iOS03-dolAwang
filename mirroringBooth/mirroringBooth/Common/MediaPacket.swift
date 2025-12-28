@@ -1,5 +1,5 @@
 //
-//  DataPacket.swift
+//  MediaPacket.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2025-12-27.
@@ -8,7 +8,7 @@
 import Foundation
 
 /// 비디오 스트리밍에서 전송되는 패킷 타입
-enum DataPacketType: UInt8 {
+enum MediaPacketType: UInt8 {
     case sps = 0x01        // Sequence Parameter Set
     case pps = 0x02        // Picture Parameter Set
     case idrFrame = 0x03   // KeyFrame (IDR Frame)
@@ -17,10 +17,10 @@ enum DataPacketType: UInt8 {
     case captureRequest = 0x06  // Capture Photo Request (iPad → iPhone)
 }
 
-/// 비디오 패킷 구조
+/// 미디어 패킷 구조
 /// [1 byte: type] + [4 bytes: data length] + [N bytes: data]
-struct DataPacket {
-    let type: DataPacketType
+struct MediaPacket {
+    let type: MediaPacketType
     let data: Data
 
     /// 패킷을 전송 가능한 Data로 직렬화
@@ -39,11 +39,11 @@ struct DataPacket {
     }
 
     /// 수신된 Data에서 패킷 파싱
-    static func deserialize(_ data: Data) -> DataPacket? {
+    static func deserialize(_ data: Data) -> MediaPacket? {
         guard data.count >= 5 else { return nil }
 
         // 타입 추출
-        guard let type = DataPacketType(rawValue: data[0]) else { return nil }
+        guard let type = MediaPacketType(rawValue: data[0]) else { return nil }
 
         // 길이 추출 (Big Endian)
         let lengthData = data.subdata(in: 1..<5)
@@ -53,6 +53,6 @@ struct DataPacket {
         guard data.count >= 5 + Int(length) else { return nil }
         let payload = data.subdata(in: 5..<(5 + Int(length)))
 
-        return DataPacket(type: type, data: payload)
+        return MediaPacket(type: type, data: payload)
     }
 }

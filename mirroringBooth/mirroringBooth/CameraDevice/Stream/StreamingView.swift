@@ -12,7 +12,7 @@ import SwiftUI
 struct StreamingView: View {
 
     /// 카메라 캡처 및 인코딩 담당
-    private var camera = LiveVideoSource()
+    private var camera = CameraEncoder()
     private let sender: StreamSender
 
     init(_ sender: StreamSender) {
@@ -26,7 +26,7 @@ struct StreamingView: View {
             sender.sendPacket(data)
         }
         // 촬영 요청 수신 시 사진 촬영
-        sender.onCaptureRequested = { [camera] in
+        sender.onCaptureRequest = { [camera] in
             camera.capturePhoto()
         }
     }

@@ -19,7 +19,7 @@ final class StreamSender: NSObject {
     var peers: [String] = []
 
     /// 촬영 요청 수신 콜백
-    var onCaptureRequested: (() -> Void)?
+    var onCaptureRequest: (() -> Void)?
 
     private let serviceType: String
     /// 현재 기기의 식별자
@@ -112,13 +112,13 @@ extension StreamSender: MCSessionDelegate {
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         // 수신된 데이터가 촬영 요청 패킷인지 확인
-        guard let packet = DataPacket.deserialize(data),
+        guard let packet = MediaPacket.deserialize(data),
               packet.type == .captureRequest else {
             return
         }
 
         // 촬영 요청 콜백 호출
-        onCaptureRequested?()
+        onCaptureRequest?()
     }
 
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) { }

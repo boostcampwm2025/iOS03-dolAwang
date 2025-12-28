@@ -62,7 +62,7 @@ final class StreamReceiver: NSObject {
         }
 
         // 빈 데이터로 촬영 요청 패킷 생성
-        let packet = DataPacket(type: .captureRequest, data: Data())
+        let packet = MediaPacket(type: .captureRequest, data: Data())
 
         do {
             try session.send(packet.serialize(), toPeers: session.connectedPeers, with: .reliable)

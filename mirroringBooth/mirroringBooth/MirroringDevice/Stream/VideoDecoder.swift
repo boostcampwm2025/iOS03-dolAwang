@@ -54,7 +54,7 @@ final class VideoDecoder {
 
     // 수신된 비디오 패킷 처리
     func handleReceivedPacket(_ packetData: Data) {
-        guard let packet = DataPacket.deserialize(packetData) else {
+        guard let packet = MediaPacket.deserialize(packetData) else {
             return
         }
 

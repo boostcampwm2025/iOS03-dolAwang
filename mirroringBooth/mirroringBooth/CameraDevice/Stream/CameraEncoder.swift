@@ -1,5 +1,5 @@
 //
-//  LiveVideoSource.swift
+//  CameraEncoder.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2025-12-27.
@@ -11,7 +11,7 @@ import VideoToolbox
 
 /// 카메라 캡처 및 H.264 인코딩 클래스
 /// AVCaptureSession으로 카메라 영상을 캡처하고 VideoToolbox로 H.264 인코딩
-final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCapturePhotoCaptureDelegate {
+final class CameraEncoder: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCapturePhotoCaptureDelegate {
 
     /// 인코딩된 프레임 데이터를 전달하는 콜백
     var onEncodedFrame: ((Data) -> Void)?
@@ -24,12 +24,12 @@ final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
     /// 카메라 프레임 처리용 큐
     private let cameraQueue = DispatchQueue(label: "cameraQueue")
     /// 비디오 압축 세션(인코더)
-    private var compressingSession: VTCompressionSession?
+    private var compressionSession: VTCompressionSession?
     /// SPS/PPS 전송 여부 플래그
-    private var hasSentParameterSets = false
+    private var didSendParameterSets = false
     /// 사진 촬영용 출력
     private let photoOutput = AVCapturePhotoOutput()
-    
+
     /// 인코딩 결과 콜백
     private let compressionOutputCallback: VTCompressionOutputCallback = {
         outputCallbackRefCon,
@@ -37,17 +37,17 @@ final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
         status,
         infoFlags,
         sampleBuffer in
-        
+
         guard status == noErr,
               let sampleBuffer,
               CMSampleBufferDataIsReady(sampleBuffer)
         else { return }
-        
-        let manager = Unmanaged<LiveVideoSource>
+
+        let manager = Unmanaged<CameraEncoder>
             .fromOpaque(outputCallbackRefCon!)
             .takeUnretainedValue()
-        
-        manager.handleEncodedSampleBuffer(sampleBuffer)
+
+        manager.processEncodedFrame(sampleBuffer)
     }
     
     // 카메라 캡처 세션 설정 및 시작
@@ -93,13 +93,13 @@ final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
             guard let self else { return }
             self.session.stopRunning()
 
-            if let encoder = self.compressingSession {
+            if let encoder = self.compressionSession {
                 VTCompressionSessionCompleteFrames(encoder, untilPresentationTimeStamp: .invalid)
                 VTCompressionSessionInvalidate(encoder)
-                self.compressingSession = nil
+                self.compressionSession = nil
             }
 
-            self.hasSentParameterSets = false
+            self.didSendParameterSets = false
         }
     }
 
@@ -114,7 +114,7 @@ final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
 
 // MARK: - AVCapturePhotoCaptureDelegate
 
-extension LiveVideoSource {
+extension CameraEncoder {
 
     func photoOutput(
         _ output: AVCapturePhotoOutput,
@@ -128,8 +128,8 @@ extension LiveVideoSource {
             return
         }
 
-        // JPEG 데이터를 VideoPacket으로 감싸서 전송
-        let packet = DataPacket(type: .photo, data: imageData)
+        // JPEG 데이터를 MediaPacket으로 감싸서 전송
+        let packet = MediaPacket(type: .photo, data: imageData)
         onPhotoCaptured?(packet.serialize())
     }
 
@@ -137,23 +137,23 @@ extension LiveVideoSource {
 
 // MARK: - encode
 
-extension LiveVideoSource {
-    
+extension CameraEncoder {
+
     // 프레임 처리 -> 인코딩 시작
     func captureOutput(
         _ output: AVCaptureOutput,
         didOutput sampleBuffer: CMSampleBuffer,
         from connection: AVCaptureConnection
     ) {
-        if compressingSession == nil {
+        if compressionSession == nil {
             if let format = CMSampleBufferGetFormatDescription(sampleBuffer) {
                 let dimensions = CMVideoFormatDescriptionGetDimensions(format)
                 setupVideoEncoder(width: dimensions.width, height: dimensions.height)
             }
         }
-        
+
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
-              let session = compressingSession
+              let session = compressionSession
         else { return }
         
         let pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
@@ -181,10 +181,10 @@ extension LiveVideoSource {
             compressedDataAllocator: nil,
             outputCallback: compressionOutputCallback,
             refcon: UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()),
-            compressionSessionOut: &compressingSession
+            compressionSessionOut: &compressionSession
         )
-        
-        guard let session = compressingSession else { return }
+
+        guard let session = compressionSession else { return }
         
         // 실시간 인코딩 모드 활성화
         // 낮은 레이턴시를 위해 프레임 버퍼링을 최소화하고 즉시 인코딩
@@ -230,25 +230,25 @@ extension LiveVideoSource {
     }
     
     // 인코딩 된 데이터 처리
-    private func handleEncodedSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
+    private func processEncodedFrame(_ sampleBuffer: CMSampleBuffer) {
         guard let dataBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) else { return }
 
         // 1. KeyFrame 여부 확인
         let isKeyFrame = checkIfKeyFrame(sampleBuffer)
 
         // 2. KeyFrame이고 아직 SPS/PPS를 전송하지 않았다면 전송
-        if isKeyFrame, !hasSentParameterSets {
+        if isKeyFrame, !didSendParameterSets {
             /// formatDescription: 비디오 포맷 정보
             if let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer) {
                 sendParameterSets(formatDescription)
-                hasSentParameterSets = true
+                didSendParameterSets = true
             }
         }
 
         // 3. 프레임 데이터 추출
         var length: Int = 0
         var dataPointer: UnsafeMutablePointer<Int8>?
-        
+
         CMBlockBufferGetDataPointer(
             dataBuffer,
             atOffset: 0,
@@ -261,8 +261,8 @@ extension LiveVideoSource {
         let frameData = Data(bytes: pointer, count: length)
 
         // 4. 프레임 타입에 따라 패킷 생성 및 전송
-        let packetType: DataPacketType = isKeyFrame ? .idrFrame : .pFrame
-        let packet = DataPacket(type: packetType, data: frameData)
+        let packetType: MediaPacketType = isKeyFrame ? .idrFrame : .pFrame
+        let packet = MediaPacket(type: packetType, data: frameData)
 
         onEncodedFrame?(packet.serialize())
     }
@@ -322,12 +322,12 @@ extension LiveVideoSource {
 
         // SPS 패킷 생성 및 전송
         let spsData = Data(bytes: spsPointer, count: spsSize)
-        let spsPacket = DataPacket(type: .sps, data: spsData)
+        let spsPacket = MediaPacket(type: .sps, data: spsData)
         onEncodedFrame?(spsPacket.serialize())
 
         // PPS 패킷 생성 및 전송
         let ppsData = Data(bytes: ppsPointer, count: ppsSize)
-        let ppsPacket = DataPacket(type: .pps, data: ppsData)
+        let ppsPacket = MediaPacket(type: .pps, data: ppsData)
         onEncodedFrame?(ppsPacket.serialize())
     }
     

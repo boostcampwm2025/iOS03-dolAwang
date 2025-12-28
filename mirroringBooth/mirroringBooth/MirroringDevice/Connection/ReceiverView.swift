@@ -12,12 +12,12 @@ import SwiftUI
 struct ReceiverView: View {
 
     @State private var receiver = StreamReceiver()
-    @StateObject private var viewModel = StreamDisplayViewModel()
-    @State private var router: PacketRouter?
+    @StateObject private var renderer = MediaFrameRenderer()
+    @State private var handler: PacketHandler?
     @State private var isShowingPhoto = false
 
     init() {
-        // router는 onAppear에서 초기화
+        // handler는 onAppear에서 초기화
     }
 
     var body: some View {
@@ -34,7 +34,7 @@ struct ReceiverView: View {
                 } else {
                     ZStack {
                         // 스트림 표시 (비디오 + 사진)
-                        StreamDisplayView(viewModel: viewModel) {
+                        StreamDisplayView(renderer: renderer) {
                             // 촬영 버튼을 누르면 촬영 요청 패킷 전송
                             receiver.requestCapture()
                         }
@@ -43,31 +43,31 @@ struct ReceiverView: View {
                 }
             }
             .navigationDestination(isPresented: $isShowingPhoto) {
-                if let photo = viewModel.capturedPhoto {
+                if let photo = renderer.capturedPhoto {
                     PhotoView(photo: photo)
                 }
             }
-            .onChange(of: viewModel.capturedPhoto) { oldValue, newValue in
+            .onChange(of: renderer.capturedPhoto) { oldValue, newValue in
                 if newValue != nil {
                     isShowingPhoto = true
                 }
             }
             .onChange(of: isShowingPhoto) { oldValue, newValue in
                 if !newValue {
-                    viewModel.capturedPhoto = nil
+                    renderer.capturedPhoto = nil
                 }
             }
         }
         .onAppear {
-            // router 초기화 및 콜백 설정
-            if router == nil {
+            // handler 초기화 및 콜백 설정
+            if handler == nil {
                 let videoDecoder = VideoDecoder()
-                let newRouter = PacketRouter(videoDecoder: videoDecoder, viewModel: viewModel)
-                router = newRouter
+                let newHandler = PacketHandler(videoDecoder: videoDecoder, renderer: renderer)
+                handler = newHandler
 
-                // 수신된 데이터를 라우터로 전달
+                // 수신된 데이터를 핸들러로 전달
                 receiver.onDataReceived = { data in
-                    newRouter.routePacket(data)
+                    newHandler.handlePacket(data)
                 }
             }
 
@@ -75,7 +75,7 @@ struct ReceiverView: View {
         }
         .onDisappear {
             receiver.stopAdvertising()
-            router?.cleanup()
+            handler?.cleanup()
         }
     }
 }

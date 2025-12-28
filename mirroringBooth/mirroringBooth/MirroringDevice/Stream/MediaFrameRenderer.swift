@@ -1,5 +1,5 @@
 //
-//  StreamDisplayViewModel.swift
+//  MediaFrameRenderer.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2025-12-27.
@@ -10,10 +10,9 @@ import SwiftUI
 import CoreImage
 import Combine
 
-/// StreamDisplayView의 ViewModel
-/// 디코딩된 프레임과 촬영된 사진을 UI에 전달하는 역할
+/// 디코딩된 미디어 프레임과 사진을 UI에 렌더링 가능한 형태로 변환
 @MainActor
-final class StreamDisplayViewModel: ObservableObject {
+final class MediaFrameRenderer: ObservableObject {
 
     /// 현재 화면에 표시할 프레임 이미지
     @Published var currentFrame: CGImage?
@@ -26,7 +25,7 @@ final class StreamDisplayViewModel: ObservableObject {
 
     /// CVPixelBuffer를 CGImage로 변환하여 UI 업데이트
     /// - Parameter pixelBuffer: 디코딩된 프레임 (YUV420 포맷)
-    func handleDecodedFrame(_ pixelBuffer: CVPixelBuffer) {
+    func renderDecodedFrame(_ pixelBuffer: CVPixelBuffer) {
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
 
         guard let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else {
@@ -41,7 +40,7 @@ final class StreamDisplayViewModel: ObservableObject {
 
     /// 수신된 사진 데이터를 UIImage로 변환하여 저장
     /// - Parameter data: JPEG 이미지 데이터
-    func handleReceivedPhoto(_ data: Data) {
+    func renderReceivedPhoto(_ data: Data) {
         guard let image = UIImage(data: data) else {
             print("Failed to create UIImage from photo data")
             return

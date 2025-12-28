@@ -10,18 +10,18 @@ import SwiftUI
 /// 디코딩된 비디오 프레임을 화면에 렌더링하는 뷰
 struct StreamDisplayView: View {
 
-    @ObservedObject private var viewModel: StreamDisplayViewModel
-    var onCaptureRequested: (() -> Void)?
+    @ObservedObject private var renderer: MediaFrameRenderer
+    var onCaptureRequest: (() -> Void)?
 
-    init(viewModel: StreamDisplayViewModel, onCaptureRequested: (() -> Void)? = nil) {
-        self.viewModel = viewModel
-        self.onCaptureRequested = onCaptureRequested
+    init(renderer: MediaFrameRenderer, onCaptureRequest: (() -> Void)? = nil) {
+        self.renderer = renderer
+        self.onCaptureRequest = onCaptureRequest
     }
 
     var body: some View {
         ZStack {
             GeometryReader { geometry in
-                if let image = viewModel.currentFrame {
+                if let image = renderer.currentFrame {
                     Image(decorative: image, scale: 1.0)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -35,7 +35,7 @@ struct StreamDisplayView: View {
                 Spacer()
 
                 Button {
-                    onCaptureRequested?()
+                    onCaptureRequest?()
                 } label: {
                     Circle()
                         .fill(Color.white)
