@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  mirroringBooth
 //
-//  Created by 이상유 on 2025-12-19.
+//  Created by 윤대현 on 2025-12-27.
 //
 
 import SwiftUI
