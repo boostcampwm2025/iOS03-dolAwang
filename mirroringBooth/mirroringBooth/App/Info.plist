@@ -9,7 +9,7 @@
     <!-- Bonjour 서비스 타입 -->
     <key>NSBonjourServices</key>
     <array>
-        <string>_mirror-booth._tcp</string>
+        <string>_mirroring-booth._tcp</string>
     </array>
 </dict>
 </plist>
