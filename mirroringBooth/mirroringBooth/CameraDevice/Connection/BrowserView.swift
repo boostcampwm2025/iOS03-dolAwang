@@ -10,12 +10,12 @@ import SwiftUI
 struct BrowserView: View {
 
     private var router: Router
-    private var connectionManager: Advertiser & Browser
+    private var sender: VideoSender
     @State private var isConnecting = false
 
-    init(_ router: Router, _ connectionManager: Advertiser & Browser) {
+    init(_ router: Router, _ sender: VideoSender) {
         self.router = router
-        self.connectionManager = connectionManager
+        self.sender = sender
     }
 
     var body: some View {
@@ -35,22 +35,20 @@ struct BrowserView: View {
                     .font(.subheadline)
             }
 
-            Text(connectionManager.connectionState.values.joined(separator: "\n"))
+            Text(sender.connectionState.values.joined(separator: "\n"))
                 .font(.subheadline)
 
-            ForEach(connectionManager.peers, id: \.self) { peer in
+            ForEach(sender.peers, id: \.self) { peer in
                 deviceRow(peer)
             }
         }
         .onAppear {
-            connectionManager.startBrowsing()
-            connectionManager.startAdvertising()
+            sender.startBrowsing()
         }
         .onDisappear {
-            connectionManager.stopBrowsing()
-            connectionManager.stopAdvertising()
+            sender.stopBrowsing()
         }
-        .onChange(of: connectionManager.connectionState) { _, newValue in
+        .onChange(of: sender.connectionState) { _, newValue in
             // 연결이 완료되면 카메라 화면으로 이동
             if newValue.values.contains(where: { $0.contains("연결 완료") }) && isConnecting {
                 isConnecting = false
@@ -58,11 +56,11 @@ struct BrowserView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     func deviceRow(_ peer: String) -> some View {
         Button {
-            connectionManager.invite(to: peer)
+            sender.invite(to: peer)
             isConnecting = true
         } label: {
             Text(peer)
@@ -77,5 +75,5 @@ struct BrowserView: View {
 }
 
 #Preview {
-    BrowserView(Router(), ConnectionManager())
+    BrowserView(Router(), VideoSender())
 }

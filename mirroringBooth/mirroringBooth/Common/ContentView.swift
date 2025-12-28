@@ -9,8 +9,6 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State private var connectionManager = ConnectionManager()
-
     var body: some View {
         defaultView
     }
@@ -19,9 +17,9 @@ struct ContentView: View {
     var defaultView: some View {
         switch UIDevice.current.userInterfaceIdiom {
         case .phone:
-            HomeView(connectionManager)
+            HomeView()
         default:
-            AdvertiserView(connectionManager)
+            AdvertiserView()
         }
     }
 }

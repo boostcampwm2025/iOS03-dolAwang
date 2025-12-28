@@ -11,17 +11,13 @@ import SwiftUI
 /// 다른 기기로부터 H.264 비디오 스트림을 수신하여 재생
 struct AdvertiserView: View {
 
-    private var connectionManager: Advertiser
+    private var receiver = VideoReceiver()
     /// H.264 디코더 - 수신된 비디오 패킷을 디코딩
     private let videoDecoder = VideoDecoder()
 
-    init(_ connectionManager: Advertiser) {
-        self.connectionManager = connectionManager
-    }
-    
     var body: some View {
         VStack {
-            if connectionManager.connectionState.isEmpty {
+            if !receiver.connectionState {
                 Text("연결을 시도해주세요...")
                     .font(.caption)
                     .foregroundColor(.white)
@@ -32,25 +28,25 @@ struct AdvertiserView: View {
             } else {
                 ZStack {
                     // 비디오 스트림 표시
-                    VideoPlayerView(decoder: videoDecoder)
+                    ScreenView(decoder: videoDecoder)
                         .edgesIgnoringSafeArea(.all)
                 }
             }
         }
         .onAppear {
             // 비디오 수신 콜백 설정
-            connectionManager.onVideoReceived = { data in
+            receiver.onVideoReceived = { data in
                 videoDecoder.handleReceivedPacket(data)
             }
-            connectionManager.startAdvertising()
+            receiver.startAdvertising()
         }
         .onDisappear {
-            connectionManager.stopAdvertising()
+            receiver.stopAdvertising()
             videoDecoder.cleanup()
         }
     }
 }
 
 #Preview {
-    AdvertiserView(ConnectionManager())
+    AdvertiserView()
 }

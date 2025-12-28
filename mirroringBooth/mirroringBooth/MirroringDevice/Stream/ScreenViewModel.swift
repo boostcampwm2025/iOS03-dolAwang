@@ -1,5 +1,5 @@
 //
-//  VideoPlayerViewModel.swift
+//  ScreenViewModel.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2025-12-27.
@@ -10,10 +10,10 @@ import SwiftUI
 import CoreImage
 import Combine
 
-/// VideoPlayerView의 ViewModel
+/// ScreenView의 ViewModel
 /// 디코딩된 프레임을 UI에 전달하는 역할
 @MainActor
-final class VideoPlayerViewModel: ObservableObject {
+final class ScreenViewModel: ObservableObject {
 
     /// 현재 화면에 표시할 프레임 이미지
     @Published var currentFrame: CGImage?

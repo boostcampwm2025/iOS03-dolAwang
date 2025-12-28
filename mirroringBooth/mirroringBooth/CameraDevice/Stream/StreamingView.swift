@@ -1,5 +1,5 @@
 //
-//  CameraView.swift
+//  StreamingView.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2025-12-24.
@@ -9,17 +9,17 @@ import SwiftUI
 
 /// 비디오 송신 측 화면 (iPhone)
 /// 카메라로부터 영상을 캡처하여 H.264로 인코딩 후 다른 기기로 전송
-struct CameraView: View {
+struct StreamingView: View {
 
     /// 카메라 캡처 및 인코딩 담당
     private var camera = LiveVideoSource()
-    private let connectionManager: Browser
+    private let sender: VideoSender
 
-    init(_ connectionManager: Browser) {
-        self.connectionManager = connectionManager
+    init(_ sender: VideoSender) {
+        self.sender = sender
         // 인코딩된 프레임을 네트워크로 전송
         camera.onEncodedFrame = { data in
-            connectionManager.sendVideo(data)
+            sender.sendVideo(data)
         }
     }
     
@@ -38,11 +38,11 @@ struct CameraView: View {
         }
         .onDisappear {
             // 화면이 사라질 때 카메라 세션 중지
-            camera.stopSession()
+            camera.stopSession() 
         }
     }
 }
 
 #Preview {
-    CameraView(ConnectionManager())
+    StreamingView(VideoSender())
 }
