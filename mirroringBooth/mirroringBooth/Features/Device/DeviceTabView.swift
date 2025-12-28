@@ -15,7 +15,7 @@ struct DeviceTabView: View {
     var body: some View {
         List {
             if multipeerManager.nearbyDevices.isEmpty {
-                Text(multipeerManager.isSearching ? "주변 기기를 검색 중입니다.." : "기기 검색을 시작해주세요.")
+                Text("주변 기기를 검색 중입니다..")
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(multipeerManager.nearbyDevices) { device in
@@ -35,15 +35,11 @@ struct DeviceTabView: View {
                 }
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            Button {
-                multipeerManager.toggleSearching()
-            } label: {
-                Text(multipeerManager.isSearching ? "검색 종료" : "검색 시작")
-                    .frame(maxWidth: 200)
-            }
-            .padding(.bottom, 12)
-            .buttonStyle(.borderedProminent)
+        .onAppear {
+            multipeerManager.startSearching()
+        }
+        .onDisappear {
+            multipeerManager.stopSearching()
         }
     }
 
