@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- 로컬 네트워크 사용 목적 -->
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>주변 Apple 기기와의 연결 및 미러링 기능을 위해 로컬 네트워크를 사용합니다.</string>
+
+    <!-- Bonjour 서비스 타입 -->
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_mirror-booth._tcp</string>
+    </array>
+</dict>
+</plist>
