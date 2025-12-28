@@ -14,6 +14,9 @@ final class PacketHandler {
     private let videoDecoder: VideoDecoder
     private let renderer: MediaFrameRenderer
 
+    /// 사진 데이터 수신 콜백
+    var onPhotoReceived: ((Data) -> Void)?
+
     init(videoDecoder: VideoDecoder, renderer: MediaFrameRenderer) {
         self.videoDecoder = videoDecoder
         self.renderer = renderer
@@ -37,8 +40,8 @@ final class PacketHandler {
 
         switch packet.type {
         case .photo:
-            // 고화질 사진 패킷 → 렌더러로 전달
-            renderer.renderReceivedPhoto(packet.data)
+            // 고화질 사진 패킷 → 콜백으로 직접 전달
+            onPhotoReceived?(packet.data)
 
         case .sps, .pps, .idrFrame, .pFrame:
             // 비디오 스트리밍 패킷 → VideoDecoder로 전달

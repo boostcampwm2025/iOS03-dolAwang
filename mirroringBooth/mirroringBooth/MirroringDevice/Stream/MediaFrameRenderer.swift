@@ -10,15 +10,12 @@ import SwiftUI
 import CoreImage
 import Combine
 
-/// 디코딩된 미디어 프레임과 사진을 UI에 렌더링 가능한 형태로 변환
+/// 디코딩된 비디오 프레임을 UI에 렌더링 가능한 형태로 변환
 @MainActor
 final class MediaFrameRenderer: ObservableObject {
 
     /// 현재 화면에 표시할 프레임 이미지
     @Published var currentFrame: CGImage?
-
-    /// 촬영된 고화질 사진
-    @Published var capturedPhoto: UIImage?
 
     /// CoreImage 컨텍스트 - CVPixelBuffer를 CGImage로 변환
     private let ciContext = CIContext()
@@ -35,19 +32,6 @@ final class MediaFrameRenderer: ObservableObject {
         // UI 업데이트는 메인 스레드에서 수행
         DispatchQueue.main.async { [weak self] in
             self?.currentFrame = cgImage
-        }
-    }
-
-    /// 수신된 사진 데이터를 UIImage로 변환하여 저장
-    /// - Parameter data: JPEG 이미지 데이터
-    func renderReceivedPhoto(_ data: Data) {
-        guard let image = UIImage(data: data) else {
-            print("Failed to create UIImage from photo data")
-            return
-        }
-
-        DispatchQueue.main.async { [weak self] in
-            self?.capturedPhoto = image
         }
     }
 

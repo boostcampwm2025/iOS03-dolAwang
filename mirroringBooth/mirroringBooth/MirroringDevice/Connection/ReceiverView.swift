@@ -13,12 +13,8 @@ struct ReceiverView: View {
 
     @State private var receiver = StreamReceiver()
     @StateObject private var renderer = MediaFrameRenderer()
-    @State private var handler: PacketHandler?
-    @State private var isShowingPhoto = false
-
-    init() {
-        // handler는 onAppear에서 초기화
-    }
+    @State private var packetHandler: PacketHandler?
+    @State private var photoData: Data?
 
     var body: some View {
         NavigationStack {
@@ -42,41 +38,35 @@ struct ReceiverView: View {
                     }
                 }
             }
-            .navigationDestination(isPresented: $isShowingPhoto) {
-                if let photo = renderer.capturedPhoto {
-                    PhotoView(photo: photo)
-                }
-            }
-            .onChange(of: renderer.capturedPhoto) { oldValue, newValue in
-                if newValue != nil {
-                    isShowingPhoto = true
-                }
-            }
-            .onChange(of: isShowingPhoto) { oldValue, newValue in
-                if !newValue {
-                    renderer.capturedPhoto = nil
-                }
+            .navigationDestination(item: $photoData) { data in
+                PhotoView(photoData: data)
             }
         }
         .onAppear {
-            // handler 초기화 및 콜백 설정
-            if handler == nil {
-                let videoDecoder = VideoDecoder()
-                let newHandler = PacketHandler(videoDecoder: videoDecoder, renderer: renderer)
-                handler = newHandler
-
-                // 수신된 데이터를 핸들러로 전달
-                receiver.onDataReceived = { data in
-                    newHandler.handlePacket(data)
-                }
-            }
-
+            setupPacketHandler()
             receiver.startAdvertising()
         }
         .onDisappear {
             receiver.stopAdvertising()
-            handler?.cleanup()
+            packetHandler?.cleanup()
         }
+    }
+
+    private func setupPacketHandler() {
+        guard packetHandler == nil else { return }
+
+        let videoDecoder = VideoDecoder()
+        let handler = PacketHandler(videoDecoder: videoDecoder, renderer: renderer)
+
+        handler.onPhotoReceived = { [self] data in
+            photoData = data
+        }
+
+        receiver.onDataReceived = { data in
+            handler.handlePacket(data)
+        }
+
+        packetHandler = handler
     }
 }
 

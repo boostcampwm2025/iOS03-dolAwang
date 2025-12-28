@@ -10,7 +10,7 @@ import SwiftUI
 /// 촬영된 고화질 사진을 표시하는 화면
 struct PhotoView: View {
 
-    let photo: UIImage
+    let photoData: Data
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -21,10 +21,12 @@ struct PhotoView: View {
                 Spacer()
 
                 // 고화질 사진 표시
-                Image(uiImage: photo)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                if let uiImage = UIImage(data: photoData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
 
                 Spacer()
 
@@ -46,5 +48,7 @@ struct PhotoView: View {
 }
 
 #Preview {
-    PhotoView(photo: UIImage(systemName: "photo")!)
+    if let data = UIImage(systemName: "photo")?.pngData() {
+        PhotoView(photoData: data)
+    }
 }
