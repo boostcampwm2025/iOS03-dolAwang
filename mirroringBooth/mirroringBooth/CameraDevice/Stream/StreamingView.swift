@@ -13,36 +13,42 @@ struct StreamingView: View {
 
     /// 카메라 캡처 및 인코딩 담당
     private var camera = LiveVideoSource()
-    private let sender: VideoSender
+    private let sender: StreamSender
 
-    init(_ sender: VideoSender) {
+    init(_ sender: StreamSender) {
         self.sender = sender
         // 인코딩된 프레임을 네트워크로 전송
         camera.onEncodedFrame = { data in
-            sender.sendVideo(data)
+            sender.sendPacket(data)
+        }
+        // 촬영된 고화질 사진을 네트워크로 전송
+        camera.onPhotoCaptured = { data in
+            sender.sendPacket(data)
+        }
+        // 촬영 요청 수신 시 사진 촬영
+        sender.onCaptureRequested = { [camera] in
+            camera.capturePhoto()
         }
     }
     
     var body: some View {
-        VStack {
-            Text("미러링 기기에 촬영 화면이 표시됩니다.")
-                .padding()
-        }
-        .onAppear {
-            // 화면이 나타날 때 카메라 세션 시작
-            do {
-                try camera.startSession()
-            } catch {
-                print("Failed to start camera session: \(error)")
+        Text("미러링 기기에 촬영 화면이 표시됩니다.")
+            .padding()
+            .onAppear {
+                // 화면이 나타날 때 카메라 세션 시작
+                do {
+                    try camera.startSession()
+                } catch {
+                    print("Failed to start camera session: \(error)")
+                }
             }
-        }
-        .onDisappear {
-            // 화면이 사라질 때 카메라 세션 중지
-            camera.stopSession() 
-        }
+            .onDisappear {
+                // 화면이 사라질 때 카메라 세션 중지
+                camera.stopSession()
+            }
     }
 }
 
 #Preview {
-    StreamingView(VideoSender())
+    StreamingView(StreamSender())
 }

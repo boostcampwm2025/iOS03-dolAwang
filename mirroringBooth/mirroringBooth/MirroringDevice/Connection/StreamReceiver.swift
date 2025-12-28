@@ -1,5 +1,5 @@
 //
-//  VideoReceiver.swift
+//  StreamReceiver.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2025-12-28.
@@ -8,16 +8,16 @@
 import Foundation
 import MultipeerConnectivity
 
-/// 비디오 수신 측 (iPad/Mac)
-/// 서비스를 광고하고 연결 요청을 수락하여 비디오 데이터를 수신
+/// 스트림 수신 측 (iPad/Mac)
+/// 서비스를 광고하고 연결 요청을 수락하여 스트림 데이터(비디오/사진)를 수신
 @Observable
-final class VideoReceiver: NSObject {
+final class StreamReceiver: NSObject {
 
-    /// 연결된 피어들의 상태 정보
-    var connectionState: Bool = false
+    /// 연결 상태
+    var isConnected: Bool = false
 
-    /// 비디오 데이터 수신 콜백
-    var onVideoReceived: ((Data) -> Void)?
+    /// 스트림 데이터 수신 콜백
+    var onDataReceived: ((Data) -> Void)?
 
     private let serviceType: String
     /// 현재 기기의 식별자
@@ -54,25 +54,42 @@ final class VideoReceiver: NSObject {
         advertiser.stopAdvertisingPeer()
     }
 
+    /// 촬영 요청 전송 (iPad → iPhone)
+    func requestCapture() {
+        guard !session.connectedPeers.isEmpty else {
+            print("No connected peers to send capture request")
+            return
+        }
+
+        // 빈 데이터로 촬영 요청 패킷 생성
+        let packet = DataPacket(type: .captureRequest, data: Data())
+
+        do {
+            try session.send(packet.serialize(), toPeers: session.connectedPeers, with: .reliable)
+        } catch {
+            print("Failed to send capture request: \(error)")
+        }
+    }
+
 }
 
 // MARK: - Session Delegate
-extension VideoReceiver: MCSessionDelegate {
+extension StreamReceiver: MCSessionDelegate {
 
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         switch state {
         case .connected:
-            connectionState = true
+            isConnected = true
         case .notConnected:
-            connectionState = false
+            isConnected = false
         default:
             break
         }
     }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        // 수신된 비디오 데이터를 디코더로 전달
-        onVideoReceived?(data)
+        // 수신된 스트림 데이터를 라우터로 전달
+        onDataReceived?(data)
     }
 
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) { }
@@ -84,7 +101,7 @@ extension VideoReceiver: MCSessionDelegate {
 }
 
 // MARK: - Advertiser Delegate
-extension VideoReceiver: MCNearbyServiceAdvertiserDelegate {
+extension StreamReceiver: MCNearbyServiceAdvertiserDelegate {
 
     func advertiser(
         _ advertiser: MCNearbyServiceAdvertiser,

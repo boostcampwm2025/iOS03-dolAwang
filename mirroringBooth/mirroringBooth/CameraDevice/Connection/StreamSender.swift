@@ -1,5 +1,5 @@
 //
-//  VideoSender.swift
+//  StreamSender.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2025-12-28.
@@ -8,15 +8,18 @@
 import Foundation
 import MultipeerConnectivity
 
-/// 비디오 송신 측 (iPhone)
-/// 다른 기기를 탐색하고 연결하여 비디오 데이터를 전송
+/// 스트림 송신 측 (iPhone)
+/// 다른 기기를 탐색하고 연결하여 스트림 데이터(비디오/사진)를 전송
 @Observable
-final class VideoSender: NSObject {
+final class StreamSender: NSObject {
 
     /// 연결된 피어들의 상태 정보
     var connectionState: [String: String] = [:]
     /// 발견된 피어 목록
     var peers: [String] = []
+
+    /// 촬영 요청 수신 콜백
+    var onCaptureRequested: (() -> Void)?
 
     private let serviceType: String
     /// 현재 기기의 식별자
@@ -62,21 +65,21 @@ final class VideoSender: NSObject {
         browser.invitePeer(peerID, to: session, withContext: nil, timeout: 30)
     }
 
-    func sendVideo(_ data: Data) {
+    func sendPacket(_ data: Data) {
         // 연결된 피어가 없으면 전송하지 않음
         guard !session.connectedPeers.isEmpty else {
             return
         }
 
         // 패킷 타입에 따라 전송 모드 결정
-        // SPS/PPS는 반드시 전달되어야 하므로 reliable 모드 사용
+        // SPS/PPS와 Photo는 반드시 전달되어야 하므로 reliable 모드 사용
         // 프레임 데이터는 실시간성이 중요하므로 unreliable 모드 사용
         let sendMode: MCSessionSendDataMode = {
             guard data.count > 0 else { return .unreliable }
 
             let packetType = data[0]
-            // SPS(0x01) 또는 PPS(0x02)인 경우 reliable 모드
-            if packetType == 0x01 || packetType == 0x02 {
+            // SPS(0x01), PPS(0x02), Photo(0x05)인 경우 reliable 모드
+            if packetType == 0x01 || packetType == 0x02 || packetType == 0x05 {
                 return .reliable
             }
             return .unreliable
@@ -85,14 +88,14 @@ final class VideoSender: NSObject {
         do {
             try session.send(data, toPeers: session.connectedPeers, with: sendMode)
         } catch {
-            print("Failed to send video data: \(error)")
+            print("Failed to send packet data: \(error)")
         }
     }
 
 }
 
 // MARK: - Session Delegate
-extension VideoSender: MCSessionDelegate {
+extension StreamSender: MCSessionDelegate {
 
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         switch state {
@@ -107,7 +110,16 @@ extension VideoSender: MCSessionDelegate {
         }
     }
 
-    func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) { }
+    func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+        // 수신된 데이터가 촬영 요청 패킷인지 확인
+        guard let packet = DataPacket.deserialize(data),
+              packet.type == .captureRequest else {
+            return
+        }
+
+        // 촬영 요청 콜백 호출
+        onCaptureRequested?()
+    }
 
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) { }
 
@@ -118,7 +130,7 @@ extension VideoSender: MCSessionDelegate {
 }
 
 // MARK: - Browser Delegate
-extension VideoSender: MCNearbyServiceBrowserDelegate {
+extension StreamSender: MCNearbyServiceBrowserDelegate {
 
     func browser(
         _ browser: MCNearbyServiceBrowser,

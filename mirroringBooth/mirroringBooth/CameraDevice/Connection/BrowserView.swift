@@ -10,10 +10,10 @@ import SwiftUI
 struct BrowserView: View {
 
     private var router: Router
-    private var sender: VideoSender
+    private var sender: StreamSender
     @State private var isConnecting = false
 
-    init(_ router: Router, _ sender: VideoSender) {
+    init(_ router: Router, _ sender: StreamSender) {
         self.router = router
         self.sender = sender
     }
@@ -75,5 +75,5 @@ struct BrowserView: View {
 }
 
 #Preview {
-    BrowserView(Router(), VideoSender())
+    BrowserView(Router(), StreamSender())
 }

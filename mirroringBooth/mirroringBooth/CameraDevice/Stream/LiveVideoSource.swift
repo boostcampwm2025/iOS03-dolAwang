@@ -11,10 +11,13 @@ import VideoToolbox
 
 /// 카메라 캡처 및 H.264 인코딩 클래스
 /// AVCaptureSession으로 카메라 영상을 캡처하고 VideoToolbox로 H.264 인코딩
-final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCapturePhotoCaptureDelegate {
 
     /// 인코딩된 프레임 데이터를 전달하는 콜백
     var onEncodedFrame: ((Data) -> Void)?
+
+    /// 촬영된 고화질 사진 데이터를 전달하는 콜백
+    var onPhotoCaptured: ((Data) -> Void)?
 
     /// 카메라 캡처 세션
     private let session = AVCaptureSession()
@@ -24,6 +27,8 @@ final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
     private var compressingSession: VTCompressionSession?
     /// SPS/PPS 전송 여부 플래그
     private var hasSentParameterSets = false
+    /// 사진 촬영용 출력
+    private let photoOutput = AVCapturePhotoOutput()
     
     /// 인코딩 결과 콜백
     private let compressionOutputCallback: VTCompressionOutputCallback = {
@@ -69,6 +74,11 @@ final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
             session.addOutput(output)
         }
 
+        // 사진 촬영용 출력 추가
+        if session.canAddOutput(photoOutput) {
+            session.addOutput(photoOutput)
+        }
+
         // 카메라 세션은 백그라운드 스레드에서 시작
         // 메인 스레드에서 시작하면 UI 응답성 저하 가능
         cameraQueue.async { [weak self] in
@@ -92,7 +102,37 @@ final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDeleg
             self.hasSentParameterSets = false
         }
     }
-    
+
+    // 고화질 사진 촬영
+    func capturePhoto() {
+        let settings = AVCapturePhotoSettings()
+        settings.flashMode = .off
+        photoOutput.capturePhoto(with: settings, delegate: self)
+    }
+
+}
+
+// MARK: - AVCapturePhotoCaptureDelegate
+
+extension LiveVideoSource {
+
+    func photoOutput(
+        _ output: AVCapturePhotoOutput,
+        didFinishProcessingPhoto photo: AVCapturePhoto,
+        error: Error?
+    ) {
+        guard error == nil,
+              let imageData = photo.fileDataRepresentation()
+        else {
+            print("Failed to capture photo: \(error?.localizedDescription ?? "Unknown error")")
+            return
+        }
+
+        // JPEG 데이터를 VideoPacket으로 감싸서 전송
+        let packet = DataPacket(type: .photo, data: imageData)
+        onPhotoCaptured?(packet.serialize())
+    }
+
 }
 
 // MARK: - encode
@@ -221,8 +261,8 @@ extension LiveVideoSource {
         let frameData = Data(bytes: pointer, count: length)
 
         // 4. 프레임 타입에 따라 패킷 생성 및 전송
-        let packetType: VideoPacketType = isKeyFrame ? .idrFrame : .pFrame
-        let packet = VideoPacket(type: packetType, data: frameData)
+        let packetType: DataPacketType = isKeyFrame ? .idrFrame : .pFrame
+        let packet = DataPacket(type: packetType, data: frameData)
 
         onEncodedFrame?(packet.serialize())
     }
@@ -282,12 +322,12 @@ extension LiveVideoSource {
 
         // SPS 패킷 생성 및 전송
         let spsData = Data(bytes: spsPointer, count: spsSize)
-        let spsPacket = VideoPacket(type: .sps, data: spsData)
+        let spsPacket = DataPacket(type: .sps, data: spsData)
         onEncodedFrame?(spsPacket.serialize())
 
         // PPS 패킷 생성 및 전송
         let ppsData = Data(bytes: ppsPointer, count: ppsSize)
-        let ppsPacket = VideoPacket(type: .pps, data: ppsData)
+        let ppsPacket = DataPacket(type: .pps, data: ppsData)
         onEncodedFrame?(ppsPacket.serialize())
     }
     

@@ -19,7 +19,7 @@ struct ContentView: View {
         case .phone:
             HomeView()
         default:
-            AdvertiserView()
+            ReceiverView()
         }
     }
 }

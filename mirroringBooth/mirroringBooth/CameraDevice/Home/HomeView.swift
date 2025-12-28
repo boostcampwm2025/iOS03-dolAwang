@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeView: View {
     
     @State private var router: Router = .init()
-    private let sender = VideoSender()
+    private let sender = StreamSender()
 
     var body: some View {
         NavigationStack(path: $router.path) {
