@@ -6,10 +6,17 @@
 //
 
 import MultipeerConnectivity
+import Observation
 import os
 
+struct NearbyDevice: Hashable, Identifiable {
+    let id: String
+    let name: String
+}
+
+@Observable
 final class MultipeerManager: NSObject {
-    private lazy var logger = AppLogger.make(for: Self.self)
+    private let logger = AppLogger.make(for: MultipeerManager.self)
 
     private let serviceType: String
     private let peerID: MCPeerID
@@ -17,7 +24,8 @@ final class MultipeerManager: NSObject {
     private let advertiser: MCNearbyServiceAdvertiser
     private let browser: MCNearbyServiceBrowser
 
-    private(set) var nearbyPeers: Set<MCPeerID> = [] // 주변에 있는 피어 목록
+    var isSearching: Bool = false
+    var nearbyDevices: Set<NearbyDevice> = [] // 주변에 있는 기기 목록
 
     init(serviceType: String = "mirroring-booth") {
         self.serviceType = serviceType
@@ -32,16 +40,26 @@ final class MultipeerManager: NSObject {
         browser.delegate = self
     }
 
-    func start() {
+    func startSearching() {
         advertiser.startAdvertisingPeer()
         browser.startBrowsingForPeers()
+        isSearching = true
         logger.info("주변 기기를 검색합니다.")
     }
 
-    func stop() {
+    func stopSearching() {
         advertiser.stopAdvertisingPeer()
         browser.stopBrowsingForPeers()
+        isSearching = false
         logger.info("주변 기기 검색을 중지합니다.")
+    }
+
+    func toggleSearching() {
+        if isSearching {
+            stopSearching()
+        } else {
+            startSearching()
+        }
     }
 }
 
@@ -119,13 +137,13 @@ extension MultipeerManager: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser,
                  foundPeer peerID: MCPeerID,
                  withDiscoveryInfo info: [String : String]?) {
-        nearbyPeers.insert(peerID)
+        nearbyDevices.insert(NearbyDevice(id: peerID.displayName, name: peerID.displayName))
         logger.info("발견된 기기: \(peerID.displayName)")
     }
 
     func browser(_ browser: MCNearbyServiceBrowser,
                  lostPeer peerID: MCPeerID) {
-        nearbyPeers.remove(peerID)
+        nearbyDevices.remove(NearbyDevice(id: peerID.displayName, name: peerID.displayName))
         logger.info("사라진 기기: \(peerID.displayName)")
     }
 }
