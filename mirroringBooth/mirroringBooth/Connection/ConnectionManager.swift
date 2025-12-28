@@ -8,38 +8,49 @@
 import Foundation
 import MultipeerConnectivity
 
+/// 비디오 수신 측 프로토콜 (iPad/Mac)
 protocol Advertiser: AnyObject {
     var connectionState: [String: String] { get }
     var onVideoReceived: ((Data) -> Void)? { get set }
-    
+
     func startAdvertising()
     func stopAdvertising()
 }
 
+/// 비디오 송신 측 프로토콜 (iPhone)
 protocol Browser: AnyObject {
     var connectionState: [String: String] { get }
     var peers: [String] { get }
-    
+
     func startBrowsing()
     func stopBrowsing()
     func invite(to id: String)
     func sendVideo(_ data: Data)
 }
 
+/// MultipeerConnectivity 기반 P2P 연결 관리자
+/// 기기 간 비디오 데이터 송수신을 담당
 @Observable
 final class ConnectionManager: NSObject, Advertiser, Browser {
 
+    /// 연결된 피어들의 상태 정보
     var connectionState: [String: String] = [:]
+    /// 발견된 피어 목록
     var peers: [String] = []
 
     /// 비디오 데이터 수신 콜백 (Advertiser용)
     var onVideoReceived: ((Data) -> Void)?
-    
+
     private let serviceType: String
+    /// 현재 기기의 식별자
     private let identifier: MCPeerID
+    /// Multipeer 연결 세션
     private let session: MCSession
+    /// 서비스 광고 (수신 측)
     private let advertiser: MCNearbyServiceAdvertiser
+    /// 서비스 탐색 (송신 측)
     private let browser: MCNearbyServiceBrowser
+    /// 발견된 피어 ID 매핑
     private var discoveredPeers: [String: MCPeerID] = [:]
     
     init(serviceType: String = "mirroringbooth") {

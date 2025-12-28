@@ -7,9 +7,12 @@
 
 import SwiftUI
 
+/// 비디오 수신 측 화면 (iPad/Mac)
+/// 다른 기기로부터 H.264 비디오 스트림을 수신하여 재생
 struct AdvertiserView: View {
-    
+
     private var connectionManager: Advertiser
+    /// H.264 디코더 - 수신된 비디오 패킷을 디코딩
     private let videoDecoder = VideoDecoder()
 
     init(_ connectionManager: Advertiser) {

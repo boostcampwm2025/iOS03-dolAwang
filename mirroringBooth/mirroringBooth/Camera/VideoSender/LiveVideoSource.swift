@@ -9,12 +9,16 @@ import Foundation
 import AVFoundation
 import VideoToolbox
 
+/// 카메라 캡처 및 H.264 인코딩 클래스
+/// AVCaptureSession으로 카메라 영상을 캡처하고 VideoToolbox로 H.264 인코딩
 final class LiveVideoSource: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
-    
+
+    /// 인코딩된 프레임 데이터를 전달하는 콜백
     var onEncodedFrame: ((Data) -> Void)?
-    
+
     /// 카메라 캡처 세션
     private let session = AVCaptureSession()
+    /// 카메라 프레임 처리용 큐
     private let cameraQueue = DispatchQueue(label: "cameraQueue")
     /// 비디오 압축 세션(인코더)
     private var compressingSession: VTCompressionSession?
