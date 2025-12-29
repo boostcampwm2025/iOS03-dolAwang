@@ -16,6 +16,7 @@ struct MainView: View {
 
     @State private var hevcFrameSender: HEVCFrameSender?
     @State private var hevcDecoder: HEVCDecoder?
+    @State private var receivedPhotoData: Data?
 
     @State private var isStreaming: Bool = false
     @State private var receivedCIImage: CIImage? = nil
@@ -75,23 +76,10 @@ struct MainView: View {
                                     }
                                 } else if connections[peerID.displayName] == .connected {
                                     Button {
-                                        if self.isStreaming == true {
-                                            self.isStreaming = false
-                                            self.hevcFrameSender?.invalidate()
-                                            self.hevcFrameSender = nil
-                                            self.captureManager.stopCapture()
+                                        if self.isStreaming {
+                                            self.stopCapture()
                                         } else {
-                                            self.captureManager.startCapture()
-
-                                            let sender = HEVCFrameSender(
-                                                provider: { self.captureManager.latestCIImage },
-                                                manager: self.sessionManager,
-                                                bitrate: 2_500_000,
-                                                targetFrameRate: 24
-                                            )
-
-                                            self.hevcFrameSender = sender
-                                            self.isStreaming = true
+                                            self.startCapture()
                                         }
                                     } label: {
                                         Text(self.isStreaming ? "스트리밍 종료" : "스트리밍 시작")
@@ -121,14 +109,9 @@ struct MainView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         selectedPeerID = nil
-                        sessionManager.stop()
-
-                        self.isStreaming = false
-                        self.hevcFrameSender?.invalidate()
-                        self.hevcFrameSender = nil
-                        self.hevcDecoder?.invalidate()
+                        self.stopCapture()
+                        self.sessionManager.stop()
                         self.hevcDecoder = nil
-                        self.captureManager.stopCapture()
                     } label: {
                         Text("Stop")
                     }
@@ -137,17 +120,7 @@ struct MainView: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Group {
                         Button {
-                            self.captureManager.startCapture()
-
-                            let sender = HEVCFrameSender(
-                                provider: { self.captureManager.latestCIImage },
-                                manager: self.sessionManager,
-                                bitrate: 2_500_000,
-                                targetFrameRate: 24
-                            )
-
-                            self.hevcFrameSender = sender
-                            self.isStreaming = true
+                            self.startCapture()
                         } label: {
                             Image(systemName: "camera")
                                 .font(.caption)
@@ -167,16 +140,25 @@ struct MainView: View {
                     self.captureManager.stopCapture()
                 }
             } content: {
-                CameraPreview {
-                    if self.hevcFrameSender != nil {
-                        self.hevcFrameSender?.sendFrame()
-                        return self.captureManager.latestCIImage
-                    } else {
-                        return self.receivedCIImage
+                NavigationStack {
+                    CameraPreview {
+                        if self.hevcFrameSender != nil {
+                            self.hevcFrameSender?.sendFrame()
+                            return self.captureManager.latestCIImage
+                        } else {
+                            return self.receivedCIImage
+                        }
+                    } tapCameraButton: {
+                        self.captureManager.capturePhoto { imageData in
+                            if let data = imageData {
+                                self.sessionManager.sendPhotoHEICData(data)
+                            }
+                        }
                     }
-                } tapCameraButton: {
-                    self.captureManager.capturePhoto { _ in
-
+                    .navigationTitle("스트리밍")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationDestination(item: $receivedPhotoData) { photoData in
+                        PhotoPreview(photoData)
                     }
                 }
             }
@@ -197,6 +179,31 @@ struct MainView: View {
 
                 self.hevcDecoder?.decode(hevcFrameData)
             }
+            .onChange(of: sessionManager.receivedPhotoHEICData) { _, photoData in
+                self.receivedPhotoData = photoData
+            }
         }
+    }
+
+    private func startCapture() {
+        self.captureManager.startCapture()
+
+        let frameSender = HEVCFrameSender(
+            provider: { self.captureManager.latestCIImage },
+            manager: self.sessionManager,
+            bitrate: 2_500_000,
+            targetFrameRate: 24
+        )
+        self.hevcFrameSender = frameSender
+
+        self.isStreaming = true
+    }
+
+    private func stopCapture() {
+        self.isStreaming = false
+        self.hevcFrameSender?.invalidate()
+        self.hevcFrameSender = nil
+        self.hevcDecoder?.invalidate()
+        self.captureManager.stopCapture()
     }
 }
