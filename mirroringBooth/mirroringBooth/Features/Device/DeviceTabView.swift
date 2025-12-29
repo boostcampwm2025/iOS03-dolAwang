@@ -19,19 +19,30 @@ struct DeviceTabView: View {
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(multipeerManager.nearbyDevices) { device in
-                    Button {
-                        multipeerManager.connect(to: device)
-                    } label: {
-                        HStack {
+                    HStack {
+                        Button {
+                            multipeerManager.connect(to: device)
+                        } label: {
                             Text(device.name)
-                            Spacer()
-                            Text(device.state.rawValue)
-                                .font(.caption)
-                                .foregroundStyle(stateColor(for: device.state))
                         }
+                        // 연결 중이거나 연결된 기기는 버튼을 비활성화합니다.
+                        .disabled(device.state == .connecting || device.state == .connected)
+
+                        Spacer()
+
+                        // 테스트 메세지 전송 버튼
+                        Button {
+                            multipeerManager.sendMessage(to: device)
+                        } label: {
+                            Image(systemName: "paperplane.fill")
+                        }
+                        .disabled(device.state != .connected)
+
+                        // 연결 상태 텍스트
+                        Text(device.state.rawValue)
+                            .font(.caption)
+                            .foregroundStyle(stateColor(for: device.state))
                     }
-                    // 연결 중이거나 연결된 기기는 버튼을 비활성화합니다.
-                    .disabled(device.state == .connecting || device.state == .connected)
                 }
             }
         }

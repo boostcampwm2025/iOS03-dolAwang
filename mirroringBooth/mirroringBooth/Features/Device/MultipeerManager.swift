@@ -84,6 +84,23 @@ final class MultipeerManager: NSObject {
         browser.invitePeer(peer.peerID, to: session, withContext: nil, timeout: 10)
         logger.info("연결 요청 전송: \(device.name)")
     }
+
+    func sendMessage(to device: NearbyDevice) {
+        guard let peer = discoveredPeers[device.id],
+              session.connectedPeers.contains(peer.peerID)
+        else {
+            logger.warning("[메세지 전송 실패] 연결되지 않은 기기입니다.")
+            return
+        }
+
+        do {
+            let data = Data("통신 연결 상태 테스트 메세지".utf8)
+            try session.send(data, toPeers: [peer.peerID], with: .reliable)
+            logger.info("[메세지 전송 성공] -> \(device.name)")
+        } catch {
+            logger.error("[메세지 전송 실패] \(error.localizedDescription)")
+        }
+    }
 }
 
 // MARK: - MCSessionDelegate
@@ -124,7 +141,8 @@ extension MultipeerManager: MCSessionDelegate {
         didReceive data: Data,
         fromPeer peerID: MCPeerID
     ) {
-
+        let message = String(decoding: data, as: UTF8.self)
+        logger.info("[수신된 메시지] \(peerID.displayName): \(message)")
     }
 
     /// 실시간 스트림(InputStream)을 수신합니다.
