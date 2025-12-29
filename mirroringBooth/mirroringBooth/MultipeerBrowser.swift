@@ -23,6 +23,10 @@ final class MultipeerBrowser: NSObject {
         browser.delegate = self
         browser.startBrowsingForPeers()
     }
+    
+    func stop() {
+        browser.stopBrowsingForPeers()
+    }
 }
 
 extension MultipeerBrowser: MCNearbyServiceBrowserDelegate {
