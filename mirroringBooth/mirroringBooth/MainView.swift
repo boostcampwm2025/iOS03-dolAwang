@@ -149,11 +149,7 @@ struct MainView: View {
                             return self.receivedCIImage
                         }
                     } tapCameraButton: {
-                        self.captureManager.capturePhoto { imageData in
-                            if let data = imageData {
-                                self.sessionManager.sendPhotoHEICData(data)
-                            }
-                        }
+                        sessionManager.sendTapCameraSignal()
                     }
                     .navigationTitle("스트리밍")
                     .navigationBarTitleDisplayMode(.inline)
@@ -181,6 +177,16 @@ struct MainView: View {
             }
             .onChange(of: sessionManager.receivedPhotoHEICData) { _, photoData in
                 self.receivedPhotoData = photoData
+            }
+            .onChange(of: sessionManager.receivedTapCameraSignal) { _, tapSignal in
+                if tapSignal {
+                    self.captureManager.capturePhoto { imageData in
+                        if let data = imageData {
+                            self.sessionManager.sendPhotoHEICData(data)
+                        }
+                    }
+                }
+                sessionManager.receivedTapCameraSignal = false
             }
         }
     }

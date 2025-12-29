@@ -12,6 +12,7 @@ enum P2PPacketType: UInt8 {
     case disconnect = 0
     case hevcFrame = 1
     case photoHEIC = 2
+    case tapCameraSignal = 3
 }
 
 @Observable
@@ -48,6 +49,7 @@ final class MPCSessionManager: NSObject {
     // MARK: - P2P Payload (Published)
     var receivedHEVCFrameData: Data? = nil
     var receivedPhotoHEICData: Data? = nil
+    var receivedTapCameraSignal: Bool = false
 
     func start(_ peerID: String) {
         guard session == nil else { return }
@@ -125,6 +127,14 @@ final class MPCSessionManager: NSObject {
               !session.connectedPeers.isEmpty else { return }
 
         let packetData = Self.makePacket(type: .photoHEIC, body: data)
+        try? session.send(packetData, toPeers: session.connectedPeers, with: .reliable)
+    }
+
+    func sendTapCameraSignal() {
+        guard let session = self.session,
+              !session.connectedPeers.isEmpty else { return }
+
+        let packetData = Self.makePacket(type: .tapCameraSignal)
         try? session.send(packetData, toPeers: session.connectedPeers, with: .reliable)
     }
 }
@@ -207,6 +217,10 @@ extension MPCSessionManager: MCSessionDelegate {
         case .photoHEIC:
             DispatchQueue.main.async {
                 self.receivedPhotoHEICData = parsed.body
+            }
+        case .tapCameraSignal:
+            DispatchQueue.main.async {
+                self.receivedTapCameraSignal = true
             }
         }
     }
