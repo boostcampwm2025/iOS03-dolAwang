@@ -169,7 +169,7 @@ struct MainView: View {
             } content: {
                 CameraPreview {
                     if self.hevcFrameSender != nil {
-                        self.hevcFrameSender?.tickSend()
+                        self.hevcFrameSender?.sendFrame()
                         return self.captureManager.latestCIImage
                     } else {
                         return self.receivedCIImage

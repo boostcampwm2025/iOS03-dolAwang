@@ -43,7 +43,7 @@ final class HEVCFrameSender {
         self.minSendInterval = 1.0 / Double(safeFrameRate)
     }
 
-    func tickSend() {
+    func sendFrame() {
         self.sendQueue.async { [weak self] in
             guard let self,
                   self.manager.connectedPeers.isEmpty == false,
