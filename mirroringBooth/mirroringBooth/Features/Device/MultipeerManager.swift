@@ -75,6 +75,7 @@ final class MultipeerManager: NSObject {
         }
     }
 
+    /// 특정 기기에게 연결 요청을 전송합니다.
     func connect(to device: NearbyDevice) {
         guard let peer = discoveredPeers[device.id] else {
             logger.warning("[연결 실패] 기기를 찾을 수 없음 : \(device.name)")
@@ -85,6 +86,7 @@ final class MultipeerManager: NSObject {
         logger.info("연결 요청 전송: \(device.name)")
     }
 
+    /// 특정 기기에게 테스트 메세지를 전송합니다.
     func sendMessage(to device: NearbyDevice) {
         guard let peer = discoveredPeers[device.id],
               session.connectedPeers.contains(peer.peerID)
@@ -100,6 +102,14 @@ final class MultipeerManager: NSObject {
         } catch {
             logger.error("[메세지 전송 실패] \(error.localizedDescription)")
         }
+    }
+
+    /// 연결된 특정 기기와 연결을 해제합니다.
+    func disconnect(from device: NearbyDevice) {
+        guard discoveredPeers[device.id] != nil else { return }
+        // 임시적으로 세션 자체를 끊습니다.
+        session.disconnect()
+        logger.info("연결 해제: \(device.name)")
     }
 }
 
