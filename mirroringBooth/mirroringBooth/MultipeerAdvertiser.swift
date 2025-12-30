@@ -42,6 +42,7 @@ extension MultipeerAdvertiser: MCNearbyServiceAdvertiserDelegate {
         if let delegate {
             delegate.didReceiveInvitation(
                 session: session,
+                didReceiveInvitationFromPeer: peerID,
                 invitationHandler: invitationHandler
             )
         } else {
@@ -52,5 +53,5 @@ extension MultipeerAdvertiser: MCNearbyServiceAdvertiserDelegate {
 }
 
 protocol AcceptInvitationDelegate: AnyObject {
-    func didReceiveInvitation(session: MCSession, invitationHandler: @escaping (Bool, MCSession?) -> Void)
+    func didReceiveInvitation(session: MCSession, didReceiveInvitationFromPeer peerID: MCPeerID, invitationHandler: @escaping (Bool, MCSession?) -> Void)
 }

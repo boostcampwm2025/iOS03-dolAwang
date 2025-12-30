@@ -10,13 +10,14 @@ import MultipeerConnectivity
 import OSLog
 
 final class MultipeerManager: NSObject, ObservableObject {
-    private var session: MCSession
-    private var advertiser: MultipeerAdvertiser?
+    let session: MCSession
+    var advertiser: MultipeerAdvertiser?
     private var browser: MultipeerBrowser?
     
     @Published var mainPeer: MCPeerID?
     @Published var secondaryPeer: MCPeerID?
     @Published var sessionState: MCSessionState = .notConnected
+    @Published var invitation: MultipeerInvitation? = nil
     
     override init() {
         let peerID = MCPeerID(displayName: UIDevice.current.name)
@@ -25,15 +26,18 @@ final class MultipeerManager: NSObject, ObservableObject {
         self.session.delegate = self
     }
     
-    func startAdvertising(delegate: AcceptInvitationDelegate?) {
-        advertiser = MultipeerAdvertiser(session: session)
-        if let delegate {
-            advertiser?.configure(delegate: delegate)
+    /// ButtonView 같은 외부 View가 Delegate가 되어 초대장을 처리하도록 설정
+    func startAdvertising() {
+        if advertiser == nil {
+            advertiser = MultipeerAdvertiser(session: session)
         }
+        advertiser?.configure(delegate: self)
     }
     
     func startBrowsing() {
-        browser = MultipeerBrowser(session: session)
+        if browser == nil {
+            browser = MultipeerBrowser(session: session)
+        }
     }
     
     func stopDiscovery() {
@@ -43,6 +47,17 @@ final class MultipeerManager: NSObject, ObservableObject {
     
     func stopSession() {
         session.disconnect()
+        advertiser = nil
+        browser = nil
+    }
+}
+
+extension MultipeerManager: AcceptInvitationDelegate {
+    func didReceiveInvitation(session: MCSession, didReceiveInvitationFromPeer peerID: MCPeerID, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
+        invitation = MultipeerInvitation(
+            peerID: peerID,
+            handler: invitationHandler
+        )
     }
 }
 
