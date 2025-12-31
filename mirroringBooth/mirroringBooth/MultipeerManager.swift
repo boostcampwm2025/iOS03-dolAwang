@@ -12,7 +12,7 @@ import OSLog
 final class MultipeerManager: NSObject, ObservableObject {
     let session: MCSession
     var advertiser: MultipeerAdvertiser?
-    private var browser: MultipeerBrowser?
+    var browser: MultipeerBrowser?
     
     @Published var mainPeer: MCPeerID?
     @Published var secondaryPeer: MCPeerID?
@@ -54,39 +54,43 @@ final class MultipeerManager: NSObject, ObservableObject {
 
 extension MultipeerManager: AcceptInvitationDelegate {
     func didReceiveInvitation(session: MCSession, didReceiveInvitationFromPeer peerID: MCPeerID, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        invitation = MultipeerInvitation(
-            peerID: peerID,
-            handler: invitationHandler
-        )
+        DispatchQueue.main.async {
+            self.invitation = MultipeerInvitation(
+                peerID: peerID,
+                handler: invitationHandler
+            )
+        }
     }
 }
 
 extension MultipeerManager: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-        self.sessionState = state
-        
-        switch state {
-        case .connected:
-            Logger.multipeerManager.debug("✅ 연결 성공! 상대방: \(peerID.displayName)")
-            if let mainPeer {
-                secondaryPeer = peerID
-            } else {
-                mainPeer = peerID
+        DispatchQueue.main.async {
+            self.sessionState = state
+            
+            switch state {
+            case .connected:
+                Logger.multipeerManager.debug("✅ 연결 성공! 상대방: \(peerID.displayName)")
+                if let mainPeer = self.mainPeer {
+                    self.secondaryPeer = peerID
+                } else {
+                    self.mainPeer = peerID
+                }
+                
+            case .connecting:
+                Logger.multipeerManager.debug("🟡 연결 시도 중...")
+                
+            case .notConnected:
+                Logger.multipeerManager.debug("🔴 연결 끊김")
+                if self.mainPeer != nil, peerID == self.mainPeer {
+                    self.mainPeer = nil
+                } else if self.secondaryPeer != nil, peerID == self.secondaryPeer {
+                    self.secondaryPeer = nil
+                }
+                
+            @unknown default:
+                break
             }
-            
-        case .connecting:
-            Logger.multipeerManager.debug("🟡 연결 시도 중...")
-            
-        case .notConnected:
-            Logger.multipeerManager.debug("🔴 연결 끊김")
-            if let mainPeer, peerID == mainPeer {
-                self.mainPeer = nil
-            } else if let secondaryPeer, peerID == secondaryPeer {
-                self.secondaryPeer = nil
-            }
-            
-        @unknown default:
-            break
         }
     }
     

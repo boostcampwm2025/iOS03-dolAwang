@@ -5,6 +5,7 @@ struct ButtonView: View {
     @StateObject var multipeerManager = MultipeerManager()
     @State private var advertising: Bool = false
     @State private var showingAlert: Bool = false
+    @State private var showSheet: Bool = false
     
     var body: some View {
         VStack {
@@ -21,12 +22,16 @@ struct ButtonView: View {
             // 다른 기기 검색(화면 전환)
             Button(action: {
                 multipeerManager.startBrowsing()
+                showSheet = true
             }) {
                 Text("다른 기기 검색")
                     .frame(width: 150, height: 50)
                     .foregroundStyle(Color.black)
                     .background(Color.blue.opacity(0.3))
                     .cornerRadius(8)
+            }
+            .sheet(isPresented: $showSheet) {
+                FoundPeersView(manager: multipeerManager)
             }
         }
         .alert(

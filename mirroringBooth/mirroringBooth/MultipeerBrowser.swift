@@ -8,6 +8,7 @@
 import MultipeerConnectivity
 import OSLog
 
+@Observable
 final class MultipeerBrowser: NSObject {
     private let session: MCSession
     private let browser: MCNearbyServiceBrowser
@@ -24,6 +25,10 @@ final class MultipeerBrowser: NSObject {
         browser.startBrowsingForPeers()
     }
     
+    func invite(_ peerID: MCPeerID) {
+        browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10)
+    }
+    
     func stop() {
         browser.stopBrowsingForPeers()
     }
@@ -36,7 +41,6 @@ extension MultipeerBrowser: MCNearbyServiceBrowserDelegate {
             self.foundPeers.append(peerID)
             Logger.multipeerBrowser.debug("🔭 기기 발견: \(peerID.displayName)")
         }
-        browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10)
     }
     
     // 기기가 사라졌을 때
