@@ -14,4 +14,5 @@ extension Logger {
     static let multipeerBrowser = Logger(subsystem: subsystem, category: "MultipeerBrowser")
     static let multipeerManager = Logger(subsystem: subsystem, category: "MultipeerManager")
     static let h264decoder = Logger(subsystem: subsystem, category: "H264Decoder")
+    static let cameraManager = Logger(subsystem: subsystem, category: "CameraManager")
 }

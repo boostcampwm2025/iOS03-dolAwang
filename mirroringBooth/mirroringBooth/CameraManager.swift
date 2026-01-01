@@ -6,14 +6,17 @@
 //
 
 import AVFoundation
+import OSLog
 
 @Observable
 final class CameraManager: NSObject {
     let session = AVCaptureSession()
     private let videoOutput = AVCaptureVideoDataOutput()
+    private let photoOutput = AVCapturePhotoOutput()
     private let videoQueue = DispatchQueue(label: "com.review.videoQueue")
     private let h264Encoder = H264Encoder()
     private var videoDataHandler: ((Data) -> Void)? = nil
+    private var photoDataHandler: ((Data) -> Void)? = nil
     
     override init() {
         super.init()
@@ -36,8 +39,12 @@ final class CameraManager: NSObject {
         }
     }
     
-    func configure(videoDataHandler: ((Data) -> Void)?) {
+    func configure(
+        videoDataHandler: ((Data) -> Void)?,
+        photoDataHandler: ((Data) -> Void)?
+    ) {
         self.videoDataHandler = videoDataHandler
+        self.photoDataHandler = photoDataHandler
     }
     
     private func setupSession() {
@@ -66,6 +73,14 @@ final class CameraManager: NSObject {
             // 델리게이트 연결
             videoOutput.setSampleBufferDelegate(self, queue: videoQueue)
         }
+        if session.canAddOutput(photoOutput) {
+            session.addOutput(photoOutput)
+            let device = videoInput.device
+            if let maxDimension = device.activeFormat.supportedMaxPhotoDimensions.last {
+                photoOutput.maxPhotoDimensions = maxDimension
+                Logger.cameraManager.debug("maxPhotoDimensions: \(maxDimension.width) X \(maxDimension.height)")
+            }
+        }
         
         // 세션 시작 (백그라운드에서 실행해야 함)
         session.commitConfiguration()
@@ -83,5 +98,18 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate, H264Encod
     
     func videoEncoder(_ encoder: H264Encoder, didEncode data: Data) {
         videoDataHandler?(data)
+    }
+}
+
+extension CameraManager: AVCapturePhotoCaptureDelegate {
+    func capturePhoto() {
+        let settings = AVCapturePhotoSettings()
+        photoOutput.capturePhoto(with: settings, delegate: self)
+    }
+    
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        guard error == nil else { return }
+        guard let imageData = photo.fileDataRepresentation() else { return }
+        photoDataHandler?(imageData)
     }
 }

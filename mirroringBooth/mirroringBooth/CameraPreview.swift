@@ -19,18 +19,26 @@ struct CameraView: View {
             
             VStack {
                 Spacer()
-                Text("Re:View Camera Test")
-                    .font(.headline)
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(10)
+                Button(action: {
+                    cameraManager.capturePhoto()
+                }) {
+                    Circle()
+                        .stroke(Color.white, lineWidth: 4)
+                        .frame(width: 70, height: 70)
+                        .overlay(Circle().fill(Color.white).frame(width: 60, height: 60))
+                }
+                .padding(.bottom, 30)
             }
-            .padding(.bottom, 50)
-        }
-        .onAppear {
-            cameraManager.configure(videoDataHandler: { data in
-                multipeerManager.sendVideoData(data)
-            })
+            .onAppear {
+                cameraManager.configure(
+                    videoDataHandler: { data in
+                        multipeerManager.sendData(data, type: 0)
+                    },
+                    photoDataHandler: { data in
+                        multipeerManager.sendData(data, type: 1)
+                    }
+                )
+            }
         }
     }
 }

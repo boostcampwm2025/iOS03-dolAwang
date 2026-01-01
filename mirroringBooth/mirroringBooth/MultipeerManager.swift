@@ -21,6 +21,7 @@ final class MultipeerManager: NSObject, ObservableObject {
     
     private let decoder = H264Decoder()
     @Published var receivedImage: CGImage? = nil
+    @Published var capturedPHoto: UIImage? = nil
     
     override init() {
         let peerID = MCPeerID(displayName: UIDevice.current.name)
@@ -55,13 +56,24 @@ final class MultipeerManager: NSObject, ObservableObject {
         browser = nil
     }
     
-    func sendVideoData(_ data: Data) {
+    func sendData(_ data: Data, type: UInt8) { // video=0, image=1
         guard let mainPeer else { return }
         do {
-            try session.send(data, toPeers: [mainPeer], with: .unreliable)
+            var packet = Data()
+            packet.append(type)
+            packet.append(data)
+            try session.send(
+                packet,
+                toPeers: [mainPeer],
+                with: type == 0 ? .unreliable : .reliable
+            )
         } catch {
             Logger.multipeerManager.debug("❌ 데이터 전송 실패: \(error)")
         }
+    }
+    
+    func clearPhoto() {
+        capturedPHoto = nil
     }
 }
 
@@ -108,7 +120,19 @@ extension MultipeerManager: MCSessionDelegate {
     }
     
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        decoder.decode(payload: data)
+        guard data.count > 1 else { return }
+        let type = data[0]
+        let payload = Data(data.dropFirst())
+        
+        if type == 0 {
+            decoder.decode(payload: payload)
+        } else if type == 1 {
+            if let image = UIImage(data: payload) {
+                DispatchQueue.main.async {
+                    self.capturedPHoto = image
+                }
+            }
+        }
     }
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
     func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {}
