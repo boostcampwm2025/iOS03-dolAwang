@@ -13,6 +13,7 @@ final class CameraManager: NSObject {
     private let videoOutput = AVCaptureVideoDataOutput()
     private let videoQueue = DispatchQueue(label: "com.review.videoQueue")
     private let h264Encoder = H264Encoder()
+    private var videoDataHandler: ((Data) -> Void)? = nil
     
     override init() {
         super.init()
@@ -33,6 +34,10 @@ final class CameraManager: NSObject {
         default:
             break
         }
+    }
+    
+    func configure(videoDataHandler: ((Data) -> Void)?) {
+        self.videoDataHandler = videoDataHandler
     }
     
     private func setupSession() {
@@ -75,7 +80,8 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate, H264Encod
         guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         h264Encoder.encode(sampleBuffer: sampleBuffer)
     }
+    
     func videoEncoder(_ encoder: H264Encoder, didEncode data: Data) {
-        print("압축 성공! 데이터 크기: \(data.count) bytes")
+        videoDataHandler?(data)
     }
 }

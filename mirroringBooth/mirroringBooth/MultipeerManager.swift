@@ -19,11 +19,15 @@ final class MultipeerManager: NSObject, ObservableObject {
     @Published var sessionState: MCSessionState = .notConnected
     @Published var invitation: MultipeerInvitation? = nil
     
+    private let decoder = H264Decoder()
+    @Published var receivedImage: CGImage? = nil
+    
     override init() {
         let peerID = MCPeerID(displayName: UIDevice.current.name)
         self.session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
         super.init()
         self.session.delegate = self
+        decoder.delegate = self
     }
     
     /// ButtonView 같은 외부 View가 Delegate가 되어 초대장을 처리하도록 설정
@@ -49,6 +53,15 @@ final class MultipeerManager: NSObject, ObservableObject {
         session.disconnect()
         advertiser = nil
         browser = nil
+    }
+    
+    func sendVideoData(_ data: Data) {
+        guard let mainPeer else { return }
+        do {
+            try session.send(data, toPeers: [mainPeer], with: .unreliable)
+        } catch {
+            Logger.multipeerManager.debug("❌ 데이터 전송 실패: \(error)")
+        }
     }
 }
 
@@ -94,8 +107,23 @@ extension MultipeerManager: MCSessionDelegate {
         }
     }
     
-    func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {}
+    func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+        decoder.decode(payload: data)
+    }
     func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
     func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {}
     func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {}
+}
+
+extension MultipeerManager: H264DecoderDelegate {
+    func decoder(_ decoder: H264Decoder, didDecode imageBuffer: CVImageBuffer) {
+        let ciImage = CIImage(cvPixelBuffer: imageBuffer)
+        let context = CIContext()
+        
+        if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
+            DispatchQueue.main.async {
+                self.receivedImage = cgImage
+            }
+        }
+    }
 }

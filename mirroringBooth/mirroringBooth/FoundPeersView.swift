@@ -10,13 +10,18 @@ import MultipeerConnectivity
 
 struct FoundPeersView: View {
     @ObservedObject var manager: MultipeerManager
+    @State private var peerConnected: Bool = false
 
     var body: some View {
         List(manager.browser!.foundPeers, id: \.self) { peer in
             Button(action:{
                 manager.browser!.invite(peer)
+                peerConnected = true
             }) {
                 Text(peer.displayName)
+            }
+            .navigationDestination(isPresented: $peerConnected) {
+                CameraView(multipeerManager: manager)
             }
         }
     }

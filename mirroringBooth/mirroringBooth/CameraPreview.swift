@@ -10,6 +10,7 @@ import AVFoundation
 
 struct CameraView: View {
     @State var cameraManager = CameraManager()
+    let multipeerManager: MultipeerManager
     
     var body: some View {
         ZStack {
@@ -25,6 +26,11 @@ struct CameraView: View {
                     .cornerRadius(10)
             }
             .padding(.bottom, 50)
+        }
+        .onAppear {
+            cameraManager.configure(videoDataHandler: { data in
+                multipeerManager.sendVideoData(data)
+            })
         }
     }
 }
