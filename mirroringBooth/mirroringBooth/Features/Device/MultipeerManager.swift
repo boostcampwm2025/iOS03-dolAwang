@@ -7,11 +7,12 @@
 
 import MultipeerConnectivity
 import Observation
+import Combine
 import os
 
 @Observable
 final class MultipeerManager: NSObject {
-    private let logger = AppLogger.make(for: MultipeerManager.self)
+    private let logger = AppLogger.make(for: CameraManager.self)
 
     private let serviceType: String
     private let peerID: MCPeerID
@@ -29,14 +30,12 @@ final class MultipeerManager: NSObject {
 
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
-    
-    /// 사진 수신 상태 콜백
-    var onReceivingPhoto: ((UUID) -> Void)?
-    var onReceivedPhotoResource: ((UUID, Data) -> Void)?
-    var onPhotoReceiveFailed: ((UUID) -> Void)?
+
+    /// 사진 수신 Progress 구독 관리용 cancellables
+    private var progressCancellables: [UUID: AnyCancellable] = [:]
 
     var isSearching: Bool = false
-    
+
     /// 연결된 피어가 있는지 여부
     var isConnected: Bool = false
 
@@ -44,6 +43,9 @@ final class MultipeerManager: NSObject {
     var isVideoSender: Bool {
         UIDevice.current.userInterfaceIdiom == .phone
     }
+
+    /// 수신된 사진 목록
+    var receivedPhotos: [ReceivedPhoto] = []
 
     /// View 표시용 기기 목록
     var nearbyDevices: [NearbyDevice] {
@@ -59,7 +61,7 @@ final class MultipeerManager: NSObject {
     init(serviceType: String = "mirroring-booth") {
         self.serviceType = serviceType
         self.peerID = MCPeerID(displayName: UIDevice.current.name)
-        self.session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .none)
+        self.session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required) // .none은 send만 호출할 수 있다.
         self.advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
 
@@ -174,11 +176,20 @@ final class MultipeerManager: NSObject {
         session.disconnect()
         logger.info("연결 해제: \(device.name)")
     }
+
+    private func updatePhotoState(
+        photoID: UUID,
+        state: PhotoReceiveState
+    ) {
+        guard let index = receivedPhotos.firstIndex(where: { $0.id == photoID }) else { return }
+        receivedPhotos[index].state = state
+    }
 }
 
 // MARK: - MCSessionDelegate
 // 피어 간 연결 상태의 변화 및 데이터 수신을 처리합니다.
 extension MultipeerManager: MCSessionDelegate {
+
     /// 피어의 연결 상태 변화를 감지합니다.
     func session(
         _ session: MCSession,
@@ -215,7 +226,6 @@ extension MultipeerManager: MCSessionDelegate {
         didReceive data: Data,
         fromPeer peerID: MCPeerID
     ) {
-        // 스트림 데이터 전용 (사진은 sendResource로 수신합니다.)
         onReceivedStreamData?(data)
     }
 
@@ -225,9 +235,7 @@ extension MultipeerManager: MCSessionDelegate {
         didReceive stream: InputStream,
         withName streamName: String,
         fromPeer peerID: MCPeerID
-    ) {
-
-    }
+    ) { }
 
     /// 파일 전송이 시작되었음을 알리고 진행 상태를 알립니다.
     func session(
@@ -236,13 +244,31 @@ extension MultipeerManager: MCSessionDelegate {
         fromPeer peerID: MCPeerID,
         with progress: Progress
     ) {
-        // 파일명에서 UUID 추출
-        let uuidString = resourceName.replacingOccurrences(of: ".jpg", with: "")
-        guard let photoID = UUID(uuidString: uuidString) else { return }
+        guard let photoID = UUID(
+            uuidString: resourceName.replacingOccurrences(of: ".jpg", with: "")
+        ) else { return }
 
         DispatchQueue.main.async {
-            self.onReceivingPhoto?(photoID)
+            self.receivedPhotos.insert(
+                ReceivedPhoto(id: photoID, state: .receiving(progress: 0)),
+                at: 0
+            )
         }
+
+        let cancellable = progress.publisher(for: \.fractionCompleted)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] fraction in
+                self?.updatePhotoState(
+                    photoID: photoID,
+                    state: .receiving(progress: fraction)
+                )
+
+                if fraction >= 1.0 {
+                    self?.progressCancellables[photoID] = nil
+                }
+            }
+
+        progressCancellables[photoID] = cancellable
     }
 
     /// 파일 전송이 완료되었거나 실패했음을 알립니다.
@@ -251,33 +277,31 @@ extension MultipeerManager: MCSessionDelegate {
         didFinishReceivingResourceWithName resourceName: String,
         fromPeer peerID: MCPeerID,
         at localURL: URL?,
-        withError error: (any Error)?
+        withError error: Error?
     ) {
-        let uuidString = resourceName.replacingOccurrences(of: ".jpg", with: "")
-        guard let photoID = UUID(uuidString: uuidString) else { return }
+        guard let photoID = UUID(
+            uuidString: resourceName.replacingOccurrences(of: ".jpg", with: "")
+        ) else { return }
+
+        progressCancellables[photoID] = nil
 
         if let error {
             logger.warning("사진 수신 실패: \(error.localizedDescription)")
-            DispatchQueue.main.async {
-                self.onPhotoReceiveFailed?(photoID)
-            }
+            updatePhotoState(photoID: photoID, state: .failed)
             return
         }
 
         guard let localURL,
-              let data = try? Data(contentsOf: localURL) else {
-            DispatchQueue.main.async {
-                self.onPhotoReceiveFailed?(photoID)
-            }
+              let data = try? Data(contentsOf: localURL),
+              let image = UIImage(data: data)
+        else {
+            updatePhotoState(photoID: photoID, state: .failed)
             return
         }
 
-        DispatchQueue.main.async {
-            self.onReceivedPhotoResource?(photoID, data)
-        }
+        updatePhotoState(photoID: photoID, state: .completed(image))
     }
 }
-
 // MARK: - MCNearbyServiceAdvertiserDelegate
 // 주변 기기로부터 들어오는 연결 초대를 수신한 뒤 승인 및 거절을 처리합니다.
 extension MultipeerManager: MCNearbyServiceAdvertiserDelegate {
@@ -311,4 +335,3 @@ extension MultipeerManager: MCNearbyServiceBrowserDelegate {
         }
     }
 }
-
