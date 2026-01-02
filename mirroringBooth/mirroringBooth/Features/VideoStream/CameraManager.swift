@@ -166,7 +166,7 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         didDrop sampleBuffer: CMSampleBuffer,
         from connection: AVCaptureConnection
     ) {
-        logger.warning("프레임 드롭 발생")
+        // 프레임 드롭 발생
     }
 }
 

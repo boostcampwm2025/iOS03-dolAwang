@@ -11,6 +11,7 @@ import SwiftUI
 struct VideoStreamView: View {
     @Environment(MultipeerManager.self) var multipeerManager
     @State private var cameraManager = CameraManager()
+    @State private var isCapturing = false
 
     var body: some View {
         Group {
@@ -49,6 +50,8 @@ struct VideoStreamView: View {
                 HStack {
                     Spacer()
                     Button {
+                        guard !isCapturing else { return }
+                        isCapturing = true
                         cameraManager.capturePhoto()
                     } label: {
                         Circle()
@@ -60,8 +63,24 @@ struct VideoStreamView: View {
                                     .frame(width: 60, height: 60)
                             }
                     }
+                    .disabled(isCapturing)
                     .padding(.bottom, 32)
                     Spacer()
+                }
+            }
+            
+            // 촬영 중 오버레이
+            if isCapturing {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(.white)
+                    Text("전송 중...")
+                        .font(.headline)
+                        .foregroundStyle(.white)
                 }
             }
         }
@@ -84,6 +103,9 @@ struct VideoStreamView: View {
 
         cameraManager.onCapturedPhoto = { photoData in
             multipeerManager.sendPhotoResource(photoData)
+            DispatchQueue.main.async {
+                isCapturing = false
+            }
         }
     }
 
