@@ -21,8 +21,7 @@ struct VideoStreamView: View {
                     .ignoresSafeArea()
                     .task {
                         cameraManager.onEncodedData = { data in
-                            // TODO: MC로 전송하기
-                            print("인코딩된 데이터 : \(data.count) 바이트")
+                            multipeerManager.sendStreamData(data)
                         }
                         await cameraManager.startSession()
                     }

@@ -109,6 +109,18 @@ final class MultipeerManager: NSObject {
         }
     }
 
+    /// 연결된 피어에게 스트림 데이터를 전송합니다.
+    func sendStreamData(_ data: Data) {
+        let connectedPeers = session.connectedPeers
+        guard !connectedPeers.isEmpty else { return }
+
+        do {
+            try session.send(data, toPeers: connectedPeers, with: .unreliable)
+        } catch {
+            logger.warning("스트림 데이터 전송 실패 : \(error.localizedDescription)")
+        }
+    }
+
     /// 연결된 특정 기기와 연결을 해제합니다.
     func disconnect(from device: NearbyDevice) {
         guard discoveredPeers[device.id] != nil else { return }
