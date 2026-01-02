@@ -31,6 +31,9 @@ final class MultipeerManager: NSObject {
     var onReceivedStreamData: ((Data) -> Void)?
 
     var isSearching: Bool = false
+    
+    /// 연결된 피어가 있는지 여부
+    var isConnected: Bool = false
 
     /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
     var isVideoSender: Bool {
@@ -162,6 +165,7 @@ extension MultipeerManager: MCSessionDelegate {
 
         DispatchQueue.main.async {
             self.discoveredPeers[deviceID]?.state = newState
+            self.isConnected = !session.connectedPeers.isEmpty
         }
     }
 
