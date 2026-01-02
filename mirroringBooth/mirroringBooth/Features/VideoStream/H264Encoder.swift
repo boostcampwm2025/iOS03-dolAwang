@@ -13,7 +13,7 @@ import os
 
 @Observable
 final class H264Encoder: VideoEncoder {
-    private let logger = AppLogger.make(for: H264Encoder.self)
+    let logger = AppLogger.make(for: H264Encoder.self)
     private let encoderQueue = DispatchQueue(label: "encoder.queue")
     
     private var compressionSession: VTCompressionSession?
@@ -49,8 +49,12 @@ final class H264Encoder: VideoEncoder {
     }
     
     func encode(_ sampleBuffer: CMSampleBuffer) -> Data? {
-        // TODO: 인코딩은 추후
+        // TODO: 인코딩
         return nil
+    }
+
+    func handleEncodedData(_ sampleBuffer: CMSampleBuffer) {
+        // TODO: 인코딩된 데이터 처리
     }
 }
 
@@ -58,6 +62,9 @@ final class H264Encoder: VideoEncoder {
 extension H264Encoder {
     private func setupCompressionSession() {
         var session: VTCompressionSession?
+        
+        // 콜백용 self 포인터 준비
+        let selfPtr = Unmanaged.passUnretained(self).toOpaque()
         
         let status = VTCompressionSessionCreate(
             allocator: kCFAllocatorDefault,
@@ -67,8 +74,8 @@ extension H264Encoder {
             encoderSpecification: nil,
             imageBufferAttributes: nil,
             compressedDataAllocator: nil,
-            outputCallback: nil,
-            refcon: nil,
+            outputCallback: compressionOutputCallback,
+            refcon: selfPtr,
             compressionSessionOut: &session
         )
         
@@ -112,3 +119,21 @@ extension H264Encoder {
     }
 }
 
+// MARK: - Compression Output Callback
+private func compressionOutputCallback(
+    outputCallbackRefCon: UnsafeMutableRawPointer?,
+    sourceFrameRefCon: UnsafeMutableRawPointer?,
+    status: OSStatus,
+    infoFlags: VTEncodeInfoFlags,
+    sampleBuffer: CMSampleBuffer?
+) {
+    guard let refcon = outputCallbackRefCon else { return }
+    let encoder = Unmanaged<H264Encoder>.fromOpaque(refcon).takeUnretainedValue()
+
+    guard status == noErr, let sampleBuffer = sampleBuffer else {
+        encoder.logger.warning("인코딩 실패 또는 sampleBuffer 없음: \(status)")
+        return
+    }
+
+    encoder.handleEncodedData(sampleBuffer)
+}
