@@ -7,11 +7,22 @@
 
 import SwiftUI
 
+enum PhotoReceiveState {
+    case receiving
+    case completed(UIImage)
+    case failed
+}
+
+struct ReceivedPhoto: Identifiable {
+    let id: UUID
+    var state: PhotoReceiveState
+}
+
 /// 아이폰에서 촬영된 사진을 미러링 기기로 전송하는 기능을 구현합니다.
 struct PhotoMirrorView: View {
     @Environment(MultipeerManager.self) var multipeerManager
-    @State private var receivedPhotos: [UIImage] = []
-    
+    @State private var receivedPhotos: [ReceivedPhoto] = []
+
     var body: some View {
         Group {
             if multipeerManager.isVideoSender {
@@ -26,10 +37,12 @@ struct PhotoMirrorView: View {
             setupPhotoReceiver()
         }
         .onDisappear {
-            multipeerManager.onReceivedPhotoData = nil
+            multipeerManager.onReceivingPhoto = nil
+            multipeerManager.onReceivedPhotoResource = nil
+            multipeerManager.onPhotoReceiveFailed = nil
         }
     }
-    
+
     /// 아이폰용 안내 메시지
     private var senderView: some View {
         VStack(spacing: 16) {
@@ -43,7 +56,7 @@ struct PhotoMirrorView: View {
                 .foregroundStyle(.secondary)
         }
     }
-    
+
     /// 아이패드/Mac용 이미지 리스트
     private var receiverView: some View {
         NavigationStack {
@@ -54,7 +67,7 @@ struct PhotoMirrorView: View {
             }
         }
     }
-    
+
     /// 빈 상태 뷰
     private var emptyView: some View {
         VStack(spacing: 16) {
@@ -68,32 +81,63 @@ struct PhotoMirrorView: View {
                 .foregroundStyle(.secondary)
         }
     }
-    
+
     /// 이미지 그리드 뷰
     private var imageGridView: some View {
         ScrollView {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 8)], spacing: 8) {
-                ForEach(Array(receivedPhotos.enumerated()), id: \.offset) { index, image in
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 150, height: 150)
-                        .clipped()
-                        .cornerRadius(8)
+                ForEach(receivedPhotos) { photo in
+                    switch photo.state {
+                    case .receiving:
+                        HStack {
+                            ProgressView()
+                            Text("사진 수신 중...")
+                        }
+                        .frame(height: 150)
+
+                    case .completed(let image):
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(height: 150)
+                            .clipped()
+                            .cornerRadius(8)
+
+                    case .failed:
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle")
+                            Text("수신 실패")
+                        }
+                        .foregroundStyle(.red)
+                        .frame(height: 150)
+                    }
                 }
             }
             .padding()
         }
         .navigationTitle("수신된 사진")
     }
-    
+
     /// 사진 수신 설정
     private func setupPhotoReceiver() {
-        multipeerManager.onReceivedPhotoData = { photoData in
-            guard let image = UIImage(data: photoData) else { return }
-            
-            DispatchQueue.main.async {
-                receivedPhotos.append(image)
+        multipeerManager.onReceivingPhoto = { photoID in
+            receivedPhotos.insert(
+                ReceivedPhoto(id: photoID, state: .receiving),
+                at: 0
+            )
+        }
+
+        multipeerManager.onReceivedPhotoResource = { photoID, data in
+            guard let image = UIImage(data: data) else { return }
+
+            if let index = receivedPhotos.firstIndex(where: { $0.id == photoID }) {
+                receivedPhotos[index].state = .completed(image)
+            }
+        }
+
+        multipeerManager.onPhotoReceiveFailed = { photoID in
+            if let index = receivedPhotos.firstIndex(where: { $0.id == photoID }) {
+                receivedPhotos[index].state = .failed
             }
         }
     }

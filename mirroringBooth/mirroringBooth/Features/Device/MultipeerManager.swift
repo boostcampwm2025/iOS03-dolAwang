@@ -30,8 +30,10 @@ final class MultipeerManager: NSObject {
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
     
-    /// 수신된 사진 데이터 콜백
-    var onReceivedPhotoData: ((Data) -> Void)?
+    /// 사진 수신 상태 콜백
+    var onReceivingPhoto: ((UUID) -> Void)?
+    var onReceivedPhotoResource: ((UUID, Data) -> Void)?
+    var onPhotoReceiveFailed: ((UUID) -> Void)?
 
     var isSearching: Bool = false
     
@@ -129,20 +131,39 @@ final class MultipeerManager: NSObject {
             logger.warning("스트림 데이터 전송 실패 : \(error.localizedDescription)")
         }
     }
-    
-    /// 연결된 피어에게 사진 데이터를 전송합니다.
-    func sendPhotoData(_ data: Data) {
-        let connectedPeers = session.connectedPeers
-        guard !connectedPeers.isEmpty else {
-            logger.warning("연결된 피어가 없어 사진 전송을 할 수 없습니다.")
+
+    /// 연결된 피어에게 사진 리소스를 전송합니다.
+    func sendPhotoResource(_ data: Data) {
+        guard let peer = session.connectedPeers.first else {
+            logger.warning("사진 전송 실패: 연결된 피어가 없습니다.")
             return
         }
 
+        let photoID = UUID()
+        let fileName = "\(photoID.uuidString).jpg"
+
+        // 임시 파일 생성
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(fileName)
+
         do {
-            try session.send(data, toPeers: connectedPeers, with: .reliable)
-            logger.info("사진 데이터 전송 성공 (\(data.count) bytes)")
+            try data.write(to: tempURL)
+
+            session.sendResource(
+                at: tempURL,
+                withName: fileName,
+                toPeer: peer
+            ) { error in
+                if let error {
+                    self.logger.warning("사진 전송 실패 : \(error.localizedDescription)")
+                }
+
+                // 전송 완료 후 임시 파일 삭제
+                try? FileManager.default.removeItem(at: tempURL)
+            }
+
         } catch {
-            logger.warning("사진 데이터 전송 실패: \(error.localizedDescription)")
+            logger.warning("임시 파일 생성 실패 : \(error.localizedDescription)")
         }
     }
 
@@ -194,14 +215,8 @@ extension MultipeerManager: MCSessionDelegate {
         didReceive data: Data,
         fromPeer peerID: MCPeerID
     ) {
-        // JPEG 이미지 데이터 구분 (JPEG는 0xFF 0xD8로 시작)
-        let isJPEGImage = data.count > 2 && data[0] == 0xFF && data[1] == 0xD8
-        
-        if isJPEGImage {
-            onReceivedPhotoData?(data)
-        } else {
-            onReceivedStreamData?(data)
-        }
+        // 스트림 데이터 전용 (사진은 sendResource로 수신합니다.)
+        onReceivedStreamData?(data)
     }
 
     /// 실시간 스트림(InputStream)을 수신합니다.
@@ -221,7 +236,13 @@ extension MultipeerManager: MCSessionDelegate {
         fromPeer peerID: MCPeerID,
         with progress: Progress
     ) {
+        // 파일명에서 UUID 추출
+        let uuidString = resourceName.replacingOccurrences(of: ".jpg", with: "")
+        guard let photoID = UUID(uuidString: uuidString) else { return }
 
+        DispatchQueue.main.async {
+            self.onReceivingPhoto?(photoID)
+        }
     }
 
     /// 파일 전송이 완료되었거나 실패했음을 알립니다.
@@ -232,7 +253,28 @@ extension MultipeerManager: MCSessionDelegate {
         at localURL: URL?,
         withError error: (any Error)?
     ) {
+        let uuidString = resourceName.replacingOccurrences(of: ".jpg", with: "")
+        guard let photoID = UUID(uuidString: uuidString) else { return }
 
+        if let error {
+            logger.warning("사진 수신 실패: \(error.localizedDescription)")
+            DispatchQueue.main.async {
+                self.onPhotoReceiveFailed?(photoID)
+            }
+            return
+        }
+
+        guard let localURL,
+              let data = try? Data(contentsOf: localURL) else {
+            DispatchQueue.main.async {
+                self.onPhotoReceiveFailed?(photoID)
+            }
+            return
+        }
+
+        DispatchQueue.main.async {
+            self.onReceivedPhotoResource?(photoID, data)
+        }
     }
 }
 

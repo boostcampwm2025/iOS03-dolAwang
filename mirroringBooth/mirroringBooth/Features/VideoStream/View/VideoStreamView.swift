@@ -70,7 +70,7 @@ struct VideoStreamView: View {
                 multipeerManager.sendStreamData(data)
             }
             cameraManager.onCapturedPhoto = { photoData in
-                multipeerManager.sendPhotoData(photoData)
+                multipeerManager.sendPhotoResource(photoData)
             }
             await cameraManager.startSession()
         }
