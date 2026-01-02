@@ -31,15 +31,15 @@ enum VideoStreamSettings {
     
     /// 비트레이트 설정 (bps)
     enum BitRate {
-        case low      // 1Mbps
-        case medium   // 2Mbps
-        case high     // 3Mbps
+        case low      // 2Mbps
+        case medium   // 4Mbps
+        case high     // 6Mbps
         
         var value: Int {
             switch self {
-            case .low: 1_000_000
-            case .medium: 2_000_000
-            case .high: 3_000_000
+            case .low: 2_000_000
+            case .medium: 4_000_000
+            case .high: 6_000_000
             }
         }
     }
@@ -60,8 +60,8 @@ enum VideoStreamSettings {
     }
     
     /// 기본 설정
-    static let defaultResolution: Resolution = .hd
-    static let defaultBitRate: BitRate = .medium
+    static let defaultResolution: Resolution = .fullHD
+    static let defaultBitRate: BitRate = .high
     static let defaultFrameRate: FrameRate = .standard
 }
 

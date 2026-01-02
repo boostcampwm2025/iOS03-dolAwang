@@ -77,21 +77,16 @@ final class CameraManager: NSObject {
                 self?.logger.warning("사진 촬영 준비가 되지 않았습니다.")
                 return
             }
-            
-            // 세션 설정
-            let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
-            
-            // 해상도 설정 (1920x1440, 4:3 비율)
-            if #available(iOS 16.0, *) {
-                settings.maxPhotoDimensions = CMVideoDimensions(width: 1920, height: 1440)
-            } else {
-                settings.isHighResolutionPhotoEnabled = true
-            }
-            
+
+            // JPEG 포맷으로 사진 촬영
+            let settings = AVCapturePhotoSettings(
+                format: [AVVideoCodecKey: AVVideoCodecType.jpeg] // TODO: 추후 jpeg나 heif를 선택할 수 있도록 enum으로 분리해보기
+            )
+
             let photoDelegate = PhotoCaptureDelegate { [weak self] imageData in
                 self?.onCapturedPhoto?(imageData)
             }
-            
+
             photoOutput.capturePhoto(with: settings, delegate: photoDelegate)
         }
     }
@@ -192,10 +187,32 @@ private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
             return
         }
         
-        // 이미지 리사이즈 및 JPEG 압축 (1920x1440 해상도, 품질 0.85)
-        guard let uiImage = UIImage(data: imageData),
-              let resizedImage = resizeImage(uiImage, to: CGSize(width: 1920, height: 1440)),
-              let compressedData = resizedImage.jpegData(compressionQuality: 0.85) else {
+        // 이미지 리사이즈 및 JPEG 압축 (최대 1920x1440 해상도, 품질 0.9)
+        guard let uiImage = UIImage(data: imageData) else {
+            completion(imageData)
+            return
+        }
+        
+        // 원본 이미지 크기 확인
+        let originalSize = uiImage.size
+        let maxSize = CGSize(width: 1920, height: 1440)
+        
+        // 원본이 더 작으면 리사이즈하지 않음
+        let targetSize: CGSize
+        if originalSize.width <= maxSize.width && originalSize.height <= maxSize.height {
+            targetSize = originalSize
+        } else {
+            // 비율 유지하며 리사이즈
+            let aspectRatio = originalSize.width / originalSize.height
+            if aspectRatio > maxSize.width / maxSize.height {
+                targetSize = CGSize(width: maxSize.width, height: maxSize.width / aspectRatio)
+            } else {
+                targetSize = CGSize(width: maxSize.height * aspectRatio, height: maxSize.height)
+            }
+        }
+        
+        guard let resizedImage = resizeImage(uiImage, to: targetSize),
+              let compressedData = resizedImage.jpegData(compressionQuality: 0.9) else {
             completion(imageData) // 리사이즈 실패 시 원본 반환
             return
         }
