@@ -29,6 +29,11 @@ final class MultipeerManager: NSObject {
 
     var isSearching: Bool = false
 
+    /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
+    var isVideoSender: Bool {
+        UIDevice.current.userInterfaceIdiom == .phone
+    }
+
     /// View 표시용 기기 목록
     var nearbyDevices: [NearbyDevice] {
         discoveredPeers.map {
