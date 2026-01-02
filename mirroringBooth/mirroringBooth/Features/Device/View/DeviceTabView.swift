@@ -63,14 +63,14 @@ struct DeviceTabView: View {
                     }
                 }
             }
-        }
-        .onAppear {
+    }
+    .onAppear {
+        if !multipeerManager.isSearching {
             multipeerManager.startSearching()
         }
-        .onDisappear {
-            multipeerManager.stopSearching()
-        }
     }
+    // 탭 전환 시에도 연결 유지를 위해 stopSearching()을 호출하지 않습니다.
+}
 
     private func stateColor(for state: ConnectionState) -> Color {
         switch state {

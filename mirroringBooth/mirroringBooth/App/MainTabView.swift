@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var multipeerManager = MultipeerManager()
 
     var body: some View {
@@ -29,6 +30,16 @@ struct MainTabView: View {
                 .tabItem {
                     Label("스트림", systemImage: "video")
                 }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .background, .inactive:
+                multipeerManager.stopSearching()
+            case .active:
+                break
+            @unknown default:
+                break
+            }
         }
     }
 }
