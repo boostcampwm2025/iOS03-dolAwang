@@ -17,9 +17,11 @@ protocol VideoEncoder {
     /// 인코딩 세션을 중지합니다.
     func stop()
     
-    /// 샘플 버퍼를 인코딩하여 데이터로 변환합니다.
+    /// 샘플 버퍼를 인코딩합니다.
     /// - Parameter sampleBuffer: 인코딩할 CMSampleBuffer
-    /// - Returns: 인코딩된 데이터 (H.264 NAL units 등)
-    func encode(_ sampleBuffer: CMSampleBuffer) -> Data?
+    func encode(_ sampleBuffer: CMSampleBuffer)
+    
+    /// 인코딩된 데이터를 받는 콜백
+    var onEncodedData: ((Data) -> Void)? { get set }
 }
 

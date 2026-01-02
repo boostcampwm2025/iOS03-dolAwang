@@ -22,6 +22,9 @@ final class H264Encoder: VideoEncoder {
     private let bitRate: Int
     private let frameRate: Int
     
+    /// 인코딩된 데이터를 받는 콜백
+    var onEncodedData: ((Data) -> Void)?
+    
     init(
         resolution: VideoStreamSettings.Resolution = VideoStreamSettings.defaultResolution,
         bitRate: VideoStreamSettings.BitRate = VideoStreamSettings.defaultBitRate,
@@ -48,13 +51,39 @@ final class H264Encoder: VideoEncoder {
         }
     }
     
-    func encode(_ sampleBuffer: CMSampleBuffer) -> Data? {
-        // TODO: 인코딩
-        return nil
+    func encode(_ sampleBuffer: CMSampleBuffer) {
+        guard let session = compressionSession else {
+            logger.warning("인코딩 세션이 준비되지 않았습니다.")
+            return
+        }
+        
+        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+            logger.warning("CMSampleBuffer에서 ImageBuffer를 가져올 수 없습니다.")
+            return
+        }
+        
+        let presentationTimeStamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+        let duration = CMSampleBufferGetDuration(sampleBuffer)
+        
+        encoderQueue.async { [weak self] in
+            let status = VTCompressionSessionEncodeFrame(
+                session,
+                imageBuffer: imageBuffer,
+                presentationTimeStamp: presentationTimeStamp,
+                duration: duration,
+                frameProperties: nil,
+                sourceFrameRefcon: nil,
+                infoFlagsOut: nil
+            )
+            
+            if status != noErr {
+                self?.logger.warning("프레임 인코딩 실패: \(status)")
+            }
+        }
     }
 
     func handleEncodedData(_ sampleBuffer: CMSampleBuffer) {
-        // TODO: 인코딩된 데이터 처리
+        // TODO: NAL units 추출 및 onEncodedData 콜백 호출
     }
 }
 
