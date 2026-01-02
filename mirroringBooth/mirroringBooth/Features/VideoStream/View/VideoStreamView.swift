@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// 아이폰에서 미러링 기기로의 비디오 스트림 기능을 구현합니다.
+// MARK: - 아이폰에서 미러링 기기로의 비디오 스트림 기능을 구현합니다.
 struct VideoStreamView: View {
     @Environment(MultipeerManager.self) var multipeerManager
     @State private var cameraManager = CameraManager()
@@ -40,17 +40,43 @@ struct VideoStreamView: View {
 
     /// 카메라 화면을 캡처하고 송신합니다.
     private var senderView: some View {
-        CameraPreview(session: cameraManager.session)
-            .ignoresSafeArea(edges: [.top, .horizontal])
-            .task {
-                cameraManager.onEncodedData = { data in
-                    multipeerManager.sendStreamData(data)
+        ZStack {
+            CameraPreview(session: cameraManager.session)
+                .ignoresSafeArea(edges: [.top, .horizontal])
+            
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button {
+                        cameraManager.capturePhoto()
+                    } label: {
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 70, height: 70)
+                            .overlay {
+                                Circle()
+                                    .stroke(.black, lineWidth: 3)
+                                    .frame(width: 60, height: 60)
+                            }
+                    }
+                    .padding(.bottom, 32)
+                    Spacer()
                 }
-                await cameraManager.startSession()
             }
-            .onDisappear {
-                cameraManager.stopSession()
+        }
+        .task {
+            cameraManager.onEncodedData = { data in
+                multipeerManager.sendStreamData(data)
             }
+            cameraManager.onCapturedPhoto = { photoData in
+                multipeerManager.sendPhotoData(photoData)
+            }
+            await cameraManager.startSession()
+        }
+        .onDisappear {
+            cameraManager.stopSession()
+        }
     }
 }
 

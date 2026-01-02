@@ -8,7 +8,7 @@
 import SwiftUI
 import AVFoundation
 
-/// iPad나 Mac에 수신된 비디오 스트림을 표시하는 View
+// MARK: - iPad나 Mac에 수신된 비디오 스트림을 표시하는 View
 struct VideoStreamReceiverView: View {
     @Environment(MultipeerManager.self) var multipeerManager
     @State private var decoder = H264Decoder()
