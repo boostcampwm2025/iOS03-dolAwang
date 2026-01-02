@@ -83,7 +83,116 @@ final class H264Encoder: VideoEncoder {
     }
 
     func handleEncodedData(_ sampleBuffer: CMSampleBuffer) {
-        // TODO: NAL units 추출 및 onEncodedData 콜백 호출
+        guard let dataBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) else {
+            logger.warning("DataBuffer를 가져올 수 없습니다.")
+            return
+        }
+        
+        var data = Data()
+        
+        // 키프레임인 경우 SPS/PPS 추가
+        if isKeyFrame(sampleBuffer) {
+            if let parameterSetData = extractParameterSets(from: sampleBuffer) {
+                data.append(parameterSetData)
+            }
+        }
+        
+        // NAL units 추출
+        var totalLength = 0
+        var dataPointer: UnsafeMutablePointer<Int8>?
+        let status = CMBlockBufferGetDataPointer(
+            dataBuffer,
+            atOffset: 0,
+            lengthAtOffsetOut: nil,
+            totalLengthOut: &totalLength,
+            dataPointerOut: &dataPointer
+        )
+        
+        guard status == kCMBlockBufferNoErr, let pointer = dataPointer else {
+            logger.warning("DataBuffer 포인터를 가져올 수 없습니다.")
+            return
+        }
+        
+        // AVCC에서 Annex-B 변환한다. (NAL unit 앞에 start code 추가)
+        let startCode: [UInt8] = [0x00, 0x00, 0x00, 0x01]
+        var offset = 0
+        
+        while offset < totalLength {
+            // NAL unit 길이 읽기 (4바이트)
+            var nalLength: UInt32 = 0
+            memcpy(&nalLength, pointer.advanced(by: offset), 4)
+            nalLength = CFSwapInt32BigToHost(nalLength)
+            offset += 4
+            
+            // Start code 추가
+            data.append(contentsOf: startCode)
+            
+            // NAL unit 데이터 추가
+            data.append(Data(bytes: pointer.advanced(by: offset), count: Int(nalLength)))
+            offset += Int(nalLength)
+        }
+        
+        // 콜백 호출
+        onEncodedData?(data)
+    }
+    
+    private func isKeyFrame(_ sampleBuffer: CMSampleBuffer) -> Bool {
+        guard let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: false) as? [[CFString: Any]],
+              let attachment = attachments.first else {
+            return false
+        }
+        
+        // kCMSampleAttachmentKey_NotSync가 없거나 false이면 키프레임이다.
+        let notSync = attachment[kCMSampleAttachmentKey_NotSync] as? Bool ?? false
+        return !notSync
+    }
+    
+    private func extractParameterSets(from sampleBuffer: CMSampleBuffer) -> Data? {
+        guard let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer) else {
+            return nil
+        }
+        
+        var data = Data()
+        let startCode: [UInt8] = [0x00, 0x00, 0x00, 0x01]
+        
+        // SPS 추출
+        var spsSize = 0
+        var spsCount = 0
+        var spsPointer: UnsafePointer<UInt8>?
+        
+        var status = CMVideoFormatDescriptionGetH264ParameterSetAtIndex(
+            formatDescription,
+            parameterSetIndex: 0,
+            parameterSetPointerOut: &spsPointer,
+            parameterSetSizeOut: &spsSize,
+            parameterSetCountOut: &spsCount,
+            nalUnitHeaderLengthOut: nil
+        )
+        
+        if status == noErr, let sps = spsPointer {
+            data.append(contentsOf: startCode)
+            data.append(Data(bytes: sps, count: spsSize))
+        }
+        
+        // PPS 추출
+        var ppsSize = 0
+        var ppsPointer: UnsafePointer<UInt8>?
+        
+        status = CMVideoFormatDescriptionGetH264ParameterSetAtIndex(
+            formatDescription,
+            parameterSetIndex: 1,
+            parameterSetPointerOut: &ppsPointer,
+            parameterSetSizeOut: &ppsSize,
+            parameterSetCountOut: nil,
+            nalUnitHeaderLengthOut: nil
+        )
+        
+        if status == noErr, let pps = ppsPointer {
+            data.append(contentsOf: startCode)
+            data.append(Data(bytes: pps, count: ppsSize))
+        }
+        
+        return data.isEmpty ? nil : data
     }
 }
 
