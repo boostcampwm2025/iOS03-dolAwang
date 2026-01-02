@@ -7,6 +7,7 @@
 
 import Observation
 import AVFoundation
+import UIKit
 import os
 
 @Observable
@@ -19,6 +20,7 @@ final class CameraManager: NSObject {
     private var videoDevice: AVCaptureDevice?
     private var videoInput: AVCaptureDeviceInput?
     private var videoOutput: AVCaptureVideoDataOutput?
+    private var photoOutput: AVCapturePhotoOutput?
 
     private let encoder = H264Encoder()
 
@@ -27,6 +29,9 @@ final class CameraManager: NSObject {
         get { encoder.onEncodedData }
         set { encoder.onEncodedData = newValue }
     }
+    
+    /// 촬영된 이미지 데이터 콜백
+    var onCapturedPhoto: ((Data) -> Void)?
 
     /// Session을 시작합니다.
     func startSession() async {
@@ -61,6 +66,33 @@ final class CameraManager: NSObject {
         encoder.stop()
         sessionQueue.async { [weak self] in
             self?.session.stopRunning()
+        }
+    }
+    
+    /// 사진을 촬영합니다.
+    func capturePhoto() {
+        sessionQueue.async { [weak self] in
+            guard let self,
+                  let photoOutput = self.photoOutput else {
+                self?.logger.warning("사진 촬영 준비가 되지 않았습니다.")
+                return
+            }
+            
+            // 세션 설정
+            let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
+            
+            // 해상도 설정 (1920x1440, 4:3 비율)
+            if #available(iOS 16.0, *) {
+                settings.maxPhotoDimensions = CMVideoDimensions(width: 1920, height: 1440)
+            } else {
+                settings.isHighResolutionPhotoEnabled = true
+            }
+            
+            let photoDelegate = PhotoCaptureDelegate { [weak self] imageData in
+                self?.onCapturedPhoto?(imageData)
+            }
+            
+            photoOutput.capturePhoto(with: settings, delegate: photoDelegate)
         }
     }
 }
@@ -107,6 +139,15 @@ extension CameraManager {
         } else {
             logger.warning("비디오 출력 추가에 실패했습니다.")
         }
+        
+        // 사진 출력 추가
+        let photoOutput = AVCapturePhotoOutput()
+        if session.canAddOutput(photoOutput) {
+            session.addOutput(photoOutput)
+            self.photoOutput = photoOutput
+        } else {
+            logger.warning("사진 출력 추가에 실패했습니다.")
+        }
     }
 }
 
@@ -127,5 +168,45 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         from connection: AVCaptureConnection
     ) {
         logger.warning("프레임 드롭 발생")
+    }
+}
+
+// MARK: - Photo Capture Delegate
+private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
+    private let completion: @Sendable (Data) -> Void
+    
+    init(completion: @escaping @Sendable (Data) -> Void) {
+        self.completion = completion
+        super.init()
+    }
+
+    // AVCapturePhotoCaptureDelegate에서 자꾸 @MainActor 경고가 발생하여 임시적으로 nonisolated로 지정했습니다.
+    // 개선 예정입니다..
+    nonisolated func photoOutput(
+        _ output: AVCapturePhotoOutput,
+        didFinishProcessingPhoto photo: AVCapturePhoto,
+        error: Error?
+    ) {
+        guard error == nil,
+              let imageData = photo.fileDataRepresentation() else {
+            return
+        }
+        
+        // 이미지 리사이즈 및 JPEG 압축 (1920x1440 해상도, 품질 0.85)
+        guard let uiImage = UIImage(data: imageData),
+              let resizedImage = resizeImage(uiImage, to: CGSize(width: 1920, height: 1440)),
+              let compressedData = resizedImage.jpegData(compressionQuality: 0.85) else {
+            completion(imageData) // 리사이즈 실패 시 원본 반환
+            return
+        }
+        
+        completion(compressedData)
+    }
+    
+    nonisolated private func resizeImage(_ image: UIImage, to targetSize: CGSize) -> UIImage? {
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
     }
 }
