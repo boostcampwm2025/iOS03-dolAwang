@@ -9,6 +9,7 @@ import SwiftUI
 
 // 아이폰에서 미러링 기기로의 비디오 스트림 기능을 구현합니다.
 struct VideoStreamView: View {
+    let logger = AppLogger.make(for: VideoStreamView.self)
     @Environment(MultipeerManager.self) var multipeerManager
     @State private var cameraManager = CameraManager()
 
@@ -19,13 +20,17 @@ struct VideoStreamView: View {
                 CameraPreview(session: cameraManager.session)
                     .ignoresSafeArea()
                     .task {
+                        cameraManager.onEncodedData = { data in
+                            // TODO: MC로 전송하기
+                            print("인코딩된 데이터 : \(data.count) 바이트")
+                        }
                         await cameraManager.startSession()
                     }
                     .onDisappear {
                         cameraManager.stopSession()
                     }
             } else {
-                // iPad나Mac일 경우 화면을 수신합니다.
+                // iPad나 Mac일 경우 화면을 수신합니다.
                 VideoStreamReceiverView()
             }
         }

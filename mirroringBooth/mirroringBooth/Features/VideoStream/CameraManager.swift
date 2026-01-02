@@ -20,6 +20,14 @@ final class CameraManager: NSObject {
     private var videoInput: AVCaptureDeviceInput?
     private var videoOutput: AVCaptureVideoDataOutput?
 
+    private let encoder = H264Encoder()
+
+    /// 인코딩된 데이터 콜백
+    var onEncodedData: ((Data) -> Void)? {
+        get { encoder.onEncodedData }
+        set { encoder.onEncodedData = newValue }
+    }
+
     /// Session을 시작합니다.
     func startSession() async {
         // 권한을 확인합니다.
@@ -28,6 +36,9 @@ final class CameraManager: NSObject {
             logger.warning("카메라 권한이 거부되었습니다.")
             return
         }
+
+        // 인코더를 실행합니다.
+        encoder.start()
 
         // 세션을 설정하고 시작합니다.
         await withCheckedContinuation { continuation in
@@ -47,6 +58,7 @@ final class CameraManager: NSObject {
 
     /// Session을 멈춥니다.
     func stopSession() {
+        encoder.stop()
         sessionQueue.async { [weak self] in
             self?.session.stopRunning()
         }
@@ -106,7 +118,6 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         from connection: AVCaptureConnection
     ) {
         // 프레임 캡처 성공
-        // TODO: 인코딩 처리하기
-        logger.info("성공했당~")
+        encoder.encode(sampleBuffer)
     }
 }
