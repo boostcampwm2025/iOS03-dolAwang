@@ -10,7 +10,7 @@ import AVFoundation
 import os
 
 @Observable
-final class CameraManager {
+final class CameraManager: NSObject {
     private let logger = AppLogger.make(for: CameraManager.self)
 
     let session = AVCaptureSession()
@@ -18,6 +18,7 @@ final class CameraManager {
 
     private var videoDevice: AVCaptureDevice?
     private var videoInput: AVCaptureDeviceInput?
+    private var videoOutput: AVCaptureVideoDataOutput?
 
     /// Session을 시작합니다.
     func startSession() async {
@@ -70,6 +71,7 @@ extension CameraManager {
 
         self.videoDevice = videoDevice
 
+        // 입력 추가
         do {
             let videoInput = try AVCaptureDeviceInput(device: videoDevice)
             if session.canAddInput(videoInput) {
@@ -78,6 +80,33 @@ extension CameraManager {
             }
         } catch {
             logger.warning("카메라 입력 설정에 실패했습니다. \(error)")
+            return
         }
+
+        // 출력 추가 (프레임 캡처용)
+        let videoOutput = AVCaptureVideoDataOutput()
+        videoOutput.setSampleBufferDelegate(self, queue: sessionQueue)
+        // YUV 포맷으로 설정했습니다.
+        videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
+
+        if session.canAddOutput(videoOutput) {
+            session.addOutput(videoOutput)
+            self.videoOutput = videoOutput
+        } else {
+            logger.warning("비디오 출력 추가에 실패했습니다.")
+        }
+    }
+}
+
+// MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
+extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
+    func captureOutput(
+        _ output: AVCaptureOutput,
+        didOutput sampleBuffer: CMSampleBuffer,
+        from connection: AVCaptureConnection
+    ) {
+        // 프레임 캡처 성공
+        // TODO: 인코딩 처리하기
+        logger.info("성공했당~")
     }
 }
