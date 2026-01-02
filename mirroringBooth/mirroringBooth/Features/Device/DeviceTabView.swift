@@ -10,7 +10,7 @@ import SwiftUI
 // 주변의 애플 기기를 탐색하는 기능을 구현합니다.
 // 선택한 애플 기기와의 통신 연결 상태를 확인합니다.
 struct DeviceTabView: View {
-    @State private var multipeerManager = MultipeerManager()
+    @Environment(MultipeerManager.self) var multipeerManager
 
     var body: some View {
         List {
@@ -83,5 +83,6 @@ struct DeviceTabView: View {
 
 #Preview {
     DeviceTabView()
+        .environment(MultipeerManager())
 }
 

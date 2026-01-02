@@ -9,6 +9,8 @@ import SwiftUI
 
 // 아이폰에서 미러링 기기로의 비디오 스트림 기능을 구현합니다.
 struct VideoStreamView: View {
+    @Environment(MultipeerManager.self) var multipeerManager
+
     var body: some View {
         Text("비디오 스트림")
     }
@@ -16,5 +18,6 @@ struct VideoStreamView: View {
 
 #Preview {
     VideoStreamView()
+        .environment(MultipeerManager())
 }
 
