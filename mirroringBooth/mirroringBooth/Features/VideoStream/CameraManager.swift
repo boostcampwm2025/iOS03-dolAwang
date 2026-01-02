@@ -120,4 +120,12 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         // 프레임 캡처 성공
         encoder.encode(sampleBuffer)
     }
+    
+    func captureOutput(
+        _ output: AVCaptureOutput,
+        didDrop sampleBuffer: CMSampleBuffer,
+        from connection: AVCaptureConnection
+    ) {
+        logger.warning("프레임 드롭 발생")
+    }
 }

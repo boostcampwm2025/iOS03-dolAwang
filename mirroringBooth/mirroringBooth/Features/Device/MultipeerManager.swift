@@ -175,14 +175,7 @@ extension MultipeerManager: MCSessionDelegate {
         didReceive data: Data,
         fromPeer peerID: MCPeerID
     ) {
-        // 스트림 데이터 콜백이 설정되어 있으면 스트림으로 처리
-        if onReceivedStreamData != nil {
-            onReceivedStreamData?(data)
-        } else {
-            // 텍스트 메시지로 처리
-            let message = String(decoding: data, as: UTF8.self)
-            logger.info("[수신된 메시지] \(peerID.displayName): \(message)")
-        }
+        onReceivedStreamData?(data)
     }
 
     /// 실시간 스트림(InputStream)을 수신합니다.

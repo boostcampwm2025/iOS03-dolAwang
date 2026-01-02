@@ -35,15 +35,6 @@ struct DeviceTabView: View {
                             .buttonStyle(.borderless)
                             .disabled(device.state != .notConnected)
 
-                            // 메시지 전송 버튼
-                            Button {
-                                multipeerManager.sendMessage(to: device)
-                            } label: {
-                                Image(systemName: "paperplane.fill")
-                            }
-                            .buttonStyle(.borderless)
-                            .disabled(device.state != .connected)
-
                             // 연결 해제 버튼
                             Button {
                                 multipeerManager.disconnect(from: device)

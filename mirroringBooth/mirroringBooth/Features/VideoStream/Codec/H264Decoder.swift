@@ -9,6 +9,7 @@ import CoreMedia
 import Foundation
 import Observation
 import VideoToolbox
+import QuartzCore
 import os
 
 @Observable
@@ -27,7 +28,6 @@ final class H264Decoder: VideoDecoder {
     private var pps: Data?
 
     func start() {
-        logger.info("H.264 디코더 시작")
     }
 
     func stop() {
@@ -40,7 +40,6 @@ final class H264Decoder: VideoDecoder {
             self?.sps = nil
             self?.pps = nil
         }
-        logger.info("H.264 디코더 중지")
     }
 
     func decode(_ data: Data) {
@@ -89,47 +88,76 @@ extension H264Decoder {
         for nal in nalUnits {
             switch nal.type {
             case 7: // SPS
-                sps = nal.data
+                if sps != nal.data {
+                    sps = nal.data
+                    // SPS와 PPS가 모두 있으면 FormatDescription 생성
+                    if pps != nil {
+                        ensureDecompressionSession()
+                    }
+                }
             case 8: // PPS
-                pps = nal.data
+                if pps != nal.data {
+                    pps = nal.data
+                    // SPS와 PPS가 모두 있으면 FormatDescription 생성
+                    if sps != nil {
+                        ensureDecompressionSession()
+                    }
+                }
             case 5: // IDR (키프레임)
-                if formatDescription == nil {
-                    createFormatDescription()
+                ensureDecompressionSession()
+                if decompressionSession != nil {
+                    decodeFrame(nal.data, isKeyframe: true)
+                } else {
+                    logger.warning("DecompressionSession이 없어 IDR 프레임을 디코딩할 수 없습니다")
                 }
-                if decompressionSession == nil {
-                    createDecompressionSession()
-                }
-                decodeFrame(nal.data)
             case 1: // Non-IDR (일반 프레임)
-                decodeFrame(nal.data)
+                guard decompressionSession != nil else {
+                    continue
+                }
+                decodeFrame(nal.data, isKeyframe: false)
             default:
                 break
             }
         }
     }
 
+    /// FormatDescription과 DecompressionSession이 준비되었는지 확인
+    private func ensureDecompressionSession() {
+        if formatDescription == nil {
+            createFormatDescription()
+        }
+        if decompressionSession == nil && formatDescription != nil {
+            createDecompressionSession()
+        }
+    }
+
     private func createFormatDescription() {
         guard let sps = sps, let pps = pps else { return }
 
-        let parameterSets: [UnsafePointer<UInt8>] = [
-            sps.withUnsafeBytes { $0.baseAddress!.assumingMemoryBound(to: UInt8.self) },
-            pps.withUnsafeBytes { $0.baseAddress!.assumingMemoryBound(to: UInt8.self) }
-        ]
-        let parameterSetSizes: [Int] = [sps.count, pps.count]
-
         var formatDesc: CMFormatDescription?
-        let status = CMVideoFormatDescriptionCreateFromH264ParameterSets(
-            allocator: kCFAllocatorDefault,
-            parameterSetCount: 2,
-            parameterSetPointers: parameterSets,
-            parameterSetSizes: parameterSetSizes,
-            nalUnitHeaderLength: 4,
-            formatDescriptionOut: &formatDesc
-        )
+
+        // withUnsafeBytes 클로저 내부에서 포인터 사용
+        let status = sps.withUnsafeBytes { spsPtr -> OSStatus in
+            pps.withUnsafeBytes { ppsPtr -> OSStatus in
+                let parameterSets: [UnsafePointer<UInt8>] = [
+                    spsPtr.baseAddress!.assumingMemoryBound(to: UInt8.self),
+                    ppsPtr.baseAddress!.assumingMemoryBound(to: UInt8.self)
+                ]
+                let parameterSetSizes: [Int] = [sps.count, pps.count]
+
+                return CMVideoFormatDescriptionCreateFromH264ParameterSets(
+                    allocator: kCFAllocatorDefault,
+                    parameterSetCount: 2,
+                    parameterSetPointers: parameterSets,
+                    parameterSetSizes: parameterSetSizes,
+                    nalUnitHeaderLength: 4,
+                    formatDescriptionOut: &formatDesc
+                )
+            }
+        }
 
         if status == noErr {
             formatDescription = formatDesc
-            logger.info("FormatDescription 생성 완료")
         } else {
             logger.warning("FormatDescription 생성 실패: \(status)")
         }
@@ -159,77 +187,117 @@ extension H264Decoder {
 
         if status == noErr {
             decompressionSession = session
-            logger.info("DecompressionSession 생성 완료")
         } else {
             logger.warning("DecompressionSession 생성 실패: \(status)")
         }
     }
 
-    private func decodeFrame(_ nalData: Data) {
+    private func decodeFrame(_ nalData: Data, isKeyframe: Bool) {
         guard let session = decompressionSession,
               let formatDescription = formatDescription else { return }
 
         // AVCC 형식으로 변환 (4바이트 길이 헤더)
-        var avccData = Data()
         var length = UInt32(nalData.count).bigEndian
-        avccData.append(Data(bytes: &length, count: 4))
+        var avccData = Data(bytes: &length, count: 4)
         avccData.append(nalData)
 
-        // CMBlockBuffer 생성
+        // CMBlockBuffer 생성 (메모리 복사 방식)
         var blockBuffer: CMBlockBuffer?
-        let blockStatus = avccData.withUnsafeBytes { ptr -> OSStatus in
-            CMBlockBufferCreateWithMemoryBlock(
+        var blockStatus: OSStatus = noErr
+
+        avccData.withUnsafeBytes { bytes in
+            blockStatus = CMBlockBufferCreateWithMemoryBlock(
                 allocator: kCFAllocatorDefault,
-                memoryBlock: UnsafeMutableRawPointer(mutating: ptr.baseAddress),
+                memoryBlock: nil,
                 blockLength: avccData.count,
-                blockAllocator: kCFAllocatorNull,
+                blockAllocator: kCFAllocatorDefault,
                 customBlockSource: nil,
                 offsetToData: 0,
                 dataLength: avccData.count,
                 flags: 0,
                 blockBufferOut: &blockBuffer
             )
+
+            if blockStatus == noErr, let buffer = blockBuffer {
+                blockStatus = CMBlockBufferReplaceDataBytes(
+                    with: bytes.baseAddress!,
+                    blockBuffer: buffer,
+                    offsetIntoDestination: 0,
+                    dataLength: avccData.count
+                )
+            }
         }
 
-        guard blockStatus == noErr, let buffer = blockBuffer else { return }
+        guard blockStatus == noErr, let buffer = blockBuffer else {
+            if isKeyframe {
+                logger.warning("BlockBuffer 생성 실패 (키프레임): \(blockStatus)")
+            }
+            return
+        }
 
         // CMSampleBuffer 생성
         var sampleBuffer: CMSampleBuffer?
         var sampleSize = avccData.count
-        CMSampleBufferCreateReady(
+
+        let pts = CMTime(
+            value: CMTimeValue(CACurrentMediaTime() * 1_000_000),
+            timescale: 1_000_000
+        )
+
+        var timing = CMSampleTimingInfo(
+            duration: CMTime(value: 1, timescale: 30),
+            presentationTimeStamp: pts,
+            decodeTimeStamp: .invalid
+        )
+
+        let sampleStatus = CMSampleBufferCreateReady(
             allocator: kCFAllocatorDefault,
             dataBuffer: buffer,
             formatDescription: formatDescription,
             sampleCount: 1,
-            sampleTimingEntryCount: 0,
-            sampleTimingArray: nil,
+            sampleTimingEntryCount: 1,
+            sampleTimingArray: &timing,
             sampleSizeEntryCount: 1,
             sampleSizeArray: &sampleSize,
             sampleBufferOut: &sampleBuffer
         )
 
-        guard let sample = sampleBuffer else { return }
+        guard sampleStatus == noErr, let sample = sampleBuffer else {
+            if isKeyframe {
+                logger.warning("SampleBuffer 생성 실패 (키프레임): \(sampleStatus)")
+            }
+            return
+        }
 
         // 디코딩
-        VTDecompressionSessionDecodeFrame(
+        let decodeStatus = VTDecompressionSessionDecodeFrame(
             session,
             sampleBuffer: sample,
             flags: [._EnableAsynchronousDecompression],
             frameRefcon: nil,
             infoFlagsOut: nil
         )
+
+        if decodeStatus != noErr {
+            if isKeyframe {
+                logger.warning("디코딩 실패 (키프레임): \(decodeStatus)")
+            }
+        }
     }
 
     func handleDecodedFrame(_ imageBuffer: CVImageBuffer, presentationTimeStamp: CMTime) {
         // CVImageBuffer -> CMSampleBuffer 변환
         var formatDesc: CMVideoFormatDescription?
-        CMVideoFormatDescriptionCreateForImageBuffer(
+        let formatStatus = CMVideoFormatDescriptionCreateForImageBuffer(
             allocator: kCFAllocatorDefault,
             imageBuffer: imageBuffer,
             formatDescriptionOut: &formatDesc
         )
 
-        guard let format = formatDesc else { return }
+        guard formatStatus == noErr, let format = formatDesc else {
+            logger.warning("FormatDescription 생성 실패 (디코딩 출력): \(formatStatus)")
+            return
+        }
 
         var timing = CMSampleTimingInfo(
             duration: .invalid,
@@ -238,7 +306,7 @@ extension H264Decoder {
         )
 
         var sampleBuffer: CMSampleBuffer?
-        CMSampleBufferCreateForImageBuffer(
+        let sampleStatus = CMSampleBufferCreateForImageBuffer(
             allocator: kCFAllocatorDefault,
             imageBuffer: imageBuffer,
             dataReady: true,
@@ -249,8 +317,10 @@ extension H264Decoder {
             sampleBufferOut: &sampleBuffer
         )
 
-        if let sample = sampleBuffer {
+        if sampleStatus == noErr, let sample = sampleBuffer {
             onDecodedSampleBuffer?(sample)
+        } else {
+            logger.warning("SampleBuffer 생성 실패 (디코딩 출력): \(sampleStatus)")
         }
     }
 }
@@ -265,10 +335,19 @@ private func decompressionOutputCallback(
     presentationTimeStamp: CMTime,
     presentationDuration: CMTime
 ) {
-    guard let refcon = decompressionOutputRefCon,
-          status == noErr,
-          let buffer = imageBuffer else { return }
+    guard let refcon = decompressionOutputRefCon else { return }
 
     let decoder = Unmanaged<H264Decoder>.fromOpaque(refcon).takeUnretainedValue()
+
+    guard status == noErr else {
+        decoder.logger.warning("디코딩 콜백 실패: \(status)")
+        return
+    }
+
+    guard let buffer = imageBuffer else {
+        decoder.logger.warning("디코딩 콜백: imageBuffer가 nil")
+        return
+    }
+
     decoder.handleDecodedFrame(buffer, presentationTimeStamp: presentationTimeStamp)
 }
