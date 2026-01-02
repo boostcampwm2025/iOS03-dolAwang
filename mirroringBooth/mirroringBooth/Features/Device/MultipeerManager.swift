@@ -29,6 +29,9 @@ final class MultipeerManager: NSObject {
 
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
+    
+    /// 수신된 사진 데이터 콜백
+    var onReceivedPhotoData: ((Data) -> Void)?
 
     var isSearching: Bool = false
     
@@ -126,6 +129,22 @@ final class MultipeerManager: NSObject {
             logger.warning("스트림 데이터 전송 실패 : \(error.localizedDescription)")
         }
     }
+    
+    /// 연결된 피어에게 사진 데이터를 전송합니다.
+    func sendPhotoData(_ data: Data) {
+        let connectedPeers = session.connectedPeers
+        guard !connectedPeers.isEmpty else {
+            logger.warning("연결된 피어가 없어 사진 전송을 할 수 없습니다.")
+            return
+        }
+
+        do {
+            try session.send(data, toPeers: connectedPeers, with: .reliable)
+            logger.info("사진 데이터 전송 성공 (\(data.count) bytes)")
+        } catch {
+            logger.warning("사진 데이터 전송 실패: \(error.localizedDescription)")
+        }
+    }
 
     /// 연결된 특정 기기와 연결을 해제합니다.
     func disconnect(from device: NearbyDevice) {
@@ -175,7 +194,14 @@ extension MultipeerManager: MCSessionDelegate {
         didReceive data: Data,
         fromPeer peerID: MCPeerID
     ) {
-        onReceivedStreamData?(data)
+        // JPEG 이미지 데이터 구분 (JPEG는 0xFF 0xD8로 시작)
+        let isJPEGImage = data.count > 2 && data[0] == 0xFF && data[1] == 0xD8
+        
+        if isJPEGImage {
+            onReceivedPhotoData?(data)
+        } else {
+            onReceivedStreamData?(data)
+        }
     }
 
     /// 실시간 스트림(InputStream)을 수신합니다.
