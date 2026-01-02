@@ -27,6 +27,9 @@ final class MultipeerManager: NSObject {
 
     private var discoveredPeers: [String: DiscoveredPeer] = [:]
 
+    /// 수신된 스트림 데이터 콜백
+    var onReceivedStreamData: ((Data) -> Void)?
+
     var isSearching: Bool = false
 
     /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
@@ -168,8 +171,14 @@ extension MultipeerManager: MCSessionDelegate {
         didReceive data: Data,
         fromPeer peerID: MCPeerID
     ) {
-        let message = String(decoding: data, as: UTF8.self)
-        logger.info("[수신된 메시지] \(peerID.displayName): \(message)")
+        // 스트림 데이터 콜백이 설정되어 있으면 스트림으로 처리
+        if onReceivedStreamData != nil {
+            onReceivedStreamData?(data)
+        } else {
+            // 텍스트 메시지로 처리
+            let message = String(decoding: data, as: UTF8.self)
+            logger.info("[수신된 메시지] \(peerID.displayName): \(message)")
+        }
     }
 
     /// 실시간 스트림(InputStream)을 수신합니다.
