@@ -7,21 +7,13 @@
 
 import SwiftUI
 
-enum PhotoReceiveState {
-    case receiving
-    case completed(UIImage)
-    case failed
-}
-
-struct ReceivedPhoto: Identifiable {
-    let id: UUID
-    var state: PhotoReceiveState
-}
-
 /// 아이폰에서 촬영된 사진을 미러링 기기로 전송하는 기능을 구현합니다.
 struct PhotoMirrorView: View {
     @Environment(MultipeerManager.self) var multipeerManager
-    @State private var receivedPhotos: [ReceivedPhoto] = []
+
+    var receivedPhotos: [ReceivedPhoto] {
+        multipeerManager.receivedPhotos
+    }
 
     var body: some View {
         Group {
@@ -32,14 +24,6 @@ struct PhotoMirrorView: View {
                 // 아이패드나 mac일 경우
                 receiverView
             }
-        }
-        .onAppear {
-            setupPhotoReceiver()
-        }
-        .onDisappear {
-            multipeerManager.onReceivingPhoto = nil
-            multipeerManager.onReceivedPhotoResource = nil
-            multipeerManager.onPhotoReceiveFailed = nil
         }
     }
 
@@ -88,10 +72,13 @@ struct PhotoMirrorView: View {
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 8)], spacing: 8) {
                 ForEach(receivedPhotos) { photo in
                     switch photo.state {
-                    case .receiving:
-                        HStack {
-                            ProgressView()
-                            Text("사진 수신 중...")
+
+                    case .receiving(let progress):
+                        VStack(spacing: 8) {
+                            ProgressView(value: progress)
+                            Text("사진 수신 중… \(Int(progress * 100))%")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
                         .frame(height: 150)
 
@@ -104,7 +91,7 @@ struct PhotoMirrorView: View {
                             .cornerRadius(8)
 
                     case .failed:
-                        HStack {
+                        VStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle")
                             Text("수신 실패")
                         }
@@ -117,34 +104,9 @@ struct PhotoMirrorView: View {
         }
         .navigationTitle("수신된 사진")
     }
-
-    /// 사진 수신 설정
-    private func setupPhotoReceiver() {
-        multipeerManager.onReceivingPhoto = { photoID in
-            receivedPhotos.insert(
-                ReceivedPhoto(id: photoID, state: .receiving),
-                at: 0
-            )
-        }
-
-        multipeerManager.onReceivedPhotoResource = { photoID, data in
-            guard let image = UIImage(data: data) else { return }
-
-            if let index = receivedPhotos.firstIndex(where: { $0.id == photoID }) {
-                receivedPhotos[index].state = .completed(image)
-            }
-        }
-
-        multipeerManager.onPhotoReceiveFailed = { photoID in
-            if let index = receivedPhotos.firstIndex(where: { $0.id == photoID }) {
-                receivedPhotos[index].state = .failed
-            }
-        }
-    }
 }
 
 #Preview {
     PhotoMirrorView()
         .environment(MultipeerManager())
 }
-

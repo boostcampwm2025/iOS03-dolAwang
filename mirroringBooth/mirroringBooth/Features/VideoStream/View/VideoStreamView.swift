@@ -43,7 +43,7 @@ struct VideoStreamView: View {
         ZStack {
             CameraPreview(session: cameraManager.session)
                 .ignoresSafeArea(edges: [.top, .horizontal])
-            
+
             VStack {
                 Spacer()
                 HStack {
@@ -65,18 +65,31 @@ struct VideoStreamView: View {
                 }
             }
         }
-        .task {
-            cameraManager.onEncodedData = { data in
-                multipeerManager.sendStreamData(data)
+        .onAppear {
+            bindCameraOutputs()
+            Task {
+                await cameraManager.startSession()
             }
-            cameraManager.onCapturedPhoto = { photoData in
-                multipeerManager.sendPhotoResource(photoData)
-            }
-            await cameraManager.startSession()
         }
         .onDisappear {
             cameraManager.stopSession()
+            unbindCameraOutputs()
         }
+    }
+
+    private func bindCameraOutputs() {
+        cameraManager.onEncodedData = { data in
+            multipeerManager.sendStreamData(data)
+        }
+
+        cameraManager.onCapturedPhoto = { photoData in
+            multipeerManager.sendPhotoResource(photoData)
+        }
+    }
+
+    private func unbindCameraOutputs() {
+        cameraManager.onEncodedData = nil
+        cameraManager.onCapturedPhoto = nil
     }
 }
 
@@ -84,4 +97,3 @@ struct VideoStreamView: View {
     VideoStreamView()
         .environment(MultipeerManager())
 }
-

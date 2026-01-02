@@ -23,6 +23,9 @@ final class CameraManager: NSObject {
     private var photoOutput: AVCapturePhotoOutput?
 
     private let encoder = H264Encoder()
+    
+    /// 사진 촬영 delegate (촬영 완료 전까지 유지)
+    private var photoCaptureDelegate: PhotoCaptureDelegate?
 
     /// 인코딩된 데이터 콜백
     var onEncodedData: ((Data) -> Void)? {
@@ -80,14 +83,15 @@ final class CameraManager: NSObject {
 
             // JPEG 포맷으로 사진 촬영
             let settings = AVCapturePhotoSettings(
-                format: [AVVideoCodecKey: AVVideoCodecType.jpeg] // TODO: 추후 jpeg나 heif를 선택할 수 있도록 enum으로 분리해보기
+                format: [AVVideoCodecKey: AVVideoCodecType.jpeg]
             )
 
-            let photoDelegate = PhotoCaptureDelegate { [weak self] imageData in
+            self.photoCaptureDelegate = PhotoCaptureDelegate { [weak self] imageData in
                 self?.onCapturedPhoto?(imageData)
+                self?.photoCaptureDelegate = nil // 촬영 완료 후 해제
             }
 
-            photoOutput.capturePhoto(with: settings, delegate: photoDelegate)
+            photoOutput.capturePhoto(with: settings, delegate: self.photoCaptureDelegate!)
         }
     }
 }
