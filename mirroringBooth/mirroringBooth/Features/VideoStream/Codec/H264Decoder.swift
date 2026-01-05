@@ -68,9 +68,9 @@ extension H264Decoder {
             var nalEnd = data.count
 
             // 다음 start code 찾기
-            for i in nalStart..<(data.count - 3) {
-                if data[i..<i+4].elementsEqual(startCode) {
-                    nalEnd = i
+            for index in nalStart..<(data.count - 3) {
+                if data[index..<index+4].elementsEqual(startCode) {
+                    nalEnd = index
                     break
                 }
             }
@@ -138,10 +138,16 @@ extension H264Decoder {
 
         // withUnsafeBytes 클로저 내부에서 포인터 사용
         let status = sps.withUnsafeBytes { spsPtr -> OSStatus in
-            pps.withUnsafeBytes { ppsPtr -> OSStatus in
+            guard let spsBaseAddress = spsPtr.baseAddress else {
+                return -1
+            }
+            return pps.withUnsafeBytes { ppsPtr -> OSStatus in
+                guard let ppsBaseAddress = ppsPtr.baseAddress else {
+                    return -1
+                }
                 let parameterSets: [UnsafePointer<UInt8>] = [
-                    spsPtr.baseAddress!.assumingMemoryBound(to: UInt8.self),
-                    ppsPtr.baseAddress!.assumingMemoryBound(to: UInt8.self)
+                    spsBaseAddress.assumingMemoryBound(to: UInt8.self),
+                    ppsBaseAddress.assumingMemoryBound(to: UInt8.self)
                 ]
                 let parameterSetSizes: [Int] = [sps.count, pps.count]
 
@@ -167,7 +173,7 @@ extension H264Decoder {
         guard let formatDescription = formatDescription else { return }
 
         let decoderParameters: [CFString: Any] = [
-            kVTDecompressionPropertyKey_RealTime: kCFBooleanTrue!
+            kVTDecompressionPropertyKey_RealTime: kCFBooleanTrue as Any
         ]
 
         var outputCallback = VTDecompressionOutputCallbackRecord(
@@ -218,9 +224,9 @@ extension H264Decoder {
                 blockBufferOut: &blockBuffer
             )
 
-            if blockStatus == noErr, let buffer = blockBuffer {
+            if blockStatus == noErr, let buffer = blockBuffer, let baseAddress = bytes.baseAddress {
                 blockStatus = CMBlockBufferReplaceDataBytes(
-                    with: bytes.baseAddress!,
+                    with: baseAddress,
                     blockBuffer: buffer,
                     offsetIntoDestination: 0,
                     dataLength: avccData.count

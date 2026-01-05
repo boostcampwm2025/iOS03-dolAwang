@@ -65,7 +65,10 @@ struct VideoDisplayLayer: UIViewRepresentable {
         }
 
         var displayLayer: AVSampleBufferDisplayLayer {
-            layer as! AVSampleBufferDisplayLayer
+            guard let displayLayer = layer as? AVSampleBufferDisplayLayer else {
+                fatalError("Expected AVSampleBufferDisplayLayer, got \(type(of: layer))")
+            }
+            return displayLayer
         }
 
         override init(frame: CGRect) {
@@ -86,12 +89,12 @@ struct VideoDisplayLayer: UIViewRepresentable {
             decoder.onDecodedSampleBuffer = { [weak self] sampleBuffer in
                 DispatchQueue.main.async {
                     guard let layer = self?.displayLayer else { return }
-                    
+
                     // 에러 상태면 flush 후 재시도
                     if layer.status == .failed {
                         layer.flush()
                     }
-                    
+
                     if layer.isReadyForMoreMediaData {
                         layer.enqueue(sampleBuffer)
                     }

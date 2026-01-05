@@ -68,12 +68,12 @@ struct VideoStreamView: View {
                     Spacer()
                 }
             }
-            
+
             // 촬영 중 오버레이
             if isCapturing {
                 Color.black.opacity(0.4)
                     .ignoresSafeArea()
-                
+
                 VStack(spacing: 16) {
                     ProgressView()
                         .scaleEffect(1.5)
@@ -95,7 +95,7 @@ struct VideoStreamView: View {
             unbindCameraOutputs()
         }
     }
-
+    
     private func bindCameraOutputs() {
         cameraManager.onEncodedData = { data in
             multipeerManager.sendStreamData(data)

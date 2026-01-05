@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct mirroringBoothApp: App {
+struct MirroringBoothApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView()

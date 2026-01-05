@@ -13,4 +13,3 @@ enum ConnectionState: String {
     case connecting = "연결 중"
     case connected = "연결됨"
 }
-

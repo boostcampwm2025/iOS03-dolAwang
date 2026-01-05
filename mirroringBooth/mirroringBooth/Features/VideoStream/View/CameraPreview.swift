@@ -29,7 +29,10 @@ struct CameraPreview: UIViewRepresentable {
         }
 
         var previewLayer: AVCaptureVideoPreviewLayer {
-            layer as! AVCaptureVideoPreviewLayer
+            guard let previewLayer = layer as? AVCaptureVideoPreviewLayer else {
+                fatalError("Expected AVCaptureVideoPreviewLayer, got \(type(of: layer))")
+            }
+            return previewLayer
         }
     }
 }
