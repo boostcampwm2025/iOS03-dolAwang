@@ -5,10 +5,10 @@
 //  Created by 윤대현 on 1/2/26.
 //
 
-import Observation
 import AVFoundation
-import UIKit
+import Observation
 import os
+import UIKit
 
 @Observable
 final class CameraManager: NSObject {
@@ -37,29 +37,21 @@ final class CameraManager: NSObject {
     var onCapturedPhoto: ((Data) -> Void)?
 
     /// Session을 시작합니다.
-    func startSession() async {
+    func startSession() {
         // 권한을 확인합니다.
-        let hasPermission = await AVCaptureDevice.requestAccess(for: .video)
-        guard hasPermission else {
-            logger.warning("카메라 권한이 거부되었습니다.")
-            return
-        }
+        AVCaptureDevice.requestAccess(for: .video) { [weak self] hasPermission in
+            guard let self, hasPermission else {
+                self?.logger.warning("카메라 권한이 거부되었습니다.")
+                return
+            }
 
-        // 인코더를 실행합니다.
-        encoder.start()
+            // 인코더를 실행합니다.
+            self.encoder.start()
 
-        // 세션을 설정하고 시작합니다.
-        await withCheckedContinuation { continuation in
-            sessionQueue.async { [weak self] in
-                guard let self else {
-                    continuation.resume()
-                    return
-                }
-
+            // 세션을 설정하고 시작합니다.
+            self.sessionQueue.async {
                 self.setupSession()
                 self.session.startRunning()
-
-                continuation.resume()
             }
         }
     }
@@ -135,7 +127,9 @@ extension CameraManager {
         let videoOutput = AVCaptureVideoDataOutput()
         videoOutput.setSampleBufferDelegate(self, queue: sessionQueue)
         // YUV 포맷으로 설정했습니다.
-        videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
+        videoOutput.videoSettings = [
+            kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+        ]
 
         if session.canAddOutput(videoOutput) {
             session.addOutput(videoOutput)
@@ -184,9 +178,7 @@ private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
         super.init()
     }
 
-    // AVCapturePhotoCaptureDelegate에서 자꾸 @MainActor 경고가 발생하여 임시적으로 nonisolated로 지정했습니다.
-    // 개선 예정입니다..
-    nonisolated func photoOutput(
+    func photoOutput(
         _ output: AVCapturePhotoOutput,
         didFinishProcessingPhoto photo: AVCapturePhoto,
         error: Error?
@@ -229,7 +221,7 @@ private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
         completion(compressedData)
     }
 
-    nonisolated private func resizeImage(_ image: UIImage, to targetSize: CGSize) -> UIImage? {
+    private func resizeImage(_ image: UIImage, to targetSize: CGSize) -> UIImage? {
         let renderer = UIGraphicsImageRenderer(size: targetSize)
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: targetSize))

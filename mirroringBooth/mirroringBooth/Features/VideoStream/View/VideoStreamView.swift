@@ -86,9 +86,7 @@ struct VideoStreamView: View {
         }
         .onAppear {
             bindCameraOutputs()
-            Task {
-                await cameraManager.startSession()
-            }
+            cameraManager.startSession()
         }
         .onDisappear {
             cameraManager.stopSession()
