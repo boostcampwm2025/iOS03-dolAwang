@@ -75,6 +75,7 @@ struct VideoDisplayLayer: UIViewRepresentable {
             super.init(frame: frame)
             backgroundColor = .black
             displayLayer.videoGravity = .resizeAspect
+            displayLayer.setAffineTransform(CGAffineTransform(rotationAngle: .pi / 2))
         }
 
         required init?(coder: NSCoder) {
