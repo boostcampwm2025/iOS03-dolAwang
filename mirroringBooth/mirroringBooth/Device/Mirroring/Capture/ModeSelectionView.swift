@@ -48,13 +48,22 @@ struct ModeSelectionView: View {
                             timerCard
                             remoteCard
                         }
+                        .frame(
+                            width: proxy.size.width,
+                            height: proxy.size.height
+                        )
                     } else {
                         VStack {
                             timerCard
                             remoteCard
 
                         }
+                        .frame(
+                            width: proxy.size.width,
+                            height: proxy.size.height
+                        )
                     }
+
                 }
 
                 Spacer()
@@ -129,6 +138,7 @@ private struct SelectionCard: View {
     let title: String
     let description: String
     let action: () -> Void
+    @State private var descriptionTruncated: Bool = false
 
     var body: some View {
         Button(action: action) {
@@ -151,11 +161,21 @@ private struct SelectionCard: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
 
-                    Text(description)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
+                    if !descriptionTruncated {
+                        Text(description)
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(4)
+                            .modifier(
+                                TruncationDetectionModifier(
+                                    text: description,
+                                    font: .subheadline,
+                                    lineLimit: 2,
+                                    isTruncated: $descriptionTruncated
+                                )
+                            )
+                    }
                 }
             }
             .frame(maxWidth: 400, maxHeight: 350)
@@ -169,6 +189,42 @@ private struct SelectionCard: View {
             )
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+private struct TruncationDetectionModifier: ViewModifier {
+    let text: String
+    let font: Font
+    let lineLimit: Int
+    @Binding var isTruncated: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .lineLimit(lineLimit)
+            .background(
+                GeometryReader { proxy in
+                    Text(text)
+                        .font(font)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .opacity(0)
+                        .background(
+                            GeometryReader { fullTextProxy in
+                                Color.clear.onAppear {
+                                    isTruncated = fullTextProxy.size.height > proxy.size.height
+                                }
+                                .onChange(of: proxy.size.height) {
+                                    isTruncated = fullTextProxy.size.height > proxy.size.height
+                                }
+                                .onChange(of: fullTextProxy.size.height) {
+                                     isTruncated = fullTextProxy.size.height > proxy.size.height
+                                }
+                            }
+                        )
+                }
+            )
     }
 }
 
