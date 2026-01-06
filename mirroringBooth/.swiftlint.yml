@@ -1,0 +1,24 @@
+opt_in_rules: # 선택적으로 추가하는 규칙
+  - empty_count # .count == 0보다 isEmpty 사용 권장
+  - empty_string # == ""보다 isEmpty 사용 권장
+  - sorted_imports # import 구문 알파벳 순서로 정렬
+  - force_unwrapping           # ! 사용 금지
+  - force_cast                 # as! 사용 금지
+  - force_try                  # try! 사용 금지
+  - implicitly_unwrapped_optional # IUO 사용 제한
+  - closure_parameter_position # 클로저 매개변수 위치 일관성 유지
+
+analyzer_rules:  # 코드 분석을 위한 규칙
+  - unused_import # 사용되지 않는 import 구문 경고
+  - unused_declaration # 사용되지 않는 선언 경고
+
+# 커스텀 최대 행 길이 규칙
+line_length:
+  warning: 120 # 120자를 초과할 시 경고
+  ignores_urls: true # URL도 최대 길이 규칙에 제외
+  ignores_comments: true # 주석은 최대 길이 규칙에서 제외
+  ignores_interpolated_strings: true # 문자열 보간법 사용 시 최대 길이 규칙 제외
+
+# 비활성화 규칙
+disabled_rules:
+  - nesting
