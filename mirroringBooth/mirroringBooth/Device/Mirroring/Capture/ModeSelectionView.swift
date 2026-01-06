@@ -44,7 +44,7 @@ struct ModeSelectionView: View {
 
                 GeometryReader { proxy in
                     if proxy.size.width > proxy.size.height {
-                        HStack {
+                        HStack(spacing: 40) {
                             timerCard
                             remoteCard
                         }
@@ -53,7 +53,7 @@ struct ModeSelectionView: View {
                             height: proxy.size.height
                         )
                     } else {
-                        VStack {
+                        VStack(spacing: 20) {
                             timerCard
                             remoteCard
 
@@ -228,6 +228,6 @@ private struct TruncationDetectionModifier: ViewModifier {
     }
 }
 
-#Preview(traits: .landscapeLeft) {
+#Preview() {
     ModeSelectionView()
 }
