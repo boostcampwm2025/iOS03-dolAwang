@@ -9,6 +9,12 @@ import Foundation
 
 /// 비디오 스트림 설정
 enum VideoStreamSettings {
+
+    /// 기본 설정
+    static let defaultResolution: Resolution = .hd1080p
+    static let defaultBitRate: BitRate = .high
+    static let defaultFrameRate: FrameRate = .high
+
     /// 해상도 설정
     enum Resolution {
         case hd720p      // 1280x720
@@ -64,8 +70,4 @@ enum VideoStreamSettings {
         }
     }
 
-    /// 기본 설정
-    static let defaultResolution: Resolution = .hd1080p
-    static let defaultBitRate: BitRate = .high
-    static let defaultFrameRate: FrameRate = .high
 }

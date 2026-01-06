@@ -12,7 +12,7 @@ import QuartzCore
 import VideoToolbox
 
 @Observable
-final class H264Decoder: VideoDecoder {
+final class H264Decoder {
     let logger = AppLogger.make(for: H264Decoder.self)
     private let decoderQueue = DispatchQueue(label: "decoder.queue")
     private var formatDescription: CMVideoFormatDescription?
@@ -23,8 +23,6 @@ final class H264Decoder: VideoDecoder {
     // SPS/PPS 저장
     private var sps: Data?
     private var pps: Data?
-
-    func start() { }
 
     func stop() {
         decoderQueue.async { [weak self] in

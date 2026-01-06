@@ -11,7 +11,7 @@ import os
 import VideoToolbox
 
 @Observable
-final class H264Encoder: VideoEncoder {
+final class H264Encoder {
     let logger = AppLogger.make(for: H264Encoder.self)
     private let encoderQueue = DispatchQueue(label: "encoder.queue")
 

@@ -10,6 +10,9 @@ import Foundation
 /// View 표시용 모델
 struct NearbyDevice: Hashable, Identifiable {
     let id: String
-    let name: String
     var state: ConnectionState = .notConnected
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
