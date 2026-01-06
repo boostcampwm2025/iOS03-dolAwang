@@ -93,7 +93,7 @@ struct VideoStreamView: View {
             unbindCameraOutputs()
         }
     }
-    
+
     private func bindCameraOutputs() {
         cameraManager.onEncodedData = { data in
             multipeerManager.sendStreamData(data)

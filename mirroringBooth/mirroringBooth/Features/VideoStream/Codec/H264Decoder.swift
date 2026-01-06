@@ -7,10 +7,9 @@
 
 import CoreMedia
 import Foundation
-import Observation
-import VideoToolbox
-import QuartzCore
 import os
+import QuartzCore
+import VideoToolbox
 
 @Observable
 final class H264Decoder: VideoDecoder {
@@ -25,8 +24,7 @@ final class H264Decoder: VideoDecoder {
     private var sps: Data?
     private var pps: Data?
 
-    func start() {
-    }
+    func start() { }
 
     func stop() {
         decoderQueue.async { [weak self] in
@@ -62,11 +60,9 @@ extension H264Decoder {
             var nalEnd = data.count
 
             // 다음 start code 찾기
-            for index in nalStart..<(data.count - 3) {
-                if data[index..<index+4].elementsEqual(startCode) {
-                    nalEnd = index
-                    break
-                }
+            for index in nalStart..<(data.count - 3) where data[index..<index+4].elementsEqual(startCode) {
+                nalEnd = index
+                break
             }
 
             let nalData = data[nalStart..<nalEnd]
@@ -80,31 +76,33 @@ extension H264Decoder {
 
         // NAL unit 처리
         for nal in nalUnits {
-            switch nal.type {
-            case 7: // SPS
-                if sps != nal.data {
-                    sps = nal.data
-                    // SPS와 PPS가 모두 있으면 FormatDescription 생성
-                    if pps != nil {
-                        ensureDecompressionSession()
-                    }
+            handleNalUnit(type: nal.type, data: nal.data)
+        }
+    }
+
+    private func handleNalUnit(type: UInt8, data: Data) {
+        switch type {
+        case 7: // SPS
+            if sps != data {
+                sps = data
+                if pps != nil {
+                    ensureDecompressionSession()
                 }
-            case 8: // PPS
-                if pps != nal.data {
-                    pps = nal.data
-                    // SPS와 PPS가 모두 있으면 FormatDescription 생성
-                    if sps != nil {
-                        ensureDecompressionSession()
-                    }
-                }
-            case 5: // IDR (키프레임)
-                ensureDecompressionSession()
-                decodeFrame(nal.data, isKeyframe: true)
-            case 1: // Non-IDR (일반 프레임)
-                decodeFrame(nal.data, isKeyframe: false)
-            default:
-                break
             }
+        case 8: // PPS
+            if pps != data {
+                pps = data
+                if sps != nil {
+                    ensureDecompressionSession()
+                }
+            }
+        case 5: // IDR (키프레임)
+            ensureDecompressionSession()
+            decodeFrame(data, isKeyframe: true)
+        case 1: // Non-IDR (일반 프레임)
+            decodeFrame(data, isKeyframe: false)
+        default:
+            break
         }
     }
 
@@ -162,38 +160,7 @@ extension H264Decoder {
         avccData.append(nalData)
 
         // CMBlockBuffer 생성 (메모리 복사 방식)
-        var blockBuffer: CMBlockBuffer?
-        var blockStatus: OSStatus = noErr
-
-        avccData.withUnsafeBytes { bytes in
-            blockStatus = CMBlockBufferCreateWithMemoryBlock(
-                allocator: kCFAllocatorDefault,
-                memoryBlock: nil,
-                blockLength: avccData.count,
-                blockAllocator: kCFAllocatorDefault,
-                customBlockSource: nil,
-                offsetToData: 0,
-                dataLength: avccData.count,
-                flags: 0,
-                blockBufferOut: &blockBuffer
-            )
-
-            if blockStatus == noErr, let buffer = blockBuffer, let baseAddress = bytes.baseAddress {
-                blockStatus = CMBlockBufferReplaceDataBytes(
-                    with: baseAddress,
-                    blockBuffer: buffer,
-                    offsetIntoDestination: 0,
-                    dataLength: avccData.count
-                )
-            }
-        }
-
-        guard blockStatus == noErr, let buffer = blockBuffer else {
-            if isKeyframe {
-                logger.warning("BlockBuffer 생성 실패 (키프레임): \(blockStatus)")
-            }
-            return
-        }
+        guard let buffer = makeBlockBuffer(avccData, isKeyframe: isKeyframe) else { return }
 
         // CMSampleBuffer 생성
         var sampleBuffer: CMSampleBuffer?
@@ -222,7 +189,7 @@ extension H264Decoder {
             sampleBufferOut: &sampleBuffer
         )
 
-        guard sampleStatus == noErr, let sample = sampleBuffer else {
+        guard sampleStatus == noErr, sampleBuffer != nil else {
             if isKeyframe {
                 logger.warning("SampleBuffer 생성 실패 (키프레임): \(sampleStatus)")
             }
@@ -234,5 +201,45 @@ extension H264Decoder {
         } else {
             logger.warning("SampleBuffer 생성 실패 (디코딩 출력): \(sampleStatus)")
         }
+    }
+
+    private func makeBlockBuffer(_ avccData: Data, isKeyframe: Bool) -> CMBlockBuffer? {
+        // CMBlockBuffer 생성 (메모리 복사 방식)
+        var blockBuffer: CMBlockBuffer?
+        var blockStatus: OSStatus = noErr
+
+        avccData.withUnsafeBytes { bytes in
+            blockStatus = CMBlockBufferCreateWithMemoryBlock(
+                allocator: kCFAllocatorDefault,
+                memoryBlock: nil,
+                blockLength: avccData.count,
+                blockAllocator: kCFAllocatorDefault,
+                customBlockSource: nil,
+                offsetToData: 0,
+                dataLength: avccData.count,
+                flags: 0,
+                blockBufferOut: &blockBuffer
+            )
+
+            if blockStatus == noErr,
+               let buffer: CMBlockBuffer = blockBuffer,
+               let baseAddress: UnsafeRawPointer = bytes.baseAddress {
+                blockStatus = CMBlockBufferReplaceDataBytes(
+                    with: baseAddress,
+                    blockBuffer: buffer,
+                    offsetIntoDestination: 0,
+                    dataLength: avccData.count
+                )
+            }
+        }
+
+        guard blockStatus == noErr, let buffer = blockBuffer else {
+            if isKeyframe {
+                logger.warning("BlockBuffer 생성 실패 (키프레임): \(blockStatus)")
+            }
+            return nil
+        }
+
+        return buffer
     }
 }

@@ -7,9 +7,8 @@
 
 import CoreMedia
 import Foundation
-import Observation
-import VideoToolbox
 import os
+import VideoToolbox
 
 @Observable
 final class H264Encoder: VideoEncoder {
@@ -139,8 +138,12 @@ final class H264Encoder: VideoEncoder {
     }
 
     private func isKeyFrame(_ sampleBuffer: CMSampleBuffer) -> Bool {
-        guard let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: false) as? [[CFString: Any]],
-              let attachment = attachments.first else {
+        guard
+            let attachments = CMSampleBufferGetSampleAttachmentsArray(
+            sampleBuffer,
+            createIfNecessary: false
+        ) as? [[CFString: Any]],
+            let attachment = attachments.first else {
             return false
         }
 

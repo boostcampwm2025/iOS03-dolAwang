@@ -5,8 +5,8 @@
 //  Created by 윤대현 on 1/2/26.
 //
 
-import SwiftUI
 import AVFoundation
+import SwiftUI
 
 // MARK: - iPad나 Mac에 수신된 비디오 스트림을 표시하는 View
 struct VideoStreamReceiverView: View {
@@ -109,4 +109,3 @@ struct VideoDisplayLayer: UIViewRepresentable {
     VideoStreamReceiverView()
         .environment(MultipeerManager())
 }
-

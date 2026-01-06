@@ -76,4 +76,3 @@ struct DeviceTabView: View {
     DeviceTabView()
         .environment(MultipeerManager())
 }
-

@@ -5,9 +5,9 @@
 //  Created by 윤대현 on 12/29/25.
 //
 
+import Combine
 import MultipeerConnectivity
 import Observation
-import Combine
 import os
 
 @Observable
@@ -61,7 +61,11 @@ final class MultipeerManager: NSObject {
     init(serviceType: String = "mirroring-booth") {
         self.serviceType = serviceType
         self.peerID = MCPeerID(displayName: UIDevice.current.name)
-        self.session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required) // .none은 send만 호출할 수 있다.
+        self.session = MCSession(
+            peer: peerID,
+            securityIdentity: nil,
+            encryptionPreference: .required // .none은 send만 호출할 수 있다.
+        )
         self.advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
 
@@ -320,7 +324,7 @@ extension MultipeerManager: MCNearbyServiceAdvertiserDelegate {
 extension MultipeerManager: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser,
                  foundPeer peerID: MCPeerID,
-                 withDiscoveryInfo info: [String : String]?) {
+                 withDiscoveryInfo info: [String: String]?) {
         logger.info("발견된 기기: \(peerID.displayName)")
         DispatchQueue.main.async {
             self.discoveredPeers[peerID.displayName] = DiscoveredPeer(peerID: peerID)

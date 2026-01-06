@@ -11,22 +11,22 @@ import Foundation
 enum VideoStreamSettings {
     /// 해상도 설정
     enum Resolution {
-        case hd      // 1280x720
-        case fullHD  // 1920x1080
+        case hd720p      // 1280x720
+        case hd1080p  // 1920x1080
         case hd4k // 3840x2160
 
         var width: Int32 {
             switch self {
-            case .hd: 1280
-            case .fullHD: 1920
+            case .hd720p: 1280
+            case .hd1080p: 1920
             case .hd4k: 3840
             }
         }
 
         var height: Int32 {
             switch self {
-            case .hd: 720
-            case .fullHD: 1080
+            case .hd720p: 720
+            case .hd1080p: 1080
             case .hd4k: 2160
             }
         }
@@ -65,7 +65,7 @@ enum VideoStreamSettings {
     }
 
     /// 기본 설정
-    static let defaultResolution: Resolution = .fullHD
+    static let defaultResolution: Resolution = .hd1080p
     static let defaultBitRate: BitRate = .high
     static let defaultFrameRate: FrameRate = .high
 }

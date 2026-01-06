@@ -13,4 +13,3 @@ struct NearbyDevice: Hashable, Identifiable {
     let name: String
     var state: ConnectionState = .notConnected
 }
-
