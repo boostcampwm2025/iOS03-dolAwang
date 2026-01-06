@@ -39,7 +39,7 @@ final class Advertisier: NSObject {
     }
 
     /// 수신된 사진 목록
-    var receivedPhotos: [ReceivedPhoto] = []
+    var receivedPhotos: [Photo] = []
 
     init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
@@ -132,7 +132,7 @@ extension Advertisier: MCSessionDelegate {
 
         DispatchQueue.main.async {
             self.receivedPhotos.insert(
-                ReceivedPhoto(id: photoID, state: .receiving(progress: 0)),
+                Photo(id: photoID, state: .receiving(progress: 0)),
                 at: 0
             )
         }
@@ -174,14 +174,13 @@ extension Advertisier: MCSessionDelegate {
         }
 
         guard let localURL,
-              let data = try? Data(contentsOf: localURL),
-              let image = UIImage(data: data)
+              let data = try? Data(contentsOf: localURL) // TODO: 데이터 변환 방식 수정
         else {
             updatePhotoState(photoID: photoID, state: .failed)
             return
         }
 
-        updatePhotoState(photoID: photoID, state: .completed(image))
+        updatePhotoState(photoID: photoID, state: .completed(data))
     }
 
 }
