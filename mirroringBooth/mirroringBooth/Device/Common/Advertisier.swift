@@ -8,14 +8,14 @@
 import Combine
 import Foundation
 import MultipeerConnectivity
-import os
+import OSLog
 
 /// 스트림 수신 측 (iPad/Mac)
 /// 서비스를 광고하고 연결 요청을 수락하여 스트림 데이터(비디오/사진)를 수신
 @Observable
 final class Advertisier: NSObject {
 
-    private let logger = AppLogger.make(for: CameraManager.self)
+    private let logger = Logger.advertiser
 
     private let serviceType: String
     private let peerID: MCPeerID

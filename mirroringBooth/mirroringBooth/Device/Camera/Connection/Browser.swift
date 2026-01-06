@@ -8,14 +8,14 @@
 import Combine
 import MultipeerConnectivity
 import Observation
-import os
+import OSLog
 
 /// 스트림 송신 측 (iPhone)
 /// 다른 기기를 탐색하고 연결하여 스트림 데이터(비디오/사진)를 전송
 @Observable
 final class Browser: NSObject {
 
-    private let logger = AppLogger.make(for: CameraManager.self)
+    private let logger = Logger.browser
 
     private let serviceType: String
     private let peerID: MCPeerID

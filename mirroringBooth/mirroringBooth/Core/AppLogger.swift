@@ -5,23 +5,14 @@
 //  Created by 윤대현 on 12/29/25.
 //
 
-import Foundation
-import os
+import OSLog
 
-enum AppLogger {
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier ?? "kr.codesquad.boostcamp10.dolAwang.mirroringBooth"
 
-    private static let subsystem =
-        Bundle.main.bundleIdentifier
-        ?? "kr.codesquad.boostcamp10.dolAwang.mirroringBooth"
-
-    static func make(category: String) -> Logger {
-        Logger(subsystem: subsystem, category: category)
-    }
-
-    static func make<T>(for type: T.Type) -> Logger {
-        Logger(
-            subsystem: subsystem,
-            category: String(describing: type)
-        )
-    }
+    static let advertiser = Logger(subsystem: subsystem, category: "Advertiser")
+    static let browser = Logger(subsystem: subsystem, category: "Browser")
+    static let h264encoder = Logger(subsystem: subsystem, category: "H264Encoder")
+    static let h264decoder = Logger(subsystem: subsystem, category: "H264Decoder")
+    static let cameraManager = Logger(subsystem: subsystem, category: "CameraManager")
 }

@@ -7,13 +7,13 @@
 
 import CoreMedia
 import Foundation
-import os
+import OSLog
 import QuartzCore
 import VideoToolbox
 
 @Observable
 final class H264Decoder {
-    let logger = AppLogger.make(for: H264Decoder.self)
+    let logger = Logger.h264decoder
     private let decoderQueue = DispatchQueue(label: "decoder.queue")
     private var formatDescription: CMVideoFormatDescription?
 

@@ -7,12 +7,12 @@
 
 import AVFoundation
 import Observation
-import os
+import OSLog
 import UIKit
 
 @Observable
 final class CameraManager: NSObject {
-    private let logger = AppLogger.make(for: CameraManager.self)
+    private let logger = Logger.cameraManager
 
     let session = AVCaptureSession()
     private let sessionQueue = DispatchQueue(label: "session.queue")
