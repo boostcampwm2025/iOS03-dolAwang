@@ -80,18 +80,7 @@ private struct TopBarView: View {
 
             Spacer()
 
-            Button {
-                    // action
-            } label: {
-                Image(systemName: "sun.max")
-                    .font(.system(size: 20))
-                    .foregroundColor(.gray)
-                    .padding(10)
-                    .background(
-                        Circle()
-                            .foregroundStyle(Color.borderLine)
-                    )
-            }
+            LightButtonView(action: {})
         }
         .padding(.horizontal, 30)
     }
