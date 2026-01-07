@@ -12,17 +12,6 @@ struct BrowsingView: View {
     @Environment(Router.self) var router: Router
     @State private var store = BrowsingStore(Browser())
 
-    private enum Constants {
-        enum Size {
-            static let title: Font = .title.bold()
-            static let iconCornerRadius: CGFloat = 15
-        }
-
-        enum Spacing {
-            static let iconPadding: CGFloat = 10
-        }
-    }
-
     var body: some View {
         ZStack {
             // 배경에 그려지는 2개의 원
@@ -37,8 +26,8 @@ struct BrowsingView: View {
             VStack(spacing: 15) {
                 // 타겟 아이콘
                 Image(systemName: store.state.currentTarget.icon)
-                    .padding(Constants.Spacing.iconPadding)
-                    .font(Constants.Size.title)
+                    .padding(15)
+                    .font(.title.bold())
                     .foregroundStyle(Color(store.state.currentTarget.color))
                     .background(Color(store.state.currentTarget.color).opacity(0.2))
                     .clipShape(Capsule())
@@ -79,10 +68,8 @@ struct BrowsingView: View {
                         store.send(.cancel)
                     } label: {
                         Text("처음부터 다시 연결하기")
-                            .padding()
+                            .font(.footnote)
                             .foregroundStyle(Color.red)
-                            .background(Color(.secondarySystemBackground).opacity(0.6))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
 
@@ -92,11 +79,9 @@ struct BrowsingView: View {
                         router.push(to: CameraRoute.connectionList)
                     } label: {
                         Text(store.state.hasSelectedDevice ? "다음" : "건너뛰기")
-                            .font(.footnote)
+                            .font(.callout)
                             .foregroundStyle(Color(.secondaryLabel))
                     }
-                    .disabled(!store.state.hasSelectedDevice)
-                    .opacity(store.state.hasSelectedDevice ? 1 : 0.5)
                 }
             }
             .padding()

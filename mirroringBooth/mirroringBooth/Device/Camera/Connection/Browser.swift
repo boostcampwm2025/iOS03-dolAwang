@@ -17,10 +17,17 @@ final class Browser: NSObject {
 
     private let serviceType: String
     private let peerID: MCPeerID
-    private let session: MCSession
+    private let mirroringSession: MCSession
+    private let remoteSession: MCSession
     private let browser: MCNearbyServiceBrowser
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
+
+    /// 현재 연결 시도 중인 미러링 디바이스 ID
+    private var targetMirroringDeviceID: String?
+
+    /// 현재 연결 시도 중인 리모트 디바이스 ID
+    private var targetRemoteDeviceID: String?
 
     var onDeviceFound: ((NearbyDevice) -> Void)?
 
@@ -36,7 +43,12 @@ final class Browser: NSObject {
     init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
         self.peerID = MCPeerID(displayName: UIDevice.current.name)
-        self.session = MCSession(
+        self.mirroringSession = MCSession(
+            peer: peerID,
+            securityIdentity: nil,
+            encryptionPreference: .required
+        )
+        self.remoteSession = MCSession(
             peer: peerID,
             securityIdentity: nil,
             encryptionPreference: .required
@@ -52,7 +64,8 @@ final class Browser: NSObject {
     }
 
     private func setup() {
-        session.delegate = self
+        mirroringSession.delegate = self
+        remoteSession.delegate = self
         browser.delegate = self
     }
 
@@ -67,32 +80,42 @@ final class Browser: NSObject {
     }
 
     /// 특정 기기에게 연결 요청을 전송합니다.
-    func connect(to deviceID: String) {
+    func connect(to deviceID: String, as targetType: ConnectionTargetType) {
         guard let (peer, _) = discoveredPeers[deviceID] else {
             logger.warning("[연결 실패] 기기를 찾을 수 없음 : \(deviceID)")
             return
         }
 
-        browser.invitePeer(peer, to: session, withContext: nil, timeout: 10)
-        logger.info("연결 요청 전송: \(deviceID)")
+        let targetSession: MCSession
+        switch targetType {
+        case .mirroring:
+            targetMirroringDeviceID = deviceID
+            targetSession = mirroringSession
+        case .remote:
+            targetRemoteDeviceID = deviceID
+            targetSession = remoteSession
+        }
+
+        browser.invitePeer(peer, to: targetSession, withContext: nil, timeout: 10)
+        logger.info("연결 요청 전송: \(deviceID) (\(targetType == .mirroring ? "미러링" : "리모트"))")
     }
 
-    /// 연결된 피어에게 스트림 데이터를 전송합니다.
+    /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.
     func sendStreamData(_ data: Data) {
-        let connectedPeers = session.connectedPeers
+        let connectedPeers = mirroringSession.connectedPeers
         guard !connectedPeers.isEmpty else { return }
 
         do {
-            try session.send(data, toPeers: connectedPeers, with: .unreliable)
+            try mirroringSession.send(data, toPeers: connectedPeers, with: .unreliable)
         } catch {
             logger.warning("스트림 데이터 전송 실패 : \(error.localizedDescription)")
         }
     }
 
-    /// 연결된 피어에게 사진 리소스를 전송합니다.
+    /// 미러링 세션에 연결된 피어에게 사진 리소스를 전송합니다.
     func sendPhotoResource(_ data: Data) {
-        guard let peer = session.connectedPeers.first else {
-            logger.warning("사진 전송 실패: 연결된 피어가 없습니다.")
+        guard let mirroringPeer = mirroringSession.connectedPeers.first else {
+            logger.warning("사진 전송 실패: 미러링 세션에 연결된 피어가 없습니다.")
             return
         }
 
@@ -106,10 +129,10 @@ final class Browser: NSObject {
         do {
             try data.write(to: tempURL)
 
-            session.sendResource(
+            mirroringSession.sendResource(
                 at: tempURL,
                 withName: fileName,
-                toPeer: peer
+                toPeer: mirroringPeer
             ) { error in
                 if let error {
                     self.logger.warning("사진 전송 실패 : \(error.localizedDescription)")
@@ -124,10 +147,27 @@ final class Browser: NSObject {
         }
     }
 
-    /// 모든 연결을 해제합니다.
+    /// 모든 세션의 연결을 해제합니다.
     func disconnect() {
-        session.disconnect()
+        mirroringSession.disconnect()
+        remoteSession.disconnect()
+        targetMirroringDeviceID = nil
+        targetRemoteDeviceID = nil
         logger.info("모든 연결 해제")
+    }
+
+    /// 특정 타겟 타입의 연결만 해제합니다.
+    func disconnect(targetType: ConnectionTargetType) {
+        switch targetType {
+        case .mirroring:
+            mirroringSession.disconnect()
+            targetMirroringDeviceID = nil
+            logger.info("미러링 연결 해제")
+        case .remote:
+            remoteSession.disconnect()
+            targetRemoteDeviceID = nil
+            logger.info("리모트 연결 해제")
+        }
     }
 
 }
@@ -141,20 +181,30 @@ extension Browser: MCSessionDelegate {
         didChange state: MCSessionState
     ) {
         let newState: ConnectionState
+        let sessionTypeLabel: String
+
+        // 어떤 세션에서 상태 변경이 발생했는지 확인
+        if session === mirroringSession {
+            sessionTypeLabel = "미러링"
+        } else if session === remoteSession {
+            sessionTypeLabel = "리모트"
+        } else {
+            sessionTypeLabel = "알 수 없음"
+        }
 
         switch state {
         case .notConnected:
             newState = .notConnected
-            logger.info("[\(peerID.displayName)] 연결 안됨")
+            logger.info("[\(peerID.displayName)] 연결 안됨 (\(sessionTypeLabel))")
         case .connecting:
             newState = .connecting
-            logger.info("[\(peerID.displayName)] 연결 중..")
+            logger.info("[\(peerID.displayName)] 연결 중.. (\(sessionTypeLabel))")
         case .connected:
             newState = .connected
-            logger.info("[\(peerID.displayName)] 연결됨 ✅")
+            logger.info("[\(peerID.displayName)] 연결됨 ✅ (\(sessionTypeLabel))")
         @unknown default:
             newState = .notConnected
-            logger.warning("[\(peerID.displayName)] 알 수 없는 상태")
+            logger.warning("[\(peerID.displayName)] 알 수 없는 상태 (\(sessionTypeLabel))")
         }
 
         // 상태가 변경된 peerID를 discoveredPeers에 저장하고, Store에 알린다.
@@ -162,10 +212,21 @@ extension Browser: MCSessionDelegate {
         let deviceType = self.discoveredPeers[peerID.displayName]?.type ?? .unknown
         self.discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
+
         DispatchQueue.main.async {
             self.onDeviceFound?(device)
+
+            // 연결 성공 시, 해당 타겟 디바이스인 경우에만 콜백 호출
             if newState == .connected {
-                self.onDeviceConnected?(device)
+                let isMirroringTarget = session === self.mirroringSession &&
+                                         peerID.displayName == self.targetMirroringDeviceID
+                let isRemoteTarget = session === self.remoteSession &&
+                                      peerID.displayName == self.targetRemoteDeviceID
+                let isTargetDevice = isMirroringTarget || isRemoteTarget
+
+                if isTargetDevice {
+                    self.onDeviceConnected?(device)
+                }
             }
         }
     }

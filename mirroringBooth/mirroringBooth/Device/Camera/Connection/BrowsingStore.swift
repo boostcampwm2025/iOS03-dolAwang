@@ -84,10 +84,10 @@ final class BrowsingStore: StoreProtocol {
                 state.remoteDevice
             }
 
-            // 2. 연결된 기기와 다른 기기를 선택했을 경우 연결 요청만 전송
+            // 2. 연결된 기기와 다른 기기를 선택했을 경우 연결 요청 전송
             // 실제 기기 설정은 onDeviceConnected 콜백에서 처리됨
             if currentDevice != device {
-                browser.connect(to: device.id)
+                browser.connect(to: device.id, as: state.currentTarget)
                 result.append(.setIsConnecting(true))
             }
 
