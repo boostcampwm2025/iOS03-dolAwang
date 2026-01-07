@@ -11,7 +11,7 @@ import Foundation
 final class BrowsingStore: StoreProtocol {
 
     struct State {
-        var currentTarget: ConnectionTargetType = .mirroring
+        var currentTarget: DeviceUseType = .mirroring
         var discoveredDevices: [NearbyDevice] = []
         var mirroringDevice: NearbyDevice?
         var remoteDevice: NearbyDevice?
@@ -37,7 +37,7 @@ final class BrowsingStore: StoreProtocol {
         case setMirroringDevice(NearbyDevice?)
         case setRemoteDevice(NearbyDevice?)
         case setIsConnecting(Bool)
-        case setCurrentTarget(ConnectionTargetType)
+        case setCurrentTarget(DeviceUseType)
     }
 
     var state: State = .init()

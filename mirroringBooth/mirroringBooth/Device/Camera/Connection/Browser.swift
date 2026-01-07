@@ -83,14 +83,14 @@ final class Browser: NSObject {
     }
 
     /// 특정 기기에게 연결 요청을 전송합니다.
-    func connect(to deviceID: String, as targetType: ConnectionTargetType) {
+    func connect(to deviceID: String, as useType: DeviceUseType) {
         guard let (peer, _) = discoveredPeers[deviceID] else {
             logger.warning("[연결 실패] 기기를 찾을 수 없음 : \(deviceID)")
             return
         }
 
         let targetSession: MCSession
-        switch targetType {
+        switch useType {
         case .mirroring:
             targetMirroringDeviceID = deviceID
             targetSession = mirroringSession
@@ -100,7 +100,7 @@ final class Browser: NSObject {
         }
 
         browser.invitePeer(peer, to: targetSession, withContext: nil, timeout: 10)
-        logger.info("연결 요청 전송: \(deviceID) (\(targetType == .mirroring ? "미러링" : "리모트"))")
+        logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
     }
 
     /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.
@@ -160,8 +160,8 @@ final class Browser: NSObject {
     }
 
     /// 특정 타겟 타입의 연결만 해제합니다.
-    func disconnect(targetType: ConnectionTargetType) {
-        switch targetType {
+    func disconnect(useType: DeviceUseType) {
+        switch useType {
         case .mirroring:
             mirroringSession.disconnect()
             targetMirroringDeviceID = nil

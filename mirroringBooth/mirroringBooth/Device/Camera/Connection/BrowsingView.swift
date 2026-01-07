@@ -133,7 +133,7 @@ struct BrowsingView: View {
         .opacity(target != nil ? 0.5 : 1)
     }
 
-    private func isDeviceSelected(_ device: NearbyDevice) -> ConnectionTargetType? {
+    private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {
         if store.state.mirroringDevice == device {
             return .mirroring
         } else if store.state.remoteDevice == device {

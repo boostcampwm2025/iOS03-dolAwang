@@ -1,11 +1,11 @@
 //
-//  ConnectionTargetType.swift
+//  DeviceUseType.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2026-01-07.
 //
 
-enum ConnectionTargetType {
+enum DeviceUseType {
     case mirroring
     case remote
 
