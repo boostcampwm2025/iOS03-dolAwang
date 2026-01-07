@@ -57,7 +57,7 @@ struct CameraHomeView: View {
                 }
             }
         }
-        .padding()
+        .padding(20)
     }
 }
 
