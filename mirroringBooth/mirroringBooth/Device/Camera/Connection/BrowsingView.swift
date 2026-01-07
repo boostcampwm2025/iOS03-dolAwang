@@ -23,6 +23,10 @@ struct BrowsingView: View {
                 .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.2))
                 .frame(width: 260, height: 260)
 
+            if store.state.isConnecting {
+                ProgressView()
+            }
+
             VStack(spacing: 15) {
                 // 타겟 아이콘
                 Image(systemName: store.state.currentTarget.icon)
