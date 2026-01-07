@@ -15,7 +15,14 @@ final class BrowsingStore: StoreProtocol {
         var discoveredDevices: [NearbyDevice] = []
         var mirroringDevice: NearbyDevice?
         var remoteDevice: NearbyDevice?
+
         var isConnecting: Bool = false
+        var hasSelectedDevice: Bool {
+            switch currentTarget {
+            case .mirroring: return mirroringDevice != nil
+            case .remote: return remoteDevice != nil
+            }
+        }
     }
 
     enum Intent {

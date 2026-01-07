@@ -34,7 +34,7 @@ struct BrowsingView: View {
                 .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.2))
                 .frame(width: 260, height: 260)
 
-            VStack {
+            VStack(spacing: 15) {
                 // 타겟 아이콘
                 Image(systemName: store.state.currentTarget.icon)
                     .padding(Constants.Spacing.iconPadding)
@@ -56,14 +56,16 @@ struct BrowsingView: View {
                 LazyVStack {
                     ScrollView {
                         ForEach(store.state.discoveredDevices, id: \.self) { device in
-                            Button {
-                                if !store.state.isConnecting && !isDeviceSelected(device) {
-                                    store.send(.didSelect(device))
+                            if device.type != .unknown {
+                                Button {
+                                    if !store.state.isConnecting {
+                                        store.send(.didSelect(device))
+                                    }
+                                } label: {
+                                    deviceRow(device)
                                 }
-                            } label: {
-                                deviceRow(device)
+                                .disabled(isDeviceSelected(device) != nil)
                             }
-                            .disabled(isDeviceSelected(device))
                         }
                     }
                 }
@@ -72,21 +74,30 @@ struct BrowsingView: View {
                 .padding(.bottom, 5)
 
                 // 취소 버튼
-
-                // 건너뛰기 버튼
-
-                // 다음 버튼
-                Button {
-                    router.push(to: CameraRoute.connectionList)
-                } label: {
-                    Text("다음 단계")
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .foregroundStyle(Color(.systemBackground))
-                        .background(Color(.label))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                if store.state.hasSelectedDevice || store.state.currentTarget == .remote {
+                    Button {
+                        store.send(.cancel)
+                    } label: {
+                        Text("처음부터 다시 연결하기")
+                            .padding()
+                            .foregroundStyle(Color.red)
+                            .background(Color(.secondarySystemBackground).opacity(0.6))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
                 }
 
+                // 다음 버튼
+                if store.state.currentTarget == .remote {
+                    Button {
+                        router.push(to: CameraRoute.connectionList)
+                    } label: {
+                        Text(store.state.hasSelectedDevice ? "다음" : "건너뛰기")
+                            .font(.footnote)
+                            .foregroundStyle(Color(.secondaryLabel))
+                    }
+                    .disabled(!store.state.hasSelectedDevice)
+                    .opacity(store.state.hasSelectedDevice ? 1 : 0.5)
+                }
             }
             .padding()
         }
@@ -97,7 +108,7 @@ struct BrowsingView: View {
 
     @ViewBuilder
     private func deviceRow(_ device: NearbyDevice) -> some View {
-        let isSelected = isDeviceSelected(device)
+        let target = isDeviceSelected(device)
 
         HStack {
             Image(systemName: device.type.icon)
@@ -113,10 +124,10 @@ struct BrowsingView: View {
             Spacer()
 
             // 선택된 기기인 경우 상징적인 아이콘 표시
-            if isSelected {
-                Image(systemName: store.state.currentTarget.icon)
+            if let target {
+                Image(systemName: target.icon)
                     .font(.title2)
-                    .foregroundStyle(Color(store.state.currentTarget.color))
+                    .foregroundStyle(Color(target.color))
             }
         }
         .padding()
@@ -124,16 +135,16 @@ struct BrowsingView: View {
         .foregroundStyle(Color(.label))
         .background(Color(.secondarySystemBackground).opacity(0.6))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .opacity(isSelected ? 0.5 : 1)
+        .opacity(target != nil ? 0.5 : 1)
     }
 
-    private func isDeviceSelected(_ device: NearbyDevice) -> Bool {
-        switch store.state.currentTarget {
-        case .mirroring:
-            return store.state.mirroringDevice == device
-        case .remote:
-            return store.state.remoteDevice == device
+    private func isDeviceSelected(_ device: NearbyDevice) -> ConnectionTargetType? {
+        if store.state.mirroringDevice == device {
+            return .mirroring
+        } else if store.state.remoteDevice == device {
+            return .remote
         }
+        return nil
     }
 }
 
