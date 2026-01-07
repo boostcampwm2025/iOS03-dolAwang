@@ -65,14 +65,6 @@ final class Browser: NSObject {
         logger.info("주변 기기 검색을 중지합니다.")
     }
 
-    func toggleSearching() {
-        if isSearching {
-            stopSearching()
-        } else {
-            startSearching()
-        }
-    }
-
     /// 특정 기기에게 연결 요청을 전송합니다.
     func connect(to device: NearbyDevice) {
         guard let peer = discoveredPeers[device] else {
