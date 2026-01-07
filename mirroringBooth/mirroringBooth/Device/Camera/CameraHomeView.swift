@@ -51,7 +51,7 @@ struct CameraHomeView: View {
                     selectionBox(
                         icons: ["display", "target"],
                         title: "미러링/리모트 기기로 시작하기",
-                        description: "미러링/리모트 기기로 순간을 공유해보세요.",
+                        description: "Apple 기기로 순간을 공유해보세요.",
                         colors: [Color("mirroringColor"), Color("remoteColor")]
                     )
                 }
