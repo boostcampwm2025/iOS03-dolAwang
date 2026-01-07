@@ -103,6 +103,9 @@ struct BrowsingView: View {
         .onAppear {
             store.send(.entry)
         }
+        .onDisappear {
+            store.send(.exit)
+        }
     }
 
     @ViewBuilder

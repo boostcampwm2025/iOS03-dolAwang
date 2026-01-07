@@ -79,7 +79,7 @@ final class Browser: NSObject {
         logger.info("주변 기기를 검색합니다.")
     }
 
-    private func stopSearching() {
+    func stopSearching() {
         browser.stopBrowsingForPeers()
         logger.info("주변 기기 검색을 중지합니다.")
     }

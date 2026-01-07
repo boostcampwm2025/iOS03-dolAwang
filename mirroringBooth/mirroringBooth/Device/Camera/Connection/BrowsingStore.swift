@@ -27,6 +27,7 @@ final class BrowsingStore: StoreProtocol {
 
     enum Intent {
         case entry
+        case exit
         case didSelect(NearbyDevice)
         case cancel
     }
@@ -78,6 +79,9 @@ final class BrowsingStore: StoreProtocol {
         switch intent {
         case .entry:
             browser.startSearching()
+
+        case .exit:
+            browser.stopSearching()
 
         case .didSelect(let device):
             // 1. 현재 타겟에 맞는 연결된 기기 확인
