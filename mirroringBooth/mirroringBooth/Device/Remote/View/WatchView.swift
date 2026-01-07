@@ -1,5 +1,5 @@
 //
-//  RootView.swift
+//  WatchView.swift
 //  mirroringBoothWatch
 //
 //  Created by 최윤진 on 1/7/26.
@@ -7,26 +7,33 @@
 
 import SwiftUI
 
-struct RootView: View {
-    @State private var state: ConnectionState = .notConnected
+struct WatchView: View {
+    @State private var connectionState = ConnectionState.connected
+    @State private var flag = false
 
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            if state == .connected {
+            if connectionState == .connected {
                 connectedView
+                    .onAppear {
+                        flag = false
+                    }
             } else {
                 standbyView
+                    .onAppear {
+                        flag = true
+                    }
             }
         }
-
     }
 
     private var connectedView: some View {
         VStack {
             Text("READY")
-                .foregroundStyle(green500)
+                .foregroundStyle(green400)
                 .font(.caption.bold())
+                .padding(.top, 10)
             Spacer()
             Button {
 
@@ -48,25 +55,35 @@ struct RootView: View {
             .buttonStyle(.plain)
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .topTrailing) {
+            Button {
+            } label: {
+                Image(systemName: "multiply")
+                    .padding()
+                    .background(
+                        Circle()
+                            .fill(darkGrayContainer)
+                    )
+            }
+            .buttonStyle(.plain)
+        }
     }
 
     private var standbyView: some View {
         VStack(spacing: 6) {
             Group {
-                Button {
-                    state = .connecting
+                Image(systemName: "arrow.2.circlepath")
+                    .font(.title2)
+                    .rotationEffect(Angle(degrees: -45))
+                    .rotationEffect(
+                        flag ? Angle(degrees: 360) : Angle(degrees: 0)
+                    )
+                    .animation(
+                        flag ? .linear(duration: 1).repeatForever(autoreverses: false) : nil,
+                        value: flag
+                    )
 
-                } label: {
-                    Image(systemName: "arrow.2.circlepath")
-                        .font(.title2)
-                        .rotationEffect(.degrees(-45))
-                        .rotationEffect(state == .connecting ? .degrees(360) : .degrees(0))
-                        .animation(
-                            state == .connecting ? .linear(duration: 1).repeatForever(autoreverses: false): .linear,
-                            value: state
-                        )
-                }
-                .buttonStyle(.plain)
                 Text("연결 대기 중...")
                     .fontWeight(.heavy)
             }
@@ -78,13 +95,6 @@ struct RootView: View {
     }
 }
 
-// 1) Backgrounds
 let lightGrayontainer = Color(#colorLiteral(red: 0.422652036, green: 0.4431175292, blue: 0.5056651235, alpha: 1)) // #6d7180
 let darkGrayContainer = Color(#colorLiteral(red: 0.1215686275, green: 0.1607843137, blue: 0.2156862745, alpha: 1)) // #1f2937
-
-let green500 = Color(#colorLiteral(red: 0.1333333333, green: 0.7725490196, blue: 0.368627451, alpha: 1)) // #22c55e
 let green400 = Color(#colorLiteral(red: 0.2901960784, green: 0.8705882353, blue: 0.5019607843, alpha: 1)) // #4ade80
-
-#Preview {
-    RootView()
-}

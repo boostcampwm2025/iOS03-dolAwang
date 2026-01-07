@@ -48,7 +48,7 @@
 				App/Info.plist,
 				Device/Remote/App/Assets.xcassets,
 				Device/Remote/App/mirroringBoothWatchApp.swift,
-				Device/Remote/View/RootView.swift,
+				Device/Remote/View/WatchView.swift,
 				"Device/Remote/WatchKitView+.swift",
 				Device/Remote/WatchStore.swift,
 			);
@@ -63,7 +63,7 @@
 				Device/Common/WatchConnectionManager.swift,
 				Device/Remote/App/Assets.xcassets,
 				Device/Remote/App/mirroringBoothWatchApp.swift,
-				Device/Remote/View/RootView.swift,
+				Device/Remote/View/WatchView.swift,
 				"Device/Remote/WatchKitView+.swift",
 				Device/Remote/WatchStore.swift,
 			);
