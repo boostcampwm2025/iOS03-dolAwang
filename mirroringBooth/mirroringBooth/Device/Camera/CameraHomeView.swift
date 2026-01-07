@@ -31,6 +31,7 @@ struct CameraHomeView: View {
                 .foregroundStyle(Color(.secondaryLabel))
                 .frame(maxWidth: .infinity, alignment: .leading)
 
+            Spacer()
             // 3. 기기 용도 선택
             ScrollView {
                 Button {
@@ -45,7 +46,7 @@ struct CameraHomeView: View {
                 }
 
                 Button {
-                    // 라우터로 연결 대기 화면으로 이동
+                    router.push(to: CameraRoute.advertising)
                 } label: {
                     selectionBox(
                         icons: ["display", "target"],

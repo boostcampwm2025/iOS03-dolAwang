@@ -21,6 +21,8 @@ struct ContentView: View {
                         case .browsing:
                             BrowsingView()
                                 .environment(router)
+                        case .advertising:
+                            AdvertisierHomeView()
                         case .connectionList:
                             ConnectionListView()
                                 .environment(router)

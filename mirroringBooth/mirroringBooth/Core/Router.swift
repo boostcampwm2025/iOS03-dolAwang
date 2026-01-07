@@ -26,6 +26,7 @@ final class Router {
 
 enum CameraRoute {
     case browsing
+    case advertising
     case connectionList
     case streaming
 }
