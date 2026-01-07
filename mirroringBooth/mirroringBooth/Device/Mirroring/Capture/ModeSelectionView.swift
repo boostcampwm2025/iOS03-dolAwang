@@ -76,22 +76,7 @@ struct ModeSelectionView: View {
 private struct TopBarView: View {
     var body: some View {
         HStack {
-            Button {
-                    // action
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "rectangle.portrait.and.arrow.right")
-                    Text("연결 끊기")
-                }
-                .font(.callout)
-                .foregroundColor(.red)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    Capsule()
-                        .foregroundStyle(Color.borderLine)
-                )
-            }
+            DisconnectButtonView(action: {})
 
             Spacer()
 
