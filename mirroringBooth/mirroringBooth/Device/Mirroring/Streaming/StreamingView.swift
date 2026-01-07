@@ -40,7 +40,7 @@ struct StreamingView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(Color("Background"))
-        .ignoresSafeArea(.all, edges: [.bottom, .leading, .trailing])
+        .ignoresSafeArea(edges: [.bottom, .leading, .trailing])
     }
 
     // MARK: - 레이아웃
@@ -49,7 +49,7 @@ struct StreamingView: View {
     private var horizontalLayout: some View {
         HStack(spacing: 24) {
             streamingArea
-            sidePanel
+            sidePanel(compact: false)
                 .frame(width: 280)
         }
         .padding(24)
@@ -59,7 +59,7 @@ struct StreamingView: View {
     private var compactHorizontalLayout: some View {
         HStack(spacing: 12) {
             streamingArea
-            compactSidePanel
+            sidePanel(compact: true)
                 .frame(width: 200)
         }
         .padding(12)
@@ -69,7 +69,7 @@ struct StreamingView: View {
     private var verticalLayout: some View {
         VStack(spacing: 16) {
             streamingArea
-            sidePanel
+            sidePanel(compact: false)
         }
         .padding(16)
     }
@@ -143,210 +143,60 @@ struct StreamingView: View {
 
     // MARK: - 사이드 패널 영역
 
-    /// iPad 가로/세로, iPhone 세로 전용 패널
-    private var sidePanel: some View {
-        VStack(spacing: 16) {
-            poseGuideSection
-            Spacer()
-            completeButton
-        }
-        .padding(16)
-    }
+    /// 사이드 패널
+    /// - compact: false인 경우는 iPad 가로/세로, iPhone 세로 전용
+    /// - compact: true인 경우는 iPhone 가로 전용
+    private func sidePanel(compact: Bool) -> some View {
+        let spacing: CGFloat = compact ? 12 : 16
+        let padding: CGFloat = compact ? 12 : 16
 
-    /// iPhone 가로 전용 패널
-    private var compactSidePanel: some View {
-        VStack(spacing: 12) {
-            compactPoseGuideSection
+        return VStack(spacing: spacing) {
+            poseGuideSection(compact: compact)
             Spacer()
-            compactCompleteButton
+            CaptureCompleteButton(
+                isComplete: captureCount >= totalCaptureCount,
+                isCompact: compact,
+                action: {
+                    // 촬영 완료 후 사진 선택 화면으로 이동
+                }
+            )
         }
-        .padding(12)
+        .padding(padding)
     }
 
     /// 포즈 가이드 섹션
-    private var poseGuideSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    /// - compact: false인 경우는 아이콘 + 텍스트 표시 (adaptive 그리드)
+    /// - compact: true인 경우는 아이콘 없이 텍스트만 표시 (2열 그리드)
+    private func poseGuideSection(compact: Bool) -> some View {
+        VStack(alignment: .leading, spacing: compact ? 8 : 12) {
             // 섹션 타이틀
-
             HStack(spacing: 4) {
                 Image(systemName: "person")
                     .foregroundStyle(.white)
 
                 Text("포즈 가이드")
-                    .font(.headline)
+                    .font(compact ? .caption : .headline)
+                    .fontWeight(compact ? .semibold : .regular)
                     .foregroundStyle(.white)
             }
 
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 12) {
+            LazyVGrid(
+                columns: compact
+                    ? [GridItem(.flexible()), GridItem(.flexible())]
+                    : [GridItem(.adaptive(minimum: 100))],
+                spacing: compact ? 8 : 12
+            ) {
                 ForEach(Pose.allCases) { pose in
                     PoseButton(
                         pose: pose,
                         isSelected: pose == selectedPose,
-                        type: .normal,
+                        isCompact: compact,
                         action: {
                             selectedPose = pose
                         }
                     )
                 }
             }
-        }
-    }
-
-    /// iPhone 가로모드용 포즈 가이드 섹션
-    /// 아이콘 없이 텍스트만 표시합니다.
-    private var compactPoseGuideSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 4) {
-                Image(systemName: "person")
-                    .foregroundStyle(.white)
-
-                Text("포즈 가이드")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.white)
-            }
-
-            // 2열 그리드
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                ForEach(Pose.allCases) { pose in
-                    PoseButton(
-                        pose: pose,
-                        isSelected: pose == selectedPose,
-                        type: .compact,
-                        action: {
-                            selectedPose = pose
-                        }
-                    )
-                }
-            }
-        }
-    }
-
-    /// 촬영 완료 버튼
-    private var completeButton: some View {
-        CaptureCompleteButton(
-            isComplete: captureCount >= totalCaptureCount,
-            type: .normal,
-            action: {
-                // 촬영 완료 후 사진 선택 화면으로 이동
-            }
-        )
-    }
-
-    /// 촬영 완료 버튼 (아이폰 가로모드용)
-    private var compactCompleteButton: some View {
-        CaptureCompleteButton(
-            isComplete: captureCount >= totalCaptureCount,
-            type: .compact,
-            action: {
-                // 촬영 완료 후 사진 선택 화면으로 이동
-            }
-        )
-    }
-}
-
-// MARK: - 촬영 완료 버튼
-
-/// 버튼 크기 타입
-enum ButtonType {
-    case normal
-    case compact
-}
-
-/// 촬영 완료 버튼
-struct CaptureCompleteButton: View {
-    let isComplete: Bool
-    let type: ButtonType
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text(type == .compact ? "완료" : "촬영 완료 및 선택")
-                .font(type == .compact ? .caption : .headline)
-                .fontWeight(type == .compact ? .semibold : .regular)
-                .foregroundStyle(isComplete ? .white : .white.opacity(0.6))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, type == .compact ? 8 : 14)
-                .background(
-                    RoundedRectangle(cornerRadius: type == .compact ? 10 : 14)
-                        .fill(isComplete ? Color("Indigo") : .clear)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: type == .compact ? 10 : 14)
-                                .stroke(
-                                    style: StrokeStyle(
-                                        lineWidth: 1.5,
-                                        dash: isComplete ? [] : [5, 5]
-                                    )
-                                )
-                                .foregroundStyle(.white.opacity(isComplete ? 0 : 0.5))
-                        )
-                )
-        }
-        .disabled(!isComplete)
-    }
-}
-
-// MARK: - 포즈 선택 버튼
-
-/// 포즈 선택 버튼
-struct PoseButton: View {
-    let pose: Pose
-    let isSelected: Bool
-    let type: ButtonType
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: type == .compact ? 0 : 8) {
-                // 포즈 아이콘
-                if type == .normal, let imageName = pose.imageName {
-                    Image(imageName)
-                        .resizable()
-                        .renderingMode(.template)
-                        .scaledToFit()
-                        .frame(height: 40)
-                        .foregroundStyle(.white)
-                }
-
-                // 포즈 이름
-                Text(pose.rawValue)
-                    .font(type == .compact ? .caption2 : .caption)
-                    .fontWeight(type == .compact ? .medium : .regular)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            }
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .frame(minHeight: type == .compact ? nil : 100)
-            .padding(.vertical, type == .compact ? 8 : 0)
-            .background(
-                RoundedRectangle(cornerRadius: type == .compact ? 10 : 16)
-                    .fill(isSelected ? Color("Indigo") : .clear)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: type == .compact ? 10 : 16)
-                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                    )
-            )
-        }
-    }
-}
-
-// MARK: - 포즈
-
-enum Pose: String, CaseIterable, Identifiable {
-    case none = "None"
-    case heart = "볼 하트"
-    case vpose = "브이"
-    case flower = "꽃받침"
-
-    var id: String { rawValue }
-
-    var imageName: String? {
-        switch self {
-        case .none: return nil
-        case .heart: return "pose_heart"
-        case .vpose: return "pose_v"
-        case .flower: return "pose_flower"
         }
     }
 }
