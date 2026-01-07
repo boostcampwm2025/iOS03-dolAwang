@@ -8,8 +8,13 @@
 import SwiftUI
 
 struct AdvertisierHomeView: View {
+    @State var advertisier = Advertisier()
+
     var body: some View {
         Text("미러링/리모트 기기의 시작 화면")
+            .onAppear {
+                advertisier.startSearching()
+            }
     }
 }
 

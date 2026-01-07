@@ -10,7 +10,7 @@ import SwiftUI
 struct BrowsingView: View {
 
     @Environment(Router.self) var router: Router
-    @State private var browser = Browser()
+    @State private var store = BrowsingStore(Browser())
 
     private enum Constants {
         enum Size {
@@ -25,53 +25,57 @@ struct BrowsingView: View {
 
     var body: some View {
         ZStack {
+            // 배경에 그려지는 2개의 원
             Circle()
-                .foregroundStyle(Color("mirroringColor").opacity(0.3))
+                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.3))
                 .frame(width: 180, height: 180)
 
             Circle()
-                .foregroundStyle(Color("mirroringColor").opacity(0.2))
+                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.2))
                 .frame(width: 260, height: 260)
 
             VStack {
-                Image(systemName: "camera")
+                // 타겟 아이콘
+                Image(systemName: store.state.currentTarget.icon)
                     .padding(Constants.Spacing.iconPadding)
                     .font(Constants.Size.title)
-                    .foregroundStyle(Color("mirroringColor"))
-                    .background(Color("mirroringColor").opacity(0.2))
+                    .foregroundStyle(Color(store.state.currentTarget.color))
+                    .background(Color(store.state.currentTarget.color).opacity(0.2))
                     .clipShape(Capsule())
 
-                Text("미러링 기기 찾는 중")
+                // 타겟 설명
+                Text(store.state.currentTarget.searchTitle)
                     .font(.title2)
                     .bold()
 
-                Text("화면을 공유할 기기를 선택해주세요.")
+                Text(store.state.currentTarget.searchDescription)
                     .font(.footnote)
                     .foregroundStyle(Color(.secondaryLabel))
 
+                // 발견된 기기 목록 (버튼)
                 LazyVStack {
                     ScrollView {
-                        deviceRow(
-                            icon: Image(systemName: "iphone"),
-                            name: "이상유의 iPhone",
-                            type: "iPhone 15 pro max"
-                        )
-                        deviceRow(
-                            icon: Image(systemName: "iphone"),
-                            name: "이상유의 iPhone",
-                            type: "iPhone 15 pro max"
-                        )
-                        deviceRow(
-                            icon: Image(systemName: "iphone"),
-                            name: "이상유의 iPhone",
-                            type: "iPhone 15 pro max"
-                        )
+                        ForEach(store.state.discoveredDevices, id: \.self) { device in
+                            Button {
+                                if !store.state.isConnecting && !isDeviceSelected(device) {
+                                    store.send(.didSelect(device))
+                                }
+                            } label: {
+                                deviceRow(device)
+                            }
+                            .disabled(isDeviceSelected(device))
+                        }
                     }
                 }
                 .padding(.horizontal)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(.bottom, 5)
 
+                // 취소 버튼
+
+                // 건너뛰기 버튼
+
+                // 다음 버튼
                 Button {
                     router.push(to: CameraRoute.connectionList)
                 } label: {
@@ -87,35 +91,49 @@ struct BrowsingView: View {
             .padding()
         }
         .onAppear {
-            browser.startSearching()
-        }
-        .onDisappear {
-            browser.stopSearching()
+            store.send(.entry)
         }
     }
 
     @ViewBuilder
-    private func deviceRow(
-        icon: Image,
-        name: String,
-        type: String
-    ) -> some View {
+    private func deviceRow(_ device: NearbyDevice) -> some View {
+        let isSelected = isDeviceSelected(device)
+
         HStack {
-            icon
+            Image(systemName: device.type.icon)
                 .font(.title)
 
             VStack(alignment: .leading) {
-                Text(name)
+                Text(device.id)
                     .font(.headline.bold())
-                Text(type)
+                Text(device.type.rawValue)
                     .font(.footnote)
             }
+
             Spacer()
+
+            // 선택된 기기인 경우 상징적인 아이콘 표시
+            if isSelected {
+                Image(systemName: store.state.currentTarget.icon)
+                    .font(.title2)
+                    .foregroundStyle(Color(store.state.currentTarget.color))
+            }
         }
         .padding()
         .frame(maxWidth: .infinity)
+        .foregroundStyle(Color(.label))
         .background(Color(.secondarySystemBackground).opacity(0.6))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .opacity(isSelected ? 0.5 : 1)
+    }
+
+    private func isDeviceSelected(_ device: NearbyDevice) -> Bool {
+        switch store.state.currentTarget {
+        case .mirroring:
+            return store.state.mirroringDevice == device
+        case .remote:
+            return store.state.remoteDevice == device
+        }
     }
 }
 
