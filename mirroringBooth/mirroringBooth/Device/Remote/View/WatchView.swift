@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct WatchView: View {
-    @State private var connectionState = ConnectionState.connected
+    @State var store: WatchViewStore
     @State private var flag = false
 
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            if connectionState == .connected {
+            if store.state.connectionState == .connected {
                 connectedView
                     .onAppear {
                         flag = false
@@ -36,7 +36,7 @@ struct WatchView: View {
                 .padding(.top, 10)
             Spacer()
             Button {
-
+                store.send(.tapRequestCapture)
             } label: {
                 ZStack {
                     Circle()
@@ -58,6 +58,7 @@ struct WatchView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .topTrailing) {
             Button {
+                store.send(.tapDisconnect)
             } label: {
                 Image(systemName: "multiply")
                     .padding()
@@ -91,6 +92,9 @@ struct WatchView: View {
             Text("iPhone에서 연결해주세요")
                 .font(.caption2)
                 .foregroundStyle(darkGrayContainer)
+        }
+        .onAppear {
+            store.send(.onAppear)
         }
     }
 }

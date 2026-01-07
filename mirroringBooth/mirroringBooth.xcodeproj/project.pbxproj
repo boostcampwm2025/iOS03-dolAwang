@@ -48,9 +48,9 @@
 				App/Info.plist,
 				Device/Remote/App/Assets.xcassets,
 				Device/Remote/App/mirroringBoothWatchApp.swift,
+				Device/Remote/Store/WatchViewStore.swift,
 				Device/Remote/View/WatchView.swift,
 				"Device/Remote/WatchKitView+.swift",
-				Device/Remote/WatchStore.swift,
 			);
 			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
 		};
@@ -63,9 +63,9 @@
 				Device/Common/WatchConnectionManager.swift,
 				Device/Remote/App/Assets.xcassets,
 				Device/Remote/App/mirroringBoothWatchApp.swift,
+				Device/Remote/Store/WatchViewStore.swift,
 				Device/Remote/View/WatchView.swift,
 				"Device/Remote/WatchKitView+.swift",
-				Device/Remote/WatchStore.swift,
 			);
 			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
 		};
