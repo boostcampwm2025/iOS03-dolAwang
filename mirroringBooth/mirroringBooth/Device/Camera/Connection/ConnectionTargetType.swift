@@ -26,4 +26,22 @@ enum ConnectionTargetType {
             "원격 촬영을 위한 기기를 선택해주세요."
         }
     }
+
+    var color: String {
+        switch self {
+        case .mirroring:
+            "mirroringColor"
+        case .remote:
+            "remoteColor"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .mirroring:
+            "display"
+        case .remote:
+            "target"
+        }
+    }
 }
