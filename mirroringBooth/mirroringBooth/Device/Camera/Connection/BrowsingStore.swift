@@ -51,6 +51,7 @@ final class BrowsingStore: StoreProtocol {
             switch self?.state.currentTarget {
             case .mirroring:
                 self?.reduce(.setMirroringDevice(device))
+                self?.reduce(.setCurrentTarget(.remote))
             case .remote:
                 self?.reduce(.setRemoteDevice(device))
             case .none:
@@ -68,19 +69,18 @@ final class BrowsingStore: StoreProtocol {
             browser.startSearching()
 
         case .didSelect(let device):
-            // 1. 현재 연결된 기기 확인
-            var current: NearbyDevice?
-            switch state.currentTarget {
+            // 1. 현재 타겟에 맞는 연결된 기기 확인
+            let currentDevice: NearbyDevice? = switch state.currentTarget {
             case .mirroring:
-                current = state.mirroringDevice
+                state.mirroringDevice
             case .remote:
-                current = state.remoteDevice
+                state.remoteDevice
             }
 
-            // 2. 연결된 기기와 다른 기기를 선택했을 경우 연결 요청
-            if current != device {
+            // 2. 연결된 기기와 다른 기기를 선택했을 경우 연결 요청만 전송
+            // 실제 기기 설정은 onDeviceConnected 콜백에서 처리됨
+            if currentDevice != device {
                 browser.connect(to: device.id)
-                result.append(.setMirroringDevice(device))
                 result.append(.setIsConnecting(true))
             }
 
