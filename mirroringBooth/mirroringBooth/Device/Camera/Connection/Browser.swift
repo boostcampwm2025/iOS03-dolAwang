@@ -5,14 +5,12 @@
 //  Created by 이상유 on 2025-12-28.
 //
 
-import Combine
 import MultipeerConnectivity
 import Observation
 import OSLog
 
 /// 스트림 송신 측 (iPhone)
 /// 다른 기기를 탐색하고 연결하여 스트림 데이터(비디오/사진)를 전송
-@Observable
 final class Browser: NSObject {
 
     private let logger = Logger.browser
@@ -22,7 +20,7 @@ final class Browser: NSObject {
     private let session: MCSession
     private let browser: MCNearbyServiceBrowser
 
-    private var discoveredPeers: [NearbyDevice: MCPeerID] = [:]
+    private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
 
     var isSearching: Bool = false
 
@@ -66,9 +64,9 @@ final class Browser: NSObject {
     }
 
     /// 특정 기기에게 연결 요청을 전송합니다.
-    func connect(to device: NearbyDevice) {
-        guard let peer = discoveredPeers[device] else {
-            logger.warning("[연결 실패] 기기를 찾을 수 없음 : \(device.id)")
+    func connect(to deviceID: String) {
+        guard let (peer, _) = discoveredPeers[deviceID] else {
+            logger.warning("[연결 실패] 기기를 찾을 수 없음 : \(deviceID)")
             return
         }
 
@@ -158,6 +156,11 @@ extension Browser: MCSessionDelegate {
             logger.warning("[\(peerID.displayName)] 알 수 없는 상태")
         }
 
+        // 상태가 변경된 peerID를 discoveredPeers에 저장하고, Store에 알린다.
+        // 기존에 저장된 type 정보를 유지하거나, 없으면 .unknown으로 설정
+        let deviceType = self.discoveredPeers[peerID.displayName]?.type ?? .unknown
+        self.discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
+        let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
         DispatchQueue.main.async {
             let device = NearbyDevice(id: peerID.displayName, state: newState)
             self.discoveredPeers[device] = peerID
@@ -201,6 +204,16 @@ extension Browser: MCNearbyServiceBrowserDelegate {
                  foundPeer peerID: MCPeerID,
                  withDiscoveryInfo info: [String: String]?) {
         logger.info("발견된 기기: \(peerID.displayName)")
+        guard let deviceTypeString = info?["deviceType"],
+              let deviceType = DeviceType.from(string: deviceTypeString)
+        else { return }
+
+        self.discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
+        let device = NearbyDevice(
+            id: peerID.displayName,
+            state: .notConnected,
+            type: deviceType
+        )
         DispatchQueue.main.async {
             let device = NearbyDevice(id: peerID.displayName, state: .notConnected)
             self.discoveredPeers[device] = peerID
@@ -210,6 +223,13 @@ extension Browser: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser,
                  lostPeer peerID: MCPeerID) {
         logger.info("사라진 기기: \(peerID.displayName)")
+        let deviceType = self.discoveredPeers[peerID.displayName]?.type ?? .unknown
+        self.discoveredPeers.removeValue(forKey: peerID.displayName)
+        let device = NearbyDevice(
+            id: peerID.displayName,
+            state: .notConnected,
+            type: deviceType
+        )
         DispatchQueue.main.async {
             let device = NearbyDevice(id: peerID.displayName, state: .notConnected)
             self.discoveredPeers.removeValue(forKey: device)
