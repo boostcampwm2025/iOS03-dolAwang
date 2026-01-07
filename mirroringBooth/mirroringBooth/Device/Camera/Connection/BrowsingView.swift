@@ -76,7 +76,17 @@ struct BrowsingView: View {
                 // 다음 버튼
                 if store.state.currentTarget == .remote {
                     Button {
-                        router.push(to: CameraRoute.connectionList)
+                        if let mirroringDevice = store.state.mirroringDevice {
+                            router.push(
+                                to: CameraRoute.connectionList(
+                                    ConnectionList(
+                                        cameraName: store.browser.myDeviceName,
+                                        mirroringName: mirroringDevice.id,
+                                        remoteName: store.state.remoteDevice?.id ?? nil
+                                    )
+                                )
+                            )
+                        }
                     } label: {
                         Text(store.state.hasSelectedDevice ? "다음" : "건너뛰기")
                             .font(.callout)

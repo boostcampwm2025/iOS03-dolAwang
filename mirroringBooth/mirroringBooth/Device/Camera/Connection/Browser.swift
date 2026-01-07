@@ -29,6 +29,8 @@ final class Browser: NSObject {
     /// 현재 연결 시도 중인 리모트 디바이스 ID
     private var targetRemoteDeviceID: String?
 
+    let myDeviceName: String
+
     var onDeviceFound: ((NearbyDevice) -> Void)?
 
     var onDeviceLost: ((NearbyDevice) -> Void)?
@@ -42,7 +44,8 @@ final class Browser: NSObject {
 
     init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
-        self.peerID = MCPeerID(displayName: UIDevice.current.name)
+        self.myDeviceName = UIDevice.current.name
+        self.peerID = MCPeerID(displayName: myDeviceName)
         self.mirroringSession = MCSession(
             peer: peerID,
             securityIdentity: nil,

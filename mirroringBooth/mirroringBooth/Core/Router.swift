@@ -24,9 +24,15 @@ final class Router {
     }
 }
 
-enum CameraRoute {
+enum CameraRoute: Hashable {
     case browsing
     case advertising
-    case connectionList
+    case connectionList(ConnectionList)
     case streaming
+}
+
+struct ConnectionList: Hashable {
+    let cameraName: String
+    let mirroringName: String
+    let remoteName: String?
 }

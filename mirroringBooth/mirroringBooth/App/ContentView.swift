@@ -23,9 +23,9 @@ struct ContentView: View {
                                 .environment(router)
                         case .advertising:
                             AdvertisierHomeView()
-                        case .connectionList:
-                            ConnectionCheckView()
-                                .environment(router)
+                        case .connectionList(let list):
+                            ConnectionCheckView(list)
+                            .environment(router)
                         case .streaming:
                             EmptyView()
                         }

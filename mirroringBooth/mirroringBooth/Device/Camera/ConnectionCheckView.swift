@@ -8,6 +8,16 @@
 import SwiftUI
 
 struct ConnectionCheckView: View {
+    private let cameraDevice: String
+    private let mirroringDevice: String
+    private let remoteDevice: String?
+
+    init(_ list: ConnectionList) {
+        self.cameraDevice = list.cameraName
+        self.mirroringDevice = list.mirroringName
+        self.remoteDevice = list.remoteName
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
             // 1. 헤더
@@ -29,21 +39,21 @@ struct ConnectionCheckView: View {
                     deviceCard(
                         title: "카메라",
                         icon: "camera",
-                        name: "상유의 iPhone 14 Pro Max",
+                        name: cameraDevice,
                         color: Color("mainColor")
                     )
 
                     deviceCard(
                         title: "미러링",
                         icon: "display",
-                        name: "상유의 iPad",
+                        name: mirroringDevice,
                         color: Color("mirroringColor")
                     )
 
                     deviceCard(
                         title: "리모콘",
                         icon: "target",
-                        name: nil,
+                        name: remoteDevice,
                         color: Color("remoteColor")
                     )
                 }
@@ -53,7 +63,9 @@ struct ConnectionCheckView: View {
             Spacer()
 
             // 3. 촬영 준비 버튼
-            Button { } label: {
+            Button {
+                // TODO: 카메라 프리뷰로 이동
+            } label: {
                 Text("촬영 준비하기")
                     .padding(14)
                     .frame(maxWidth: .infinity)
@@ -123,5 +135,11 @@ extension ConnectionCheckView {
 }
 
 #Preview {
-    ConnectionCheckView()
+    ConnectionCheckView(
+        ConnectionList(
+            cameraName: "상유의 iPhone",
+            mirroringName: "상유의 iPad",
+            remoteName: nil
+        )
+    )
 }
