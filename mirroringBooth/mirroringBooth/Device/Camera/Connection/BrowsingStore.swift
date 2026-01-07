@@ -21,14 +21,14 @@ final class BrowsingStore: StoreProtocol {
     enum Intent {
         case entry
         case didSelect(NearbyDevice)
-        case move(toTarget: ConnectionTargetType)
+        case cancel
     }
 
     enum Result {
         case addDiscoveredDevice(NearbyDevice)
         case removeDiscoveredDevice(NearbyDevice)
-        case setMirroringDevice(NearbyDevice)
-        case setRemoteDevice(NearbyDevice)
+        case setMirroringDevice(NearbyDevice?)
+        case setRemoteDevice(NearbyDevice?)
         case setIsConnecting(Bool)
         case setCurrentTarget(ConnectionTargetType)
     }
@@ -84,8 +84,16 @@ final class BrowsingStore: StoreProtocol {
                 result.append(.setIsConnecting(true))
             }
 
-        case .move(toTarget: let target):
-            result.append(.setCurrentTarget(target))
+        case .cancel:
+            // 1. 모든 연결 해제
+            browser.disconnect()
+            result.append(.setMirroringDevice(nil))
+            result.append(.setRemoteDevice(nil))
+
+            // 2. 리모트 선택 중이었다면 미러링 선택 화면으로 이동
+            if state.currentTarget == .remote {
+                result.append(.setCurrentTarget(.mirroring))
+            }
         }
 
         return result

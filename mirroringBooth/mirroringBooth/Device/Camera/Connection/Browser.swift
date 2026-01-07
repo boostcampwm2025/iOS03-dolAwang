@@ -124,11 +124,10 @@ final class Browser: NSObject {
         }
     }
 
-    /// 연결을 해제합니다.
+    /// 모든 연결을 해제합니다.
     func disconnect() {
-        // 임시적으로 세션 자체를 끊습니다.
         session.disconnect()
-        logger.info("연결 해제")
+        logger.info("모든 연결 해제")
     }
 
 }
