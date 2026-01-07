@@ -8,11 +8,37 @@
 
 /* Begin PBXBuildFile section */
 		D771C9772F0BB44E004285EA /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = D771C9762F0BB448004285EA /* .swiftlint.yml */; };
+		DF40C6B62F0E079500D116A3 /* mirroringBoothWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = DF40C6AC2F0E079400D116A3 /* mirroringBoothWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DF40C6B42F0E079500D116A3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C796EA22EF52FB200280FED /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DF40C6AB2F0E079400D116A3;
+			remoteInfo = "mirroringBoothWatch Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DF5F24262F0E04EB00EED174 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				DF40C6B62F0E079500D116A3 /* mirroringBoothWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		8C796EAA2EF52FB200280FED /* mirroringBooth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mirroringBooth.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D771C9762F0BB448004285EA /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
+		DF40C6AC2F0E079400D116A3 /* mirroringBoothWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mirroringBoothWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -22,6 +48,23 @@
 				App/Info.plist,
 			);
 			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
+		};
+		DF40C6C02F0E0AC700D116A3 /* Exceptions for "mirroringBoothWatch" folder in "mirroringBooth" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Connection/WatchConnectionManager.swift,
+				View/RootView.swift,
+				WatchStore.swift,
+			);
+			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
+		};
+		DF40C6C12F0E0AC700D116A3 /* Exceptions for "mirroringBoothWatch" folder in "mirroringBoothWatch" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Connection/WatchConnectionManager.swift,
+				WatchStore.swift,
+			);
+			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -34,10 +77,26 @@
 			path = mirroringBooth;
 			sourceTree = "<group>";
 		};
+		DF40C6AD2F0E079400D116A3 /* mirroringBoothWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DF40C6C02F0E0AC700D116A3 /* Exceptions for "mirroringBoothWatch" folder in "mirroringBooth" target */,
+				DF40C6C12F0E0AC700D116A3 /* Exceptions for "mirroringBoothWatch" folder in "mirroringBoothWatch" target */,
+			);
+			path = mirroringBoothWatch;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8C796EA72EF52FB200280FED /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF40C6A92F0E079400D116A3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -52,6 +111,7 @@
 			children = (
 				D771C9762F0BB448004285EA /* .swiftlint.yml */,
 				8C796EAC2EF52FB200280FED /* mirroringBooth */,
+				DF40C6AD2F0E079400D116A3 /* mirroringBoothWatch */,
 				8C796EAB2EF52FB200280FED /* Products */,
 			);
 			sourceTree = "<group>";
@@ -60,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				8C796EAA2EF52FB200280FED /* mirroringBooth.app */,
+				DF40C6AC2F0E079400D116A3 /* mirroringBoothWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -74,11 +135,13 @@
 				8C796EA62EF52FB200280FED /* Sources */,
 				8C796EA72EF52FB200280FED /* Frameworks */,
 				8C796EA82EF52FB200280FED /* Resources */,
+				DF5F24262F0E04EB00EED174 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				D771CA782F0BBB26004285EA /* PBXTargetDependency */,
+				DF40C6B52F0E079500D116A3 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				8C796EAC2EF52FB200280FED /* mirroringBooth */,
@@ -90,6 +153,28 @@
 			productReference = 8C796EAA2EF52FB200280FED /* mirroringBooth.app */;
 			productType = "com.apple.product-type.application";
 		};
+		DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF40C6B92F0E079500D116A3 /* Build configuration list for PBXNativeTarget "mirroringBoothWatch" */;
+			buildPhases = (
+				DF40C6A82F0E079400D116A3 /* Sources */,
+				DF40C6A92F0E079400D116A3 /* Frameworks */,
+				DF40C6AA2F0E079400D116A3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DF40C6AD2F0E079400D116A3 /* mirroringBoothWatch */,
+			);
+			name = mirroringBoothWatch;
+			packageProductDependencies = (
+			);
+			productName = "mirroringBoothWatch Watch App";
+			productReference = DF40C6AC2F0E079400D116A3 /* mirroringBoothWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -97,11 +182,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2610;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					8C796EA92EF52FB200280FED = {
 						CreatedOnToolsVersion = 26.1.1;
+					};
+					DF40C6AB2F0E079400D116A3 = {
+						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
@@ -123,6 +211,7 @@
 			projectRoot = "";
 			targets = (
 				8C796EA92EF52FB200280FED /* mirroringBooth */,
+				DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -136,10 +225,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DF40C6AA2F0E079400D116A3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8C796EA62EF52FB200280FED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF40C6A82F0E079400D116A3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -152,6 +255,11 @@
 		D771CA782F0BBB26004285EA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = D771CA772F0BBB26004285EA /* SwiftLintBuildToolPlugin */;
+		};
+		DF40C6B52F0E079500D116A3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
+			targetProxy = DF40C6B42F0E079500D116A3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -370,6 +478,75 @@
 			};
 			name = Release;
 		};
+		DF40C6B72F0E079500D116A3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B3PWYBKFUK;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = kr.codesquad.boostcamp10.dolAwang.mirroringBooth;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = kr.codesquad.boostcamp10.dolAwang.mirroringBooth.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10;
+			};
+			name = Debug;
+		};
+		DF40C6B82F0E079500D116A3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B3PWYBKFUK;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = kr.codesquad.boostcamp10.dolAwang.mirroringBooth;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = kr.codesquad.boostcamp10.dolAwang.mirroringBooth.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -387,6 +564,15 @@
 			buildConfigurations = (
 				8C796EB62EF52FB300280FED /* Debug */,
 				8C796EB72EF52FB300280FED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DF40C6B92F0E079500D116A3 /* Build configuration list for PBXNativeTarget "mirroringBoothWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF40C6B72F0E079500D116A3 /* Debug */,
+				DF40C6B82F0E079500D116A3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
