@@ -37,6 +37,8 @@ final class Browser: NSObject {
 
     var onDeviceConnected: ((NearbyDevice) -> Void)?
 
+    var onDeviceConnectionFailed: (() -> Void)?
+
     /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
     var isVideoSender: Bool {
         UIDevice.current.userInterfaceIdiom == .phone
@@ -183,54 +185,74 @@ extension Browser: MCSessionDelegate {
         peer peerID: MCPeerID,
         didChange state: MCSessionState
     ) {
-        let newState: ConnectionState
-        let sessionTypeLabel: String
+        let sessionTypeLabel = getSessionTypeLabel(for: session)
+        let newState = logAndConvertState(state, for: peerID.displayName, sessionType: sessionTypeLabel)
 
-        // 어떤 세션에서 상태 변경이 발생했는지 확인
-        if session === mirroringSession {
-            sessionTypeLabel = "미러링"
-        } else if session === remoteSession {
-            sessionTypeLabel = "리모트"
-        } else {
-            sessionTypeLabel = "알 수 없음"
-        }
-
-        switch state {
-        case .notConnected:
-            newState = .notConnected
-            logger.info("[\(peerID.displayName)] 연결 안됨 (\(sessionTypeLabel))")
-        case .connecting:
-            newState = .connecting
-            logger.info("[\(peerID.displayName)] 연결 중.. (\(sessionTypeLabel))")
-        case .connected:
-            newState = .connected
-            logger.info("[\(peerID.displayName)] 연결됨 ✅ (\(sessionTypeLabel))")
-        @unknown default:
-            newState = .notConnected
-            logger.warning("[\(peerID.displayName)] 알 수 없는 상태 (\(sessionTypeLabel))")
-        }
-
-        // 상태가 변경된 peerID를 discoveredPeers에 저장하고, Store에 알린다.
-        // 기존에 저장된 type 정보를 유지하거나, 없으면 .unknown으로 설정
-        let deviceType = self.discoveredPeers[peerID.displayName]?.type ?? .unknown
-        self.discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
+        let deviceType = discoveredPeers[peerID.displayName]?.type ?? .unknown
+        discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
 
         DispatchQueue.main.async {
             self.onDeviceFound?(device)
+            self.handleConnectionStateChange(newState, device: device, session: session, peerID: peerID)
+        }
+    }
 
-            // 연결 성공 시, 해당 타겟 디바이스인 경우에만 콜백 호출
-            if newState == .connected {
-                let isMirroringTarget = session === self.mirroringSession &&
-                                         peerID.displayName == self.targetMirroringDeviceID
-                let isRemoteTarget = session === self.remoteSession &&
-                                      peerID.displayName == self.targetRemoteDeviceID
-                let isTargetDevice = isMirroringTarget || isRemoteTarget
+    private func getSessionTypeLabel(for session: MCSession) -> String {
+        if session === mirroringSession {
+            return "미러링"
+        } else if session === remoteSession {
+            return "리모트"
+        } else {
+            return "알 수 없음"
+        }
+    }
 
-                if isTargetDevice {
-                    self.onDeviceConnected?(device)
-                }
+    private func logAndConvertState(
+        _ state: MCSessionState,
+        for deviceName: String,
+        sessionType: String
+    ) -> ConnectionState {
+        switch state {
+        case .notConnected:
+            logger.info("[\(deviceName)] 연결 안됨 (\(sessionType))")
+            return .notConnected
+        case .connecting:
+            logger.info("[\(deviceName)] 연결 중.. (\(sessionType))")
+            return .connecting
+        case .connected:
+            logger.info("[\(deviceName)] 연결됨 ✅ (\(sessionType))")
+            return .connected
+        @unknown default:
+            logger.warning("[\(deviceName)] 알 수 없는 상태 (\(sessionType))")
+            return .notConnected
+        }
+    }
+
+    private func handleConnectionStateChange(
+        _ state: ConnectionState,
+        device: NearbyDevice,
+        session: MCSession,
+        peerID: MCPeerID
+    ) {
+        let isMirroringTarget = session === mirroringSession && peerID.displayName == targetMirroringDeviceID
+        let isRemoteTarget = session === remoteSession && peerID.displayName == targetRemoteDeviceID
+
+        guard isMirroringTarget || isRemoteTarget else { return }
+
+        switch state {
+        case .connected:
+            onDeviceConnected?(device)
+        case .notConnected:
+            onDeviceConnectionFailed?()
+            if isMirroringTarget {
+                targetMirroringDeviceID = nil
             }
+            if isRemoteTarget {
+                targetRemoteDeviceID = nil
+            }
+        case .connecting:
+            break
         }
     }
 

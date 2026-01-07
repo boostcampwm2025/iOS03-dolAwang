@@ -66,6 +66,10 @@ final class BrowsingStore: StoreProtocol {
             }
             self?.reduce(.setIsConnecting(false))
         }
+
+        browser.onDeviceConnectionFailed = { [weak self] in
+            self?.reduce(.setIsConnecting(false))
+        }
     }
 
     func action(_ intent: Intent) -> [Result] {
