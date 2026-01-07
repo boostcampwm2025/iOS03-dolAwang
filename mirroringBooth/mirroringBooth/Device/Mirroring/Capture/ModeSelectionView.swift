@@ -227,7 +227,3 @@ private struct TruncationDetectionModifier: ViewModifier {
             )
     }
 }
-
-#Preview() {
-    ModeSelectionView()
-}
