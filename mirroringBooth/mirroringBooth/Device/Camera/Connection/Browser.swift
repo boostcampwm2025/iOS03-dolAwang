@@ -22,10 +22,11 @@ final class Browser: NSObject {
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
 
-    var isSearching: Bool = false
+    var onDeviceFound: ((NearbyDevice) -> Void)?
 
-    /// 연결된 피어가 있는지 여부
-    var isConnected: Bool = false
+    var onDeviceLost: ((NearbyDevice) -> Void)?
+
+    var onDeviceConnected: ((NearbyDevice) -> Void)?
 
     /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
     var isVideoSender: Bool {
@@ -46,6 +47,10 @@ final class Browser: NSObject {
         setup()
     }
 
+    deinit {
+        stopSearching()
+    }
+
     private func setup() {
         session.delegate = self
         browser.delegate = self
@@ -53,13 +58,11 @@ final class Browser: NSObject {
 
     func startSearching() {
         browser.startBrowsingForPeers()
-        isSearching = true
         logger.info("주변 기기를 검색합니다.")
     }
 
-    func stopSearching() {
+    private func stopSearching() {
         browser.stopBrowsingForPeers()
-        isSearching = false
         logger.info("주변 기기 검색을 중지합니다.")
     }
 
@@ -71,7 +74,7 @@ final class Browser: NSObject {
         }
 
         browser.invitePeer(peer, to: session, withContext: nil, timeout: 10)
-        logger.info("연결 요청 전송: \(device.id)")
+        logger.info("연결 요청 전송: \(deviceID)")
     }
 
     /// 연결된 피어에게 스트림 데이터를 전송합니다.
@@ -121,12 +124,11 @@ final class Browser: NSObject {
         }
     }
 
-    /// 연결된 특정 기기와 연결을 해제합니다.
-    func disconnect(from device: NearbyDevice) {
-        guard discoveredPeers[device] != nil else { return }
+    /// 연결을 해제합니다.
+    func disconnect() {
         // 임시적으로 세션 자체를 끊습니다.
         session.disconnect()
-        logger.info("연결 해제: \(device.id)")
+        logger.info("연결 해제")
     }
 
 }
@@ -162,9 +164,10 @@ extension Browser: MCSessionDelegate {
         self.discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
         DispatchQueue.main.async {
-            let device = NearbyDevice(id: peerID.displayName, state: newState)
-            self.discoveredPeers[device] = peerID
-            self.isConnected = !session.connectedPeers.isEmpty
+            self.onDeviceFound?(device)
+            if newState == .connected {
+                self.onDeviceConnected?(device)
+            }
         }
     }
 
@@ -215,8 +218,7 @@ extension Browser: MCNearbyServiceBrowserDelegate {
             type: deviceType
         )
         DispatchQueue.main.async {
-            let device = NearbyDevice(id: peerID.displayName, state: .notConnected)
-            self.discoveredPeers[device] = peerID
+            self.onDeviceFound?(device)
         }
     }
 
@@ -231,8 +233,7 @@ extension Browser: MCNearbyServiceBrowserDelegate {
             type: deviceType
         )
         DispatchQueue.main.async {
-            let device = NearbyDevice(id: peerID.displayName, state: .notConnected)
-            self.discoveredPeers.removeValue(forKey: device)
+            self.onDeviceLost?(device)
         }
     }
 }
