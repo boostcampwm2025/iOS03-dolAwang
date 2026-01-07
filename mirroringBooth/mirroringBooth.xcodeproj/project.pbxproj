@@ -49,20 +49,10 @@
 			);
 			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
 		};
-		DF40C6C02F0E0AC700D116A3 /* Exceptions for "mirroringBoothWatch" folder in "mirroringBooth" target */ = {
+		DF40C6CB2F0E256D00D116A3 /* Exceptions for "mirroringBooth" folder in "mirroringBoothWatch" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Connection/WatchConnectionManager.swift,
-				View/RootView.swift,
-				WatchStore.swift,
-			);
-			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
-		};
-		DF40C6C12F0E0AC700D116A3 /* Exceptions for "mirroringBoothWatch" folder in "mirroringBoothWatch" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Connection/WatchConnectionManager.swift,
-				WatchStore.swift,
+				Device/Common/Model/ConnectionState.swift,
 			);
 			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
 		};
@@ -73,16 +63,13 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				D7DCC4DC2F017DCC004D1EDA /* Exceptions for "mirroringBooth" folder in "mirroringBooth" target */,
+				DF40C6CB2F0E256D00D116A3 /* Exceptions for "mirroringBooth" folder in "mirroringBoothWatch" target */,
 			);
 			path = mirroringBooth;
 			sourceTree = "<group>";
 		};
 		DF40C6AD2F0E079400D116A3 /* mirroringBoothWatch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				DF40C6C02F0E0AC700D116A3 /* Exceptions for "mirroringBoothWatch" folder in "mirroringBooth" target */,
-				DF40C6C12F0E0AC700D116A3 /* Exceptions for "mirroringBoothWatch" folder in "mirroringBoothWatch" target */,
-			);
 			path = mirroringBoothWatch;
 			sourceTree = "<group>";
 		};
