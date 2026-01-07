@@ -151,16 +151,11 @@ private struct SelectionCard: View {
 
                 VStack(spacing: 10) {
                     Text(title)
-                        .font(.title2)
-                        .fontWeight(.bold)
+                        .font(.title2.bold())
                         .foregroundColor(.white)
 
                     if !descriptionTruncated {
-                        Text(description)
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(4)
+                        DescriptionLabel(description: description)
                             .modifier(
                                 TruncationDetectionModifier(
                                     text: description,
@@ -182,7 +177,19 @@ private struct SelectionCard: View {
                     .stroke(Color.borderLine, lineWidth: 3)
             )
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
+    }
+}
+
+private struct DescriptionLabel: View {
+    let description: String
+
+    var body: some View {
+        Text(description)
+            .font(.subheadline)
+            .foregroundColor(.gray)
+            .multilineTextAlignment(.center)
+            .lineSpacing(4)
     }
 }
 
@@ -197,10 +204,7 @@ private struct TruncationDetectionModifier: ViewModifier {
             .lineLimit(lineLimit)
             .background(
                 GeometryReader { proxy in
-                    Text(text)
-                        .font(font)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
+                    DescriptionLabel(description: text)
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
                         .opacity(0)
