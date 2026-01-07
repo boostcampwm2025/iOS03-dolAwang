@@ -18,7 +18,7 @@ struct CaptureCompleteButton: View {
             Text(isCompact ? "완료" : "촬영 완료 및 선택")
                 .font(isCompact ? .caption : .headline)
                 .fontWeight(isCompact ? .semibold : .regular)
-                .foregroundStyle(isComplete ? .white : .white.opacity(0.6))
+                .foregroundStyle(isComplete ? .white : Color("TextPrimary").opacity(0.6))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, isCompact ? 8 : 14)
                 .background(
@@ -32,7 +32,7 @@ struct CaptureCompleteButton: View {
                                         dash: isComplete ? [] : [5, 5]
                                     )
                                 )
-                                .foregroundStyle(.white.opacity(isComplete ? 0 : 0.5))
+                                .foregroundStyle(isComplete ? .clear : Color("TextPrimary").opacity(0.5))
                         )
                 )
         }

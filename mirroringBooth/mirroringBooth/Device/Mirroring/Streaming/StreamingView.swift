@@ -115,7 +115,7 @@ struct StreamingView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(.primary)
     }
 
     /// 스트리밍 영역 상단 HUD
@@ -172,18 +172,18 @@ struct StreamingView: View {
             // 섹션 타이틀
             HStack(spacing: 4) {
                 Image(systemName: "person")
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color("TextPrimary"))
 
                 Text("포즈 가이드")
                     .font(compact ? .caption : .headline)
-                    .fontWeight(compact ? .semibold : .regular)
-                    .foregroundStyle(.white)
+                    .fontWeight(.bold)
+                    .foregroundStyle(Color("TextPrimary"))
             }
 
             LazyVGrid(
                 columns: compact
                     ? [GridItem(.flexible()), GridItem(.flexible())]
-                    : [GridItem(.adaptive(minimum: 100))],
+                    : [GridItem(.adaptive(minimum: 120))],
                 spacing: compact ? 8 : 12
             ) {
                 ForEach(Pose.allCases) { pose in

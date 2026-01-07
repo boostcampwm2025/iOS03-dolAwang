@@ -22,27 +22,29 @@ struct PoseButton: View {
                         .resizable()
                         .renderingMode(.template)
                         .scaledToFit()
-                        .frame(height: 40)
-                        .foregroundStyle(.white)
+                        .frame(height: 50)
                 }
 
                 // 포즈 이름
                 Text(pose.rawValue)
-                    .font(isCompact ? .caption2 : .caption)
+                    .font(isCompact ? .caption2 : .subheadline)
                     .fontWeight(isCompact ? .medium : .regular)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(isSelected ? Color("Indigo") : Color("TextPrimary"))
             .frame(maxWidth: .infinity)
-            .frame(minHeight: isCompact ? nil : 100)
+            .frame(minHeight: isCompact ? nil : 120)
             .padding(.vertical, isCompact ? 8 : 0)
             .background(
                 RoundedRectangle(cornerRadius: isCompact ? 10 : 16)
-                    .fill(isSelected ? Color("Indigo") : .clear)
+                    .fill(isSelected ? Color("Indigo").opacity(0.12) : .clear)
                     .overlay(
                         RoundedRectangle(cornerRadius: isCompact ? 10 : 16)
-                            .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                            .stroke(
+                                isSelected ? Color("Indigo") : Color("TextPrimary").opacity(0.3),
+                                lineWidth: isSelected ? 1.5 : 1
+                            )
                     )
             )
         }
