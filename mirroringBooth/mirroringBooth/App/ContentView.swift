@@ -1,0 +1,40 @@
+//
+//  ContentView.swift
+//  mirroringBooth
+//
+//  Created by 이상유 on 2026-01-07.
+//
+
+import SwiftUI
+
+struct ContentView: View {
+    @State private var router: Router = .init()
+
+    var body: some View {
+        NavigationStack(path: $router.path) {
+            switch UIDevice.current.userInterfaceIdiom {
+            case .phone:
+                CameraHomeView()
+                    .environment(router)
+                    .navigationDestination(for: CameraRoute.self) { viewType in
+                        switch viewType {
+                        case .browsing:
+                            BrowsingView()
+                                .environment(router)
+                        case .connectionList:
+                            ConnectionListView()
+                                .environment(router)
+                        case .streaming:
+                            EmptyView()
+                        }
+                    }
+            default:
+                AdvertisierHomeView()
+            }
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
