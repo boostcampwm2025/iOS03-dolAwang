@@ -14,9 +14,9 @@ struct StreamingView: View {
     private let isTimerMode: Bool
 
     /// 총 사진 촬영 수
-    private let totalCaptureCount = 10
+    private let totalCaptureCount = 12
     /// 현재까지 촬영한 사진 개수
-    private var captureCount: Int = 0
+    @State private var captureCount: Int = 0
 
     init(advertisier: Advertisier, isTimerMode: Bool) {
         self.advertisier = advertisier
@@ -43,6 +43,18 @@ struct StreamingView: View {
 
             // 상단 HUD
             streamingHUD
+
+            // 타이머 모드 오버레이
+            if isTimerMode {
+                TimerOverlay(
+                    phase: store.state.timerPhase,
+                    countdownValue: store.state.countdownValue,
+                    shootingCountdown: store.state.shootingCountdown,
+                    onReadyTapped: {
+                        store.send(.startCountdown)
+                    }
+                )
+            }
         }
         .onAppear {
             store.send(.startStreaming)
