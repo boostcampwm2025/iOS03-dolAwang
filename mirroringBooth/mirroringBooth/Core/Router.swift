@@ -27,7 +27,7 @@ final class Router {
 enum CameraRoute: Hashable {
     case browsing
     case advertising
-    case connectionList(ConnectionList)
+    case connectionList(ConnectionList, Browser)
     case streaming
 }
 
