@@ -59,6 +59,12 @@ struct StreamingView: View {
         .onAppear {
             store.send(.startStreaming)
         }
+        .onChange(of: store.state.timerPhase) { _, newPhase in
+            if newPhase == .completed {
+                // 촬영 결과 화면으로 이동
+                print("12장 사진 촬영 완료")
+            }
+        }
         .onDisappear {
             store.send(.stopStreaming)
         }
