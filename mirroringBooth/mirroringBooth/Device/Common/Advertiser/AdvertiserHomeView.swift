@@ -8,10 +8,7 @@
 import SwiftUI
 
 struct AdvertiserHomeView: View {
-    @State private var advertiser = Advertiser()
-    @State private var isAdvertising: Bool = false
-
-    let displayName: String = "호랑이의 iPhone 15 · A6T"
+    @State private var store = AdvertiserHomeStore(Advertiser())
 
     var body: some View {
         VStack(spacing: 0) {
@@ -23,10 +20,10 @@ struct AdvertiserHomeView: View {
             Spacer()
 
             // 중앙 상태 뷰
-            if isAdvertising {
-                StandbyView(displayName: displayName, isAdvertising: isAdvertising)
+            if store.state.isAdvertising {
+                StandbyView(displayName: store.advertiser.myDeviceName, isAdvertising: store.state.isAdvertising)
             } else {
-                IdleView(displayName: displayName)
+                IdleView(displayName: store.advertiser.myDeviceName)
             }
 
             Spacer()
@@ -41,14 +38,17 @@ struct AdvertiserHomeView: View {
             // 하단 버튼
             Button {
                 withAnimation(.easeInOut(duration: 0.2)) {
-                    isAdvertising.toggle()
+                    store.send(.didTapAdvertiseButton)
                 }
             } label: {
-                AdvertisingButton(isAdvertising: isAdvertising)
+                AdvertisingButton(isAdvertising: store.state.isAdvertising)
             }
             .padding(.bottom, 24)
         }
         .padding(.horizontal)
+        .onDisappear {
+            store.send(.exit)
+        }
     }
 }
 
