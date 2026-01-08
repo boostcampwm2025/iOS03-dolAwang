@@ -22,7 +22,7 @@ final class CameraManager: NSObject {
     private var videoOutput: AVCaptureVideoDataOutput?
     private var photoOutput = AVCapturePhotoOutput()
 
-    private let encoder = H264Encoder()
+    private let encoder = H264Encoder(resolution: .portraitHD1080p)
 
     /// 인코딩된 데이터 콜백
     var onEncodedData: ((Data) -> Void)? {
@@ -113,6 +113,12 @@ extension CameraManager {
         if session.canAddOutput(videoOutput) {
             session.addOutput(videoOutput)
             self.videoOutput = videoOutput
+
+            // 비디오 방향을 세로로 설정합니다. 
+            if let connection = videoOutput.connection(with: .video),
+               connection.isVideoRotationAngleSupported(90) {
+                connection.videoRotationAngle = 90
+            }
         } else {
             logger.warning("비디오 출력 추가에 실패했습니다.")
         }
