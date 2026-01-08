@@ -13,6 +13,8 @@ struct ConnectionCheckView: View {
     private let remoteDevice: String?
     private let browser: Browser
 
+    @State private var showCameraTest = false
+
     init(_ list: ConnectionList, browser: Browser) {
         self.cameraDevice = list.cameraName
         self.mirroringDevice = list.mirroringName
@@ -66,7 +68,7 @@ struct ConnectionCheckView: View {
 
             // 3. 촬영 준비 버튼
             Button {
-                // TODO: 카메라 프리뷰로 이동
+                showCameraTest = true
                 browser.sendCommand(.navigateToSelectMode)
             } label: {
                 Text("촬영 준비하기")
@@ -79,6 +81,9 @@ struct ConnectionCheckView: View {
             .padding()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .fullScreenCover(isPresented: $showCameraTest) {
+            CameraTestView(browser: browser)
+        }
     }
 }
 

@@ -39,4 +39,5 @@ struct ConnectionList: Hashable {
 
 enum MirroringRoute: Hashable {
     case modeSelection
+    case streaming(isTimerMode: Bool)
 }

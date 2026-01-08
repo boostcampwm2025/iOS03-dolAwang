@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RootView: View {
     @State private var router: Router = .init()
+    @State private var advertiser = Advertiser() // 임시 생성
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -33,11 +34,14 @@ struct RootView: View {
             default:
                 AdvertiserHomeView()
                     .environment(router)
+                    .environment(advertiser)
                     .navigationDestination(for: MirroringRoute.self) { viewType in
                         switch viewType {
                         case .modeSelection:
                             ModeSelectionView()
                                 .environment(router)
+                        case .streaming(let isTimerMode):
+                            StreamingView(advertiser: advertiser, isTimerMode: isTimerMode)
                         }
                     }
             }
