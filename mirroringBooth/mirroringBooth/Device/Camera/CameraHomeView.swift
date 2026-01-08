@@ -102,7 +102,3 @@ extension CameraHomeView {
         .padding(.horizontal)
     }
 }
-
-#Preview {
-    ContentView()
-}

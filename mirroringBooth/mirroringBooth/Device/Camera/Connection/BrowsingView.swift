@@ -149,7 +149,3 @@ struct BrowsingView: View {
         return nil
     }
 }
-
-#Preview {
-    ContentView()
-}

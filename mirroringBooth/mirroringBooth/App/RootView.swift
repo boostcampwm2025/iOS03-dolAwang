@@ -37,7 +37,3 @@ struct RootView: View {
         .tint(.black)
     }
 }
-
-#Preview {
-    ContentView()
-}

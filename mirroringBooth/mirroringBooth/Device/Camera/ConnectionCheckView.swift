@@ -133,13 +133,3 @@ extension ConnectionCheckView {
         .clipShape(RoundedRectangle(cornerRadius: 24))
     }
 }
-
-#Preview {
-    ConnectionCheckView(
-        ConnectionList(
-            cameraName: "상유의 iPhone",
-            mirroringName: "상유의 iPad",
-            remoteName: nil
-        )
-    )
-}
