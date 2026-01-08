@@ -118,8 +118,13 @@ final class BrowsingStore: StoreProtocol {
             // 2. 연결된 기기와 다른 기기를 선택했을 경우 연결 요청 전송
             // 실제 기기 설정은 onDeviceConnected 콜백에서 처리됨
             if currentDevice != device {
-                browser.connect(to: device.id, as: state.currentTarget)
-                result.append(.setIsConnecting(true))
+                if device.type == .watch {
+                    watchConnectionManager.sendConnectionCompleted()
+                    result.append(.setRemoteDevice(device))
+                } else {
+                    browser.connect(to: device.id, as: state.currentTarget)
+                    result.append(.setIsConnecting(true))
+                }
             }
 
         case .cancel:

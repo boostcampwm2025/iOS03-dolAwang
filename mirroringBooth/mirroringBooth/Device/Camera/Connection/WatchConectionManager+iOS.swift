@@ -13,6 +13,8 @@ import WatchConnectivity
 final class WatchConnectionManager: NSObject {
     private enum ActionValue: String {
         case capture
+        case connect
+        case prepare
     }
 
     private enum MessageKey: String {
@@ -95,6 +97,36 @@ final class WatchConnectionManager: NSObject {
             self.logger.info("iPhone 앱 상태 푸시: \(appState.rawValue)")
         } catch {
             self.logger.error("iPhone 앱 상태 푸시 실패: \(error.localizedDescription)")
+        }
+    }
+
+    // 워치를 리모트 기기에 등록해 연결이 성공했음을 알림
+    func sendConnectionCompleted() {
+        guard let session = self.session else {
+            self.logger.error("WCSession이 지원되지 않아 워치와 연결 수 없습니다.")
+            return
+        }
+
+        do {
+            try session.updateApplicationContext([MessageKey.action.rawValue: ActionValue.connect.rawValue])
+            self.logger.info("워치 연결 완료")
+        } catch {
+            self.logger.error("워치 연결 실패: \(error.localizedDescription)")
+        }
+    }
+
+    // 촬영 기기와 미러링 기기에서 촬영을 시작할 때 워치에게도 알림
+    func prepareWatchToCapture() {
+        guard let session = self.session else {
+            self.logger.error("WCSession이 지원되지 않아 워치를 등록할 수 없습니다.")
+            return
+        }
+
+        do {
+            try session.updateApplicationContext([MessageKey.action.rawValue: ActionValue.prepare.rawValue])
+            self.logger.info("워치 촬영 준비 완료")
+        } catch {
+            self.logger.error("워치 촬영 준비 실패: \(error.localizedDescription)")
         }
     }
 }
