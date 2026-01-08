@@ -122,6 +122,7 @@ private struct SelectionCard: View {
                             .frame(width: 80, height: 80)
                     )
                     .padding(25)
+                    .padding(.top)
 
                 VStack(spacing: 10) {
                     Text(title)
@@ -139,6 +140,7 @@ private struct SelectionCard: View {
                             )
                     }
                 }
+                .padding(.bottom)
             }
             .frame(maxWidth: 400, maxHeight: 350)
             .background {
@@ -149,6 +151,7 @@ private struct SelectionCard: View {
                 RoundedRectangle(cornerRadius: 30)
                     .stroke(Color.borderLine, lineWidth: 3)
             )
+            .padding()
         }
         .buttonStyle(.plain)
     }
@@ -196,4 +199,7 @@ private struct TruncationDetectionModifier: ViewModifier {
                 }
             )
     }
+}
+#Preview(traits: .landscapeLeft){
+    ModeSelectionView()
 }
