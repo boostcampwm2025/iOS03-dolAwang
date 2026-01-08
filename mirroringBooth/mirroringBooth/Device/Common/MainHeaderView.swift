@@ -22,5 +22,6 @@ struct MainHeaderView: View {
                 .font(.caption.bold())
                 .foregroundStyle(Color(.secondaryLabel))
         }
+        .padding(.top, 20)
     }
 }
