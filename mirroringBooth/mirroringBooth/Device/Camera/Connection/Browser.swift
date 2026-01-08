@@ -109,7 +109,7 @@ final class Browser: NSObject {
         switch useType {
         case .mirroring:
             targetMirroringDeviceID = deviceID
-            targetSession = mirroringCommandSession
+            targetSession = mirroringSession
         case .remote:
             targetRemoteDeviceID = deviceID
             targetSession = remoteSession
@@ -118,9 +118,17 @@ final class Browser: NSObject {
         browser.invitePeer(
             peer,
             to: targetSession,
-            withContext: SessionType.command.rawValue.data(using: .utf8),
+            withContext: SessionType.streaming.rawValue.data(using: .utf8),
             timeout: 10
         )
+        if useType == .mirroring {
+            browser.invitePeer(
+                peer,
+                to: mirroringCommandSession,
+                withContext: SessionType.command.rawValue.data(using: .utf8),
+                timeout: 10
+            )
+        }
         logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
     }
 
@@ -225,15 +233,6 @@ extension Browser: MCSessionDelegate {
     ) {
         let sessionTypeLabel = getSessionTypeLabel(for: session)
         let newState = logAndConvertState(state, for: peerID.displayName, sessionType: sessionTypeLabel)
-        if sessionTypeLabel == "미러링 명령" {
-            browser.invitePeer(
-                peerID,
-                to: mirroringSession,
-                withContext: SessionType.streaming.rawValue.data(using: .utf8),
-                timeout: 10
-            )
-            return
-        }
 
         let deviceType = discoveredPeers[peerID.displayName]?.type ?? .unknown
         discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
