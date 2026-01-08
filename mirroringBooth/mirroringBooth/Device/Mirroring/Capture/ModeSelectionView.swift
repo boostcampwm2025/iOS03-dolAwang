@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ModeSelectionView: View {
+    @Environment(Router.self) var router: Router
+
     var timerCard: some View {
         SelectionCard(
             iconName: "stopwatch",

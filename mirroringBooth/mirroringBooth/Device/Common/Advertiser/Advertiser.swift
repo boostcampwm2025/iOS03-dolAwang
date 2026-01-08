@@ -18,6 +18,7 @@ final class Advertiser: NSObject {
     private let serviceType: String
     private let peerID: MCPeerID
     private let session: MCSession
+    private let commandSession: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
 
     let myDeviceName: String
@@ -30,6 +31,8 @@ final class Advertiser: NSObject {
 
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
+
+    var navigateToSelectModeCommandCallBack: (() -> Void)?
 
     /// 사진 수신 Progress 구독 관리용 cancellables
     private var progressCancellables: [UUID: AnyCancellable] = [:]
@@ -45,6 +48,11 @@ final class Advertiser: NSObject {
             peer: peerID,
             securityIdentity: nil,
             encryptionPreference: .required // .none은 send만 호출할 수 있다.
+        )
+        self.commandSession = MCSession(
+            peer: peerID,
+            securityIdentity: nil,
+            encryptionPreference: .none
         )
 
         let myDeviceType: String = {
@@ -71,6 +79,7 @@ final class Advertiser: NSObject {
 
     private func setup() {
         session.delegate = self
+        commandSession.delegate = self
         advertiser.delegate = self
     }
 
@@ -87,6 +96,7 @@ final class Advertiser: NSObject {
     /// 세션과 연결을 해제합니다.
     func disconnect() {
         session.disconnect()
+        commandSession.disconnect()
         logger.info("연결 해제: \(self.peerID.displayName)")
     }
 
@@ -96,6 +106,17 @@ final class Advertiser: NSObject {
     ) {
         guard let index = receivedPhotos.firstIndex(where: { $0.id == photoID }) else { return }
         receivedPhotos[index].state = state
+    }
+
+    private func executeCommand(data: Data) {
+        guard let command = String(data: data, encoding: .utf8) else { return }
+        if let type = Browser.MirroringDeviceCommand(rawValue: command) {
+            switch type {
+            case .navigateToSelectMode:
+                guard let navigateToSelectModeCommandCallBack else { return }
+                navigateToSelectModeCommandCallBack()
+            }
+        }
     }
 }
 
@@ -114,8 +135,12 @@ extension Advertiser: MCSessionDelegate {
     }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        // 수신된 스트림 데이터를 라우터로 전달
-        onReceivedStreamData?(data)
+        if session === self.session {
+            // 수신된 스트림 데이터를 라우터로 전달
+            onReceivedStreamData?(data)
+        } else if session === commandSession {
+            executeCommand(data: data)
+        }
     }
 
     func session(
@@ -198,7 +223,17 @@ extension Advertiser: MCNearbyServiceAdvertiserDelegate {
                     didReceiveInvitationFromPeer peerID: MCPeerID,
                     withContext context: Data?,
                     invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        logger.info("초대 수신: \(peerID.displayName)")
-        invitationHandler(true, session)
+        guard let context,
+              let type = String(data: context, encoding: .utf8) else {
+            invitationHandler(false, nil)
+            return
+        }
+        logger.info("초대 수신: \(peerID.displayName)(타입: \(type))")
+        // 임시적으로 수신된 초대가 자동으로 수락되도록 작성했습니다.
+        if type == "streaming" {
+            invitationHandler(true, session)
+        } else if type == "command" {
+            invitationHandler(true, commandSession)
+        }
     }
 }
