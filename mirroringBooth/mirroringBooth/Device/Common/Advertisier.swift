@@ -22,6 +22,8 @@ final class Advertisier: NSObject {
     private let session: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
 
+    let myDeviceName: String
+
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
 
@@ -43,7 +45,8 @@ final class Advertisier: NSObject {
 
     init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
-        self.peerID = MCPeerID(displayName: UIDevice.current.name)
+        self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: true, with: UIDevice.current.name)
+        self.peerID = MCPeerID(displayName: myDeviceName)
         self.session = MCSession(
             peer: peerID,
             securityIdentity: nil,
