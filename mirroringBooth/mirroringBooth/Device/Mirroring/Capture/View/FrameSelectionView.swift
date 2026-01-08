@@ -11,7 +11,7 @@ struct FrameSelectionView: View {
     let store: CaptureResultStore
     @State private var rows: Int = 0
     @State private var columns: Int = 0
-    @State private var frameColor: Color = .clear
+    @State private var frameColor: Color = .black
 
     var body: some View {
         VStack {
@@ -76,8 +76,33 @@ struct FrameSelectionView: View {
                     }
                 }
             }
+
             Divider()
                 .background(Color.primary)
+
+            VStack {
+                FrameColorButtonView(action: {
+                    frameColor = .black
+                }, color: .black, description: "Basic Black")
+                FrameColorButtonView(action: {
+                    frameColor = .white
+                }, color: .white, description: "Basic White")
+            }
+            .padding()
+
+            Button {
+
+            } label: {
+                Text("촬영 완료하기")
+                    .frame(maxWidth: .infinity)
+                    .background {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.buttonComponent)
+                            .strokeBorder(Color.borderLine, lineWidth: 2)
+                            .frame(minHeight: 44)
+                    }
+                    .padding()
+            }
         }
         .onChange(of: rows) {
             store.send(.selectLayout(rows, columns, frameColor))
@@ -90,3 +115,32 @@ struct FrameSelectionView: View {
         }
     }
 }
+
+private struct FrameColorButtonView: View {
+    let action: () -> Void
+    let color: Color
+    let description: String
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .frame(width: 30, height: 30)
+                    .foregroundStyle(color)
+                    .aspectRatio(1, contentMode: .fit)
+                    .padding()
+
+                Text(description)
+                    .foregroundStyle(Color.primary)
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+            .background {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.buttonComponent)
+                    .strokeBorder(Color.borderLine, lineWidth: 2)
+            }
+        }
+    }
+}
+

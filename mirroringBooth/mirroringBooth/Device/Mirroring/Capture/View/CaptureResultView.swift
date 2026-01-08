@@ -34,6 +34,11 @@ struct CaptureResultView: View {
                                 columns: store.state.layoutColumnCount,
                                 frameColor: store.state.layoutColor
                             )
+                            .frame(height: geometry.size.height / 2)
+                            .padding()
+                        } else {
+                            EmptyView()
+                                .frame(height: geometry.size.height / 2)
                         }
 
                         Divider()
