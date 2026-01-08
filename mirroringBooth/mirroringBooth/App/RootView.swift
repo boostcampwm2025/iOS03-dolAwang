@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  RootView.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2026-01-07.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct RootView: View {
     @State private var router: Router = .init()
 
     var body: some View {
