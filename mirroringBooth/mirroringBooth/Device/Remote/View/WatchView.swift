@@ -46,7 +46,7 @@ struct WatchView: View {
                     .font(.headline)
             }
             
-            Text("다른 기기에서 검색 가능한 상태로 전환합니다.")
+            Text("다른 기기에서 검색 가능한 상태로 전환")
                 .font(.footnote)
                 .opacity(0.7)
         }
