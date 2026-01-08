@@ -58,7 +58,8 @@ struct BrowsingView: View {
                                 } label: {
                                     deviceRow(device)
                                 }
-                                .disabled(isDeviceSelected(device) != nil)
+                                .disabled(isDeviceSelected(device) != nil ||
+                                          (store.state.currentTarget == .mirroring && device.type == .watch))
                             }
                         }
                     }
