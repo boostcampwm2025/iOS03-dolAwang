@@ -56,7 +56,7 @@ final class BrowsingStore: StoreProtocol {
         watchConnectionManager.onReachableChanged = { [weak self] state in
             let watchDevice = NearbyDevice(
                 id: "나의 Apple Watch",
-                state: .connected,
+                state: .notConnected,
                 type: .watch
             )
             if state {
@@ -64,6 +64,15 @@ final class BrowsingStore: StoreProtocol {
             } else {
                 self?.reduce(.removeDiscoveredDevice(watchDevice))
             }
+        }
+
+        watchConnectionManager.onReceiveConnectionAck = { [weak self] in
+            let watchDevice = NearbyDevice(
+                id: "나의 Apple Watch",
+                state: .connected,
+                type: .watch
+            )
+            self?.reduce(.setRemoteDevice(watchDevice))
         }
     }
 
@@ -116,11 +125,9 @@ final class BrowsingStore: StoreProtocol {
             }
 
             // 2. 연결된 기기와 다른 기기를 선택했을 경우 연결 요청 전송
-            // 실제 기기 설정은 onDeviceConnected 콜백에서 처리됨
             if currentDevice != device {
                 if device.type == .watch {
-                    watchConnectionManager.sendConnectionCompleted()
-                    result.append(.setRemoteDevice(device))
+                    watchConnectionManager.sendConnectionRequest()
                 } else {
                     browser.connect(to: device.id, as: state.currentTarget)
                     result.append(.setIsConnecting(true))

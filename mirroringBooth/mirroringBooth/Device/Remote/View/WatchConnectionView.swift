@@ -21,6 +21,9 @@ struct WatchConnectionView: View {
             }
         } else {
             watingView
+                .onAppear {
+                    store.send(.startConnecting)
+                }
         }
     }
 

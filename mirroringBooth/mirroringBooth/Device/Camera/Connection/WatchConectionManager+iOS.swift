@@ -15,6 +15,7 @@ final class WatchConnectionManager: NSObject {
         case capture
         case connect
         case prepare
+        case connectAck
     }
 
     private enum MessageKey: String {
@@ -34,6 +35,7 @@ final class WatchConnectionManager: NSObject {
 
     var onReachableChanged: ((Bool) -> Void)?
     var onReceiveCaptureRequest: (() -> Void)?
+    var onReceiveConnectionAck: (() -> Void)?
 
     override init() {
         if WCSession.isSupported() {
@@ -100,8 +102,8 @@ final class WatchConnectionManager: NSObject {
         }
     }
 
-    // 워치를 리모트 기기에 등록해 연결이 성공했음을 알림
-    func sendConnectionCompleted() {
+    // 워치에 연결 요청을 전송
+    func sendConnectionRequest() {
         guard let session = self.session else {
             self.logger.error("WCSession이 지원되지 않아 워치와 연결 수 없습니다.")
             return
@@ -176,14 +178,26 @@ extension WatchConnectionManager: WCSessionDelegate {
         }
     }
 
-    nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        self.logger.info("WCSession 메시지 수신: \(message)")
+    nonisolated func session(
+        _ session: WCSession,
+        didReceiveMessage message: [String: Any],
+        replyHandler: @escaping ([String: Any]) -> Void
+    ) {
+        self.logger.info("WCSession 메시지 수신 (reply 포함): \(message)")
         let actionValue: String? = message[MessageKey.action.rawValue] as? String
+
         if actionValue == ActionValue.capture.rawValue {
             self.logger.info("캡쳐 요청 수신됨.")
             Task { @MainActor in
                 self.onReceiveCaptureRequest?()
             }
+            replyHandler([:])
+        } else if actionValue == ActionValue.connectAck.rawValue {
+            self.logger.info("워치 연결 응답 수신됨.")
+            Task { @MainActor in
+                self.onReceiveConnectionAck?()
+            }
+            replyHandler([:])
         }
     }
 }

@@ -15,6 +15,7 @@ final class WatchConnectionManager: NSObject {
         case capture
         case connect
         case prepare
+        case connectAck
     }
 
     private enum MessageKey: String {
@@ -101,6 +102,26 @@ final class WatchConnectionManager: NSObject {
             message,
             replyHandler: nil
         )
+    }
+
+    /// 연결 요청에 대한 응답을 iPhone으로 전송합니다.
+    private func sendConnectionAck() {
+        guard let session = self.session else {
+            self.logger.error("WCSession이 지원되지 않아 응답을 보낼 수 없습니다.")
+            return
+        }
+
+        guard session.isReachable else {
+            self.logger.error("iPhone에 도달할 수 없어 응답을 보낼 수 없습니다.")
+            return
+        }
+
+        let message = [MessageKey.action.rawValue: ActionValue.connectAck.rawValue]
+        session.sendMessage(message, replyHandler: { _ in
+            self.logger.info("연결 응답 전송 완료")
+        }, errorHandler: { error in
+            self.logger.error("연결 응답 전송 실패: \(error.localizedDescription)")
+        })
     }
 
     private nonisolated func handleAppStateUpdate(_ applicationContext: [String: Any]) {

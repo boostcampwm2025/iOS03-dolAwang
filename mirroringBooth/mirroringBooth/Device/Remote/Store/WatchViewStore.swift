@@ -19,6 +19,7 @@ final class WatchViewStore: StoreProtocol {
         case tapRequestCapture
         case tapDisconnect // TODO: 연결 끊기 버튼 추가 후 View에서 호출
         case tapConnect
+        case startConnecting
     }
 
     enum Result {
@@ -60,8 +61,9 @@ final class WatchViewStore: StoreProtocol {
             self.connectionManager.stop()
             return [.setIsConnecting(false), .setConnectionState(.notConnected)]
         case .tapConnect:
-            self.connectionManager.start()
             return [.setIsConnecting(true)]
+        case .startConnecting:
+            self.connectionManager.start()
         }
         return []
     }
