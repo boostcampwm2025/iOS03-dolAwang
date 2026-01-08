@@ -9,6 +9,7 @@ enum DeviceType: String {
     case iPhone
     case iPad
     case mac
+    case watch
     case unknown
 
     var icon: String {
@@ -19,6 +20,8 @@ enum DeviceType: String {
             return "ipad"
         case .mac:
             return "macbook"
+        case .watch:
+            return "applewatch"
         case .unknown:
             return "questionmark.circle"
         }
