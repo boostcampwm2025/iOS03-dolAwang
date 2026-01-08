@@ -11,7 +11,7 @@ import SwiftUI
 struct mirroringBoothWatchApp: App {
     var body: some Scene {
         WindowGroup {
-            WatchView(store: WatchViewStore(connectionManager: WatchConnectionManager()))
+            WatchView()
         }
     }
 }
