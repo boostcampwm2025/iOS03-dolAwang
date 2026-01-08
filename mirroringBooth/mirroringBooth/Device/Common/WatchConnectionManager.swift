@@ -117,14 +117,14 @@ final class WatchConnectionManager: NSObject {
 
 extension WatchConnectionManager {
     #if os(iOS)
-    func pushIphoneAppState(applicationState: UIApplication.State) {
+    func pushIOSAppState(state: UIApplication.State) {
         guard let session: WCSession = self.session else {
             self.logger.error("WCSession이 지원되지 않아 상태를 푸시할 수 없습니다.")
             return
         }
 
         let appState: AppStateValue
-        switch applicationState {
+        switch state {
         case .active:
             appState = .active
         case .inactive:
@@ -140,20 +140,6 @@ extension WatchConnectionManager {
             self.logger.info("iPhone 앱 상태 푸시: \(appState.rawValue)")
         } catch {
             self.logger.error("iPhone 앱 상태 푸시 실패: \(error.localizedDescription)")
-        }
-    }
-
-    func pushIphoneWillTerminate() {
-        guard let session = self.session else {
-            self.logger.error("WCSession이 지원되지 않아 종료 상태를 푸시할 수 없습니다.")
-            return
-        }
-
-        do {
-            try session.updateApplicationContext([MessageKey.appState.rawValue: AppStateValue.terminated.rawValue])
-            self.logger.info("iPhone 앱 종료 상태 푸시: \(AppStateValue.terminated.rawValue)")
-        } catch {
-            self.logger.error("iPhone 종료 상태 푸시 실패: \(error.localizedDescription)")
         }
     }
     #endif
