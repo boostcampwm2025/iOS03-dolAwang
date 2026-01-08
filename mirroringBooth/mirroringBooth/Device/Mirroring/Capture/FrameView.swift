@@ -8,17 +8,10 @@
 import SwiftUI
 
 struct FrameView: View {
-    @State var photos: [Photo?]
+    let photos: [Photo]
     let rows: Int
     let columns: Int
     let frameColor: Color
-
-    init(rows: Int, columns: Int, frameColor: Color) {
-        self.rows = rows
-        self.columns = columns
-        self.frameColor = frameColor
-        photos = Array(repeating: nil, count: rows * columns)
-    }
 
     enum Ratio: CGFloat {
         case side = 9.0
@@ -54,17 +47,30 @@ struct FrameView: View {
                 ForEach(0..<rows, id: \.self) { row in
                     ForEach(0..<columns, id: \.self) { col in
                         let (normX, normY) = calculatePosition(row: row, col: col)
-
                         let rectWidth = geometry.size.width * (Ratio.photoWidth.rawValue / width)
                         let rectHeight = geometry.size.height * (Ratio.photoHeight.rawValue / height)
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.gray)
+                            .frame(width: rectWidth, height: rectHeight)
+                            .position(x: geometry.size.width * normX, y: geometry.size.height * normY)
+                    }
+                }
 
-                        if let photo = photos[row * columns + col],
-                           case let .completed(data) = photo.state,
-                           let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
-                                .frame(width: rectWidth, height: rectHeight)
-                                .position(x: geometry.size.width * normX, y: geometry.size.height * normY)
-                        }
+                ForEach(Array(photos.enumerated()), id: \.element.id) { index, photo in
+                    let row = index / columns
+                    let col = index % columns
+
+                    let (normX, normY) = calculatePosition(row: row, col: col)
+                    let rectWidth = geometry.size.width * (Ratio.photoWidth.rawValue / width)
+                    let rectHeight = geometry.size.height * (Ratio.photoHeight.rawValue / height)
+                    if case let .completed(data) = photo.state,
+                       let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: rectWidth, height: rectHeight)
+                            .clipped()
+                            .position(x: geometry.size.width * normX, y: geometry.size.height * normY)
                     }
                 }
             }
