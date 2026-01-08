@@ -79,7 +79,3 @@ struct FrameView: View {
         .background(frameColor)
     }
 }
-
-#Preview {
-    FrameView(rows: 3, columns: 2, frameColor: .blue)
-}

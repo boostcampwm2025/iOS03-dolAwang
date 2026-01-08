@@ -23,16 +23,24 @@ struct CaptureResultView: View {
                     PhotoGridView(store: store)
 
                     Divider()
-                        .background(Color.white)
+                        .background(.primary)
 
                     VStack {
-                        // 미구현 임의 뷰
-                        Color.black.opacity(0.1)
+                        if store.state.layoutRowCount != 0
+                            && store.state.layoutColumnCount != 0 {
+                            FrameView(
+                                photos: store.state.selectedPhotos,
+                                rows: store.state.layoutRowCount,
+                                columns: store.state.layoutColumnCount,
+                                frameColor: store.state.layoutColor
+                            )
+                        }
 
                         Divider()
-                            .background(.white)
+                            .background(.primary)
 
-                        Color.gray.opacity(0.1)
+                        FrameSelectionView()
+                            .frame(height: geometry.size.height / 2)
                     }
                     // 화면 표시 비율
                     .frame(width: geometry.size.width * 0.33)
@@ -41,6 +49,7 @@ struct CaptureResultView: View {
         }
         .onAppear {
             store.send(.onAppear)
+            store.send(.selectLayout(4, 1, .blue))
         }
     }
 }
@@ -158,5 +167,11 @@ private struct PhotoCell: View {
         .aspectRatio(4/3, contentMode: .fit)
         .cornerRadius(12)
         .clipped()
+    }
+}
+
+private struct FrameSelectionView: View {
+    var body: some View {
+        Text("Hello, world!")
     }
 }
