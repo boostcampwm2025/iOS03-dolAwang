@@ -59,6 +59,7 @@
 			membershipExceptions = (
 				Core/AppLogger.swift,
 				Core/StoreProtocol.swift,
+				Device/Common/Component/CaptureButton.swift,
 				Device/Common/Model/ConnectionState.swift,
 				Device/Common/WatchConnectionManager.swift,
 				Device/Remote/App/Assets.xcassets,

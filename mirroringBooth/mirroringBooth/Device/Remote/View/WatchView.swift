@@ -35,24 +35,9 @@ struct WatchView: View {
                 .font(.caption.bold())
                 .padding(.top, 10)
             Spacer()
-            Button {
+            CaptureButton(width: screenWidth) {
                 store.send(.tapRequestCapture)
-            } label: {
-                ZStack {
-                    Circle()
-                        .stroke(darkGrayContainer, lineWidth: 0.5)
-                    Image(systemName: "camera")
-                        .font(.title2)
-                        .foregroundStyle(darkGrayContainer)
-                        .bold()
-                }
-                .frame(width: screenWidth / 2, height: screenWidth / 2)
-                .background {
-                    Circle()
-                        .frame(width: screenWidth / 2 * 1.1, height: screenWidth / 2 * 1.1)
-                }
             }
-            .buttonStyle(.plain)
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
