@@ -8,12 +8,18 @@
 import SwiftUI
 
 struct AdvertiserHomeView: View {
-    @State var advertiser = Advertiser()
+    @Environment(Router.self) var router: Router
+    @State var advertisier = Advertiser()
 
     var body: some View {
         Text("미러링/리모트 기기의 시작 화면")
             .onAppear {
-                advertiser.startSearching()
+                advertisier.startSearching()
+                advertisier.navigateToSelectModeCommandCallBack = {
+                    router.push(
+                        to: MirroringRoute.modeSelection
+                    )
+                }
             }
     }
 }

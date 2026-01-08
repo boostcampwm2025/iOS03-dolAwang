@@ -11,11 +11,13 @@ struct ConnectionCheckView: View {
     private let cameraDevice: String
     private let mirroringDevice: String
     private let remoteDevice: String?
+    private let browser: Browser
 
-    init(_ list: ConnectionList) {
+    init(_ list: ConnectionList, browser: Browser) {
         self.cameraDevice = list.cameraName
         self.mirroringDevice = list.mirroringName
         self.remoteDevice = list.remoteName
+        self.browser = browser
     }
 
     var body: some View {
@@ -65,6 +67,7 @@ struct ConnectionCheckView: View {
             // 3. 촬영 준비 버튼
             Button {
                 // TODO: 카메라 프리뷰로 이동
+                browser.sendCommand(.navigateToSelectMode)
             } label: {
                 Text("촬영 준비하기")
                     .padding(14)

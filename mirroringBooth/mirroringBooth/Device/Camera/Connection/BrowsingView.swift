@@ -87,7 +87,8 @@ struct BrowsingView: View {
                                         cameraName: store.browser.myDeviceName,
                                         mirroringName: mirroringDevice.id,
                                         remoteName: store.state.remoteDevice?.id ?? nil
-                                    )
+                                    ),
+                                    store.browser
                                 )
                             )
                         }
