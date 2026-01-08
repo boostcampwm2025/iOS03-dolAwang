@@ -23,6 +23,7 @@ final class BrowsingStore: StoreProtocol {
             case .remote: return remoteDevice != nil
             }
         }
+        var animationTrigger = false
     }
 
     enum Intent {
@@ -39,6 +40,7 @@ final class BrowsingStore: StoreProtocol {
         case setRemoteDevice(NearbyDevice?)
         case setIsConnecting(Bool)
         case setCurrentTarget(DeviceUseType)
+        case startAnimation
     }
 
     var state: State = .init()
@@ -79,6 +81,7 @@ final class BrowsingStore: StoreProtocol {
         switch intent {
         case .entry:
             browser.startSearching()
+            return [.startAnimation]
 
         case .exit:
             browser.stopSearching()
@@ -140,6 +143,8 @@ final class BrowsingStore: StoreProtocol {
 
         case .setCurrentTarget(let target):
             state.currentTarget = target
+        case .startAnimation:
+            state.animationTrigger = true
         }
 
         self.state = state
