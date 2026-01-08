@@ -11,12 +11,21 @@ import OSLog
 /// 스트림 송신 측 (iPhone)
 /// 다른 기기를 탐색하고 연결하여 스트림 데이터(비디오/사진)를 전송
 final class Browser: NSObject {
+    enum MirroringDeviceCommand: String {
+        case navigationToSelectMode
+    }
+
+    enum SessionType: String {
+        case streaming
+        case command
+    }
 
     private let logger = Logger.browser
 
     private let serviceType: String
     private let peerID: MCPeerID
     private let mirroringSession: MCSession
+    private let mirroringCommandSession: MCSession
     private let remoteSession: MCSession
     private let browser: MCNearbyServiceBrowser
 
@@ -52,6 +61,11 @@ final class Browser: NSObject {
             securityIdentity: nil,
             encryptionPreference: .required
         )
+        self.mirroringCommandSession = MCSession(
+            peer: peerID,
+            securityIdentity: nil,
+            encryptionPreference: .none
+        )
         self.remoteSession = MCSession(
             peer: peerID,
             securityIdentity: nil,
@@ -69,6 +83,7 @@ final class Browser: NSObject {
 
     private func setup() {
         mirroringSession.delegate = self
+        mirroringCommandSession.delegate = self
         remoteSession.delegate = self
         browser.delegate = self
     }
@@ -94,13 +109,18 @@ final class Browser: NSObject {
         switch useType {
         case .mirroring:
             targetMirroringDeviceID = deviceID
-            targetSession = mirroringSession
+            targetSession = mirroringCommandSession
         case .remote:
             targetRemoteDeviceID = deviceID
             targetSession = remoteSession
         }
 
-        browser.invitePeer(peer, to: targetSession, withContext: nil, timeout: 10)
+        browser.invitePeer(
+            peer,
+            to: targetSession,
+            withContext: SessionType.command.rawValue.data(using: .utf8),
+            timeout: 10
+        )
         logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
     }
 
@@ -154,6 +174,7 @@ final class Browser: NSObject {
     /// 모든 세션의 연결을 해제합니다.
     func disconnect() {
         mirroringSession.disconnect()
+        mirroringCommandSession.disconnect()
         remoteSession.disconnect()
         targetMirroringDeviceID = nil
         targetRemoteDeviceID = nil
@@ -165,6 +186,7 @@ final class Browser: NSObject {
         switch useType {
         case .mirroring:
             mirroringSession.disconnect()
+            mirroringCommandSession.disconnect()
             targetMirroringDeviceID = nil
             logger.info("미러링 연결 해제")
         case .remote:
@@ -186,6 +208,15 @@ extension Browser: MCSessionDelegate {
     ) {
         let sessionTypeLabel = getSessionTypeLabel(for: session)
         let newState = logAndConvertState(state, for: peerID.displayName, sessionType: sessionTypeLabel)
+        if sessionTypeLabel == "미러링 명령" {
+            browser.invitePeer(
+                peerID,
+                to: mirroringSession,
+                withContext: SessionType.streaming.rawValue.data(using: .utf8),
+                timeout: 10
+            )
+            return
+        }
 
         let deviceType = discoveredPeers[peerID.displayName]?.type ?? .unknown
         discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
@@ -200,6 +231,8 @@ extension Browser: MCSessionDelegate {
     private func getSessionTypeLabel(for session: MCSession) -> String {
         if session === mirroringSession {
             return "미러링"
+        } else if session === mirroringCommandSession {
+            return "미러링 명령"
         } else if session === remoteSession {
             return "리모트"
         } else {
@@ -235,16 +268,17 @@ extension Browser: MCSessionDelegate {
         peerID: MCPeerID
     ) {
         let isMirroringTarget = session === mirroringSession && peerID.displayName == targetMirroringDeviceID
+        let isMirroringCommandTarget = session === mirroringSession && peerID.displayName == targetMirroringDeviceID
         let isRemoteTarget = session === remoteSession && peerID.displayName == targetRemoteDeviceID
 
-        guard isMirroringTarget || isRemoteTarget else { return }
+        guard isMirroringTarget || isMirroringCommandTarget || isRemoteTarget else { return }
 
         switch state {
         case .connected:
             onDeviceConnected?(device)
         case .notConnected:
             onDeviceConnectionFailed?()
-            if isMirroringTarget {
+            if isMirroringTarget || isMirroringCommandTarget {
                 targetMirroringDeviceID = nil
             }
             if isRemoteTarget {
