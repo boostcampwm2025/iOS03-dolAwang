@@ -78,37 +78,23 @@ final class WatchConnectionManager: NSObject {
     }
 
     /// 카메라 캡쳐 요청을 상대 기기로 전송합니다.
-    func sendCaptureRequest() async throws {
-        guard let session: WCSession = self.session else {
+    func sendCaptureRequest() async {
+        guard let session = self.session else {
             self.logger.error("WCSession이 지원되지 않아 활성화할 수 없습니다.")
-            throw NSError(
-                domain: "WatchConnectionManager",
-                code: 1,
-                userInfo: [NSLocalizedDescriptionKey: "WCSession not supported"]
-            )
+            return
         }
 
         let message: [String: Any] = [MessageKey.action.rawValue: ActionValue.capture.rawValue]
 
         guard session.isReachable else {
             self.logger.error("WCSession이 도달할 수 없어 메시지를 보낼 수 없습니다.")
-            throw NSError(
-                domain: "WatchConnectionManager",
-                code: 2,
-                userInfo: [NSLocalizedDescriptionKey: "WCSession is not reachable"]
-            )
+            return
         }
 
-        try await withCheckedThrowingContinuation { (checkedContinuation: CheckedContinuation<Void, Error>) in
-            session.sendMessage(
-                message,
-                replyHandler: nil,
-                errorHandler: { (error: Error) in
-                    checkedContinuation.resume(throwing: error)
-                }
-            )
-            checkedContinuation.resume()
-        }
+        session.sendMessage(
+            message,
+            replyHandler: nil
+        )
     }
 }
 

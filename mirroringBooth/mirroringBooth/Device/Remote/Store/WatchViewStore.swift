@@ -44,7 +44,7 @@ final class WatchViewStore: StoreProtocol {
             self.connectionManager.start()
         case .tapRequestCapture:
             Task {
-                try await self.connectionManager.sendCaptureRequest()
+                await self.connectionManager.sendCaptureRequest()
             }
         case .tapDisconnect:
             self.connectionManager.stop()
