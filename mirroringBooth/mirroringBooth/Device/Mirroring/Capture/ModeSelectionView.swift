@@ -11,7 +11,7 @@ struct ModeSelectionView: View {
     var timerCard: some View {
         SelectionCard(
             iconName: "stopwatch",
-            iconColor: Color.timerIcon,
+            iconColor: Color.main,
             title: "타이머 모드",
             description: "60초 동안 5초 간격으로\n자동 촬영합니다."
         ) {
@@ -22,7 +22,7 @@ struct ModeSelectionView: View {
     var remoteCard: some View {
         SelectionCard(
             iconName: "applewatch", // SF Symbol
-            iconColor: Color.watchIcon,
+            iconColor: Color.remote,
             title: "리모콘 모드",
             description: "나의 Apple Watch에서 \n직접 셔터를 누르세요."
         ) {
@@ -91,7 +91,7 @@ private struct TitleView: View {
         VStack(spacing: 12) {
             Text("촬영 방식 선택")
                 .font(.largeTitle)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
 
             Text("어떻게 촬영하시겠어요?")
                 .font(.callout)
@@ -143,7 +143,7 @@ private struct SelectionCard: View {
             .frame(maxWidth: 400, maxHeight: 350)
             .background {
                 RoundedRectangle(cornerRadius: 30)
-                    .fill(Color.cardView)
+                    .fill(Color.cardComponent)
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 30)
