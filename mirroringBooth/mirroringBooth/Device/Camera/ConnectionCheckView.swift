@@ -40,21 +40,21 @@ struct ConnectionCheckView: View {
                         title: "카메라",
                         icon: "camera",
                         name: cameraDevice,
-                        color: Color("mainColor")
+                        color: Color.main
                     )
 
                     deviceCard(
                         title: "미러링",
                         icon: "display",
                         name: mirroringDevice,
-                        color: Color("mirroringColor")
+                        color: Color.mirroring
                     )
 
                     deviceCard(
                         title: "리모콘",
                         icon: "target",
                         name: remoteDevice,
-                        color: Color("remoteColor")
+                        color: Color.remote
                     )
                 }
             }

@@ -18,7 +18,7 @@ struct CameraHomeView: View {
                 Group {
                     Text("가장 선명하게,")
                     Text("우리다운 순간을")
-                        .foregroundStyle(Color("mainColor"))
+                        .foregroundStyle(Color.main)
                     Text("기록하다.")
                 }
                     .font(.title.bold())
@@ -41,7 +41,7 @@ struct CameraHomeView: View {
                         icons: ["camera"],
                         title: "촬영 기기로 시작하기",
                         description: "카메라를 통해 순간을 기록해보세요.",
-                        colors: [Color("mainColor")]
+                        colors: [Color.main]
                     )
                 }
 
@@ -52,7 +52,7 @@ struct CameraHomeView: View {
                         icons: ["display", "target"],
                         title: "미러링/리모트 기기로 시작하기",
                         description: "Apple 기기로 순간을 공유해보세요.",
-                        colors: [Color("mirroringColor"), Color("remoteColor")]
+                        colors: [Color.mirroring, Color.remote]
                     )
                 }
             }
