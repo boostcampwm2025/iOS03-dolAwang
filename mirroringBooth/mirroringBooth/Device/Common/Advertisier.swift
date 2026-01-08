@@ -26,6 +26,8 @@ final class Advertisier: NSObject {
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
 
+    var navigateToSelectModeCommandCallBack: (() -> Void)?
+
     /// 사진 수신 Progress 구독 관리용 cancellables
     private var progressCancellables: [UUID: AnyCancellable] = [:]
 
@@ -118,7 +120,14 @@ final class Advertisier: NSObject {
     }
 
     private func executeCommand(data: Data) {
-        
+        guard let command = String(data: data, encoding: .utf8) else { return }
+        if let type = Browser.MirroringDeviceCommand(rawValue: command) {
+            switch type {
+            case .navigateToSelectMode:
+                guard let navigateToSelectModeCommandCallBack else { return }
+                navigateToSelectModeCommandCallBack()
+            }
+        }
     }
 }
 
@@ -141,7 +150,7 @@ extension Advertisier: MCSessionDelegate {
             // 수신된 스트림 데이터를 라우터로 전달
             onReceivedStreamData?(data)
         } else if session === commandSession {
-
+            executeCommand(data: data)
         }
     }
 
