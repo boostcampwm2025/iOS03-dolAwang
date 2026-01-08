@@ -67,7 +67,7 @@ struct FrameView: View {
                        let uiImage = UIImage(data: data) {
                         Image(uiImage: uiImage)
                             .resizable()
-                            .scaledToFill()
+                            .scaledToFit()
                             .frame(width: rectWidth, height: rectHeight)
                             .clipped()
                             .position(x: geometry.size.width * normX, y: geometry.size.height * normY)
