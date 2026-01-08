@@ -126,7 +126,7 @@ private struct SelectionCard: View {
                 VStack(spacing: 10) {
                     Text(title)
                         .font(.title2.bold())
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
 
                     if !descriptionTruncated {
                         DescriptionLabel(description: description)
