@@ -12,7 +12,7 @@ import OSLog
 /// 다른 기기를 탐색하고 연결하여 스트림 데이터(비디오/사진)를 전송
 final class Browser: NSObject {
     enum MirroringDeviceCommand: String {
-        case navigationToSelectMode
+        case navigateToSelectMode
     }
 
     enum SessionType: String {
@@ -168,6 +168,23 @@ final class Browser: NSObject {
 
         } catch {
             logger.warning("임시 파일 생성 실패 : \(error.localizedDescription)")
+        }
+    }
+
+    func sendCommand(_ command: MirroringDeviceCommand) {
+        guard let data = command.rawValue.data(using: .utf8) else { return }
+        let connectedPeers = mirroringSession.connectedPeers
+        do {
+            switch command {
+            case .navigateToSelectMode:
+                try mirroringCommandSession.send(
+                    data,
+                    toPeers: connectedPeers,
+                    with: .reliable
+                )
+            }
+        } catch {
+            logger.warning("명령 전송 실패: \(error.localizedDescription)")
         }
     }
 
