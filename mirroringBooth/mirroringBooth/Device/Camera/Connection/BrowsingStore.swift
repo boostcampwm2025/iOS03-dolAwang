@@ -51,6 +51,23 @@ final class BrowsingStore: StoreProtocol {
         self.browser = browser
         self.watchConnectionManager = watchConnectionManager
 
+        setupBrowser()
+
+        watchConnectionManager.onReachableChanged = { [weak self] state in
+            let watchDevice = NearbyDevice(
+                id: "나의 Apple Watch",
+                state: .connected,
+                type: .watch
+            )
+            if state {
+                self?.reduce(.addDiscoveredDevice(watchDevice))
+            } else {
+                self?.reduce(.removeDiscoveredDevice(watchDevice))
+            }
+        }
+    }
+
+    private func setupBrowser() {
         browser.onDeviceFound = { [weak self] device in
             self?.reduce(.addDiscoveredDevice(device))
         }
