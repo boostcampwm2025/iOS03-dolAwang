@@ -46,9 +46,9 @@ struct BrowsingView: View {
                     .foregroundStyle(Color(.secondaryLabel))
 
                 // 발견된 기기 목록 (버튼)
-                LazyVStack {
-                    ScrollView {
-                        ForEach(store.state.discoveredDevices, id: \.self) { device in
+                ScrollView {
+                    LazyVStack {
+                        ForEach(store.state.discoveredDevices) { device in
                             if device.type != .unknown {
                                 Button {
                                     if !store.state.isConnecting {
