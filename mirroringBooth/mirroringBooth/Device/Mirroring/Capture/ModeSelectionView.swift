@@ -17,7 +17,7 @@ struct ModeSelectionView: View {
             title: "타이머 모드",
             description: "60초 동안 5초 간격으로\n자동 촬영합니다."
         ) {
-            // action
+            router.push(to: MirroringRoute.streaming(isTimerMode: true))
         }
     }
 
@@ -28,7 +28,7 @@ struct ModeSelectionView: View {
             title: "리모콘 모드",
             description: "나의 Apple Watch에서 \n직접 셔터를 누르세요."
         ) {
-            // action
+            router.push(to: MirroringRoute.streaming(isTimerMode: false))
         }
     }
 
