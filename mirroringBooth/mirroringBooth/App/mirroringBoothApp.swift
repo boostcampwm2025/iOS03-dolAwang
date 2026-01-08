@@ -11,7 +11,7 @@ import SwiftUI
 struct MirroringBoothApp: App {
     var body: some Scene {
         WindowGroup {
-            EmptyView()
+            RootView()
         }
     }
 }
