@@ -34,6 +34,7 @@ struct CaptureResultView: View {
 
                         Color.gray.opacity(0.1)
                     }
+                    // 화면 표시 비율
                     .frame(width: geometry.size.width * 0.33)
                 }
             }
@@ -49,6 +50,7 @@ private struct PhotoGridView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
+            // 제목 및 Description
             Text("사진 선택 (\(store.state.currentSelectionCount)/\(store.state.maxSelection))")
                 .font(.title.bold())
                 .foregroundColor(.white)
@@ -58,6 +60,7 @@ private struct PhotoGridView: View {
                 .foregroundColor(.gray)
                 .padding(.bottom, 16)
 
+            // 사진 표시 구역
             GeometryReader { geometry in
                 ScrollView(.horizontal) {
                     LazyHGrid(

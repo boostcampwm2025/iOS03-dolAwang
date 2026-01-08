@@ -17,6 +17,7 @@ final class CaptureResultStore: StoreProtocol {
 
     enum Intent {
         case onAppear
+        // 사진을 선택한 경우 인덱스
         case selectPhoto(Int)
     }
 
