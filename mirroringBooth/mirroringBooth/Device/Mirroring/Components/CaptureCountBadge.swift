@@ -11,10 +11,11 @@ import SwiftUI
 struct CaptureCountBadge: View {
     let current: Int
     let total: Int
+    let isCompact: Bool
 
     var body: some View {
         Text("\(current) / \(total)")
-            .font(.subheadline)
+            .font(isCompact ? .caption : .subheadline)
             .fontWeight(.medium)
             .foregroundStyle(.white)
             .padding(.horizontal, 12)
