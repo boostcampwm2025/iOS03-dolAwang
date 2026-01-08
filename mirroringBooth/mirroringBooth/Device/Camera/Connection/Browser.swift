@@ -6,7 +6,6 @@
 //
 
 import MultipeerConnectivity
-import Observation
 import OSLog
 
 /// 스트림 송신 측 (iPhone)
