@@ -54,7 +54,7 @@ final class Browser: NSObject {
 
     init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
-        self.myDeviceName = UIDevice.current.name
+        self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: false, with: UIDevice.current.name)
         self.peerID = MCPeerID(displayName: myDeviceName)
         self.mirroringSession = MCSession(
             peer: peerID,

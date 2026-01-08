@@ -22,7 +22,7 @@ struct RootView: View {
                             BrowsingView()
                                 .environment(router)
                         case .advertising:
-                            AdvertisierHomeView()
+                            AdvertiserHomeView()
                         case .connectionList(let list, let browser):
                             ConnectionCheckView(list, browser: browser)
                             .environment(router)
@@ -31,7 +31,7 @@ struct RootView: View {
                         }
                     }
             default:
-                AdvertisierHomeView()
+                AdvertiserHomeView()
                     .environment(router)
                     .navigationDestination(for: MirroringRoute.self) { viewType in
                         switch viewType {
