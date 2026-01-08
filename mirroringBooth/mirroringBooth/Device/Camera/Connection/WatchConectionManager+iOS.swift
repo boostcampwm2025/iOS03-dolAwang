@@ -31,7 +31,7 @@ final class WatchConnectionManager: NSObject {
     private let logger = Logger.watchConnectionManager
 
     var onReachableChanged: ((Bool) -> Void)?
-    var onReceiveMessage: (([String: Any]) -> Void)?
+    var onReceiveCaptureRequest: (() -> Void)?
 
     override init() {
         if WCSession.isSupported() {
@@ -180,6 +180,7 @@ extension WatchConnectionManager: WCSessionDelegate {
         if actionValue == ActionValue.capture.rawValue {
             self.logger.info("캡쳐 요청 수신됨.")
             Task { @MainActor in
+                self.onReceiveCaptureRequest?()
             }
         }
     }
