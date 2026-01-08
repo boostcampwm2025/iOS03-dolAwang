@@ -49,7 +49,24 @@ final class Advertisier: NSObject {
             securityIdentity: nil,
             encryptionPreference: .required // .none은 send만 호출할 수 있다.
         )
-        self.advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
+
+        let myDeviceType: String = {
+            #if os(iOS)
+            if UIDevice.current.userInterfaceIdiom == .phone { return "iPhone" }
+            if UIDevice.current.userInterfaceIdiom == .pad { return "iPad" }
+            return "iOS"
+            #elseif os(macOS)
+            return "Mac"
+            #else
+            return "Unknown"
+            #endif
+        }()
+
+        self.advertiser = MCNearbyServiceAdvertiser(
+            peer: peerID,
+            discoveryInfo: ["deviceType": myDeviceType],
+            serviceType: serviceType
+        )
 
         super.init()
         setup()
