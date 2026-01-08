@@ -13,6 +13,8 @@ import WatchConnectivity
 final class WatchConnectionManager: NSObject {
     private enum ActionValue: String {
         case capture
+        case connect
+        case prepare
     }
 
     private enum MessageKey: String {
@@ -32,6 +34,10 @@ final class WatchConnectionManager: NSObject {
     private var lastAppState: AppStateValue = .terminated
 
     var onReachableChanged: ((Bool) -> Void)?
+
+    var onReceiveConnectionCompleted: (() -> Void)?
+
+    var onReceiveRequestToPrepare: (() -> Void)?
 
     override init() {
         if WCSession.isSupported() {
@@ -96,15 +102,8 @@ final class WatchConnectionManager: NSObject {
             replyHandler: nil
         )
     }
-}
 
-extension WatchConnectionManager: WCSessionDelegate {
-    nonisolated func session(
-        _ session: WCSession,
-        didReceiveApplicationContext applicationContext: [String: Any]
-    ) {
-        self.logger.info("WCSession applicationContext 수신: \(applicationContext)")
-
+    private nonisolated func handleAppStateUpdate(_ applicationContext: [String: Any]) {
         let appStateRawValue = applicationContext[MessageKey.appState.rawValue] as? String
         let appStateValue = appStateRawValue.flatMap { AppStateValue(rawValue: $0) }
 
@@ -120,6 +119,32 @@ extension WatchConnectionManager: WCSessionDelegate {
             self.lastAppState = appStateValue ?? .terminated
             self.onReachableChanged?(reachable)
         }
+    }
+
+    private nonisolated func handleActionUpdate(_ applicationContext: [String: Any]) {
+        let actionValue: String? = applicationContext[MessageKey.action.rawValue] as? String
+        if actionValue == ActionValue.connect.rawValue {
+            self.logger.info("연결 완료 알림 수신됨.")
+            Task { @MainActor in
+                self.onReceiveConnectionCompleted?()
+            }
+        } else if actionValue == ActionValue.prepare.rawValue {
+            self.logger.info("촬영 준비 요청 수신됨.")
+            Task { @MainActor in
+                self.onReceiveRequestToPrepare?()
+            }
+        }
+    }
+}
+
+extension WatchConnectionManager: WCSessionDelegate {
+    nonisolated func session(
+        _ session: WCSession,
+        didReceiveApplicationContext applicationContext: [String: Any]
+    ) {
+        self.logger.info("WCSession applicationContext 수신: \(applicationContext)")
+        handleAppStateUpdate(applicationContext)
+        handleActionUpdate(applicationContext)
     }
 
     nonisolated func session(
@@ -154,5 +179,6 @@ extension WatchConnectionManager: WCSessionDelegate {
             }
         }
     }
+
 }
 #endif
