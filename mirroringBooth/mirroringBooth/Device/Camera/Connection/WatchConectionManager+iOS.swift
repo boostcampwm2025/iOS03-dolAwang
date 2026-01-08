@@ -53,7 +53,7 @@ final class WatchConnectionManager: NSObject {
         Task { @MainActor in
             self.onReachableChanged?(false)
         }
-        guard let session: WCSession = self.session else {
+        guard let session = self.session else {
             self.logger.error("WCSession이 지원되지 않아 활성화할 수 없습니다.")
             return
         }
@@ -69,7 +69,7 @@ final class WatchConnectionManager: NSObject {
     }
 
     func stop() {
-        guard let session: WCSession = self.session else {
+        guard let session = self.session else {
             self.logger.error("WCSession이 지원되지 않아 비활성화할 수 없습니다.")
             return
         }
@@ -78,7 +78,7 @@ final class WatchConnectionManager: NSObject {
     }
 
     func pushIOSAppState(state: UIApplication.State) {
-        guard let session: WCSession = self.session else {
+        guard let session = self.session else {
             self.logger.error("WCSession이 지원되지 않아 상태를 푸시할 수 없습니다.")
             return
         }
