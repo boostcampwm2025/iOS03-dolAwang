@@ -68,15 +68,15 @@ final class Advertiser: NSObject {
         )
 
         let myDeviceType: String = {
-            #if os(iOS)
+#if os(iOS)
             if UIDevice.current.userInterfaceIdiom == .phone { return "iPhone" }
             if UIDevice.current.userInterfaceIdiom == .pad { return "iPad" }
             return "iOS"
-            #elseif os(macOS)
+#elseif os(macOS)
             return "Mac"
-            #else
+#else
             return "Unknown"
-            #endif
+#endif
         }()
 
         self.advertiser = MCNearbyServiceAdvertiser(
@@ -203,7 +203,7 @@ extension Advertiser: MCSessionDelegate {
         with progress: Progress
     ) {
         logger.info("사진 수신 시작: \(resourceName) from \(peerID.displayName)")
-        
+
         guard let photoID = UUID(
             uuidString: resourceName.replacingOccurrences(of: ".jpg", with: "")
         ) else { return }
