@@ -258,7 +258,6 @@ extension Advertiser: MCSessionDelegate {
             return
         }
 
-        logger.info("사진 수신 완료: \(resourceName) (\(data.count) bytes, 타입: Data)")
         updatePhotoState(photoID: photoID, state: .completed(data))
 
         /// 사진 수신 완료

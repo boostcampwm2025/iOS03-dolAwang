@@ -16,6 +16,7 @@ final class StreamingStore: StoreProtocol {
         case guide // 가이드라인 오버레이
         case countdown // 5, 4, 3, 2, 1 카운트다운
         case shooting // 촬영 중 (5초 간격)
+        case transferring // 전송, 수신 중
         case completed // 촬영 완료
     }
 
@@ -30,6 +31,9 @@ final class StreamingStore: StoreProtocol {
         var shootingCountdown: Int = 5  // 촬영 간격 카운트 다운 (5초마다)
         var captureCount: Int = 0       // 현재 촬영 횟수
         var totalCaptureCount: Int = 12 // 총 촬영 횟수
+
+        // 이미지 전송 프로그래스
+        var receivedPhotoCount: Int = 0
     }
 
     enum Intent {
@@ -39,7 +43,11 @@ final class StreamingStore: StoreProtocol {
 
         // 타이머 모드
         case startCountdown // "준비 완료" 버튼 클릭 시
-        case tick // 1초마다 호출
+        case tick           // 1초마다 호출
+
+        // 사진 전송
+        case startTransfer // 전송 시작
+        case photoReceived // 사진 1장 수신
     }
 
     enum Result {
@@ -53,15 +61,18 @@ final class StreamingStore: StoreProtocol {
         case countdownUpdated(Int)
         case shootingCountdownUpdated(Int)
         case captureCountUpdated(Int)
+
+        // 사진 전송
+        case receivedPhotoCountUpdated(Int)
     }
 
     var state: State = .init()
 
-    private let advertiser: Advertisier
+    private let advertiser: Advertiser
     private let decoder: H264Decoder
     private var timer: Timer?
 
-    init(_ advertiser: Advertisier, decoder: H264Decoder) {
+    init(_ advertiser: Advertiser, decoder: H264Decoder) {
         self.advertiser = advertiser
         self.decoder = decoder
 
@@ -73,6 +84,16 @@ final class StreamingStore: StoreProtocol {
 
         advertiser.onReceivedStreamData = { [weak self] data in
             self?.decoder.decode(data)
+        }
+
+        // 사진 수신 콜백
+        advertiser.onPhotoReceived = { [weak self] in
+            self?.send(.photoReceived)
+        }
+
+        // 12장 모두 저장 완료 콜백 (iPhone에서 전송)
+        advertiser.onAllPhotosStored = { [weak self] in
+            self?.send(.startTransfer)
         }
     }
 
@@ -95,6 +116,17 @@ final class StreamingStore: StoreProtocol {
 
         case .tick:
             result.append(contentsOf: handleTick())
+            // MARK: - 사진 전송
+        case .startTransfer:
+            result.append(.phaseChanged(.transferring))
+            advertiser.sendCommand(.startTransfer)
+
+        case .photoReceived:
+            let newCount = state.receivedPhotoCount + 1
+            result.append(.receivedPhotoCountUpdated(newCount))
+            if newCount >= state.totalCaptureCount {
+                result.append(.phaseChanged(.completed))
+            }
         }
 
         return result
@@ -126,6 +158,9 @@ final class StreamingStore: StoreProtocol {
 
         case .captureCountUpdated(let count):
             state.captureCount = count
+
+        case .receivedPhotoCountUpdated(let count):
+            state.receivedPhotoCount = count
         }
 
         self.state = state
@@ -153,26 +188,32 @@ extension StreamingStore {
             if state.countdownValue > 1 {
                 results.append(.countdownUpdated(state.countdownValue - 1))
             } else {
-                // 5초 카운트다운 완료 후 촬영 시작
+                // 5초 카운트다운 완료 후 첫 촬영
                 results.append(.phaseChanged(.shooting))
                 results.append(.shootingCountdownUpdated(5))
+
                 capturePhoto()
-                results.append(.captureCountUpdated(state.captureCount + 1))
+
+                // 첫 촬영 시 captureCount를 먼저 업데이트
+                let firstCount = state.captureCount + 1
+                results.append(.captureCountUpdated(firstCount))
             }
         case .shooting:
             if state.shootingCountdown > 1 {
                 results.append(.shootingCountdownUpdated(state.shootingCountdown - 1))
             } else {
-                // 5초가 경과하면 촬영
+                // 5초가 경과하면 촬영 (첫 촬영 후 5초마다)
                 capturePhoto()
+
                 let newCount = state.captureCount + 1
                 results.append(.captureCountUpdated(newCount))
 
+                // 12장 촬영 완료 시
                 if newCount >= state.totalCaptureCount {
-                    // 12장 완료
                     stopTimer()
-                    results.append(.phaseChanged(.completed))
+                    results.append(.phaseChanged(.transferring))
                 } else {
+                    // 다음 촬영을 위한 카운트다운 재설정
                     results.append(.shootingCountdownUpdated(5))
                 }
             }
@@ -184,6 +225,8 @@ extension StreamingStore {
     }
 
     private func capturePhoto() {
-        advertiser.sendCommand(.capturePhoto)
+        Task { @MainActor [weak self] in
+            self?.advertiser.sendCommand(.capturePhoto)
+        }
     }
 }
