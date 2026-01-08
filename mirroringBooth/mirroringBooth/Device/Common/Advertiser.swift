@@ -1,5 +1,5 @@
 //
-//  Advertisier.swift
+//  Advertiser.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2025-12-28.
@@ -13,7 +13,7 @@ import OSLog
 /// 스트림 수신 측 (iPad/Mac)
 /// 서비스를 광고하고 연결 요청을 수락하여 스트림 데이터(비디오/사진)를 수신
 @Observable
-final class Advertisier: NSObject {
+final class Advertiser: NSObject {
 
     private let logger = Logger.advertiser
 
@@ -114,7 +114,7 @@ final class Advertisier: NSObject {
 }
 
 // MARK: - Session Delegate
-extension Advertisier: MCSessionDelegate {
+extension Advertiser: MCSessionDelegate {
 
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         switch state {
@@ -207,7 +207,7 @@ extension Advertisier: MCSessionDelegate {
 
 // MARK: - Advertiser Delegate
 // 주변 기기로부터 들어오는 연결 초대를 수신한 뒤 승인 및 거절을 처리합니다.
-extension Advertisier: MCNearbyServiceAdvertiserDelegate {
+extension Advertiser: MCNearbyServiceAdvertiserDelegate {
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser,
                     didReceiveInvitationFromPeer peerID: MCPeerID,
                     withContext context: Data?,

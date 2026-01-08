@@ -22,7 +22,7 @@ struct RootView: View {
                             BrowsingView()
                                 .environment(router)
                         case .advertising:
-                            AdvertisierHomeView()
+                            AdvertiserHomeView()
                         case .connectionList(let list):
                             ConnectionCheckView(list)
                             .environment(router)
@@ -31,7 +31,7 @@ struct RootView: View {
                         }
                     }
             default:
-                AdvertisierHomeView()
+                AdvertiserHomeView()
             }
         }
         .tint(.black)
