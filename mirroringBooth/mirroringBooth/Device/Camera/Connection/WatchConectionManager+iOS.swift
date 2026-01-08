@@ -85,14 +85,9 @@ final class WatchConnectionManager: NSObject {
 
         let appState: AppStateValue
         switch state {
-        case .active:
-            appState = .active
-        case .inactive:
-            appState = .inactive
-        case .background:
-            appState = .background
-        @unknown default:
-            appState = .inactive
+        case .active: appState = .active
+        case .background: appState = .background
+        default: appState = .inactive
         }
 
         do {
