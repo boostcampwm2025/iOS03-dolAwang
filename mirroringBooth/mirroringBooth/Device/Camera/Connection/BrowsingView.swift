@@ -58,8 +58,7 @@ struct BrowsingView: View {
                                 } label: {
                                     deviceRow(device)
                                 }
-                                .disabled(isDeviceSelected(device) != nil ||
-                                          (store.state.currentTarget == .mirroring && device.type == .watch))
+                                .disabled(isDeviceDisabled(device))
                             }
                         }
                     }
@@ -149,7 +148,7 @@ struct BrowsingView: View {
         .foregroundStyle(Color(.label))
         .background(Color(.secondarySystemBackground).opacity(0.6))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .opacity(target != nil ? 0.5 : 1)
+        .opacity(isDeviceDisabled(device) ? 0.5 : 1)
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {
@@ -159,5 +158,10 @@ struct BrowsingView: View {
             return .remote
         }
         return nil
+    }
+
+    private func isDeviceDisabled(_ device: NearbyDevice) -> Bool {
+        return isDeviceSelected(device) != nil ||
+        (store.state.currentTarget == .mirroring && device.type == .watch)
     }
 }
