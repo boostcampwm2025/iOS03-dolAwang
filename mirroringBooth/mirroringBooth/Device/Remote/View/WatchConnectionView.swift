@@ -75,18 +75,5 @@ struct WatchConnectionView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .topTrailing) {
-            Button {
-                store.send(.tapDisconnect)
-            } label: {
-                Image(systemName: "multiply")
-                    .padding()
-                    .background(
-                        Circle()
-                            .fill(.gray)
-                    )
-            }
-            .buttonStyle(.plain)
-        }
     }
 }

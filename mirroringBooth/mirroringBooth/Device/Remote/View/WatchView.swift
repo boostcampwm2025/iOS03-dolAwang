@@ -13,6 +13,20 @@ struct WatchView: View {
     var body: some View {
         if store.state.isConnecting {
             WatchConnectionView(store: store)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .overlay(alignment: .topLeading) {
+                    Button {
+                        store.send(.tapDisconnect)
+                    } label: {
+                        Image(systemName: "multiply")
+                            .padding()
+                            .background(
+                                Circle()
+                                    .fill(.gray)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
         } else {
             Button {
                 store.send(.tapConnect)
