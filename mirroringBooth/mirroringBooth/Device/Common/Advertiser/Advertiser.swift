@@ -10,9 +10,7 @@ import Foundation
 import MultipeerConnectivity
 import OSLog
 
-/// 스트림 수신 측 (iPad/Mac)
 /// 서비스를 광고하고 연결 요청을 수락하여 스트림 데이터(비디오/사진)를 수신
-@Observable
 final class Advertiser: NSObject {
 
     private let logger = Logger.advertiser
@@ -25,6 +23,12 @@ final class Advertiser: NSObject {
 
     let myDeviceName: String
 
+    /// 연결 콜백
+    var onConnected: (() -> Void)?
+
+    /// 연결 해제 콜백
+    var onDisconnected: (() -> Void)?
+
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
 
@@ -32,16 +36,6 @@ final class Advertiser: NSObject {
 
     /// 사진 수신 Progress 구독 관리용 cancellables
     private var progressCancellables: [UUID: AnyCancellable] = [:]
-
-    var isSearching: Bool = false
-
-    /// 연결된 피어가 있는지 여부
-    var isConnected: Bool = false
-
-    /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
-    var isVideoSender: Bool {
-        UIDevice.current.userInterfaceIdiom == .phone
-    }
 
     /// 수신된 사진 목록
     var receivedPhotos: [Photo] = []
@@ -91,20 +85,12 @@ final class Advertiser: NSObject {
 
     func startSearching() {
         advertiser.startAdvertisingPeer()
-        isSearching = true
+        logger.info("광고를 시작합니다.")
     }
 
     func stopSearching() {
         advertiser.stopAdvertisingPeer()
-        isSearching = false
-    }
-
-    func toggleSearching() {
-        if isSearching {
-            stopSearching()
-        } else {
-            startSearching()
-        }
+        logger.info("광고를 중단합니다.")
     }
 
     /// 세션과 연결을 해제합니다.
@@ -140,9 +126,9 @@ extension Advertiser: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         switch state {
         case .connected:
-            isConnected = true
+            onConnected?()
         case .notConnected:
-            isConnected = false
+            onDisconnected?()
         default:
             break
         }
