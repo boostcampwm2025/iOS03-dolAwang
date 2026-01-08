@@ -121,20 +121,6 @@ final class WatchConnectionManager: NSObject {
         }
     }
 
-    private nonisolated func handleActionUpdate(_ applicationContext: [String: Any]) {
-        let actionValue: String? = applicationContext[MessageKey.action.rawValue] as? String
-        if actionValue == ActionValue.connect.rawValue {
-            self.logger.info("연결 완료 알림 수신됨.")
-            Task { @MainActor in
-                self.onReceiveConnectionCompleted?()
-            }
-        } else if actionValue == ActionValue.prepare.rawValue {
-            self.logger.info("촬영 준비 요청 수신됨.")
-            Task { @MainActor in
-                self.onReceiveRequestToPrepare?()
-            }
-        }
-    }
 }
 
 extension WatchConnectionManager: WCSessionDelegate {
@@ -144,7 +130,6 @@ extension WatchConnectionManager: WCSessionDelegate {
     ) {
         self.logger.info("WCSession applicationContext 수신: \(applicationContext)")
         handleAppStateUpdate(applicationContext)
-        handleActionUpdate(applicationContext)
     }
 
     nonisolated func session(
@@ -177,6 +162,30 @@ extension WatchConnectionManager: WCSessionDelegate {
             if self.lastAppState == .active {
                 self.onReachableChanged?(session.isReachable)
             }
+        }
+    }
+
+    nonisolated func session(
+        _ session: WCSession,
+        didReceiveMessage message: [String: Any],
+        replyHandler: @escaping ([String: Any]) -> Void
+    ) {
+        self.logger.info("WCSession 메시지 수신 (reply 포함): \(message)")
+        let actionValue: String? = message[MessageKey.action.rawValue] as? String
+
+        if actionValue == ActionValue.connect.rawValue {
+            self.logger.info("연결 완료 알림 수신됨.")
+            self.sendConnectionAck()
+            Task { @MainActor in
+                self.onReceiveConnectionCompleted?()
+            }
+            replyHandler([:])
+        } else if actionValue == ActionValue.prepare.rawValue {
+            self.logger.info("촬영 준비 요청 수신됨.")
+            Task { @MainActor in
+                self.onReceiveRequestToPrepare?()
+            }
+            replyHandler([:])
         }
     }
 

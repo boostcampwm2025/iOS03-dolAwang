@@ -107,12 +107,17 @@ final class WatchConnectionManager: NSObject {
             return
         }
 
-        do {
-            try session.updateApplicationContext([MessageKey.action.rawValue: ActionValue.connect.rawValue])
-            self.logger.info("워치 연결 완료")
-        } catch {
-            self.logger.error("워치 연결 실패: \(error.localizedDescription)")
+        guard session.isReachable else {
+            self.logger.error("워치에 도달할 수 없어 연결 요청을 보낼 수 없습니다.")
+            return
         }
+
+        let message = [MessageKey.action.rawValue: ActionValue.connect.rawValue]
+        session.sendMessage(message, replyHandler: { _ in
+            self.logger.info("워치 연결 요청 전송 성공")
+        }, errorHandler: { error in
+            self.logger.error("워치 연결 요청 전송 실패: \(error.localizedDescription)")
+        })
     }
 
     // 촬영 기기와 미러링 기기에서 촬영을 시작할 때 워치에게도 알림
@@ -122,12 +127,17 @@ final class WatchConnectionManager: NSObject {
             return
         }
 
-        do {
-            try session.updateApplicationContext([MessageKey.action.rawValue: ActionValue.prepare.rawValue])
-            self.logger.info("워치 촬영 준비 완료")
-        } catch {
-            self.logger.error("워치 촬영 준비 실패: \(error.localizedDescription)")
+        guard session.isReachable else {
+            self.logger.error("워치에 도달할 수 없어 촬영 준비 요청을 보낼 수 없습니다.")
+            return
         }
+
+        let message = [MessageKey.action.rawValue: ActionValue.prepare.rawValue]
+        session.sendMessage(message, replyHandler: { _ in
+            self.logger.info("워치 촬영 준비 완료")
+        }, errorHandler: { error in
+            self.logger.error("워치 촬영 준비 실패: \(error.localizedDescription)")
+        })
     }
 }
 
