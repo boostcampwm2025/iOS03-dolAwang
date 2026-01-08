@@ -127,7 +127,6 @@ final class Browser: NSObject {
             targetRemoteDeviceID = deviceID
             targetSession = remoteSession
         }
-
         
         browser.invitePeer(
             peer,
@@ -145,7 +144,6 @@ final class Browser: NSObject {
         }
         logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
     }
-
     /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.
     func sendStreamData(_ data: Data) {
         let connectedPeers = mirroringSession.connectedPeers
@@ -177,7 +175,6 @@ final class Browser: NSObject {
 
         do {
             try data.write(to: tempURL)
-
             logger.info("사진 전송 시작: \(fileName) (\(data.count) bytes)")
             
             mirroringSession.sendResource(

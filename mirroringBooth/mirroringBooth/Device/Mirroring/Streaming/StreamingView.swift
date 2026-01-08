@@ -8,10 +8,19 @@
 import SwiftUI
 
 struct StreamingView: View {
+    @State private var store: StreamingStore
+    private let isTimerMode: Bool
+
     /// 총 사진 촬영 수
     private let totalCaptureCount = 10
     /// 현재까지 촬영한 사진 개수
     private var captureCount: Int = 0
+
+    init(advertisier: Advertisier, isTimerMode: Bool) {
+        self.isTimerMode = isTimerMode
+        // 디코더는 임시로 생성합니다.
+        _store = State(initialValue: StreamingStore(advertisier, decoder: H264Decoder()))
+    }
 
     // MARK: - Body
 
@@ -21,10 +30,22 @@ struct StreamingView: View {
             Color("Background")
                 .ignoresSafeArea()
 
-            streamingPlaceholder // 비디오 스트리밍이 오면 해당 Placeholder를 변경
+            // 비디오 스트리밍 표시
+            if let sampleBuffer = store.state.currentSampleBuffer {
+                VideoPlayerView(sampleBuffer: sampleBuffer)
+                    .ignoresSafeArea()
+            } else {
+                streamingPlaceholder
+            }
 
             // 상단 HUD
             streamingHUD
+        }
+        .onAppear {
+            store.send(.startStreaming)
+        }
+        .onDisappear {
+            store.send(.stopStreaming)
         }
     }
 
@@ -84,6 +105,6 @@ struct StreamingView: View {
             isConnected: false,
             isCompact: isCompact
         )
-        CaptureStatusBadge(isTimerMode: true, isCompact: isCompact)
+        CaptureStatusBadge(isTimerMode: isTimerMode, isCompact: isCompact)
     }
 }
