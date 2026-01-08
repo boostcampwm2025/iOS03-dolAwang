@@ -15,4 +15,5 @@ extension Logger {
     static let h264encoder = Logger(subsystem: subsystem, category: "H264Encoder")
     static let h264decoder = Logger(subsystem: subsystem, category: "H264Decoder")
     static let cameraManager = Logger(subsystem: subsystem, category: "CameraManager")
+    static let animalRepository = Logger(subsystem: subsystem, category: "AnimalRepository")
 }
