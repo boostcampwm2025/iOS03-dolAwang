@@ -13,12 +13,19 @@ import OSLog
 final class Browser: NSObject {
     enum MirroringDeviceCommand: String {
         case navigateToSelectMode
+        case allPhotosStored // 사진 12장 모두 저장 완료
     }
 
     enum SessionType: String {
         case streaming
         case command
     }
+
+    // CommandSession 분리 방식
+    // enum DataType: UInt8 {
+    //     case stream = 0x01
+    //     case command = 0x02
+    // }
 
     private let logger = Logger.browser
 
@@ -46,6 +53,12 @@ final class Browser: NSObject {
     var onDeviceConnected: ((NearbyDevice) -> Void)?
 
     var onDeviceConnectionFailed: (() -> Void)?
+
+    /// 촬영 명령 수신 콜백
+    var onCaptureCommand: (() -> Void)?
+
+    /// 일괄 전송 시작 명령 수신 콜백
+    var onStartTransferCommand: (() -> Void)?
 
     /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
     var isVideoSender: Bool {
@@ -115,6 +128,7 @@ final class Browser: NSObject {
             targetSession = remoteSession
         }
 
+        
         browser.invitePeer(
             peer,
             to: targetSession,
@@ -135,7 +149,10 @@ final class Browser: NSObject {
     /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.
     func sendStreamData(_ data: Data) {
         let connectedPeers = mirroringSession.connectedPeers
-        guard !connectedPeers.isEmpty else { return }
+        guard !connectedPeers.isEmpty else {
+            logger.warning("스트림 전송 실패: 연결된 피어가 없습니다")
+            return
+        }
 
         do {
             try mirroringSession.send(data, toPeers: connectedPeers, with: .unreliable)
@@ -161,6 +178,8 @@ final class Browser: NSObject {
         do {
             try data.write(to: tempURL)
 
+            logger.info("사진 전송 시작: \(fileName) (\(data.count) bytes)")
+            
             mirroringSession.sendResource(
                 at: tempURL,
                 withName: fileName,
@@ -168,6 +187,8 @@ final class Browser: NSObject {
             ) { error in
                 if let error {
                     self.logger.warning("사진 전송 실패 : \(error.localizedDescription)")
+                } else {
+                    self.logger.info("사진 전송 완료: \(fileName)")
                 }
 
                 // 전송 완료 후 임시 파일 삭제
@@ -179,18 +200,22 @@ final class Browser: NSObject {
         }
     }
 
+    /// 미러링 기기에게 명령을 전송합니다.
     func sendCommand(_ command: MirroringDeviceCommand) {
         guard let data = command.rawValue.data(using: .utf8) else { return }
         let connectedPeers = mirroringCommandSession.connectedPeers
+        guard !connectedPeers.isEmpty else {
+            logger.warning("명령 전송 실패: commandSession에 연결된 피어가 없습니다")
+            return
+        }
+        
         do {
-            switch command {
-            case .navigateToSelectMode:
-                try mirroringCommandSession.send(
-                    data,
-                    toPeers: connectedPeers,
-                    with: .reliable
-                )
-            }
+            try mirroringCommandSession.send(
+                data,
+                toPeers: connectedPeers,
+                with: .reliable
+            )
+            logger.info("명령 전송 성공: \(command.rawValue)")
         } catch {
             logger.warning("명령 전송 실패: \(error.localizedDescription)")
         }
@@ -284,7 +309,7 @@ extension Browser: MCSessionDelegate {
         peerID: MCPeerID
     ) {
         let isMirroringTarget = session === mirroringSession && peerID.displayName == targetMirroringDeviceID
-        let isMirroringCommandTarget = session === mirroringSession && peerID.displayName == targetMirroringDeviceID
+        let isMirroringCommandTarget = session === mirroringCommandSession && peerID.displayName == targetMirroringDeviceID
         let isRemoteTarget = session === remoteSession && peerID.displayName == targetRemoteDeviceID
 
         guard isMirroringTarget || isMirroringCommandTarget || isRemoteTarget else { return }
@@ -309,7 +334,31 @@ extension Browser: MCSessionDelegate {
         _ session: MCSession,
         didReceive data: Data,
         fromPeer peerID: MCPeerID
-    ) {}
+    ) {
+        if session === mirroringCommandSession {
+            executeCommand(data: data)
+        } else if session === mirroringSession {
+            logger.info("스트림 세션에서 데이터 수신: \(data.count) bytes")
+        }
+    }
+
+    // MARK: - 명령 수신 처리
+
+    private func executeCommand(data: Data) {
+        guard let command = String(data: data, encoding: .utf8) else { return }
+        if let type = Advertiser.CameraDeviceCommand(rawValue: command) {
+            switch type {
+            case .capturePhoto:
+                DispatchQueue.main.async {
+                    self.onCaptureCommand?()
+                }
+            case .startTransfer:
+                DispatchQueue.main.async {
+                    self.onStartTransferCommand?()
+                }
+            }
+        }
+    }
 
     func session(
         _ session: MCSession,
