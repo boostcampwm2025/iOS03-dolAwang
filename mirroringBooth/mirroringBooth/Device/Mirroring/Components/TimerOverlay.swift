@@ -12,6 +12,8 @@ struct TimerOverlay: View {
     let phase: StreamingStore.TimerPhase
     let countdownValue: Int
     let shootingCountdown: Int
+    let receivedPhotoCount: Int
+    let totalCaptureCount: Int
     let onReadyTapped: () -> Void
 
     var body: some View {
@@ -22,6 +24,11 @@ struct TimerOverlay: View {
             CountdownOverlay(value: countdownValue)
         case .shooting:
             ShootingProgressIndicator(countdown: shootingCountdown)
+        case .transferring:
+            TransferringOverlay(
+                receivedCount: receivedPhotoCount,
+                totalCount: totalCaptureCount
+            )
         case .completed:
             // EmptyView()
             CaptureCompleteOverlay() // 임시
@@ -114,6 +121,34 @@ struct ShootingProgressIndicator: View {
                 .padding(.top, 80)
             }
             Spacer()
+        }
+    }
+}
+
+// 사진 전송 중 표시되는 오버레이
+struct TransferringOverlay: View {
+    let receivedCount: Int
+    let totalCount: Int
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.7)
+                .ignoresSafeArea()
+
+            VStack(spacing: 16) {
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .tint(.white)
+
+                Text("사진 수신 중...")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+
+                Text("\(receivedCount) / \(totalCount)")
+                    .font(.headline)
+                    .foregroundStyle(.white.opacity(0.7))
+            }
         }
     }
 }

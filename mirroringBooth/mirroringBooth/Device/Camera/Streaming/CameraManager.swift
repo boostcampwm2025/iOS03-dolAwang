@@ -33,6 +33,18 @@ final class CameraManager: NSObject {
     /// 촬영된 이미지 데이터 콜백
     var onCapturedPhoto: ((Data) -> Void)?
 
+    /// 전송 완료 콜백
+    var onTransferCompleted: (() -> Void)?
+
+    /// 12장 저장 완료 콜백 (타이머 모드에서 12장 모두 저장되면 호출)
+    var onAllPhotosStored: ((Int) -> Void)?
+
+    // 촬영된 이미지 임시 저장 배열
+    private(set) var capturedPhotos: [Data] = []
+
+    // 현재 전송 진행 상황
+    var transferProgress: (current: Int, total: Int) = (0, 0)
+
     /// Session을 시작합니다.
     func startSession() {
         // 권한을 확인합니다.
@@ -63,12 +75,43 @@ final class CameraManager: NSObject {
 
     /// 사진을 촬영합니다.
     func capturePhoto() {
-        // JPEG 포맷으로 사진 촬영
-        let settings = AVCapturePhotoSettings(
-            format: [AVVideoCodecKey: AVVideoCodecType.jpeg]
-        )
+        DispatchQueue.main.async {
+            self.logger.info("capturePhoto() 호출됨 - 촬영 시작")
+            // JPEG 포맷으로 사진 촬영
+            let settings = AVCapturePhotoSettings(
+                format: [AVVideoCodecKey: AVVideoCodecType.jpeg]
+            )
 
-        photoOutput.capturePhoto(with: settings, delegate: self)
+            self.photoOutput.capturePhoto(with: settings, delegate: self)
+        }
+    }
+
+    /// 저장된 사진을 일괄 전송합니다.
+    func sendAllPhotos(using browser: Browser) {
+        let total = capturedPhotos.count
+        guard total > 0 else {
+            logger.warning("전송할 사진이 없습니다.")
+            return
+        }
+
+        transferProgress = (0, total)
+        logger.info("일괄 전송 시작: \(total)장")
+
+        Task { @MainActor in
+            for (index, photoData) in capturedPhotos.enumerated() {
+                browser.sendPhotoResource(photoData)
+
+                transferProgress = (index + 1, total)
+
+                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1초 짧게 대기
+            }
+
+            // 전송 완료 처리
+            capturedPhotos.removeAll()
+            transferProgress = (0, 0)
+            logger.info("일괄 전송 완료")
+            onTransferCompleted?()
+        }
     }
 }
 
@@ -114,7 +157,7 @@ extension CameraManager {
             session.addOutput(videoOutput)
             self.videoOutput = videoOutput
 
-            // 비디오 방향을 세로로 설정합니다. 
+            // 비디오 방향을 세로로 설정합니다.
             if let connection = videoOutput.connection(with: .video),
                connection.isVideoRotationAngleSupported(90) {
                 connection.videoRotationAngle = 90
@@ -162,42 +205,59 @@ extension CameraManager: AVCapturePhotoCaptureDelegate {
         didFinishProcessingPhoto photo: AVCapturePhoto,
         error: Error?
     ) {
-        guard error == nil,
-              let imageData = photo.fileDataRepresentation() else {
-            return
-        }
+        guard error == nil, let imageData = photo.fileDataRepresentation() else { return }
 
-        // 이미지 리사이즈 및 JPEG 압축 (최대 1920x1440 해상도, 품질 0.9)
-        guard let uiImage = UIImage(data: imageData) else {
-            onCapturedPhoto?(imageData)
-            return
-        }
+        sessionQueue.async { [weak self] in
+            guard let self else { return }
 
-        // 원본 이미지 크기 확인
-        let originalSize = uiImage.size
-        let maxSize = CGSize(width: 1920, height: 1440)
+            guard let uiImage = UIImage(data: imageData) else {
+                self.storePhotoData(imageData)
+                return
+            }
 
-        // 원본이 더 작으면 리사이즈하지 않음
-        let targetSize: CGSize
-        if originalSize.width <= maxSize.width && originalSize.height <= maxSize.height {
-            targetSize = originalSize
-        } else {
-            // 비율 유지하며 리사이즈
-            let aspectRatio = originalSize.width / originalSize.height
-            if aspectRatio > maxSize.width / maxSize.height {
-                targetSize = CGSize(width: maxSize.width, height: maxSize.width / aspectRatio)
+            // 원본 이미지 크기 확인
+            let originalSize = uiImage.size
+            let maxSize = CGSize(width: 1920, height: 1440)
+
+            // 원본이 더 작으면 리사이즈하지 않음
+            let targetSize: CGSize
+            if originalSize.width <= maxSize.width && originalSize.height <= maxSize.height {
+                targetSize = originalSize
             } else {
-                targetSize = CGSize(width: maxSize.height * aspectRatio, height: maxSize.height)
+                // 비율 유지하며 리사이즈
+                let aspectRatio = originalSize.width / originalSize.height
+                if aspectRatio > maxSize.width / maxSize.height {
+                    targetSize = CGSize(width: maxSize.width, height: maxSize.width / aspectRatio)
+                } else {
+                    targetSize = CGSize(width: maxSize.height * aspectRatio, height: maxSize.height)
+                }
+            }
+
+            guard let resizedImage = self.resizeImage(uiImage, to: targetSize),
+                  let compressedData = resizedImage.jpegData(compressionQuality: 0.6) else {
+                // 리사이즈 실패 시 원본 사용
+                self.storePhotoData(imageData)
+                return
+            }
+
+            self.storePhotoData(compressedData)
+        }
+    }
+
+    /// 촬영된 사진 데이터를 저장하고 콜백을 호출합니다.
+    private func storePhotoData(_ photoData: Data) {
+        DispatchQueue.main.async {
+            self.capturedPhotos.append(photoData)
+            let storedCount = self.capturedPhotos.count
+
+            // 수동 촬영 버튼용 콜백
+            // self.onCapturedPhoto?(photoData)
+
+            // 12장 모두 저장되면 콜백 호출
+            if storedCount == 12 {
+                self.onAllPhotosStored?(storedCount)
             }
         }
-
-        guard let resizedImage = resizeImage(uiImage, to: targetSize),
-              let compressedData = resizedImage.jpegData(compressionQuality: 0.9) else {
-            onCapturedPhoto?(imageData) // 리사이즈 실패 시 원본 반환
-            return
-        }
-
-        onCapturedPhoto?(compressedData)
     }
 
     private func resizeImage(_ image: UIImage, to targetSize: CGSize) -> UIImage? {

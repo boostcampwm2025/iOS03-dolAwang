@@ -9,20 +9,15 @@ import SwiftUI
 
 struct StreamingView: View {
     @State private var store: StreamingStore
-    let advertisier: Advertisier
+    let advertiser: Advertiser
 
     private let isTimerMode: Bool
 
-    /// 총 사진 촬영 수
-    private let totalCaptureCount = 12
-    /// 현재까지 촬영한 사진 개수
-    @State private var captureCount: Int = 0
-
-    init(advertisier: Advertisier, isTimerMode: Bool) {
-        self.advertisier = advertisier
+    init(advertiser: Advertiser, isTimerMode: Bool) {
+        self.advertiser = advertiser
         self.isTimerMode = isTimerMode
         // 디코더는 임시로 생성합니다.
-        _store = State(initialValue: StreamingStore(advertisier, decoder: H264Decoder()))
+        _store = State(initialValue: StreamingStore(advertiser, decoder: H264Decoder()))
     }
 
     // MARK: - Body
@@ -50,6 +45,8 @@ struct StreamingView: View {
                     phase: store.state.timerPhase,
                     countdownValue: store.state.countdownValue,
                     shootingCountdown: store.state.shootingCountdown,
+                    receivedPhotoCount: store.state.receivedPhotoCount,
+                    totalCaptureCount: store.state.totalCaptureCount,
                     onReadyTapped: {
                         store.send(.startCountdown)
                     }
@@ -58,12 +55,6 @@ struct StreamingView: View {
         }
         .onAppear {
             store.send(.startStreaming)
-        }
-        .onChange(of: store.state.timerPhase) { _, newPhase in
-            if newPhase == .completed {
-                // 촬영 결과 화면으로 이동
-                print("12장 사진 촬영 완료")
-            }
         }
         .onDisappear {
             store.send(.stopStreaming)
@@ -107,8 +98,8 @@ struct StreamingView: View {
                     }
                     Spacer()
                     CaptureCountBadge(
-                        current: captureCount,
-                        total: totalCaptureCount,
+                        current: store.state.captureCount,
+                        total: store.state.totalCaptureCount,
                         isCompact: isCompact
                     )
                 }
@@ -127,10 +118,5 @@ struct StreamingView: View {
             isCompact: isCompact
         )
         CaptureStatusBadge(isTimerMode: isTimerMode, isCompact: isCompact)
-        Button {
-            advertisier.sendCommand(.capturePhoto)
-        } label: {
-            Text("임시 촬영 버튼")
-        }
     }
 }

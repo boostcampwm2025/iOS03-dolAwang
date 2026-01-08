@@ -132,9 +132,6 @@ final class H264Encoder {
             offset += Int(nalLength)
         }
 
-        // 콜백 호출
-        let dataSizeMB = Double(data.count) / (1024.0 * 1024.0)
-        logger.info("프레임 데이터 크기: \(String(format: "%.3f", dataSizeMB)) MB (\(data.count) bytes)")
         onEncodedData?(data)
     }
 

@@ -242,7 +242,6 @@ final class Browser: NSObject {
             logger.info("리모트 연결 해제")
         }
     }
-
 }
 
 // MARK: - Session Delegate
