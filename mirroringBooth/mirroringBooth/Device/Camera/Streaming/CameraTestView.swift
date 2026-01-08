@@ -36,9 +36,13 @@ struct CameraTestView: View {
             cameraManager.onEncodedData = { data in
                 browser.sendStreamData(data)
             }
-            // 사진 촬영 콜백
+            // 사진 촬영 콜백 (임시)
             cameraManager.onCapturedPhoto = { data in
                 browser.sendPhotoResource(data)
+            }
+            // 촬영 명령 수신 콜백
+            browser.onCaptureCommand = {
+                cameraManager.capturePhoto()
             }
             cameraManager.startSession()
         }

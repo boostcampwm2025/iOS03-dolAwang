@@ -176,7 +176,7 @@ final class Browser: NSObject {
         do {
             try data.write(to: tempURL)
             logger.info("사진 전송 시작: \(fileName) (\(data.count) bytes)")
-            
+
             mirroringSession.sendResource(
                 at: tempURL,
                 withName: fileName,
@@ -243,6 +243,21 @@ final class Browser: NSObject {
         }
     }
 
+    // MARK: - 명령 수신 처리
+
+    private func executeCommand(data: Data) {
+        guard let command = String(data: data, encoding: .utf8) else { return }
+        logger.info("명령 수신: \(command)")
+
+        if let type = Advertisier.CameraDeviceCommand(rawValue: command) {
+            switch type {
+            case .capturePhoto:
+                DispatchQueue.main.async { [weak self] in
+                    self?.onCaptureCommand?()
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Session Delegate

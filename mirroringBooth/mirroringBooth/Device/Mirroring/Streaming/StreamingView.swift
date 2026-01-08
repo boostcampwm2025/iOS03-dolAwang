@@ -9,6 +9,8 @@ import SwiftUI
 
 struct StreamingView: View {
     @State private var store: StreamingStore
+    let advertisier: Advertisier
+
     private let isTimerMode: Bool
 
     /// 총 사진 촬영 수
@@ -17,6 +19,7 @@ struct StreamingView: View {
     private var captureCount: Int = 0
 
     init(advertisier: Advertisier, isTimerMode: Bool) {
+        self.advertisier = advertisier
         self.isTimerMode = isTimerMode
         // 디코더는 임시로 생성합니다.
         _store = State(initialValue: StreamingStore(advertisier, decoder: H264Decoder()))
@@ -106,5 +109,10 @@ struct StreamingView: View {
             isCompact: isCompact
         )
         CaptureStatusBadge(isTimerMode: isTimerMode, isCompact: isCompact)
+        Button {
+            advertisier.sendCommand(.capturePhoto)
+        } label: {
+            Text("임시 촬영 버튼")
+        }
     }
 }
