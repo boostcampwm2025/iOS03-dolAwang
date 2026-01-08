@@ -243,21 +243,6 @@ final class Browser: NSObject {
         }
     }
 
-    // MARK: - 명령 수신 처리
-
-    private func executeCommand(data: Data) {
-        guard let command = String(data: data, encoding: .utf8) else { return }
-        logger.info("명령 수신: \(command)")
-
-        if let type = Advertisier.CameraDeviceCommand(rawValue: command) {
-            switch type {
-            case .capturePhoto:
-                DispatchQueue.main.async { [weak self] in
-                    self?.onCaptureCommand?()
-                }
-            }
-        }
-    }
 }
 
 // MARK: - Session Delegate
