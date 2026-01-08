@@ -9,8 +9,9 @@ import SwiftUI
 
 struct BrowsingView: View {
 
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(Router.self) var router: Router
-    @State private var store = BrowsingStore(Browser())
+    @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
 
     var body: some View {
         ZStack {
@@ -106,6 +107,15 @@ struct BrowsingView: View {
         }
         .onDisappear {
             store.send(.exit)
+        }
+        .onChange(of: scenePhase) { _, newValue in
+            let state: UIApplication.State
+            switch newValue {
+            case .active: state = .active
+            case .background: state = .background
+            default: state = .inactive
+            }
+            store.send(.didChangeAppState(state))
         }
     }
 

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 @Observable
 final class BrowsingStore: StoreProtocol {
@@ -30,6 +31,7 @@ final class BrowsingStore: StoreProtocol {
         case exit
         case didSelect(NearbyDevice)
         case cancel
+        case didChangeAppState(UIApplication.State)
     }
 
     enum Result {
@@ -43,9 +45,11 @@ final class BrowsingStore: StoreProtocol {
 
     var state: State = .init()
     let browser: Browser
+    let watchConnectionManager: WatchConnectionManager
 
-    init(_ browser: Browser) {
+    init(_ browser: Browser, _ watchConnectionManager: WatchConnectionManager) {
         self.browser = browser
+        self.watchConnectionManager = watchConnectionManager
 
         browser.onDeviceFound = { [weak self] device in
             self?.reduce(.addDiscoveredDevice(device))
@@ -79,9 +83,11 @@ final class BrowsingStore: StoreProtocol {
         switch intent {
         case .entry:
             browser.startSearching()
+            watchConnectionManager.start()
 
         case .exit:
             browser.stopSearching()
+            watchConnectionManager.stop()
 
         case .didSelect(let device):
             // 1. 현재 타겟에 맞는 연결된 기기 확인
@@ -109,6 +115,9 @@ final class BrowsingStore: StoreProtocol {
             if state.currentTarget == .remote {
                 result.append(.setCurrentTarget(.mirroring))
             }
+
+        case .didChangeAppState(let state):
+            watchConnectionManager.pushIOSAppState(state: state)
         }
 
         return result
