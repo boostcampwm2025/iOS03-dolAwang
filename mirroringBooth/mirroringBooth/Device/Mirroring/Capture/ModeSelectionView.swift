@@ -133,7 +133,6 @@ private struct SelectionCard: View {
                             .modifier(
                                 TruncationDetectionModifier(
                                     text: description,
-                                    font: .subheadline,
                                     lineLimit: 2,
                                     isTruncated: $descriptionTruncated
                                 )
@@ -142,10 +141,10 @@ private struct SelectionCard: View {
                 }
             }
             .frame(maxWidth: 400, maxHeight: 350)
-            .background(
+            .background {
                 RoundedRectangle(cornerRadius: 30)
                     .fill(Color.cardView)
-            )
+            }
             .overlay(
                 RoundedRectangle(cornerRadius: 30)
                     .stroke(Color.borderLine, lineWidth: 3)
@@ -169,7 +168,6 @@ private struct DescriptionLabel: View {
 
 private struct TruncationDetectionModifier: ViewModifier {
     let text: String
-    let font: Font
     let lineLimit: Int
     @Binding var isTruncated: Bool
 
