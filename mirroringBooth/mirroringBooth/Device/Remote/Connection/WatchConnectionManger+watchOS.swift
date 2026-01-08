@@ -57,19 +57,28 @@ final class WatchConnectionManager: NSObject {
 
     /// WCSession 활성화를 시작합니다.
     func start() {
-        Task { @MainActor in
-            self.onReachableChanged?(false)
-        }
         guard let session = self.session else {
             self.logger.error("WCSession이 지원되지 않아 활성화할 수 없습니다.")
             return
         }
 
+        session.delegate = self
+
         if session.activationState == .activated {
-            session.delegate = nil
+            self.logger.info("WCSession이 이미 활성화되어 있습니다.")
+
+            // 이미 활성화된 경우에도 현재 상태를 확인하여 콜백 호출
+            let context: [String: Any] = session.receivedApplicationContext
+            let appStateRawValue: String? = context[MessageKey.appState.rawValue] as? String
+            let appStateValue: AppStateValue? = appStateRawValue.flatMap { AppStateValue(rawValue: $0) }
+            let reachable: Bool = (appStateValue == .active)
+
+            Task { @MainActor in
+                self.lastAppState = appStateValue ?? .terminated
+                self.onReachableChanged?(reachable)
+            }
             return
         }
-        session.delegate = self
 
         session.activate()
         self.logger.info("WCSession 활성화를 시작합니다.")
@@ -80,8 +89,12 @@ final class WatchConnectionManager: NSObject {
             self.logger.error("WCSession이 지원되지 않아 비활성화할 수 없습니다.")
             return
         }
-        session.delegate = nil
-        self.logger.info("WCSession이 비활성화되었습니다.")
+
+        // delegate를 nil로 설정하지 말고, 연결 끊김 상태만 전달
+        Task { @MainActor in
+            self.onReachableChanged?(false)
+        }
+        self.logger.info("WCSession 연결 대기 중지")
     }
 
     /// 카메라 캡쳐 요청을 상대 기기로 전송합니다.
