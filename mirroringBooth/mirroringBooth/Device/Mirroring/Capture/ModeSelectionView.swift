@@ -21,7 +21,7 @@ struct ModeSelectionView: View {
 
     var remoteCard: some View {
         SelectionCard(
-            iconName: "applewatch", // SF Symbol
+            iconName: "target", // SF Symbol
             iconColor: Color.remote,
             title: "리모콘 모드",
             description: "나의 Apple Watch에서 \n직접 셔터를 누르세요."
@@ -69,6 +69,7 @@ struct ModeSelectionView: View {
                 Spacer()
             }
             .padding(.top, 20)
+            .padding(.horizontal)
         }
     }
 }
@@ -90,7 +91,7 @@ private struct TitleView: View {
     var body: some View {
         VStack(spacing: 12) {
             Text("촬영 방식 선택")
-                .font(.largeTitle)
+                .font(.title.bold())
                 .foregroundColor(.primary)
 
             Text("어떻게 촬영하시겠어요?")
