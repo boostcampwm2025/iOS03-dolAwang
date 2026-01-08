@@ -35,7 +35,7 @@ struct StreamingView: View {
         VStack(spacing: 12) {
             Image(systemName: "video.fill")
                 .font(.largeTitle)
-                .foregroundStyle(Color("Indigo"))
+                .foregroundStyle(Color.main)
 
             Text("스트리밍 표시 영역")
                 .font(.title3)
