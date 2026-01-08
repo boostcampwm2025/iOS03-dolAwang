@@ -12,6 +12,7 @@ struct DeviceStatusBadge: View {
     let deviceName: String
     let batteryLevel: Int
     let isConnected: Bool
+    let isCompact: Bool
 
     var body: some View {
         HStack(spacing: 8) {
@@ -23,18 +24,17 @@ struct DeviceStatusBadge: View {
 
             HStack(spacing: 4) {
                 Image(systemName: batterySymbol)
+                    .foregroundStyle(batteryColor)
                 Text("\(batteryLevel)%")
                 Image(systemName: wifiSymbol)
+                    .foregroundStyle(isConnected ? Color("Indigo") : .red)
             }
-            .font(.caption)
-            .foregroundStyle(batteryColor)
         }
-        .font(.subheadline)
+        .font(isCompact ? .caption : nil)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
         .foregroundStyle(.white)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(Capsule().fill(.black.opacity(0.5))
-        )
+        .background(Capsule().fill(.black.opacity(0.5)))
     }
 }
 
