@@ -10,7 +10,7 @@ protocol StoreProtocol: AnyObject {
     associatedtype Intent
     associatedtype Result
 
-    var state: State { get set }
+    var state: State { get }
 
     func action(_ intent: Intent) -> [Result]
     func reduce(_ result: Result)
