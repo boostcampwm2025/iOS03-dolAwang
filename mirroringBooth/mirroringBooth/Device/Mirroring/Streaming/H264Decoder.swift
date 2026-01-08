@@ -33,6 +33,7 @@ final class H264Decoder {
     }
 
     func decode(_ data: Data) {
+        logger.info("디코딩 시작: \(data.count) bytes")
         decoderQueue.async { [weak self] in
             self?.processNALUnits(data)
         }
@@ -150,7 +151,10 @@ extension H264Decoder {
     }
 
     private func decodeFrame(_ nalData: Data, isKeyframe: Bool) {
-        guard let formatDescription = formatDescription else { return }
+        guard let formatDescription = formatDescription else {
+            logger.warning("formatDescription이 없음")
+            return
+        }
 
         // AVCC 형식으로 변환 (4바이트 길이 헤더)
         var length = UInt32(nalData.count).bigEndian
@@ -195,6 +199,7 @@ extension H264Decoder {
         }
 
         if sampleStatus == noErr, let sample = sampleBuffer {
+            logger.info("✅ 프레임 디코딩 성공")
             onDecodedSampleBuffer?(sample)
         } else {
             logger.warning("SampleBuffer 생성 실패 (디코딩 출력): \(sampleStatus)")
