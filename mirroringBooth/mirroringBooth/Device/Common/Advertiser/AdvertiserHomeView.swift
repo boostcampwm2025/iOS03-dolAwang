@@ -58,11 +58,11 @@ private struct AdvertisingButton: View {
     let isAdvertising: Bool
 
     var body: some View {
-        let title: String = isAdvertising ? "발견 허용 중단" : "발견 가능 모드"
+        let title: String = isAdvertising ? "검색 허용 중단" : "검색 가능 모드"
 
         let description: String = isAdvertising
-        ? "다른 기기에서 탐색 불가능한 상태로 전환합니다."
-        : "다른 기기에서 탐색 가능한 상태로 전환합니다."
+        ? "다른 기기에서 검색 불가능한 상태로 전환합니다."
+        : "다른 기기에서 검색 가능한 상태로 전환합니다."
 
         let icon: String = isAdvertising
         ? "antenna.radiowaves.left.and.right.slash"
@@ -96,7 +96,7 @@ private struct IdleView: View {
 
     var body: some View {
         VStack(spacing: 5) {
-            Text("아직 발견 가능 모드가 아니에요")
+            Text("아직 검색 가능 모드가 아니에요")
                 .font(.headline.weight(.heavy))
 
             HStack {
