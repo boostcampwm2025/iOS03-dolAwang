@@ -181,7 +181,7 @@ final class Browser: NSObject {
 
     func sendCommand(_ command: MirroringDeviceCommand) {
         guard let data = command.rawValue.data(using: .utf8) else { return }
-        let connectedPeers = mirroringSession.connectedPeers
+        let connectedPeers = mirroringCommandSession.connectedPeers
         do {
             switch command {
             case .navigateToSelectMode:
