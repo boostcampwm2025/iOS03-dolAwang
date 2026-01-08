@@ -63,12 +63,12 @@ final class WatchConnectionManager: NSObject {
             self.logger.error("WCSession이 지원되지 않아 활성화할 수 없습니다.")
             return
         }
-        session.delegate = self
 
         if session.activationState == .activated {
-            self.logger.info("WCSession이 이미 활성화되어 있습니다.")
+            session.delegate = nil
             return
         }
+        session.delegate = self
 
         session.activate()
         self.logger.info("WCSession 활성화를 시작합니다.")
