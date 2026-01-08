@@ -36,3 +36,7 @@ struct ConnectionList: Hashable {
     let mirroringName: String
     let remoteName: String?
 }
+
+enum MirroringRoute: Hashable {
+    case modeSelection
+}

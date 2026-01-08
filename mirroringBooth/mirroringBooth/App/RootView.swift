@@ -32,6 +32,14 @@ struct RootView: View {
                     }
             default:
                 AdvertisierHomeView()
+                    .environment(router)
+                    .navigationDestination(for: MirroringRoute.self) { viewType in
+                        switch viewType {
+                        case .modeSelection:
+                            ModeSelectionView()
+                                .environment(router)
+                        }
+                    }
             }
         }
         .tint(.black)
