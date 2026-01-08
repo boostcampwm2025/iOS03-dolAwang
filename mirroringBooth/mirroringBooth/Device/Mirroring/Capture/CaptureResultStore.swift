@@ -87,6 +87,8 @@ final class CaptureResultStore: StoreProtocol {
             for index in 0 ..< state.photos.count {
                 state.photos[index].selectNumber = nil
             }
+            state.selectedPhotos = []
+            state.maxSelection = row * column
             state.currentSelectionCount = 0
             state.layoutRowCount = row
             state.layoutColumnCount = column
