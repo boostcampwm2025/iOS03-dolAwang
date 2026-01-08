@@ -176,27 +176,11 @@ extension WatchConnectionManager: WCSessionDelegate {
 
     nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
         self.logger.info("WCSession 메시지 수신: \(message)")
-        Task { @MainActor in
-            self.onReceiveMessage?(message)
-        }
-    }
-
-    nonisolated func session(
-        _ session: WCSession,
-        didReceiveMessage message: [String: Any],
-        replyHandler: @escaping ([String: Any]) -> Void
-    ) {
-        self.logger.info("WCSession 메시지 수신(reply 요청): \(message)")
-
-        replyHandler([:])
-
         let actionValue: String? = message[MessageKey.action.rawValue] as? String
         if actionValue == ActionValue.capture.rawValue {
             self.logger.info("캡쳐 요청 수신됨.")
-        }
-
-        Task { @MainActor in
-            self.onReceiveMessage?(message)
+            Task { @MainActor in
+            }
         }
     }
 }

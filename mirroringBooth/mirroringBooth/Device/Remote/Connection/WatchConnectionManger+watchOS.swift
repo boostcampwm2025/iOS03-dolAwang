@@ -102,13 +102,12 @@ final class WatchConnectionManager: NSObject {
         try await withCheckedThrowingContinuation { (checkedContinuation: CheckedContinuation<Void, Error>) in
             session.sendMessage(
                 message,
-                replyHandler: { _ in
-                    checkedContinuation.resume()
-                },
-                errorHandler: { error in
+                replyHandler: nil,
+                errorHandler: { (error: Error) in
                     checkedContinuation.resume(throwing: error)
                 }
             )
+            checkedContinuation.resume()
         }
     }
 }
@@ -120,8 +119,8 @@ extension WatchConnectionManager: WCSessionDelegate {
     ) {
         self.logger.info("WCSession applicationContext 수신: \(applicationContext)")
 
-        let appStateRawValue: String? = applicationContext[MessageKey.appState.rawValue] as? String
-        let appStateValue: AppStateValue? = appStateRawValue.flatMap { AppStateValue(rawValue: $0) }
+        let appStateRawValue = applicationContext[MessageKey.appState.rawValue] as? String
+        let appStateValue = appStateRawValue.flatMap { AppStateValue(rawValue: $0) }
 
         let reachable: Bool
         switch appStateValue {
