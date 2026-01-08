@@ -54,9 +54,11 @@ final class WatchViewStore: StoreProtocol {
     }
 
     func reduce(_ result: Result) {
+        var state = self.state
         switch result {
         case .setConnectionState(let value):
             state.connectionState = value
         }
+        self.state = state
     }
 }
