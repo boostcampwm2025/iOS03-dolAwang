@@ -66,7 +66,6 @@ struct ConnectionCheckView: View {
 
             // 3. 촬영 준비 버튼
             Button {
-                // TODO: 카메라 프리뷰로 이동
                 browser.sendCommand(.navigateToSelectMode)
             } label: {
                 Text("촬영 준비하기")

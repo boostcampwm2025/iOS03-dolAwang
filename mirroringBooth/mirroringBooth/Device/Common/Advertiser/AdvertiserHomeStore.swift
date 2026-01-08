@@ -31,13 +31,8 @@ final class AdvertiserHomeStore: StoreProtocol {
     init(_ advertiser: Advertiser) {
         self.advertiser = advertiser
 
-        advertiser.onConnected = { [weak self] in
+        advertiser.navigateToSelectModeCommandCallBack = { [weak self] in
             self?.reduce(.setIsConnecting(true))
-            self?.reduce(.setIsAdvertising(false))
-        }
-
-        advertiser.onDisconnected = { [weak self] in
-            self?.reduce(.setIsConnecting(false))
         }
     }
 

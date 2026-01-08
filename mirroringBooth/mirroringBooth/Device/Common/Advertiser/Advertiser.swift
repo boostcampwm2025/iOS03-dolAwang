@@ -23,12 +23,6 @@ final class Advertiser: NSObject {
 
     let myDeviceName: String
 
-    /// 연결 콜백
-    var onConnected: (() -> Void)?
-
-    /// 연결 해제 콜백
-    var onDisconnected: (() -> Void)?
-
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
 
@@ -123,16 +117,7 @@ final class Advertiser: NSObject {
 // MARK: - Session Delegate
 extension Advertiser: MCSessionDelegate {
 
-    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-        switch state {
-        case .connected:
-            onConnected?()
-        case .notConnected:
-            onDisconnected?()
-        default:
-            break
-        }
-    }
+    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) { }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         if session === self.session {

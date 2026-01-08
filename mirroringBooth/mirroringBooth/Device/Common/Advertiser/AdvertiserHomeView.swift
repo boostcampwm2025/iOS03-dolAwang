@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct AdvertiserHomeView: View {
+    @Environment(Router.self) var router: Router
     @State private var store = AdvertiserHomeStore(Advertiser())
 
     var body: some View {
         VStack(spacing: 0) {
-            #if !os(watchOS)
             // 상단 헤더
             MainHeaderView()
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -27,13 +27,6 @@ struct AdvertiserHomeView: View {
             }
 
             Spacer()
-            #endif
-
-            #if os(watchOS)
-            Text(displayName)
-                .fontWeight(.heavy)
-                .foregroundStyle(Color(.lightGray))
-            #endif
 
             // 하단 버튼
             Button {
@@ -48,6 +41,11 @@ struct AdvertiserHomeView: View {
         .padding(.horizontal)
         .onDisappear {
             store.send(.exit)
+        }
+        .onChange(of: store.state.hasConnectionStarted) { _, newValue in
+            if newValue {
+                router.push(to: MirroringRoute.modeSelection)
+            }
         }
     }
 }

@@ -23,6 +23,7 @@ struct RootView: View {
                                 .environment(router)
                         case .advertising:
                             AdvertiserHomeView()
+                                .environment(router)
                         case .connectionList(let list, let browser):
                             ConnectionCheckView(list, browser: browser)
                             .environment(router)
