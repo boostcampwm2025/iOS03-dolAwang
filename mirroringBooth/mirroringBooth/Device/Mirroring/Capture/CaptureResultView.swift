@@ -53,7 +53,7 @@ private struct PhotoGridView: View {
             // 제목 및 Description
             Text("사진 선택 (\(store.state.currentSelectionCount)/\(store.state.maxSelection))")
                 .font(.title.bold())
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
 
             Text("촬영된 10장의 사진 중 마음에 드는 사진을 골라주세요.")
                 .font(.subheadline)
@@ -111,7 +111,7 @@ private struct PhotoGridView: View {
                             .cornerRadius(8)
                             .clipped()
                             .frame(maxHeight: 200)
-                            .frame(height: geometry.size.height / 2)
+                            .frame(height: geometry.size.height / 2 - 20)
                         }
                     }
                 }
@@ -139,17 +139,20 @@ private struct PhotoCell: View {
                 .clipped()
 
             if selectedNumber != nil {
-                Color.blue.opacity(0.2) // TODO: 에셋 색상으로 변경
+                Color.selectionBlue.opacity(0.25) // TODO: 에셋 색상으로 변경
             }
 
             if let selectedNumber {
                 RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(Color.blue, lineWidth: 4)
+                    .strokeBorder(Color.selectionBlue, lineWidth: 4)
 
                 Text("\(selectedNumber)")
                     .font(.system(size: 40).bold())
                     .foregroundColor(.white)
                     .shadow(radius: 2)
+            } else {
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(Color.primary, lineWidth: 1)
             }
         }
         .aspectRatio(4/3, contentMode: .fit)
