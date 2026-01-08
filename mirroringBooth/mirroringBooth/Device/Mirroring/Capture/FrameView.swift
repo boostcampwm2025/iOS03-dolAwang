@@ -58,10 +58,13 @@ struct FrameView: View {
                         let rectWidth = geometry.size.width * (Ratio.photoWidth.rawValue / width)
                         let rectHeight = geometry.size.height * (Ratio.photoHeight.rawValue / height)
 
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.white.opacity(0.2))
-                            .frame(width: rectWidth, height: rectHeight)
-                            .position(x: geometry.size.width * normX, y: geometry.size.height * normY)
+                        if let photo = photos[row * columns + col],
+                           case let .completed(data) = photo.state,
+                           let uiImage = UIImage(data: data) {
+                            Image(uiImage: uiImage)
+                                .frame(width: rectWidth, height: rectHeight)
+                                .position(x: geometry.size.width * normX, y: geometry.size.height * normY)
+                        }
                     }
                 }
             }
