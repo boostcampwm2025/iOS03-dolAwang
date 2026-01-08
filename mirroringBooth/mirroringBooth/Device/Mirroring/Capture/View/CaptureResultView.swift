@@ -39,7 +39,7 @@ struct CaptureResultView: View {
                         Divider()
                             .background(.primary)
 
-                        FrameSelectionView()
+                        FrameSelectionView(store: store)
                             .frame(height: geometry.size.height / 2)
                     }
                     // 화면 표시 비율
@@ -148,7 +148,7 @@ private struct PhotoCell: View {
                 .clipped()
 
             if selectedNumber != nil {
-                Color.selectionBlue.opacity(0.25) // TODO: 에셋 색상으로 변경
+                Color.selectionBlue.opacity(0.25)
             }
 
             if let selectedNumber {
@@ -167,11 +167,5 @@ private struct PhotoCell: View {
         .aspectRatio(4/3, contentMode: .fit)
         .cornerRadius(12)
         .clipped()
-    }
-}
-
-private struct FrameSelectionView: View {
-    var body: some View {
-        Text("Hello, world!")
     }
 }
