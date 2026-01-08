@@ -38,6 +38,9 @@ struct CaptureResultView: View {
                 }
             }
         }
+        .onAppear {
+            store.send(.onAppear)
+        }
     }
 }
 
