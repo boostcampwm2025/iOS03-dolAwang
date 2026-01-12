@@ -67,7 +67,8 @@ private struct PhotoGridView: View {
                         ),
                         spacing: 20
                     ) {
-                        ForEach(Array(store.state.photos.enumerated()), id: \.element.id) { index, photo in
+                        let photos = store.state.photos
+                        ForEach(Array(zip(photos.indices, photos)), id: \.1.id) { index, photo in
                             Group {
                                 switch photo.state {
                                 case .receiving(let progress):
