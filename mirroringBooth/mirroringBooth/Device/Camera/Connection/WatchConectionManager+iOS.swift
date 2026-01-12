@@ -121,11 +121,7 @@ final class WatchConnectionManager: NSObject {
         }
 
         let message = [MessageKey.action.rawValue: ActionValue.connect.rawValue]
-        session.sendMessage(message, replyHandler: { _ in
-            self.logger.info("워치 연결 요청 전송 성공")
-        }, errorHandler: { error in
-            self.logger.error("워치 연결 요청 전송 실패: \(error.localizedDescription)")
-        })
+        session.sendMessage(message, replyHandler: nil)
     }
 
     // 촬영 기기와 미러링 기기에서 촬영을 시작할 때 워치에게도 알림
@@ -141,11 +137,7 @@ final class WatchConnectionManager: NSObject {
         }
 
         let message = [MessageKey.action.rawValue: ActionValue.prepare.rawValue]
-        session.sendMessage(message, replyHandler: { _ in
-            self.logger.info("워치 촬영 준비 완료")
-        }, errorHandler: { error in
-            self.logger.error("워치 촬영 준비 실패: \(error.localizedDescription)")
-        })
+        session.sendMessage(message, replyHandler: nil)
     }
 }
 
@@ -186,10 +178,9 @@ extension WatchConnectionManager: WCSessionDelegate {
 
     nonisolated func session(
         _ session: WCSession,
-        didReceiveMessage message: [String: Any],
-        replyHandler: @escaping ([String: Any]) -> Void
+        didReceiveMessage message: [String: Any]
     ) {
-        self.logger.info("WCSession 메시지 수신 (reply 포함): \(message)")
+        self.logger.info("WCSession 메시지 수신: \(message)")
         let actionValue: String? = message[MessageKey.action.rawValue] as? String
 
         if actionValue == ActionValue.capture.rawValue {
@@ -197,13 +188,11 @@ extension WatchConnectionManager: WCSessionDelegate {
             Task { @MainActor in
                 self.onReceiveCaptureRequest?()
             }
-            replyHandler([:])
         } else if actionValue == ActionValue.connectAck.rawValue {
             self.logger.info("워치 연결 응답 수신됨.")
             Task { @MainActor in
                 self.onReceiveConnectionAck?()
             }
-            replyHandler([:])
         }
     }
 }

@@ -111,10 +111,7 @@ final class WatchConnectionManager: NSObject {
             return
         }
 
-        session.sendMessage(
-            message,
-            replyHandler: nil
-        )
+        session.sendMessage(message, replyHandler: nil)
     }
 
     /// 연결 요청에 대한 응답을 iPhone으로 전송합니다.
@@ -130,11 +127,7 @@ final class WatchConnectionManager: NSObject {
         }
 
         let message = [MessageKey.action.rawValue: ActionValue.connectAck.rawValue]
-        session.sendMessage(message, replyHandler: { _ in
-            self.logger.info("연결 응답 전송 완료")
-        }, errorHandler: { error in
-            self.logger.error("연결 응답 전송 실패: \(error.localizedDescription)")
-        })
+        session.sendMessage(message, replyHandler: nil)
     }
 
     private nonisolated func handleAppStateUpdate(_ applicationContext: [String: Any]) {
@@ -201,10 +194,9 @@ extension WatchConnectionManager: WCSessionDelegate {
 
     nonisolated func session(
         _ session: WCSession,
-        didReceiveMessage message: [String: Any],
-        replyHandler: @escaping ([String: Any]) -> Void
+        didReceiveMessage message: [String: Any]
     ) {
-        self.logger.info("WCSession 메시지 수신 (reply 포함): \(message)")
+        self.logger.info("WCSession 메시지 수신: \(message)")
         let actionValue: String? = message[MessageKey.action.rawValue] as? String
 
         if actionValue == ActionValue.connect.rawValue {
@@ -213,13 +205,11 @@ extension WatchConnectionManager: WCSessionDelegate {
             Task { @MainActor in
                 self.onReceiveConnectionCompleted?()
             }
-            replyHandler([:])
         } else if actionValue == ActionValue.prepare.rawValue {
             self.logger.info("촬영 준비 요청 수신됨.")
             Task { @MainActor in
                 self.onReceiveRequestToPrepare?()
             }
-            replyHandler([:])
         }
     }
 
