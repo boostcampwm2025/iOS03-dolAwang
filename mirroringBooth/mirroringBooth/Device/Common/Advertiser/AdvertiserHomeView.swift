@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct AdvertiserHomeView: View {
+    @Environment(Router.self) var router: Router
     @State private var store = AdvertiserHomeStore(Advertiser())
 
     var body: some View {
@@ -48,6 +49,11 @@ struct AdvertiserHomeView: View {
         .padding(.horizontal)
         .onDisappear {
             store.send(.exit)
+        }
+        .onChange(of: store.state.hasConnectionStarted) { _, newValue in
+            if newValue {
+                router.push(to: MirroringRoute.modeSelection(store.advertiser))
+            }
         }
     }
 }

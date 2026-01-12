@@ -38,6 +38,6 @@ struct ConnectionList: Hashable {
 }
 
 enum MirroringRoute: Hashable {
-    case modeSelection
-    case streaming(isTimerMode: Bool)
+    case modeSelection(Advertiser)
+    case streaming(Advertiser, isTimerMode: Bool)
 }
