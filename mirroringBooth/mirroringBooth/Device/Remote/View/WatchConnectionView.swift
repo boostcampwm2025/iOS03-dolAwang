@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct WatchConnectionView: View {
-
-    let store: WatchViewStore
+    @State private var store = WatchConnectionStore(connectionManager: WatchConnectionManager())
     @State private var spin = false
 
     var body: some View {

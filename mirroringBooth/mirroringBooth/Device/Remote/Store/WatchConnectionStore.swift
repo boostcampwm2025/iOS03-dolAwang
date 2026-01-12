@@ -1,5 +1,5 @@
 //
-//  WatchViewStore.swift
+//  WatchConnectionStore.swift
 //  mirroringBooth
 //
 //  Created by 최윤진 on 1/6/26.
@@ -8,24 +8,21 @@
 import Foundation
 
 @Observable
-final class WatchViewStore: StoreProtocol {
+final class WatchConnectionStore: StoreProtocol {
     struct State {
         var connectionState: ConnectionState = .notConnected
         var isReadyToCapture: Bool = false
-        var isConnecting: Bool = false
     }
 
     enum Intent {
         case tapRequestCapture
-        case tapDisconnect // TODO: 연결 끊기 버튼 추가 후 View에서 호출
-        case tapConnect
         case startConnecting
+        case disconnect
     }
 
     enum Result {
         case setConnectionState(ConnectionState)
         case setIsReadyToCapture(Bool)
-        case setIsConnecting(Bool)
     }
 
     private let connectionManager: WatchConnectionManager
@@ -57,11 +54,9 @@ final class WatchViewStore: StoreProtocol {
             Task {
                 await self.connectionManager.sendCaptureRequest()
             }
-        case .tapDisconnect:
+        case .disconnect:
             self.connectionManager.stop()
-            return [.setIsConnecting(false), .setConnectionState(.notConnected)]
-        case .tapConnect:
-            return [.setIsConnecting(true)]
+            return [.setConnectionState(.notConnected)]
         case .startConnecting:
             self.connectionManager.start()
         }
@@ -76,9 +71,6 @@ final class WatchViewStore: StoreProtocol {
 
         case .setIsReadyToCapture(let value):
             state.isReadyToCapture = value
-
-        case .setIsConnecting(let value):
-            state.isConnecting = value
         }
         self.state = state
     }
