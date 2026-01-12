@@ -52,28 +52,7 @@ final class BrowsingStore: StoreProtocol {
         self.watchConnectionManager = watchConnectionManager
 
         setupBrowser()
-
-        watchConnectionManager.onReachableChanged = { [weak self] state in
-            let watchDevice = NearbyDevice(
-                id: "나의 Apple Watch",
-                state: .notConnected,
-                type: .watch
-            )
-            if state {
-                self?.reduce(.addDiscoveredDevice(watchDevice))
-            } else {
-                self?.reduce(.removeDiscoveredDevice(watchDevice))
-            }
-        }
-
-        watchConnectionManager.onReceiveConnectionAck = { [weak self] in
-            let watchDevice = NearbyDevice(
-                id: "나의 Apple Watch",
-                state: .connected,
-                type: .watch
-            )
-            self?.reduce(.setRemoteDevice(watchDevice))
-        }
+        setupWatchConnectionManager()
     }
 
     private func setupBrowser() {
@@ -100,6 +79,30 @@ final class BrowsingStore: StoreProtocol {
 
         browser.onDeviceConnectionFailed = { [weak self] in
             self?.reduce(.setIsConnecting(false))
+        }
+    }
+
+    private func setupWatchConnectionManager() {
+        watchConnectionManager.onReachableChanged = { [weak self] state in
+            let watchDevice = NearbyDevice(
+                id: "나의 Apple Watch",
+                state: .notConnected,
+                type: .watch
+            )
+            if state {
+                self?.reduce(.addDiscoveredDevice(watchDevice))
+            } else {
+                self?.reduce(.removeDiscoveredDevice(watchDevice))
+            }
+        }
+
+        watchConnectionManager.onReceiveConnectionAck = { [weak self] in
+            let watchDevice = NearbyDevice(
+                id: "나의 Apple Watch",
+                state: .connected,
+                type: .watch
+            )
+            self?.reduce(.setRemoteDevice(watchDevice))
         }
     }
 
