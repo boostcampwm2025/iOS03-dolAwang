@@ -12,7 +12,7 @@ struct ConnectionCheckView: View {
     private let mirroringDevice: String
     private let remoteDevice: String?
     @State private var showPreview = false
-    @State private var cameraManager = CameraManager()
+    private let cameraManager = CameraManager()
 
     init(_ list: ConnectionList) {
         self.cameraDevice = list.cameraName
@@ -80,8 +80,10 @@ struct ConnectionCheckView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .fullScreenCover(isPresented: $showPreview) {
             CameraPreview(
-                manager: cameraManager,
-                device: mirroringDevice
+                store: CameraPreviewStore(
+                    manager: cameraManager,
+                    deviceName: mirroringDevice
+                )
             )
         }
     }

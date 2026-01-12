@@ -11,21 +11,12 @@ import SwiftUI
 
 struct CameraPreview: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var animation = false
-    @State private var buffer: CMSampleBuffer?
-    private let manager: CameraManager
-    private let device: String
-
-    init(manager: CameraManager, device: String) {
-        self.manager = manager
-        self.device = device
-        self.buffer = nil
-    }
+    @State var store: CameraPreviewStore
 
     var body: some View {
         ZStack(alignment: .top) {
             Color.black.ignoresSafeArea()
-            VideoDisplayLayer(buffer: buffer)
+            VideoDisplayLayer(buffer: store.state.buffer)
                 .aspectRatio(9/16, contentMode: .fit)
                 .overlay(alignment: .top) {
                     ZStack(alignment: .trailing) {
@@ -47,10 +38,10 @@ struct CameraPreview: View {
                     .padding()
             }
             .overlay(alignment: .bottom) {
-                Text("\(device) 연결됨")
+                Text("\(store.state.deviceName) 연결됨")
                     .foregroundStyle(Color.remote)
                     .font(.footnote.bold())
-                    .opacity(animation ? 1 : 0.4)
+                    .opacity(store.state.animationFlag ? 1 : 0.4)
                     .padding(.vertical, 2)
                     .padding(.horizontal, 10)
                     .background {
@@ -62,19 +53,15 @@ struct CameraPreview: View {
         }
         .onAppear {
             withAnimation(.linear(duration: 0.8).repeatForever(autoreverses: true)) {
-                animation = true
+                store.send(.startAnimation)
             }
-            manager.startSession()
-            manager.rawData = { buffer in
-                self.buffer = buffer
-            }
+            store.send(.startSession)
         }
     }
 
     private var exitButton: some View {
         Button {
-            manager.stopSession()
-//            decoder.stop()
+            store.send(.tapExitButton)
             dismiss()
         } label: {
             Image(systemName: "xmark")
