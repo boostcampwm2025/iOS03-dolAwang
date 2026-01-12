@@ -23,12 +23,6 @@ final class Advertiser: NSObject {
 
     let myDeviceName: String
 
-    /// 연결 콜백
-    var onConnected: (() -> Void)?
-
-    /// 연결 해제 콜백
-    var onDisconnected: (() -> Void)?
-
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
 
@@ -158,21 +152,7 @@ final class Advertiser: NSObject {
 // MARK: - Session Delegate
 extension Advertiser: MCSessionDelegate {
 
-    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-        let sessionType = session === commandSession ? "명령" : "스트림"
-        switch state {
-        case .connected:
-            onConnected?()
-            logger.info("✅ 세션 연결됨: \(peerID.displayName) (\(sessionType))")
-        case .notConnected:
-            onDisconnected?()
-            logger.info("세션 연결 해제: \(peerID.displayName) (\(sessionType))")
-        case .connecting:
-            logger.info("세션 연결 중: \(peerID.displayName) (\(sessionType))")
-        @unknown default:
-            break
-        }
-    }
+    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) { }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         if session === self.session {
@@ -277,9 +257,11 @@ extension Advertiser: MCNearbyServiceAdvertiserDelegate {
                     invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         guard let context,
               let type = String(data: context, encoding: .utf8) else {
+            logger.warning("초대 수신 실패: context 파싱 불가 - \(peerID.displayName)")
             invitationHandler(false, nil)
             return
         }
+
         logger.info("초대 수신: \(peerID.displayName)(타입: \(type))")
         if type == "streaming" {
             invitationHandler(true, session)
