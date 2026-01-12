@@ -44,6 +44,9 @@ final class Browser: NSObject {
     /// 현재 연결 시도 중인 리모트 디바이스 ID
     private var targetRemoteDeviceID: String?
 
+    /// command session 초대를 보류 중인 peer 정보
+    private var pendingCommandSessionInvite: (peer: MCPeerID, deviceID: String)?
+
     let myDeviceName: String
 
     var onDeviceFound: ((NearbyDevice) -> Void)?
@@ -123,27 +126,22 @@ final class Browser: NSObject {
         case .mirroring:
             targetMirroringDeviceID = deviceID
             targetSession = mirroringSession
+            // 명령 세션 초대는 미러링 세션 연결 후에 수행합니다.
+            pendingCommandSessionInvite = (peer, deviceID)
         case .remote:
             targetRemoteDeviceID = deviceID
             targetSession = remoteSession
         }
-        
+
         browser.invitePeer(
             peer,
             to: targetSession,
             withContext: SessionType.streaming.rawValue.data(using: .utf8),
             timeout: 10
         )
-        if useType == .mirroring {
-            browser.invitePeer(
-                peer,
-                to: mirroringCommandSession,
-                withContext: SessionType.command.rawValue.data(using: .utf8),
-                timeout: 10
-            )
-        }
         logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
     }
+
     /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.
     func sendStreamData(_ data: Data) {
         let connectedPeers = mirroringSession.connectedPeers
@@ -170,8 +168,7 @@ final class Browser: NSObject {
         let fileName = "\(photoID.uuidString).jpg"
 
         // 임시 파일 생성
-        let tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(fileName)
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
 
         do {
             try data.write(to: tempURL)
@@ -205,7 +202,7 @@ final class Browser: NSObject {
             logger.warning("명령 전송 실패: commandSession에 연결된 피어가 없습니다")
             return
         }
-        
+
         do {
             try mirroringCommandSession.send(
                 data,
@@ -313,10 +310,26 @@ extension Browser: MCSessionDelegate {
         switch state {
         case .connected:
             onDeviceConnected?(device)
+
+            // 미러링 세션이 연결되면 명령 세션을 초대합니다.
+            if isMirroringTarget,
+               let pending = pendingCommandSessionInvite,
+               pending.deviceID == peerID.displayName {
+                logger.info("미러링 세션 연결 완료, command 세션 초대 시작")
+                browser.invitePeer(
+                    pending.peer,
+                    to: mirroringCommandSession,
+                    withContext: SessionType.command.rawValue.data(using: .utf8),
+                    timeout: 10
+                )
+                pendingCommandSessionInvite = nil
+            }
+
         case .notConnected:
             onDeviceConnectionFailed?()
             if isMirroringTarget || isMirroringCommandTarget {
                 targetMirroringDeviceID = nil
+                pendingCommandSessionInvite = nil
             }
             if isRemoteTarget {
                 targetRemoteDeviceID = nil
