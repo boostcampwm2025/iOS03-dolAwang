@@ -21,12 +21,6 @@ final class Browser: NSObject {
         case command
     }
 
-    // CommandSession 분리 방식
-    // enum DataType: UInt8 {
-    //     case stream = 0x01
-    //     case command = 0x02
-    // }
-
     private let logger = Logger.browser
 
     private let serviceType: String
