@@ -79,8 +79,10 @@ struct ConnectionCheckView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .fullScreenCover(isPresented: $showPreview) {
-            CameraPreview(device: mirroringDevice)
-                .environment(cameraManager)
+            CameraPreview(
+                manager: cameraManager,
+                device: mirroringDevice
+            )
         }
     }
 }

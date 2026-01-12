@@ -10,7 +10,6 @@ import Observation
 import OSLog
 import UIKit
 
-@Observable
 final class CameraManager: NSObject {
     private let logger = Logger.cameraManager
 
@@ -23,6 +22,9 @@ final class CameraManager: NSObject {
     private var photoOutput = AVCapturePhotoOutput()
 
     private let encoder = H264Encoder()
+
+    /// 원시 데이터 콜백
+    var rawData: ((CMSampleBuffer) -> Void)?
 
     /// 인코딩된 데이터 콜백
     var onEncodedData: ((Data) -> Void)? {
@@ -136,6 +138,7 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         from connection: AVCaptureConnection
     ) {
         // 프레임 캡처 성공
+        rawData?(sampleBuffer)
         encoder.encode(sampleBuffer)
     }
 

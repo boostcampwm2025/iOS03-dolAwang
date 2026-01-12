@@ -10,16 +10,22 @@ import Combine
 import SwiftUI
 
 struct CameraPreview: View {
-    let device: String
     @Environment(\.dismiss) private var dismiss
-    @Environment(CameraManager.self) var manager
-    @State private var decoder = H264Decoder()
     @State private var animation = false
+    @State private var buffer: CMSampleBuffer?
+    private let manager: CameraManager
+    private let device: String
+
+    init(manager: CameraManager, device: String) {
+        self.manager = manager
+        self.device = device
+        self.buffer = nil
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
             Color.black.ignoresSafeArea()
-            VideoDisplayLayer(decoder: decoder)
+            VideoDisplayLayer(buffer: buffer)
                 .aspectRatio(9/16, contentMode: .fit)
                 .overlay(alignment: .top) {
                     ZStack(alignment: .trailing) {
@@ -59,8 +65,8 @@ struct CameraPreview: View {
                 animation = true
             }
             manager.startSession()
-            manager.onEncodedData = { data in
-                decoder.decode(data)
+            manager.rawData = { buffer in
+                self.buffer = buffer
             }
         }
     }
@@ -68,7 +74,7 @@ struct CameraPreview: View {
     private var exitButton: some View {
         Button {
             manager.stopSession()
-            decoder.stop()
+//            decoder.stop()
             dismiss()
         } label: {
             Image(systemName: "xmark")
@@ -84,21 +90,15 @@ struct CameraPreview: View {
 }
 
 private struct VideoDisplayLayer: UIViewRepresentable {
-    let decoder: H264Decoder
+    let buffer: CMSampleBuffer?
 
     func makeUIView(context: Context) -> DisplayView {
-        let view = DisplayView()
-        context.coordinator.displayLayer = view.displayLayer
-        context.coordinator.setupDecoder(decoder)
-        return view
+        return DisplayView()
     }
 
     func updateUIView(_ uiView: DisplayView, context: Context) {
-        // 레이어 프레임은 layoutSubviews에서 자동 처리됨
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
+        guard let buffer = buffer else { return }
+        uiView.enqueue(buffer)
     }
 
     /// AVSampleBufferDisplayLayer를 layer로 사용하는 UIView
@@ -123,26 +123,16 @@ private struct VideoDisplayLayer: UIViewRepresentable {
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
-    }
 
-    class Coordinator {
-        var displayLayer: AVSampleBufferDisplayLayer?
+        func enqueue(_ buffer: CMSampleBuffer) {
+            let displayLayer: AVSampleBufferDisplayLayer = self.displayLayer
 
-        func setupDecoder(_ decoder: H264Decoder) {
-            decoder.onDecodedSampleBuffer = { [weak self] sampleBuffer in
-                DispatchQueue.main.async {
-                    guard let layer = self?.displayLayer else { return }
-
-                    // 에러 상태면 flush 후 재시도
-                    if layer.status == .failed {
-                        layer.flush()
-                    }
-
-                    if layer.isReadyForMoreMediaData {
-                        layer.enqueue(sampleBuffer)
-                    }
-                }
+            if displayLayer.status == .failed {
+                displayLayer.flush()
             }
+
+            guard displayLayer.isReadyForMoreMediaData else { return }
+            displayLayer.enqueue(buffer)
         }
     }
 }
