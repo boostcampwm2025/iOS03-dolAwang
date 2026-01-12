@@ -22,7 +22,7 @@ final class CameraManager: NSObject {
     private var videoOutput: AVCaptureVideoDataOutput?
     private var photoOutput = AVCapturePhotoOutput()
 
-    private let encoder = H264Encoder(resolution: .portraitHD1080p)
+    private let encoder: H264Encoder
 
     /// 인코딩된 데이터 콜백
     var onEncodedData: ((Data) -> Void)? {
@@ -44,6 +44,11 @@ final class CameraManager: NSObject {
 
     // 현재 전송 진행 상황
     var transferProgress: (current: Int, total: Int) = (0, 0)
+
+    init(encoder: H264Encoder) {
+        self.encoder = encoder
+        super.init()
+    }
 
     /// Session을 시작합니다.
     func startSession() {

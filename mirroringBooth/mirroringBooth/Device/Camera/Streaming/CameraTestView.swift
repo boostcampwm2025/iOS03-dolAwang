@@ -5,15 +5,19 @@
 //  Created by 윤대현 on 1/8/26.
 //
 
-// MARK: - 임시 카메라 프리뷰
 import AVFoundation
 import SwiftUI
 
-// 임시 카메라 프리뷰
+/// 임시 카메라 프리뷰입니다.
 struct CameraTestView: View {
     let browser: Browser
-    @State private var cameraManager = CameraManager()
+    @State private var cameraManager: CameraManager
     @State private var isTransferring = false
+
+    init(browser: Browser, encoder: H264Encoder = H264Encoder(resolution: .portraitHD1080p)) {
+        self.browser = browser
+        _cameraManager = State(initialValue: CameraManager(encoder: encoder))
+    }
 
     var body: some View {
         ZStack {
