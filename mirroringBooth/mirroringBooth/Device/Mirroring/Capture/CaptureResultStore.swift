@@ -11,7 +11,7 @@ import Foundation
 final class CaptureResultStore: StoreProtocol {
     struct State {
         var photos: [Photo] = []
-        var maxSelection: Int
+        var maxSelection: Int = 0
         var currentSelectionCount: Int = 0
     }
 
@@ -29,7 +29,7 @@ final class CaptureResultStore: StoreProtocol {
         case decreaseSelectionCount
     }
 
-    var state: State = .init(maxSelection: 4)
+    var state: State = .init()
     let advertiser: Advertisier
 
     init(advertiser: Advertisier) {
