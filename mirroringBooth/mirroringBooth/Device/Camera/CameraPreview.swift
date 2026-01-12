@@ -21,24 +21,24 @@ struct CameraPreview: View {
             Color.black.ignoresSafeArea()
             VideoDisplayLayer(decoder: decoder)
                 .aspectRatio(9/16, contentMode: .fit)
-            .overlay(alignment: .top) {
-                ZStack(alignment: .trailing) {
-                    HStack {
-                        Spacer()
-                        Text("LIVE")
-                            .foregroundStyle(.orange)
-                            .font(.footnote.bold())
-                            .padding(.vertical, 2)
-                            .padding(.horizontal, 10)
-                            .background {
-                                Capsule()
-                                    .fill(Color.black.opacity(0.5))
-                            }
-                        Spacer()
+                .overlay(alignment: .top) {
+                    ZStack(alignment: .trailing) {
+                        HStack {
+                            Spacer()
+                            Text("LIVE")
+                                .foregroundStyle(.orange)
+                                .font(.footnote.bold())
+                                .padding(.vertical, 2)
+                                .padding(.horizontal, 10)
+                                .background {
+                                    Capsule()
+                                        .fill(Color.black.opacity(0.5))
+                                }
+                            Spacer()
+                        }
+                        exitButton
                     }
-                    exitButton
-                }
-                .padding()
+                    .padding()
             }
             .overlay(alignment: .bottom) {
                 Text("\(device) 연결됨")
