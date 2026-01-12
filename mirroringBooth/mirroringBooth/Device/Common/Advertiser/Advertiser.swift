@@ -62,15 +62,15 @@ final class Advertiser: NSObject {
         )
 
         let myDeviceType: String = {
-#if os(iOS)
+        #if os(iOS)
             if UIDevice.current.userInterfaceIdiom == .phone { return "iPhone" }
             if UIDevice.current.userInterfaceIdiom == .pad { return "iPad" }
             return "iOS"
-#elseif os(macOS)
+        #elseif os(macOS)
             return "Mac"
-#else
+        #else
             return "Unknown"
-#endif
+        #endif
         }()
 
         self.advertiser = MCNearbyServiceAdvertiser(
