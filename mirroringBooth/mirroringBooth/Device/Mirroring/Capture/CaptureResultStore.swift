@@ -57,11 +57,12 @@ final class CaptureResultStore: StoreProtocol {
         case let .selectPhoto(index):
             state.photos[index].selectNumber = state.currentSelectionCount + 1
         case let .deselectPhoto(index):
-            guard let number = self.state.photos[index].selectNumber else { return }
-            state.photos[index].selectNumber = nil
-            for (index, photo) in self.state.photos.enumerated() {
+            var copyState = self.state
+            guard let number = copyState.photos[index].selectNumber else { return }
+            copyState.photos[index].selectNumber = nil
+            for (index, photo) in copyState.photos.enumerated() {
                 if let iterator = photo.selectNumber, iterator > number {
-                    state.photos[index].selectNumber = iterator - 1
+                    copyState.photos[index].selectNumber = iterator - 1
                 }
             }
         case .increaseSelectionCount:
