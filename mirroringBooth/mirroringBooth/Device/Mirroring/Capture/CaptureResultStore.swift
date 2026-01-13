@@ -13,7 +13,7 @@ final class CaptureResultStore: StoreProtocol {
     struct State {
         var photos: [Photo] = []
         var selectedPhotos: [Photo] = []
-        var maxSelection: Int
+        var maxSelection: Int = 0
         var currentSelectionCount: Int = 0
         var layoutRowCount: Int = 0
         var layoutColumnCount: Int = 0
@@ -35,7 +35,7 @@ final class CaptureResultStore: StoreProtocol {
         case setLayout(Int, Int, Color)
     }
 
-    var state: State = .init(maxSelection: 4)
+    var state: State = .init()
     let advertiser: Advertisier
 
     init(advertiser: Advertisier) {
@@ -71,14 +71,16 @@ final class CaptureResultStore: StoreProtocol {
             state.photos[index].selectNumber = state.currentSelectionCount + 1
             state.selectedPhotos.append(state.photos[index])
         case let .deselectPhoto(index):
-            guard let number = self.state.photos[index].selectNumber else { return }
-            state.photos[index].selectNumber = nil
-            state.selectedPhotos.remove(at: number - 1)
-            for (index, photo) in self.state.photos.enumerated() {
+            var copyState = self.state
+            guard let number = copyState.photos[index].selectNumber else { return }
+            copyState.photos[index].selectNumber = nil
+            copyState.selectedPhotos.remove(at: number - 1)
+            for (index, photo) in copyState.photos.enumerated() {
                 if let iterator = photo.selectNumber, iterator > number {
-                    state.photos[index].selectNumber = iterator - 1
+                    copyState.photos[index].selectNumber = iterator - 1
                 }
             }
+            state = copyState
         case .increaseSelectionCount:
             state.currentSelectionCount += 1
         case .decreaseSelectionCount:
