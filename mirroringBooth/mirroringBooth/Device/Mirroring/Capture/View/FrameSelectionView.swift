@@ -11,8 +11,8 @@ struct FrameSelectionView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
     let store: CaptureResultStore
-    @State private var rows: Int = 0
-    @State private var columns: Int = 0
+    @State private var rows: Int = 1
+    @State private var columns: Int = 1
     @State private var frameColor: Color = .black
 
     var body: some View {
