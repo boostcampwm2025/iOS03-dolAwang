@@ -11,55 +11,6 @@
 		DF40C6B62F0E079500D116A3 /* mirroringBoothWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = DF40C6AC2F0E079400D116A3 /* mirroringBoothWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
-/* Begin PBXFileReference section */
-		8C796EAA2EF52FB200280FED /* mirroringBooth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mirroringBooth.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D771C9762F0BB448004285EA /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
-		DF40C6AC2F0E079400D116A3 /* mirroringBoothWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mirroringBoothWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
-/* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D7DCC4DC2F017DCC004D1EDA /* Exceptions for "mirroringBooth" folder in "mirroringBooth" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				App/Info.plist,
-				Device/Remote/App/Assets.xcassets,
-				Device/Remote/App/mirroringBoothWatchApp.swift,
-				Device/Remote/Store/WatchViewStore.swift,
-				Device/Remote/View/WatchView.swift,
-				"Device/Remote/WatchKitView+.swift",
-			);
-			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
-		};
-		DF40C6CB2F0E256D00D116A3 /* Exceptions for "mirroringBooth" folder in "mirroringBoothWatch" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Core/AppLogger.swift,
-				Core/StoreProtocol.swift,
-				Device/Common/Component/CaptureButton.swift,
-				Device/Common/Model/ConnectionState.swift,
-				Device/Remote/App/Assets.xcassets,
-				Device/Remote/App/mirroringBoothWatchApp.swift,
-				"Device/Remote/Connection/WatchConnectionManger+watchOS.swift",
-				Device/Remote/Store/WatchViewStore.swift,
-				Device/Remote/View/WatchView.swift,
-				"Device/Remote/WatchKitView+.swift",
-			);
-			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		8C796EAC2EF52FB200280FED /* mirroringBooth */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				D7DCC4DC2F017DCC004D1EDA /* Exceptions for "mirroringBooth" folder in "mirroringBooth" target */,
-				DF40C6CB2F0E256D00D116A3 /* Exceptions for "mirroringBooth" folder in "mirroringBoothWatch" target */,
-			);
-			path = mirroringBooth;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
-
 /* Begin PBXContainerItemProxy section */
 		DF40C6B42F0E079500D116A3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -83,6 +34,56 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8C796EAA2EF52FB200280FED /* mirroringBooth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mirroringBooth.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D771C9762F0BB448004285EA /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
+		DF40C6AC2F0E079400D116A3 /* mirroringBoothWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mirroringBoothWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D7DCC4DC2F017DCC004D1EDA /* Exceptions for "mirroringBooth" folder in "mirroringBooth" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				App/Info.plist,
+				Device/Remote/App/Assets.xcassets,
+				Device/Remote/App/mirroringBoothWatchApp.swift,
+				Device/Remote/Store/WatchViewStore.swift,
+				"Device/Remote/WatchKitView+.swift",
+				Device/Remote/WatchView.swift,
+			);
+			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
+		};
+		DF40C6CB2F0E256D00D116A3 /* Exceptions for "mirroringBooth" folder in "mirroringBoothWatch" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/AppLogger.swift,
+				Core/StoreProtocol.swift,
+				Device/Common/Model/ConnectionState.swift,
+				Device/Remote/App/Assets.xcassets,
+				Device/Remote/App/mirroringBoothWatchApp.swift,
+				Device/Remote/CaptureButton.swift,
+				Device/Remote/CompletionView.swift,
+				"Device/Remote/Connection/WatchConnectionManger+watchOS.swift",
+				Device/Remote/Store/WatchViewStore.swift,
+				"Device/Remote/WatchKitView+.swift",
+				Device/Remote/WatchView.swift,
+			);
+			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		8C796EAC2EF52FB200280FED /* mirroringBooth */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D7DCC4DC2F017DCC004D1EDA /* Exceptions for "mirroringBooth" folder in "mirroringBooth" target */,
+				DF40C6CB2F0E256D00D116A3 /* Exceptions for "mirroringBooth" folder in "mirroringBoothWatch" target */,
+			);
+			path = mirroringBooth;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8C796EA72EF52FB200280FED /* Frameworks */ = {
