@@ -26,7 +26,10 @@ struct BrowsingReconnectionView: View {
 
     var body: some View {
         ZStack {
-            SearchingBackground(color: isAllConnected ? .green : .red)
+            AnimatedCircle(
+                color: isAllConnected ? .green : .red,
+                animationTrigger: store.state.animationTrigger
+            )
 
             if store.state.isConnecting {
                 ProgressView()
@@ -95,4 +98,8 @@ struct BrowsingReconnectionView: View {
         }
         return nil
     }
+}
+
+#Preview {
+    BrowsingReconnectionView(reconnectionType: .mirroringOnly, store: BrowsingStore(Browser(), WatchConnectionManager()))
 }
