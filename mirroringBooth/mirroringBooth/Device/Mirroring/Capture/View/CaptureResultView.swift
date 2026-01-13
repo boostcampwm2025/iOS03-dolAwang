@@ -23,7 +23,7 @@ struct CaptureResultView: View {
                         Divider()
                             .background(.primary)
 
-                        GeometryReader { remainGeometry in
+                        GeometryReader { _ in
                             HStack {
                                 if store.state.layoutRowCount != 0
                                     && store.state.layoutColumnCount != 0 {
