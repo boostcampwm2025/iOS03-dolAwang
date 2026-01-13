@@ -24,7 +24,7 @@ struct FrameSelectionView: View {
             )
 
             Divider()
-                .background(Color.primary)
+                .background(Color.main)
 
             VStack {
                 if horizontalSizeClass == .compact

@@ -21,7 +21,7 @@ struct CaptureResultView: View {
                         PhotoGridView(store: store)
 
                         Divider()
-                            .background(.primary)
+                            .background(.main)
 
                         GeometryReader { _ in
                             HStack {
@@ -41,7 +41,7 @@ struct CaptureResultView: View {
                                 }
 
                                 Divider()
-                                    .background(.primary)
+                                    .background(.main)
 
                                 FrameSelectionView(store: store)
                                     .padding(.bottom, 16)
@@ -56,7 +56,7 @@ struct CaptureResultView: View {
                         PhotoGridView(store: store)
 
                         Divider()
-                            .background(.primary)
+                            .background(.main)
 
                         VStack {
                             if store.state.layoutRowCount != 0
