@@ -24,7 +24,9 @@
 				App/Info.plist,
 				Device/Remote/App/Assets.xcassets,
 				Device/Remote/App/mirroringBoothWatchApp.swift,
-				Device/Remote/Store/WatchViewStore.swift,
+				Device/Remote/Store/WatchConnectionStore.swift,
+				Device/Remote/View/WatchConnectionButton.swift,
+				Device/Remote/View/WatchConnectionView.swift,
 				Device/Remote/View/WatchView.swift,
 				"Device/Remote/WatchKitView+.swift",
 			);
@@ -40,7 +42,9 @@
 				Device/Remote/App/Assets.xcassets,
 				Device/Remote/App/mirroringBoothWatchApp.swift,
 				"Device/Remote/Connection/WatchConnectionManger+watchOS.swift",
-				Device/Remote/Store/WatchViewStore.swift,
+				Device/Remote/Store/WatchConnectionStore.swift,
+				Device/Remote/View/WatchConnectionButton.swift,
+				Device/Remote/View/WatchConnectionView.swift,
 				Device/Remote/View/WatchView.swift,
 				"Device/Remote/WatchKitView+.swift",
 			);
@@ -475,6 +479,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B3PWYBKFUK;
@@ -491,6 +496,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.codesquad.boostcamp10.dolAwang.mirroringBooth.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -509,6 +515,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B3PWYBKFUK;
@@ -525,6 +532,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.codesquad.boostcamp10.dolAwang.mirroringBooth.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
