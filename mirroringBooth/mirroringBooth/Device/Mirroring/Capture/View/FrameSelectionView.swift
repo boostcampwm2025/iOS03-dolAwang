@@ -46,10 +46,10 @@ struct FrameSelectionView: View {
                     .padding()
                 } else {
                     VStack {
-                        FrameColorButtonView(action: {
+                        FrameColorButton(action: {
                             frameColor = .black
                         }, color: .black, description: "Basic Black")
-                        FrameColorButtonView(action: {
+                        FrameColorButton(action: {
                             frameColor = .white
                         }, color: .white, description: "Basic White")
                     }
@@ -92,90 +92,50 @@ private struct LayoutButtonView: View {
 
     var body: some View {
         HStack {
-            Button {
-                rows = 1
-                columns = 1
-            } label: {
-                VStack {
-                    if horizontalSizeClass != .compact {
-                        Image(systemName: "square.fill")
-                            .resizable()
-                            .aspectRatio(1, contentMode: .fit)
-                        Text("1x1")
-                    } else {
-                        SimpleLayoutButtonView(text: "1x1")
-                    }
-                }
-            }
+            LayoutButton(
+                rows: $rows,
+                columns: $columns,
+                image: "square.fill",
+                row: 1,
+                column: 1
+            )
 
-            Button {
-                rows = 1
-                columns = 2
-            } label: {
-                VStack {
-                    if horizontalSizeClass != .compact {
-                        Image(systemName: "rectangle.split.2x1.fill")
-                            .resizable()
-                            .aspectRatio(1, contentMode: .fit)
-                        Text("1x2")
-                    } else {
-                        SimpleLayoutButtonView(text: "1x2")
-                    }
-                }
-            }
+            LayoutButton(
+                rows: $rows,
+                columns: $columns,
+                image: "rectangle.split.2x1.fill",
+                row: 2,
+                column: 1
+            )
 
-            Button {
-                rows = 1
-                columns = 3
-            } label: {
-                VStack {
-                    if horizontalSizeClass != .compact {
-                        Image(systemName: "rectangle.grid.1x3.fill")
-                            .resizable()
-                            .aspectRatio(1, contentMode: .fit)
-                        Text("1x3")
-                    } else {
-                        SimpleLayoutButtonView(text: "1x3")
-                    }
-                }
-            }
+            LayoutButton(
+                rows: $rows,
+                columns: $columns,
+                image: "rectangle.grid.1x3.fill",
+                row: 1,
+                column: 3
+            )
 
-            Button {
-                rows = 2
-                columns = 2
-            } label: {
-                VStack {
-                    if horizontalSizeClass != .compact {
-                        Image(systemName: "rectangle.split.2x2.fill")
-                            .resizable()
-                            .aspectRatio(1, contentMode: .fit)
-                        Text("2x2")
-                    } else {
-                        SimpleLayoutButtonView(text: "2x2")
-                    }
-                }
-            }
+            LayoutButton(
+                rows: $rows,
+                columns: $columns,
+                image: "rectangle.split.2x2.fill",
+                row: 2,
+                column: 2
+            )
 
-            Button {
-                rows = 2
-                columns = 3
-            } label: {
-                VStack {
-                    if horizontalSizeClass != .compact {
-                        Image(systemName: "square.grid.3x2.fill")
-                            .resizable()
-                            .aspectRatio(1, contentMode: .fit)
-                        Text("2x3")
-                    } else {
-                        SimpleLayoutButtonView(text: "2x3")
-                    }
-                }
-            }
+            LayoutButton(
+                rows: $rows,
+                columns: $columns,
+                image: "square.grid.3x2.fill",
+                row: 3,
+                column: 2
+            )
         }
     }
 }
 
-private struct FrameColorButtonView: View {
+private struct FrameColorButton: View {
     let action: () -> Void
     let color: Color
     let description: String
@@ -217,6 +177,41 @@ private struct SimpleColorButton: View {
                         .stroke(Color.primary, lineWidth: 1)
                 }
                 .aspectRatio(1, contentMode: .fit)
+        }
+    }
+}
+
+private struct LayoutButton: View {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Binding var rows: Int
+    @Binding var columns: Int
+    let image: String
+    let row: Int
+    let column: Int
+    var text: String { "\(row)x\(column)" }
+
+    var body: some View {
+        Button {
+            rows = row
+            columns = column
+        } label: {
+            VStack {
+                if horizontalSizeClass != .compact {
+                    Image(systemName: image)
+                        .resizable()
+                        .aspectRatio(1, contentMode: .fit)
+                        .padding()
+                    Text(text)
+                } else {
+                    SimpleLayoutButtonView(text: text)
+                }
+            }
+            .foregroundStyle(Color.secondary)
+            .background {
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(.primary, lineWidth: 1)
+                    .foregroundStyle(Color.secondary)
+            }
         }
     }
 }
