@@ -38,9 +38,6 @@ final class Browser: NSObject {
     /// 현재 연결 시도 중인 리모트 디바이스 ID
     private var targetRemoteDeviceID: String?
 
-    /// command session 초대를 보류 중인 peer 정보
-    private var pendingCommandSessionInvite: (peer: MCPeerID, deviceID: String)?
-
     let myDeviceName: String
 
     var onDeviceFound: ((NearbyDevice) -> Void)?
@@ -120,8 +117,6 @@ final class Browser: NSObject {
         case .mirroring:
             targetMirroringDeviceID = deviceID
             targetSession = mirroringSession
-            // 명령 세션 초대는 미러링 세션 연결 후에 수행합니다.
-            pendingCommandSessionInvite = (peer, deviceID)
         case .remote:
             targetRemoteDeviceID = deviceID
             targetSession = remoteSession
@@ -306,24 +301,20 @@ extension Browser: MCSessionDelegate {
             onDeviceConnected?(device)
 
             // 미러링 세션이 연결되면 명령 세션을 초대합니다.
-            if isMirroringTarget,
-               let pending = pendingCommandSessionInvite,
-               pending.deviceID == peerID.displayName {
+            if isMirroringTarget {
                 logger.info("미러링 세션 연결 완료, command 세션 초대 시작")
                 browser.invitePeer(
-                    pending.peer,
+                    peerID,
                     to: mirroringCommandSession,
                     withContext: SessionType.command.rawValue.data(using: .utf8),
                     timeout: 10
                 )
-                pendingCommandSessionInvite = nil
             }
 
         case .notConnected:
             onDeviceConnectionFailed?()
             if isMirroringTarget || isMirroringCommandTarget {
                 targetMirroringDeviceID = nil
-                pendingCommandSessionInvite = nil
             }
             if isRemoteTarget {
                 targetRemoteDeviceID = nil
