@@ -103,46 +103,48 @@ struct StreamingView: View {
             let layoutType = StreamingLayoutType(width: screenWidth)
             let isShooting = isTimerMode && store.state.timerPhase == .shooting
 
-            VStack {
-                HStack(alignment: .top) {
-                    if layoutType == .compact {
-                        // 뱃지를 세로로 배치
-                        VStack(alignment: .leading, spacing: 8) {
-                            badgeGroup(isCompact: true)
+            ZStack {
+                VStack {
+                    HStack(alignment: .top) {
+                        if layoutType == .compact {
+                            // 뱃지를 세로로 배치
+                            VStack(alignment: .leading, spacing: 8) {
+                                badgeGroup(isCompact: true)
+                            }
+                        } else {
+                            badgeGroup(isCompact: false)
                         }
-                    } else {
-                        badgeGroup(isCompact: false)
-                    }
 
-                    // large는 좌우측 뱃지 기준 중앙에 배치
-                    if layoutType == .large && isShooting {
-                        Spacer()
-                        ShootingProgressBadge(countdown: store.state.shootingCountdown)
-                        Spacer()
-                    } else {
                         Spacer() // medium, compact는 Spacer로 우측 정렬
-                    }
 
-                    VStack(alignment: .trailing, spacing: 0) {
-                        CaptureCountBadge(
-                            current: store.state.captureCount,
-                            total: store.state.totalCaptureCount,
-                            isCompact: layoutType == .compact
-                        )
+                        VStack(alignment: .trailing, spacing: 0) {
+                            CaptureCountBadge(
+                                current: store.state.captureCount,
+                                total: store.state.totalCaptureCount,
+                                isCompact: layoutType == .compact
+                            )
 
-                        if (layoutType == .medium || layoutType == .compact) && isShooting {
-                            if layoutType == .compact {
-                                ProgressIndicator(countdown: store.state.shootingCountdown)
-                                    .padding(.top, 16)
-                            } else {
-                                ShootingProgressBadge(countdown: store.state.shootingCountdown)
-                                    .padding(.top, 16)
+                            if (layoutType == .medium || layoutType == .compact) && isShooting {
+                                if layoutType == .compact {
+                                    ProgressIndicator(countdown: store.state.shootingCountdown)
+                                        .padding(.top, 16)
+                                } else {
+                                    ShootingProgressBadge(countdown: store.state.shootingCountdown)
+                                        .padding(.top, 16)
+                                }
                             }
                         }
                     }
+                    Spacer()
                 }
 
-                Spacer()
+                if layoutType == .large && isShooting {
+                    VStack {
+                        ShootingProgressBadge(countdown: store.state.shootingCountdown)
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                }
             }
             .padding(16)
         }
