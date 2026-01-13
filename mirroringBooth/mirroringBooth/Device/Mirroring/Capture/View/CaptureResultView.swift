@@ -176,7 +176,9 @@ private struct PhotoGridView: View {
     }
 
     private func calculateRows(width: CGFloat, height: CGFloat) -> Int {
-        if width > height { return 2 }
+        // 세로모드일 경우 2줄 배치
+        if !UIDevice.current.orientation.isLandscape { return 2 }
+        // 이외의 경우 최소 Height를 유지하는 선에서 최대 4줄 배치
         let minItemHeight: CGFloat = 110
         let spacing: CGFloat = 20
         let targetRows = min(Int((height + spacing) / (minItemHeight + spacing)), 4)
