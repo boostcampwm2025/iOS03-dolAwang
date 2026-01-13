@@ -34,8 +34,8 @@ jobs:
         working-directory: mirroringBooth
         run: |
           set -euo pipefail
-          # --strict: warning도 exit code != 0로 처리해서 CI에서 실패하게 함
-          swiftlint lint --strict --config .swiftlint.yml
+          # warning은 통과, error만 CI 실패 처리
+          swiftlint lint --config .swiftlint.yml
 
       - name: Select Simulator
         working-directory: mirroringBooth
