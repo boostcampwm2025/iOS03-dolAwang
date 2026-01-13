@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build (iOS + watchOS)
+    name: "Build (iOS + watchOS)"
     runs-on: macos-latest
 
     strategy:
