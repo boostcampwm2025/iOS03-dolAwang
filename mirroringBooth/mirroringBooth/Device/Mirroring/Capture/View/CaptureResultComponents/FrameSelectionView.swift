@@ -47,11 +47,11 @@ private extension FrameSelectionView {
             )
             .font(isRegularSize ? .callout.bold() : .caption.bold())
             .foregroundStyle(.primary)
-            
+
             LayoutButtonView(rows: $rows, columns: $columns, frameColor: $frameColor)
         }
     }
-    
+
     var frameSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             if isRegularSize {
@@ -59,7 +59,7 @@ private extension FrameSelectionView {
                     .font(.callout.bold())
                     .foregroundStyle(.primary)
             }
-            
+
             if isRegularSize {
                 VStack {
                     frameColorButton(with: .black, description: "Basic Black") {
@@ -81,7 +81,7 @@ private extension FrameSelectionView {
             }
         }
     }
-    
+
     var completeButton: some View {
         Button {
             // TODO: 완료 버튼 액션
@@ -97,19 +97,19 @@ private extension FrameSelectionView {
                 }
         }
     }
-    
+
     struct LayoutButtonView: View {
         @Environment(\.horizontalSizeClass) var horizontalSizeClass
         @Binding var rows: Int
         @Binding var columns: Int
         @Binding var frameColor: Color
-        
+
         private var isCompact: Bool {
             UIDevice.current.userInterfaceIdiom == .phone
             && UIScreen.main.bounds.width < UIScreen.main.bounds.height
         }
         private let gridItems = Array(repeating: GridItem(.flexible()), count: 3)
-        
+
         var body: some View {
             if isCompact {
                 VStack {
@@ -125,7 +125,7 @@ private extension FrameSelectionView {
                 .padding(.horizontal)
             }
         }
-        
+
         private var button1x1: some View {
             LayoutButton(
                 rows: $rows,
@@ -134,7 +134,7 @@ private extension FrameSelectionView {
                 column: 1
             )
         }
-        
+
         private var button1x2: some View {
             LayoutButton(
                 rows: $rows,
@@ -143,7 +143,7 @@ private extension FrameSelectionView {
                 column: 2
             )
         }
-        
+
         private var button3x1: some View {
             LayoutButton(
                 rows: $rows,
@@ -152,7 +152,7 @@ private extension FrameSelectionView {
                 column: 1
             )
         }
-        
+
         private var button2x2: some View {
             LayoutButton(
                 rows: $rows,
@@ -161,7 +161,7 @@ private extension FrameSelectionView {
                 column: 2
             )
         }
-        
+
         private var button2x3: some View {
             LayoutButton(
                 rows: $rows,
@@ -171,7 +171,7 @@ private extension FrameSelectionView {
             )
         }
     }
-    
+
     func frameColorButton(
         with color: Color,
         description: String,
@@ -179,12 +179,12 @@ private extension FrameSelectionView {
     ) -> some View {
         Button(action: action) {
             HStack {
-                colorBox(with:color)
+                colorBox(with: color)
                     .padding()
-                
+
                 Text(description)
                     .foregroundStyle(Color.primary)
-                
+
                 Spacer()
             }
             .frame(maxWidth: .infinity)
@@ -195,24 +195,24 @@ private extension FrameSelectionView {
             }
         }
     }
-    
+
     func simpleColorButton(with color: Color, _ action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            colorBox(with:color)
+            colorBox(with: color)
                 .overlay {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.primary, lineWidth: 1)
                 }
         }
     }
-    
-    func colorBox(with: color: Color) -> some View {
+
+    func colorBox(with color: Color) -> some View {
         RoundedRectangle(cornerRadius: 8)
             .frame(width: 30, height: 30)
             .foregroundStyle(color)
             .aspectRatio(1, contentMode: .fit)
     }
-    
+
     struct LayoutButton: View {
         @Binding var rows: Int
         @Binding var columns: Int
@@ -221,7 +221,7 @@ private extension FrameSelectionView {
         var imageName: String {
             "layout\(row)x\(column)"
         }
-        
+
         var body: some View {
             Button {
                 rows = row
