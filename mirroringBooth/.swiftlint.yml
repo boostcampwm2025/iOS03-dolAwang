@@ -22,4 +22,3 @@ line_length:
 # 비활성화 규칙
 disabled_rules:
   - nesting
-  - todo
