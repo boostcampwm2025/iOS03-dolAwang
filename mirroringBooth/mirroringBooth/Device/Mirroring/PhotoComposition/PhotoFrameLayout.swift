@@ -8,84 +8,91 @@
 import CoreGraphics
 
 enum PhotoFrameLayout: CaseIterable, Identifiable {
-    case oneByOne, twoByOne, fourByOne, twoByTwo, twoByThree
+    case twoByTwo, oneByOne, twoByOne, fourByOne, threeByTwo
 
     var id: Self { self }
 
-    var capacity: Int {
+    /// 프레임 스펙
+    struct Spec {
+        let size: CGSize   // 레이아웃 비율의 기준
+        let slotFrame: [CGRect] // 슬롯 픽셀 rect
+        var aspect: CGFloat { size.width / max(size.height, 1) }
+    }
+
+    var spec: Spec {
         switch self {
-        case .oneByOne: return 1
-        case .twoByOne: return 2
-        case .fourByOne: return 4
-        case .twoByTwo: return 4
-        case .twoByThree: return 6
+        case .twoByTwo:
+            return .init(
+                size: CGSize(width: 186, height: 270),
+                slotFrame: [
+                    CGRect(x: 10, y: 13, width: 80, height: 110),
+                    CGRect(x: 96, y: 13, width: 80, height: 110),
+                    CGRect(x: 10, y: 129, width: 80, height: 110),
+                    CGRect(x: 96, y: 129, width: 80, height: 110)
+                ]
+            )
+
+        case .oneByOne:
+            return .init(
+                size: CGSize(width: 96, height: 134),
+                slotFrame: [
+                    CGRect(x: 8, y: 8, width: 80, height: 100)
+                ]
+            )
+
+        case .twoByOne:
+            return .init(
+                size: CGSize(width: 96, height: 140),
+                slotFrame: [
+                    CGRect(x: 8, y: 8, width: 80, height: 100),
+                    CGRect(x: 8, y: 115, width: 80, height: 100)
+                ]
+            )
+
+        case .fourByOne:
+            return .init(
+                size: CGSize(width: 96, height: 314),
+                slotFrame: [
+                    CGRect(x: 8, y: 8, width: 80, height: 65),
+                    CGRect(x: 8, y: 80, width: 80, height: 65),
+                    CGRect(x: 8, y: 151, width: 80, height: 65),
+                    CGRect(x: 8, y: 222, width: 80, height: 65)
+                ]
+            )
+
+        case .threeByTwo:
+            return .init(
+                size: CGSize(width: 268, height: 170),
+                slotFrame: [
+                    CGRect(x: 8, y: 8, width: 80, height: 65),
+                    CGRect(x: 94, y: 8, width: 80, height: 65),
+                    CGRect(x: 180, y: 8, width: 80, height: 65),
+                    CGRect(x: 8, y: 80, width: 80, height: 65),
+                    CGRect(x: 94, y: 80, width: 80, height: 65),
+                    CGRect(x: 180, y: 80, width: 80, height: 65)
+                ]
+            )
         }
     }
 
-    // 공간을 정규화 (0-1 좌표)
-    // 반환된 공간들은 역정규화를 통해 제 위치를 찾아갈 수 있다.
-    func frameRects(
-        outerInsetVertical: CGFloat = 0.02,
-        outerInsetHorizontal: CGFloat = 0.04,
-        spacing: CGFloat = 0.03
-    ) -> [CGRect] {
-        let safe = Self.safeArea(
-            outerInsetVertical: outerInsetVertical,
-            outerInsetHorizontal: outerInsetHorizontal
-        )
-        switch self {
-        case .oneByOne: return Self.normalizeFrameRects(safeArea: safe, spacing: spacing, cols: 1, rows: 1)
-        case .twoByOne: return Self.normalizeFrameRects(safeArea: safe, spacing: spacing, cols: 1, rows: 2)
-        case .fourByOne: return Self.normalizeFrameRects(safeArea: safe, spacing: spacing, cols: 1, rows: 4)
-        case .twoByTwo: return Self.normalizeFrameRects(safeArea: safe, spacing: spacing, cols: 2, rows: 2)
-        case .twoByThree: return Self.normalizeFrameRects(safeArea: safe, spacing: spacing, cols: 2, rows: 3)
+    /// 프리뷰/렌더링 공용: 정규화 슬롯(0~1)
+    func frameRects() -> [CGRect] {
+        let width = spec.size.width
+        let height = spec.size.height
+        guard width > 0, height > 0 else { return [] }
+
+        return spec.slotFrame.map { rect in
+            CGRect(
+                x: rect.minX / width,
+                y: rect.minY / height,
+                width: rect.width / width,
+                height: rect.height / height
+            )
         }
     }
 
-    // 프레임에 사진이 들어갈 공간들을 계산
-    private static func normalizeFrameRects(
-        safeArea: CGRect,
-        spacing: CGFloat,
-        cols: Int,
-        rows: Int
-    ) -> [CGRect] {
-        var results: [CGRect] = []
-
-        // 사진 사이에 들어갈 간격의 전체 길이
-        let totalSpacingX = spacing * CGFloat(cols - 1)
-        let totalSpacingY = spacing * CGFloat(rows - 1)
-
-        // 사진 하나의 크기: (전체 사용 가능 공간 - 간격 총합) ÷ 사진 개수
-        let cellWidth = (safeArea.width - totalSpacingX) / CGFloat(cols)
-        let cellHeight = (safeArea.height - totalSpacingY) / CGFloat(rows)
-
-        // 결과 배열 준비 (성능 최적화)
-        results.reserveCapacity(rows * cols)
-
-        for row in 0..<rows {
-            for col in 0..<cols {
-                // 몇번쨰 사진인지에 따른 위치 계산
-                let posX = safeArea.minX + (cellWidth + spacing) * CGFloat(col)
-                let posY = safeArea.minY + (cellHeight + spacing) * CGFloat(row)
-                let rect = CGRect(x: posX, y: posY, width: cellWidth, height: cellHeight)
-                results.append(rect)
-            }
-        }
-        return results
-    }
-
-    // 프레임 내부에서 실제 사진들이 들어갈 안젼 영역
-    private static func safeArea(
-        outerInsetVertical: CGFloat,
-        outerInsetHorizontal: CGFloat
-    ) -> CGRect {
-        return CGRect(
-            x: outerInsetHorizontal,
-            y: outerInsetVertical,
-            width: 1 - 2 * outerInsetHorizontal,
-            height: 1 - 2 * outerInsetVertical
-        )
-    }
+    /// 프리뷰 컨테이너 비율은 "가상 프레임 비율"
+    var previewAspect: CGFloat { spec.aspect }
 }
 
 extension CGRect {
