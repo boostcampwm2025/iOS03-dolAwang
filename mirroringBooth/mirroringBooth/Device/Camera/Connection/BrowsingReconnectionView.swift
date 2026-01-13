@@ -99,7 +99,3 @@ struct BrowsingReconnectionView: View {
         return nil
     }
 }
-
-#Preview {
-    BrowsingReconnectionView(reconnectionType: .mirroringOnly, store: BrowsingStore(Browser(), WatchConnectionManager()))
-}

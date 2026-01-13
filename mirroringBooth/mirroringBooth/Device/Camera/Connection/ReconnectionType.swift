@@ -5,8 +5,6 @@
 //  Created by 윤대현 on 2026-01-13.
 //
 
-import SwiftUI
-
 enum ReconnectionType {
     case mirroringOnly // 미러링 기기만 재연결
     case remoteOnly    // 리모트 기기만 재연결
