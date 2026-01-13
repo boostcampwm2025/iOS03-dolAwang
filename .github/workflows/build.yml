@@ -15,7 +15,7 @@ jobs:
         include:
           - scheme: mirroringBooth
             platform: iOS Simulator
-            os_major = "18"
+            os_major: "18"
           - scheme: mirroringBoothWatch
             platform: watchOS Simulator
             os_major: "11"
