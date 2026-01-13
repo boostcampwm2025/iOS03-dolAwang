@@ -30,8 +30,8 @@ struct CaptureResultView: View {
                                 columns: store.state.layoutColumnCount,
                                 frameColor: store.state.layoutColor
                             )
-                            .frame(height: geometry.size.height / 2)
-                            .padding()
+                            .frame(height: geometry.size.height / 2 - 12)
+                            .padding(.vertical, 12)
                         } else {
                             EmptyView()
                                 .frame(height: geometry.size.height / 2)
@@ -41,7 +41,7 @@ struct CaptureResultView: View {
                             .background(.primary)
 
                         FrameSelectionView(store: store)
-                            .frame(height: geometry.size.height / 2)
+                            .padding(.bottom, 16)
                     }
                     // 화면 표시 비율
                     .frame(width: geometry.size.width * 0.33)
