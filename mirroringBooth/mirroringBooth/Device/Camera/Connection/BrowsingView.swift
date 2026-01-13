@@ -15,7 +15,10 @@ struct BrowsingView: View {
 
     var body: some View {
         ZStack {
-            animatedCircle
+            AnimatedCircle(
+                color: Color(store.state.currentTarget.color),
+                animationTrigger: store.state.animationTrigger
+            )
 
             if store.state.isConnecting {
                 ProgressView()
@@ -49,7 +52,10 @@ struct BrowsingView: View {
                                         store.send(.didSelect(device))
                                     }
                                 } label: {
-                                    deviceRow(device)
+                                    DeviceRow(
+                                        device: device,
+                                        selectedTarget: isDeviceSelected(device)
+                                    )
                                 }
                                 .disabled(isDeviceDisabled(device))
                             }
@@ -110,67 +116,6 @@ struct BrowsingView: View {
             }
             store.send(.didChangeAppState(state))
         }
-    }
-
-    private var animatedCircle: some View {
-        ZStack {
-            let trigger = store.state.animationTrigger
-            Circle()
-                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.3))
-                .frame(width: 180, height: 180)
-
-            Circle()
-                .stroke(Color(store.state.currentTarget.color), lineWidth: 3)
-                .frame(width: 180, height: 180)
-                .scaleEffect(trigger ? 2 : 1)
-                .opacity(trigger ? 0 : 0.5)
-                .animation(
-                    .easeOut(duration: 1.4).repeatForever(autoreverses: false),
-                    value: trigger
-                )
-
-            Circle()
-                .stroke(Color(store.state.currentTarget.color), lineWidth: 3)
-                .frame(width: 180, height: 180)
-                .scaleEffect(trigger ? 3 : 1)
-                .opacity(trigger ? 0.0 : 0.3)
-                .animation(
-                    .easeOut(duration: 1.8).repeatForever(autoreverses: false).delay(0.3),
-                    value: trigger
-                )
-        }
-    }
-
-    @ViewBuilder
-    private func deviceRow(_ device: NearbyDevice) -> some View {
-        let target = isDeviceSelected(device)
-
-        HStack {
-            Image(systemName: device.type.icon)
-                .font(.title)
-
-            VStack(alignment: .leading) {
-                Text(device.id)
-                    .font(.headline.bold())
-                Text(device.type.rawValue)
-                    .font(.footnote)
-            }
-
-            Spacer()
-
-            // 선택된 기기인 경우 상징적인 아이콘 표시
-            if let target {
-                Image(systemName: target.icon)
-                    .font(.title2)
-                    .foregroundStyle(Color(target.color))
-            }
-        }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .foregroundStyle(Color(.label))
-        .background(Color(.secondarySystemBackground).opacity(0.6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .opacity(isDeviceDisabled(device) ? 0.5 : 1)
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {
