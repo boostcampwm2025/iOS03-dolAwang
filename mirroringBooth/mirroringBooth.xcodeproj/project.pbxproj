@@ -47,7 +47,7 @@
 			membershipExceptions = (
 				App/Info.plist,
 				Device/Remote/App/Assets.xcassets,
-				Device/Remote/App/mirroringBoothWatchApp.swift,
+				Device/Remote/App/MirroringBoothWatchApp.swift,
 				Device/Remote/Store/WatchConnectionStore.swift,
 				Device/Remote/View/WatchConnectionButton.swift,
 				Device/Remote/View/WatchConnectionView.swift,
@@ -64,7 +64,7 @@
 				Device/Common/Component/CaptureButton.swift,
 				Device/Common/Model/ConnectionState.swift,
 				Device/Remote/App/Assets.xcassets,
-				Device/Remote/App/mirroringBoothWatchApp.swift,
+				Device/Remote/App/MirroringBoothWatchApp.swift,
 				"Device/Remote/Connection/WatchConnectionManger+watchOS.swift",
 				Device/Remote/Store/WatchConnectionStore.swift,
 				Device/Remote/View/WatchConnectionButton.swift,
