@@ -102,27 +102,19 @@ struct ShootingProgressBadge: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("NEXT SHOT")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.primary.opacity(0.6))
+                    .foregroundStyle(.white.opacity(0.6))
                     .textCase(.uppercase)
 
                 Text("\(countdown)초 남음")
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.white)
             }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
         .background {
             RoundedRectangle(cornerRadius: 16)
-                .fill(.ultraThinMaterial)
-                .background {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.white.opacity(0.3))
-                }
-                .overlay {
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                }
+                .fill(Color.black.opacity(0.5))
         }
     }
 }

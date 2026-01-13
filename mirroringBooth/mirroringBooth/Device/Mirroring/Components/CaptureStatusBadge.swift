@@ -24,7 +24,6 @@ struct CaptureStatusBadge: View {
         .font(isCompact ? .caption : nil)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Capsule().fill(.black.opacity(0.5))
-        )
+        .background(Capsule().fill(.black.opacity(0.5)))
     }
 }
