@@ -13,7 +13,7 @@ import OSLog
 final class Browser: NSObject {
     enum MirroringDeviceCommand: String {
         case navigateToSelectMode
-        case allPhotosStored // 사진 12장 모두 저장 완료
+        case allPhotosStored // 사진 10장 모두 저장 완료
     }
 
     enum SessionType: String {

@@ -47,9 +47,9 @@ struct TimerGuideOverlay: View {
 
             VStack(spacing: 24) {
                 VStack(spacing: 8) {
-                    Text("지금부터 60초 동안")
+                    Text("지금부터 80초 동안")
                         .font(.title2)
-                    Text("5초 간격으로 사진을 촬영합니다!")
+                    Text("8초 간격으로 사진을 촬영합니다!")
                         .font(.title)
                         .fontWeight(.bold)
                 }
@@ -106,7 +106,7 @@ struct ShootingProgressIndicator: View {
                         .frame(width: 50, height: 50)
 
                     Circle()
-                        .trim(from: 0, to: CGFloat(countdown) / 5.0)
+                        .trim(from: 0, to: CGFloat(countdown) / 8.0)
                         .stroke(.white, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                         .frame(width: 50, height: 50)
                         .rotationEffect(.degrees(-90))
@@ -171,7 +171,7 @@ struct CaptureCompleteOverlay: View {
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
 
-                Text("12장의 사진이 촬영되었습니다")
+                Text("10장의 사진이 촬영되었습니다")
                     .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.7))
             }

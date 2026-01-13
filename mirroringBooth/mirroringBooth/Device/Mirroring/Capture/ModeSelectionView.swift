@@ -20,7 +20,7 @@ struct ModeSelectionView: View {
             iconName: "stopwatch",
             iconColor: Color.main,
             title: "타이머 모드",
-            description: "60초 동안 5초 간격으로\n자동 촬영합니다."
+            description: "80초 동안 8초 간격으로\n자동 촬영합니다."
         ) {
             router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: true))
         }

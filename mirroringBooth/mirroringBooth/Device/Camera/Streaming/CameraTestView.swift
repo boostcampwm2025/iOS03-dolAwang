@@ -86,7 +86,7 @@ struct CameraTestView: View {
             isTransferring = false
         }
 
-        // 12장 모두 저장 완료 시 iPad에 알림 전송
+        // 10장 모두 저장 완료 시 iPad에 알림 전송
         cameraManager.onAllPhotosStored = { _ in
             browser.sendCommand(.allPhotosStored)
         }

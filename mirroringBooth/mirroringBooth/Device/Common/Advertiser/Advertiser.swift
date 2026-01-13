@@ -37,7 +37,7 @@ final class Advertiser: NSObject {
     /// 사진 수신 완료 콜백 (1장마다 호출)
     var onPhotoReceived: (() -> Void)?
 
-    /// 12장 모두 저장 완료 콜백 (촬영기기에서 전송)
+    /// 10장 모두 저장 완료 콜백 (촬영기기에서 전송)
     var onAllPhotosStored: (() -> Void)?
 
     /// 사진 수신 Progress 구독 관리용 cancellables

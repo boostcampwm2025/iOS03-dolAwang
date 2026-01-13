@@ -14,8 +14,8 @@ final class StreamingStore: StoreProtocol {
     // 타이머 촬영 단계를 구분하기 위한 enum
     enum TimerPhase {
         case guide // 가이드라인 오버레이
-        case countdown // 5, 4, 3, 2, 1 카운트다운
-        case shooting // 촬영 중 (5초 간격)
+        case countdown // 8, 7, 6, 5, 4, 3, 2, 1 카운트다운
+        case shooting // 촬영 중 (8초 간격)
         case transferring // 전송, 수신 중
         case completed // 촬영 완료
     }
@@ -27,10 +27,10 @@ final class StreamingStore: StoreProtocol {
 
         // 타이머
         var timerPhase: TimerPhase = .guide
-        var countdownValue: Int = 5     // 첫 촬영 전 카운트 다운 (5, 4, 3, 2, 1)
-        var shootingCountdown: Int = 5  // 촬영 간격 카운트 다운 (5초마다)
+        var countdownValue: Int = 8     // 첫 촬영 전 카운트 다운 (8, 7, 6, 5, 4, 3, 2, 1)
+        var shootingCountdown: Int = 8  // 촬영 간격 카운트 다운 (8초마다)
         var captureCount: Int = 0       // 현재 촬영 횟수
-        var totalCaptureCount: Int = 12 // 총 촬영 횟수
+        var totalCaptureCount: Int = 10 // 총 촬영 횟수
 
         // 이미지 전송 프로그래스
         var receivedPhotoCount: Int = 0
@@ -91,7 +91,7 @@ final class StreamingStore: StoreProtocol {
             self?.send(.photoReceived)
         }
 
-        // 12장 모두 저장 완료 콜백 (iPhone에서 전송)
+        // 10장 모두 저장 완료 콜백 (iPhone에서 전송)
         advertiser.onAllPhotosStored = { [weak self] in
             self?.send(.startTransfer)
         }
@@ -111,7 +111,7 @@ final class StreamingStore: StoreProtocol {
             // MARK: - 타이머
         case .startCountdown:
             result.append(.phaseChanged(.countdown))
-            result.append(.countdownUpdated(5))
+            result.append(.countdownUpdated(8))
             startTimer()
 
         case .tick:
@@ -188,9 +188,9 @@ extension StreamingStore {
             if state.countdownValue > 1 {
                 results.append(.countdownUpdated(state.countdownValue - 1))
             } else {
-                // 5초 카운트다운 완료 후 첫 촬영
+                // 8초 카운트다운 완료 후 첫 촬영
                 results.append(.phaseChanged(.shooting))
-                results.append(.shootingCountdownUpdated(5))
+                results.append(.shootingCountdownUpdated(8))
 
                 capturePhoto()
 
@@ -202,19 +202,19 @@ extension StreamingStore {
             if state.shootingCountdown > 1 {
                 results.append(.shootingCountdownUpdated(state.shootingCountdown - 1))
             } else {
-                // 5초가 경과하면 촬영 (첫 촬영 후 5초마다)
+                // 8초가 경과하면 촬영 (첫 촬영 후 8초마다)
                 capturePhoto()
 
                 let newCount = state.captureCount + 1
                 results.append(.captureCountUpdated(newCount))
 
-                // 12장 촬영 완료 시
+                // 10장 촬영 완료 시
                 if newCount >= state.totalCaptureCount {
                     stopTimer()
                     results.append(.phaseChanged(.transferring))
                 } else {
                     // 다음 촬영을 위한 카운트다운 재설정
-                    results.append(.shootingCountdownUpdated(5))
+                    results.append(.shootingCountdownUpdated(8))
                 }
             }
         default:
