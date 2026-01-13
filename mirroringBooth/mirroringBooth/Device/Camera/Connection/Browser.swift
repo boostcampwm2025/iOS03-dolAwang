@@ -287,7 +287,8 @@ extension Browser: MCSessionDelegate {
         peerID: MCPeerID
     ) {
         let isMirroringTarget = session === mirroringSession && peerID.displayName == targetMirroringDeviceID
-        let isMirroringCommandTarget = session === mirroringCommandSession && peerID.displayName == targetMirroringDeviceID
+        let isMirroringCommandTarget = (session === mirroringCommandSession)
+            && (peerID.displayName == targetMirroringDeviceID)
         let isRemoteTarget = session === remoteSession && peerID.displayName == targetRemoteDeviceID
 
         guard isMirroringTarget || isMirroringCommandTarget || isRemoteTarget else { return }

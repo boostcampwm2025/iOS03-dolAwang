@@ -208,6 +208,3 @@ private struct TruncationDetectionModifier: ViewModifier {
             )
     }
 }
-#Preview(traits: .landscapeLeft){
-    ModeSelectionView(advertiser: Advertiser())
-}
