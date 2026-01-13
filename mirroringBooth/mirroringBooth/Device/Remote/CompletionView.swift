@@ -15,9 +15,14 @@ struct CompletionView: View {
                 .font(.largeTitle)
                 .foregroundStyle(Color.main)
 
-            Text("촬영을 완료했습니다!")
-                .font(.title3.bold())
-                .opacity(0.8)
+            VStack(spacing: 5) {
+                Text("촬영을 완료했습니다!")
+                    .font(.title3.bold())
+                Text("이 디바이스에서는 종료해도 괜찮습니다.")
+                    .font(.footnote)
+                    .multilineTextAlignment(.center)
+            }
+            .opacity(0.8)
         }
     }
 }
