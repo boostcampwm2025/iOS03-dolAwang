@@ -19,8 +19,8 @@ jobs:
             device_fallback_regex: "iPhone [0-9]+"
           - scheme: mirroringBoothWatch
             platform: watchOS Simulator
-            device_regex: "Apple Watch Series 10 \\([0-9]+mm\\)"
-            device_fallback_regex: "Apple Watch.*\\([0-9]+mm\\)"
+            device_regex: "Apple Watch Series 10 \\((42|46)mm\\)"
+            device_fallback_regex: "Apple Watch Series 10 \\("
 
     steps:
       - name: Checkout
