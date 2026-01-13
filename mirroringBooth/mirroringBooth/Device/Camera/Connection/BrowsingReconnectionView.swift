@@ -1,5 +1,5 @@
 //
-//  BrowserReconnectionView.swift
+//  BrowsingReconnectionView.swift
 //  mirroringBooth
 //
 //  Created by 윤대현 on 1/13/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BrowserReconnectionView: View {
+struct BrowsingReconnectionView: View {
     let reconnectionType: ReconnectionType
     let store: BrowsingStore
 
