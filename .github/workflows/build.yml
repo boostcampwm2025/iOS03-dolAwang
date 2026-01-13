@@ -15,31 +15,65 @@ jobs:
         include:
           - scheme: mirroringBooth
             platform: iOS Simulator
-            os: "17.0"
+            os_major = "18"
           - scheme: mirroringBoothWatch
             platform: watchOS Simulator
-            os: "11.2"
+            os_major: "11"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Select Simulator
+        working-directory: mirroringBooth
+        env:
+          SCHEME: ${{ matrix.scheme }}
+          PLATFORM: ${{ matrix.platform }}
+          OS_MAJOR: ${{ matrix.os_major }}
+        run: |
+          set -euo pipefail
+
+          echo "Searching for destination (scheme=${SCHEME}, platform=${PLATFORM}, OS major=${OS_MAJOR}, arch=arm64)"
+
+          destinationLine=$(xcodebuild -showdestinations \
+            -scheme "${SCHEME}" \
+            -project "mirroringBooth.xcodeproj" | \
+            grep -F "{ platform:${PLATFORM}," | \
+            grep -F "arch:arm64" | \
+            grep -E "OS:${OS_MAJOR}\\." | \
+            head -1)
+
+          if [ -z "${destinationLine}" ]; then
+            echo "❌ No destination found for platform=${PLATFORM}, OS major=${OS_MAJOR}, arch=arm64"
+            echo "Available destinations:"
+            xcodebuild -showdestinations -scheme "${SCHEME}" -project "mirroringBooth.xcodeproj"
+            exit 1
+          fi
+
+          deviceName=$(echo "${destinationLine}" | \
+            sed -E 's/.*name:([^}]+)\}.*/\1/' | \
+            sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+          echo "✅ Using simulator: ${deviceName}"
+          echo "device=${deviceName}" >> "$GITHUB_OUTPUT"
+        id: sim
 
       - name: Build
         working-directory: mirroringBooth
         env:
           SCHEME: ${{ matrix.scheme }}
           PLATFORM: ${{ matrix.platform }}
-          OS: ${{ matrix.os }}
+          DEVICE: ${{ steps.sim.outputs.device }}
         run: |
           set -euo pipefail
 
           echo "Scheme: ${SCHEME}"
-          echo "Destination: platform=${PLATFORM},OS=${OS}"
+          echo "Destination: platform=${PLATFORM},name=${DEVICE}"
 
           xcodebuild build \
             -scheme "${SCHEME}" \
             -project "mirroringBooth.xcodeproj" \
-            -destination "platform=${PLATFORM},OS=${OS}"
+            -destination "platform=${PLATFORM},name=${DEVICE}"
 
       - name: Notify Slack on failure
         if: failure()
