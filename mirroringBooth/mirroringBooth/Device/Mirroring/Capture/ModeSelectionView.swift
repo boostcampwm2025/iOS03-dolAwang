@@ -9,15 +9,20 @@ import SwiftUI
 
 struct ModeSelectionView: View {
     @Environment(Router.self) var router: Router
+    private let advertiser: Advertiser
+
+    init(advertiser: Advertiser) {
+        self.advertiser = advertiser
+    }
 
     var timerCard: some View {
         SelectionCard(
             iconName: "stopwatch",
             iconColor: Color.main,
             title: "타이머 모드",
-            description: "60초 동안 5초 간격으로\n자동 촬영합니다."
+            description: "80초 동안 8초 간격으로\n자동 촬영합니다."
         ) {
-            // action
+            router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: true))
         }
     }
 
@@ -28,7 +33,7 @@ struct ModeSelectionView: View {
             title: "리모콘 모드",
             description: "나의 Apple Watch에서 \n직접 셔터를 누르세요."
         ) {
-            // action
+            router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: false))
         }
     }
 
@@ -204,5 +209,5 @@ private struct TruncationDetectionModifier: ViewModifier {
     }
 }
 #Preview(traits: .landscapeLeft){
-    ModeSelectionView()
+    ModeSelectionView(advertiser: Advertiser())
 }

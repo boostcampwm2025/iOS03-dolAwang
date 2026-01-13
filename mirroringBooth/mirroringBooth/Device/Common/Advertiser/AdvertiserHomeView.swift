@@ -44,7 +44,7 @@ struct AdvertiserHomeView: View {
         }
         .onChange(of: store.state.hasConnectionStarted) { _, newValue in
             if newValue {
-                router.push(to: MirroringRoute.modeSelection)
+                router.push(to: MirroringRoute.modeSelection(store.advertiser))
             }
         }
     }

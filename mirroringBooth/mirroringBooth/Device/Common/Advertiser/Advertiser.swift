@@ -28,6 +28,18 @@ final class Advertiser: NSObject {
 
     var navigateToSelectModeCommandCallBack: (() -> Void)?
 
+    /// 카메라 기기에게 보내는 명령
+    enum CameraDeviceCommand: String {
+        case capturePhoto  // 사진 촬영
+        case startTransfer // 일괄 전송 시작
+    }
+
+    /// 사진 수신 완료 콜백 (1장마다 호출)
+    var onPhotoReceived: (() -> Void)?
+
+    /// 10장 모두 저장 완료 콜백 (촬영기기에서 전송)
+    var onAllPhotosStored: (() -> Void)?
+
     /// 사진 수신 Progress 구독 관리용 cancellables
     private var progressCancellables: [UUID: AnyCancellable] = [:]
 
@@ -41,7 +53,7 @@ final class Advertiser: NSObject {
         self.session = MCSession(
             peer: peerID,
             securityIdentity: nil,
-            encryptionPreference: .required // .none은 send만 호출할 수 있다.
+            encryptionPreference: .required
         )
         self.commandSession = MCSession(
             peer: peerID,
@@ -50,15 +62,15 @@ final class Advertiser: NSObject {
         )
 
         let myDeviceType: String = {
-            #if os(iOS)
+        #if os(iOS)
             if UIDevice.current.userInterfaceIdiom == .phone { return "iPhone" }
             if UIDevice.current.userInterfaceIdiom == .pad { return "iPad" }
             return "iOS"
-            #elseif os(macOS)
+        #elseif os(macOS)
             return "Mac"
-            #else
+        #else
             return "Unknown"
-            #endif
+        #endif
         }()
 
         self.advertiser = MCNearbyServiceAdvertiser(
@@ -94,6 +106,23 @@ final class Advertiser: NSObject {
         logger.info("연결 해제: \(self.peerID.displayName)")
     }
 
+    /// 연결된 카메라 기기(iPhone)에게 명령을 전송합니다.
+    func sendCommand(_ command: CameraDeviceCommand) {
+        guard let commandData = command.rawValue.data(using: .utf8) else { return }
+        let connectedPeers = commandSession.connectedPeers
+        guard !connectedPeers.isEmpty else {
+            logger.warning("명령 전송 실패: commandSession에 연결된 피어가 없습니다")
+            return
+        }
+
+        do {
+            try commandSession.send(commandData, toPeers: connectedPeers, with: .reliable)
+            logger.info("촬영 명령 전송: \(command.rawValue)")
+        } catch {
+            logger.warning("명령 전송 실패: \(error.localizedDescription)")
+        }
+    }
+
     private func updatePhotoState(
         photoID: UUID,
         state: PhotoReceiveState
@@ -108,7 +137,13 @@ final class Advertiser: NSObject {
             switch type {
             case .navigateToSelectMode:
                 guard let navigateToSelectModeCommandCallBack else { return }
-                navigateToSelectModeCommandCallBack()
+                DispatchQueue.main.async {
+                    navigateToSelectModeCommandCallBack()
+                }
+            case .allPhotosStored:
+                DispatchQueue.main.async {
+                    self.onAllPhotosStored?()
+                }
             }
         }
     }
@@ -121,9 +156,14 @@ extension Advertiser: MCSessionDelegate {
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         if session === self.session {
-            // 수신된 스트림 데이터를 라우터로 전달
+            // 스트림 세션에서 수신
+            logger.info("스트림 데이터 수신: \(data.count) bytes")
+            if onReceivedStreamData == nil {
+                logger.warning("onReceivedStreamData 콜백이 nil입니다.")
+            }
             onReceivedStreamData?(data)
         } else if session === commandSession {
+            // 명령 세션에서 수신
             executeCommand(data: data)
         }
     }
@@ -142,6 +182,8 @@ extension Advertiser: MCSessionDelegate {
         fromPeer peerID: MCPeerID,
         with progress: Progress
     ) {
+        logger.info("사진 수신 시작: \(resourceName) from \(peerID.displayName)")
+
         guard let photoID = UUID(
             uuidString: resourceName.replacingOccurrences(of: ".jpg", with: "")
         ) else { return }
@@ -197,6 +239,11 @@ extension Advertiser: MCSessionDelegate {
         }
 
         updatePhotoState(photoID: photoID, state: .completed(data))
+
+        /// 사진 수신 완료
+        DispatchQueue.main.async {
+            self.onPhotoReceived?()
+        }
     }
 
 }
@@ -210,15 +257,18 @@ extension Advertiser: MCNearbyServiceAdvertiserDelegate {
                     invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         guard let context,
               let type = String(data: context, encoding: .utf8) else {
+            logger.warning("초대 수신 실패: context 파싱 불가 - \(peerID.displayName)")
             invitationHandler(false, nil)
             return
         }
+
         logger.info("초대 수신: \(peerID.displayName)(타입: \(type))")
-        // 임시적으로 수신된 초대가 자동으로 수락되도록 작성했습니다.
         if type == "streaming" {
             invitationHandler(true, session)
         } else if type == "command" {
             invitationHandler(true, commandSession)
+        } else {
+            invitationHandler(false, nil)
         }
     }
 }
