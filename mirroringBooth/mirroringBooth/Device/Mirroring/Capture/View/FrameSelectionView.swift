@@ -103,13 +103,7 @@ private struct LayoutButtonView: View {
                             .aspectRatio(1, contentMode: .fit)
                         Text("1x1")
                     } else {
-                        Text("1x1")
-                            .foregroundStyle(Color.primary)
-                            .padding(4)
-                            .background {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color.buttonComponent)
-                            }
+                        SimpleLayoutButtonView(text: "1x1")
                     }
                 }
             }
@@ -125,13 +119,7 @@ private struct LayoutButtonView: View {
                             .aspectRatio(1, contentMode: .fit)
                         Text("1x2")
                     } else {
-                        Text("1x2")
-                            .foregroundStyle(Color.primary)
-                            .padding(4)
-                            .background {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color.buttonComponent)
-                            }
+                        SimpleLayoutButtonView(text: "1x2")
                     }
                 }
             }
@@ -147,13 +135,7 @@ private struct LayoutButtonView: View {
                             .aspectRatio(1, contentMode: .fit)
                         Text("1x3")
                     } else {
-                        Text("1x3")
-                            .foregroundStyle(Color.primary)
-                            .padding(4)
-                            .background {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color.buttonComponent)
-                            }
+                        SimpleLayoutButtonView(text: "1x3")
                     }
                 }
             }
@@ -169,13 +151,7 @@ private struct LayoutButtonView: View {
                             .aspectRatio(1, contentMode: .fit)
                         Text("2x2")
                     } else {
-                        Text("2x2")
-                            .foregroundStyle(Color.primary)
-                            .padding(4)
-                            .background {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color.buttonComponent)
-                            }
+                        SimpleLayoutButtonView(text: "2x2")
                     }
                 }
             }
@@ -191,13 +167,7 @@ private struct LayoutButtonView: View {
                             .aspectRatio(1, contentMode: .fit)
                         Text("2x3")
                     } else {
-                        Text("2x3")
-                            .foregroundStyle(Color.primary)
-                            .padding(4)
-                            .background {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color.buttonComponent)
-                            }
+                        SimpleLayoutButtonView(text: "2x3")
                     }
                 }
             }

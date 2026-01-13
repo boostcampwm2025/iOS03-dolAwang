@@ -14,43 +14,80 @@ struct CaptureResultView: View {
         ZStack {
             Color.background
                 .ignoresSafeArea()
+
             GeometryReader { geometry in
-                HStack {
-                    PhotoGridView(store: store)
-
-                    Divider()
-                        .background(.primary)
-
+                if geometry.size.height > geometry.size.width {
                     VStack {
-                        if store.state.layoutRowCount != 0
-                            && store.state.layoutColumnCount != 0 {
-                            FrameView(
-                                photos: store.state.selectedPhotos,
-                                rows: store.state.layoutRowCount,
-                                columns: store.state.layoutColumnCount,
-                                frameColor: store.state.layoutColor
-                            )
-                            .frame(height: geometry.size.height / 2 - 12)
-                            .padding(.vertical, 12)
-                        } else {
-                            EmptyView()
-                                .frame(height: geometry.size.height / 2)
-                        }
+                        PhotoGridView(store: store)
 
                         Divider()
                             .background(.primary)
 
-                        FrameSelectionView(store: store)
-                            .padding(.bottom, 16)
+                        GeometryReader { remainGeometry in
+                            HStack {
+                                if store.state.layoutRowCount != 0
+                                    && store.state.layoutColumnCount != 0 {
+                                    FrameView(
+                                        photos: store.state.selectedPhotos,
+                                        rows: store.state.layoutRowCount,
+                                        columns: store.state.layoutColumnCount,
+                                        frameColor: store.state.layoutColor
+                                    )
+                                    .frame(width: geometry.size.width / 2)
+                                    .padding(.vertical, 12)
+                                } else {
+                                    EmptyView()
+                                        .frame(height: geometry.size.height / 2)
+                                }
+
+                                Divider()
+                                    .background(.primary)
+
+                                FrameSelectionView(store: store)
+                                    .padding(.bottom, 16)
+                            }
+                            // 화면 표시 비율
+                            .frame(height: geometry.size.height * 0.5)
+                        }
                     }
-                    // 화면 표시 비율
-                    .frame(width: geometry.size.width * 0.33)
+
+                } else {
+                    HStack {
+                        PhotoGridView(store: store)
+
+                        Divider()
+                            .background(.primary)
+
+                        VStack {
+                            if store.state.layoutRowCount != 0
+                                && store.state.layoutColumnCount != 0 {
+                                FrameView(
+                                    photos: store.state.selectedPhotos,
+                                    rows: store.state.layoutRowCount,
+                                    columns: store.state.layoutColumnCount,
+                                    frameColor: store.state.layoutColor
+                                )
+                                .frame(height: geometry.size.height / 2 - 12)
+                                .padding(.vertical, 12)
+                            } else {
+                                EmptyView()
+                                    .frame(height: geometry.size.height / 2)
+                            }
+
+                            Divider()
+                                .background(.primary)
+
+                            FrameSelectionView(store: store)
+                                .padding(.bottom, 16)
+                        }
+                        // 화면 표시 비율
+                        .frame(width: geometry.size.width * 0.33)
+                    }
                 }
             }
         }
         .onAppear {
             store.send(.onAppear)
-            store.send(.selectLayout(4, 1, .blue))
         }
     }
 }
@@ -73,7 +110,10 @@ private struct PhotoGridView: View {
 
             // 사진 표시 구역
             GeometryReader { geometry in
-                let rows = calculateRows(forHeight: geometry.size.height)
+                let rows = calculateRows(
+                    width: geometry.size.width,
+                    height: geometry.size.height
+                )
                 ScrollView(.horizontal) {
                     LazyHGrid(
                         rows: Array(
@@ -135,11 +175,12 @@ private struct PhotoGridView: View {
         .padding()
     }
 
-    private func calculateRows(forHeight height: CGFloat) -> Int {
+    private func calculateRows(width: CGFloat, height: CGFloat) -> Int {
+        if width > height { return 2 }
         let minItemHeight: CGFloat = 110
         let spacing: CGFloat = 20
         let targetRows = min(Int((height + spacing) / (minItemHeight + spacing)), 4)
-        return max(targetRows, 1)
+        return max(targetRows, 2)
     }
 }
 
