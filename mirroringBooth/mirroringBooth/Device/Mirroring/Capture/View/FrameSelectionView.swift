@@ -80,15 +80,15 @@ struct FrameSelectionView: View {
 
                 } label: {
                     Text("편집 완료하기")
+                        .foregroundStyle(Color(.label))
                         .frame(maxWidth: .infinity)
                         .background {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.buttonComponent)
+                                .fill(Color.main.opacity(0.3))
                                 .strokeBorder(Color.borderLine, lineWidth: 2)
                                 .frame(minHeight: 44)
                         }
                 }
-                .padding(.trailing, 8)
             }
             .padding(.top, -16)
         }
@@ -257,6 +257,4 @@ private struct LayoutButton: View {
                 }
         }
     }
-}
-
 }

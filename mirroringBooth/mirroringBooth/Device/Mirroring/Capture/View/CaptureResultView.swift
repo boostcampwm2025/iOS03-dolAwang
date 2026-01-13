@@ -43,6 +43,7 @@ struct CaptureResultView: View {
 
                             FrameSelectionView(store: store)
                                 .padding(.bottom, 16)
+                                .padding(.trailing, 10)
                         }
                         // 화면 표시 비율
                         .frame(height: geometry.size.height * 0.5)
