@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// 결과 사진 프리뷰
 struct FrameView: View {
     let photos: [Photo]
     let rows: Int
