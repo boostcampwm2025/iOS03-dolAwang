@@ -16,82 +16,86 @@ struct FrameSelectionView: View {
     @State private var frameColor: Color = .black
 
     var body: some View {
-        VStack(alignment: .leading) {
-            if horizontalSizeClass == .regular
-                && verticalSizeClass == .regular {
-                Label("레이아웃", systemImage: "rectangle.grid.2x2")
-                    .font(.callout.bold())
-                    .foregroundStyle(.primary)
-            } else {
-                Label("레이아웃 & 프레임", systemImage: "rectangle.grid.2x2")
-                    .font(.caption.bold())
-                    .foregroundStyle(.primary)
+        VStack {
+            // 1. 레이아웃 선택
+            VStack(alignment: .leading, spacing: 10) {
+                if horizontalSizeClass == .regular
+                    && verticalSizeClass == .regular {
+                    Label("레이아웃", systemImage: "rectangle.grid.2x2")
+                        .font(.callout.bold())
+                        .foregroundStyle(.primary)
+                } else {
+                    Label("레이아웃 & 프레임", systemImage: "rectangle.grid.2x2")
+                        .font(.caption.bold())
+                        .foregroundStyle(.primary)
+                }
+
+                LayoutButtonView(
+                    rows: $rows,
+                    columns: $columns,
+                    frameColor: $frameColor
+                )
             }
 
-            LayoutButtonView(
-                rows: $rows,
-                columns: $columns,
-                frameColor: $frameColor
-            )
-
-            if horizontalSizeClass == .regular
-                && verticalSizeClass == .regular {
-                HStack {
+            // 2. 프레임 선택
+            VStack(alignment: .leading, spacing: 10) {
+                if horizontalSizeClass == .regular
+                    && verticalSizeClass == .regular {
                     Label("프레임 디자인", systemImage: "paintpalette")
                         .font(.callout.bold())
                         .foregroundStyle(.primary)
-                    Spacer()
-                }
-            }
-
-            VStack {
-                if horizontalSizeClass == .compact
-                    || verticalSizeClass == .compact {
-                    HStack {
-                        SimpleColorButton(
-                            action: {
-                                frameColor = .black
-                            },
-                            color: .black
-                        )
-                        SimpleColorButton(
-                            action: {
-                                frameColor = .white
-                            },
-                            color: .white
-                        )
-                    }
-                    .padding(16)
-                } else {
-                    VStack {
-                        FrameColorButton(action: {
-                            frameColor = .black
-                        }, color: .black, description: "Basic Black")
-                        FrameColorButton(action: {
-                            frameColor = .white
-                        }, color: .white, description: "Basic White")
-                    }
-                    .padding()
                 }
 
-                Spacer()
-
-                Button {
-
-                } label: {
-                    Text("편집 완료하기")
-                        .foregroundStyle(Color(.label))
-                        .frame(maxWidth: .infinity)
-                        .background {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.main.opacity(0.3))
-                                .strokeBorder(Color.borderLine, lineWidth: 2)
-                                .frame(minHeight: 44)
+                VStack {
+                    if horizontalSizeClass == .compact
+                        || verticalSizeClass == .compact {
+                        HStack {
+                            SimpleColorButton(
+                                action: {
+                                    frameColor = .black
+                                },
+                                color: .black
+                            )
+                            SimpleColorButton(
+                                action: {
+                                    frameColor = .white
+                                },
+                                color: .white
+                            )
                         }
+                    } else {
+                        VStack {
+                            FrameColorButton(action: {
+                                frameColor = .black
+                            }, color: .black, description: "Basic Black")
+                            FrameColorButton(action: {
+                                frameColor = .white
+                            }, color: .white, description: "Basic White")
+                        }
+                    }
                 }
             }
-            .padding(.top, -16)
+
+            Spacer()
+
+            // 3. 완료 버튼
+            Button {
+
+            } label: {
+                Text("편집 완료하기")
+                    .foregroundStyle(Color(.label))
+                    .frame(maxWidth: .infinity)
+                    .background {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.main.opacity(0.3))
+                            .strokeBorder(Color.borderLine, lineWidth: 2)
+                            .frame(minHeight: 44)
+                    }
+            }
         }
+        .padding(.top, 5)
+        .padding(.bottom)
+        .padding(.trailing, 10)
         .onChange(of: rows) {
             store.send(.selectLayout(rows, columns, frameColor))
         }
