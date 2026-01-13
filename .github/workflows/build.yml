@@ -24,39 +24,44 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Simulator
-        working-directory: mirroringBooth
-        env:
-          SCHEME: ${{ matrix.scheme }}
-          PLATFORM: ${{ matrix.platform }}
-          OS_MAJOR: ${{ matrix.os_major }}
-        run: |
-          set -euo pipefail
+    - name: Select Simulator
+      working-directory: mirroringBooth
+      env:
+        PLATFORM: ${{ matrix.platform }}
+        OS_MAJOR: ${{ matrix.os_major }}
+      run: |
+        set -euo pipefail
 
-          echo "Searching for destination (scheme=${SCHEME}, platform=${PLATFORM}, OS major=${OS_MAJOR}, arch=arm64)"
-            
-          destinationLine=$(xcodebuild -showdestinations \
-          -scheme "${SCHEME}" \
+        echo "Searching for destination (platform=${PLATFORM}, OS major=${OS_MAJOR}, arch=arm64)"
+
+        destinationLine=$(xcodebuild -showdestinations \
+          -scheme "${{ matrix.scheme }}" \
           -project "mirroringBooth.xcodeproj" | \
           grep -E "\\{[[:space:]]*platform:[[:space:]]*${PLATFORM}," | \
           grep -E "arch:[[:space:]]*arm64" | \
           grep -E "OS:[[:space:]]*${OS_MAJOR}\\." | \
+          if [ "${PLATFORM}" = "iOS Simulator" ]; then grep -E "name:[[:space:]]*iPhone"; else cat; fi | \
           head -1)
 
-          if [ -z "${destinationLine}" ]; then
-            echo "❌ No destination found for platform=${PLATFORM}, OS major=${OS_MAJOR}, arch=arm64"
-            echo "Available destinations:"
-            xcodebuild -showdestinations -scheme "${SCHEME}" -project "mirroringBooth.xcodeproj"
-            exit 1
-          fi
+        if [ -z "${destinationLine}" ]; then
+          echo "❌ No destination found for platform=${PLATFORM}, OS major=${OS_MAJOR}, arch=arm64"
+          echo "Available destinations:"
+          xcodebuild -showdestinations -scheme "${{ matrix.scheme }}" -project "mirroringBooth.xcodeproj"
+          exit 1
+        fi
 
-          deviceName=$(echo "${destinationLine}" | \
-            sed -E 's/.*name:([^}]+)\}.*/\1/' | \
-            sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        deviceName=$(echo "${destinationLine}" | \
+          sed -E 's/.*name:[[:space:]]*([^}]+)\}.*/\1/' | \
+          sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
-          echo "✅ Using simulator: ${deviceName}"
-          echo "device=${deviceName}" >> "$GITHUB_OUTPUT"
-        id: sim
+        if [ -z "${deviceName}" ]; then
+          echo "❌ Failed to parse simulator name from destination line: ${destinationLine}"
+          exit 1
+        fi
+
+        echo "✅ Using simulator: ${deviceName}"
+        echo "device=${deviceName}" >> "$GITHUB_OUTPUT"
+      id: sim
 
       - name: Build
         working-directory: mirroringBooth
