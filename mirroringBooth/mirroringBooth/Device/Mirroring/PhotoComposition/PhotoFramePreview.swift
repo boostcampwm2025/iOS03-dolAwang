@@ -40,6 +40,7 @@ struct PhotoFramePreview: View {
                 }
             }
         }
+        .aspectRatio(layout.previewAspect, contentMode: .fit)
     }
 
     /// Cliping 될 때 크기에 맞게 잘 잘리도록 전처리
@@ -65,6 +66,3 @@ struct PhotoFramePreview: View {
     }
 }
 
-#Preview {
-    PhotoFramePreview(layout: .fourByOne, frame: UIImage(named: "testFrame")!, photos: [UIImage(named: "test")!, UIImage(named: "test")!, UIImage(named: "test")!])
-}
