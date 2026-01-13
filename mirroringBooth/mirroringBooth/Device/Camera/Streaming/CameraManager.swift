@@ -36,7 +36,7 @@ final class CameraManager: NSObject {
     /// 전송 완료 콜백
     var onTransferCompleted: (() -> Void)?
 
-    /// 12장 저장 완료 콜백 (타이머 모드에서 12장 모두 저장되면 호출)
+    /// 10장 저장 완료 콜백 (타이머 모드에서 10장 모두 저장되면 호출)
     var onAllPhotosStored: ((Int) -> Void)?
 
     // 촬영된 이미지 임시 저장 배열
@@ -258,8 +258,8 @@ extension CameraManager: AVCapturePhotoCaptureDelegate {
             // 수동 촬영 버튼용 콜백
             // self.onCapturedPhoto?(photoData)
 
-            // 12장 모두 저장되면 콜백 호출
-            if storedCount == 12 {
+            // 10장 모두 저장되면 콜백 호출
+            if storedCount == 10 {
                 self.onAllPhotosStored?(storedCount)
             }
         }
