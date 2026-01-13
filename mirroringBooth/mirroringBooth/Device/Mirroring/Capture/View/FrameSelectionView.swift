@@ -20,11 +20,11 @@ struct FrameSelectionView: View {
             if horizontalSizeClass == .regular
                 && verticalSizeClass == .regular {
                 Label("레이아웃", systemImage: "rectangle.grid.2x2")
-                    .bold()
+                    .font(.callout.bold())
                     .foregroundStyle(.primary)
             } else {
                 Label("레이아웃 & 프레임", systemImage: "rectangle.grid.2x2")
-                    .bold()
+                    .font(.caption.bold())
                     .foregroundStyle(.primary)
             }
 
@@ -38,7 +38,7 @@ struct FrameSelectionView: View {
                 && verticalSizeClass == .regular {
                 HStack {
                     Label("프레임 디자인", systemImage: "paintpalette")
-                        .bold()
+                        .font(.callout.bold())
                         .foregroundStyle(.primary)
                     Spacer()
                 }
@@ -204,7 +204,7 @@ private struct FrameColorButton: View {
             .frame(maxWidth: .infinity)
             .background {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.buttonComponent)
+                    .fill(Color(.label).opacity(0.02))
                     .strokeBorder(Color.borderLine, lineWidth: 2)
             }
         }
