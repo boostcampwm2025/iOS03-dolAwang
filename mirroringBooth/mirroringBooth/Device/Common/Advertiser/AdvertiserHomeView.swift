@@ -9,7 +9,11 @@ import SwiftUI
 
 struct AdvertiserHomeView: View {
     @Environment(Router.self) var router: Router
-    @State private var store = AdvertiserHomeStore(Advertiser())
+    @State private var store = AdvertiserHomeStore(
+        Advertiser(
+            photoCacheManager: PhotoCacheManager.shared
+        )
+    )
 
     var body: some View {
         VStack(spacing: 0) {

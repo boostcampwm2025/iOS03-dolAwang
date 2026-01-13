@@ -20,7 +20,7 @@ final class Advertiser: NSObject {
     private let session: MCSession
     private let commandSession: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
-
+    private let photoCacheManager: PhotoCacheManager
     let myDeviceName: String
 
     /// 수신된 스트림 데이터 콜백
@@ -46,7 +46,7 @@ final class Advertiser: NSObject {
     /// 수신된 사진 목록
     var receivedPhotos: [Photo] = []
 
-    init(serviceType: String = "mirroringbooth") {
+    init(serviceType: String = "mirroringbooth", photoCacheManager: PhotoCacheManager) {
         self.serviceType = serviceType
         self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: true, with: UIDevice.current.name)
         self.peerID = MCPeerID(displayName: myDeviceName)
@@ -78,6 +78,7 @@ final class Advertiser: NSObject {
             discoveryInfo: ["deviceType": myDeviceType],
             serviceType: serviceType
         )
+        self.photoCacheManager = photoCacheManager
 
         super.init()
         setup()
@@ -87,6 +88,7 @@ final class Advertiser: NSObject {
         session.delegate = self
         commandSession.delegate = self
         advertiser.delegate = self
+        photoCacheManager.startNewSession()
     }
 
     func startSearching() {
@@ -227,14 +229,11 @@ extension Advertiser: MCSessionDelegate {
             return
         }
 
-        guard let localURL,
-              let data = try? Data(contentsOf: localURL) // TODO: 데이터 변환 방식 수정
-        else {
-            updatePhotoState(photoID: photoID, state: .failed)
+        guard let localURL else {
+            logger.warning("사진 수신 실패: URL 없음 - \(photoID)")
             return
         }
-
-        updatePhotoState(photoID: photoID, state: .completed(data))
+        photoCacheManager.savePhotoData(localURL: localURL)
 
         /// 사진 수신 완료
         DispatchQueue.main.async {
