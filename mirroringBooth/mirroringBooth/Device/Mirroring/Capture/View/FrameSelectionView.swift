@@ -61,7 +61,7 @@ struct FrameSelectionView: View {
                 Button {
 
                 } label: {
-                    Text("촬영 완료하기")
+                    Text("편집 완료하기")
                         .frame(maxWidth: .infinity)
                         .background {
                             RoundedRectangle(cornerRadius: 12)
@@ -70,6 +70,7 @@ struct FrameSelectionView: View {
                                 .frame(minHeight: 44)
                         }
                 }
+                .padding(.trailing, 8)
             }
         }
         .onChange(of: rows) {
