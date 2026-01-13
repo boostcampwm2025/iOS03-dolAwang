@@ -23,14 +23,13 @@ struct TimerOverlay: View {
         case .countdown:
             CountdownOverlay(value: countdownValue)
         case .shooting:
-            ShootingProgressIndicator(countdown: shootingCountdown)
+            EmptyView()
         case .transferring:
             TransferringOverlay(
                 receivedCount: receivedPhotoCount,
                 totalCount: totalCaptureCount
             )
         case .completed:
-            // EmptyView()
             CaptureCompleteOverlay() // 임시
         }
     }
@@ -86,41 +85,71 @@ struct CountdownOverlay: View {
                 .ignoresSafeArea()
 
             Text("\(value)초 뒤에 사진을 촬영합니다!")
-                .font(.system(size: 36, weight: .bold))
+                .font(.system(size: 32, weight: .bold))
                 .foregroundStyle(.white)
         }
     }
 }
 
-// 촬영 중 표시되는 원형 프로그래스 인디케이터
-struct ShootingProgressIndicator: View {
+// 촬영 중 표시되는 프로그래스 배지
+struct ShootingProgressBadge: View {
     let countdown: Int
 
     var body: some View {
-        VStack {
-            HStack {
-                Spacer()
-                ZStack {
-                    Circle()
-                        .stroke(.white.opacity(0.3), lineWidth: 4)
-                        .frame(width: 50, height: 50)
+        HStack(spacing: 16) {
+            ProgressIndicator(countdown: countdown)
 
-                    Circle()
-                        .trim(from: 0, to: CGFloat(countdown) / 8.0)
-                        .stroke(.white, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                        .frame(width: 50, height: 50)
-                        .rotationEffect(.degrees(-90))
-                        .animation(.linear(duration: 1), value: countdown)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("NEXT SHOT")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.primary.opacity(0.6))
+                    .textCase(.uppercase)
 
-                    Text("\(countdown)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                }
-                .padding(.trailing, 16)
-                .padding(.top, 80)
+                Text("\(countdown)초 남음")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(.primary)
             }
-            Spacer()
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .background {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.ultraThinMaterial)
+                .background {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.white.opacity(0.3))
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                }
+        }
+    }
+}
+
+// 원형 프로그래스 인디케이터
+struct ProgressIndicator: View {
+    let countdown: Int
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.blue.opacity(0.2), lineWidth: 6)
+                .frame(width: 60, height: 60)
+
+            Circle()
+                .trim(from: 0, to: CGFloat(countdown) / 8.0)
+                .stroke(
+                    Color.blue,
+                    style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                )
+                .frame(width: 60, height: 60)
+                .rotationEffect(.degrees(-90))
+                .animation(.linear(duration: 1), value: countdown)
+
+            Text("\(countdown)")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundStyle(.primary)
         }
     }
 }
