@@ -16,15 +16,33 @@ struct FrameSelectionView: View {
     @State private var frameColor: Color = .black
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
+            if horizontalSizeClass == .regular
+                && verticalSizeClass == .regular {
+                Label("레이아웃", systemImage: "rectangle.grid.2x2")
+                    .bold()
+                    .foregroundStyle(.primary)
+            } else {
+                Label("레이아웃 및 프레임 선택", systemImage: "rectangle.grid.2x2")
+                    .bold()
+                    .foregroundStyle(.primary)
+            }
+
             LayoutButtonView(
                 rows: $rows,
                 columns: $columns,
                 frameColor: $frameColor
             )
 
-            Divider()
-                .background(Color.main)
+            if horizontalSizeClass == .regular
+                && verticalSizeClass == .regular {
+                HStack {
+                    Label("프레임 디자인", systemImage: "paintpalette")
+                        .bold()
+                        .foregroundStyle(.primary)
+                    Spacer()
+                }
+            }
 
             VStack {
                 if horizontalSizeClass == .compact
@@ -43,7 +61,7 @@ struct FrameSelectionView: View {
                             color: .white
                         )
                     }
-                    .padding()
+                    .padding(16)
                 } else {
                     VStack {
                         FrameColorButton(action: {
@@ -72,6 +90,7 @@ struct FrameSelectionView: View {
                 }
                 .padding(.trailing, 8)
             }
+            .padding(.top, -16)
         }
         .onChange(of: rows) {
             store.send(.selectLayout(rows, columns, frameColor))
@@ -105,16 +124,16 @@ private struct LayoutButtonView: View {
                 rows: $rows,
                 columns: $columns,
                 image: "rectangle.split.2x1.fill",
-                row: 2,
-                column: 1
+                row: 1,
+                column: 2
             )
 
             LayoutButton(
                 rows: $rows,
                 columns: $columns,
                 image: "rectangle.grid.1x3.fill",
-                row: 1,
-                column: 3
+                row: 3,
+                column: 1
             )
 
             LayoutButton(
@@ -129,10 +148,11 @@ private struct LayoutButtonView: View {
                 rows: $rows,
                 columns: $columns,
                 image: "square.grid.3x2.fill",
-                row: 3,
-                column: 2
+                row: 2,
+                column: 3
             )
         }
+        .padding(.horizontal)
     }
 }
 
@@ -189,30 +209,25 @@ private struct LayoutButton: View {
     let image: String
     let row: Int
     let column: Int
-    var text: String { "\(row)x\(column)" }
+    var imageName: String {
+        "layout\(row)x\(column)"
+    }
 
     var body: some View {
         Button {
             rows = row
             columns = column
         } label: {
-            VStack {
-                if horizontalSizeClass != .compact {
-                    Image(systemName: image)
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fit)
-                        .padding()
-                    Text(text)
-                } else {
-                    SimpleLayoutButtonView(text: text)
+            Image(imageName)
+                .resizable()
+                .renderingMode(.template)
+                .aspectRatio(1, contentMode: .fit)
+                .foregroundStyle(Color.primary)
+                .background {
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(.primary, lineWidth: 1)
+                        .foregroundStyle(Color.secondary)
                 }
-            }
-            .foregroundStyle(Color.secondary)
-            .background {
-                RoundedRectangle(cornerRadius: 8)
-                    .strokeBorder(.primary, lineWidth: 1)
-                    .foregroundStyle(Color.secondary)
-            }
         }
     }
 }
