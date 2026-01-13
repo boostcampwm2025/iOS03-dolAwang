@@ -15,8 +15,9 @@ jobs:
         include:
           - scheme: mirroringBooth
             platform: iOS Simulator
-            device_regex: "iPhone.*\\(17\\.[0-9]+\\)"
-            device_fallback_regex: "iPhone [0-9]+"
+            os_major: "18"
+            device_regex: "iPhone.*"
+            device_fallback_regex: "iPhone.*"
           - scheme: mirroringBoothWatch
             platform: watchOS Simulator
             os_major: "11"
@@ -40,6 +41,7 @@ jobs:
             device=$(xcrun simctl list devices available | \
               grep -E "${DEVICE_REGEX}" | \
               head -1 | \
+              sed -E 's/^[[:space:]]*([^()]+)\s*\([0-9A-Fa-f-]{36}\).*/\1/' | \
               sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
             if [ -z "${device}" ]; then
@@ -47,6 +49,7 @@ jobs:
             device=$(xcrun simctl list devices available | \
               grep -E "${DEVICE_REGEX}" | \
               head -1 | \
+              sed -E 's/^[[:space:]]*([^()]+)\s*\([0-9A-Fa-f-]{36}\).*/\1/' | \
               sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
             fi
 
