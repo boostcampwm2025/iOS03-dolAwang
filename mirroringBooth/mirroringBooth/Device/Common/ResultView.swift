@@ -18,8 +18,7 @@ struct ResultView: View {
 
             VStack(spacing: 30) {
                 /// 홈 버튼
-                HomeButton(
-                    size: .title3) {
+                HomeButton(size: .title3) {
                         // TODO: 홈으로 이동하는 액션
                     }
                     .frame(maxWidth: .infinity, alignment: .topLeading)
