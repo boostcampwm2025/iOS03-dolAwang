@@ -23,31 +23,29 @@ struct CaptureResultView: View {
                         Divider()
                             .background(.main)
 
-                        GeometryReader { _ in
-                            HStack {
-                                if store.state.layoutRowCount != 0
-                                    && store.state.layoutColumnCount != 0 {
-                                    FrameView(
-                                        photos: store.state.selectedPhotos,
-                                        rows: store.state.layoutRowCount,
-                                        columns: store.state.layoutColumnCount,
-                                        frameColor: store.state.layoutColor
-                                    )
-                                    .padding(.horizontal, 12)
-                                } else {
-                                    EmptyView()
-                                        .frame(height: geometry.size.height / 2)
-                                }
-
-                                Divider()
-                                    .background(.main)
-
-                                FrameSelectionView(store: store)
-                                    .padding(.bottom, 16)
+                        HStack {
+                            if store.state.layoutRowCount != 0
+                                && store.state.layoutColumnCount != 0 {
+                                FrameView(
+                                    photos: store.state.selectedPhotos,
+                                    rows: store.state.layoutRowCount,
+                                    columns: store.state.layoutColumnCount,
+                                    frameColor: store.state.layoutColor
+                                )
+                                .padding(.horizontal, 12)
+                            } else {
+                                EmptyView()
+                                    .frame(height: geometry.size.height / 2)
                             }
-                            // 화면 표시 비율
-                            .frame(height: geometry.size.height * 0.5)
+
+                            Divider()
+                                .background(.main)
+
+                            FrameSelectionView(store: store)
+                                .padding(.bottom, 16)
                         }
+                        // 화면 표시 비율
+                        .frame(height: geometry.size.height * 0.5)
                     }
                 } else {
                     HStack {
