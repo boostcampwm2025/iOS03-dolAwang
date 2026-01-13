@@ -41,16 +41,14 @@ jobs:
             device=$(xcrun simctl list devices available | \
               grep -E "${DEVICE_REGEX}" | \
               head -1 | \
-              sed -E 's/^[[:space:]]*([^()]+)\s*\([0-9A-Fa-f-]{36}\).*/\1/' | \
-              sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+              sed -E 's/^[[:space:]]*//; s/[[:space:]]*\([0-9A-Fa-f-]{36}\)[[:space:]]*\(.*\)[[:space:]]*$//')
 
             if [ -z "${device}" ]; then
             echo "⚠️ No exact match found. Falling back to: ${DEVICE_FALLBACK_REGEX}"
             device=$(xcrun simctl list devices available | \
               grep -E "${DEVICE_REGEX}" | \
               head -1 | \
-              sed -E 's/^[[:space:]]*([^()]+)\s*\([0-9A-Fa-f-]{36}\).*/\1/' | \
-              sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+              sed -E 's/^[[:space:]]*//; s/[[:space:]]*\([0-9A-Fa-f-]{36}\)[[:space:]]*\(.*\)[[:space:]]*$//')
             fi
 
             if [ -z "${device}" ]; then
