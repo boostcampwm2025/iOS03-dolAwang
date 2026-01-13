@@ -89,7 +89,6 @@ struct CaptureResultView: View {
 }
 
 private struct PhotoGridView: View {
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     var store: CaptureResultStore
 
     var body: some View {
