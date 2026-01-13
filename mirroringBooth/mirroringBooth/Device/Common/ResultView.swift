@@ -8,11 +8,14 @@
 import SwiftUI
 
 struct ResultView: View {
+    @State private var scale: CGFloat = 1.0
+    @State private var lastScale: CGFloat = 1.0
+    
     var body: some View {
         ZStack {
             Color.background
                 .ignoresSafeArea()
-            
+
             VStack(spacing: 30) {
                 /// 홈 버튼
                 HomeButton(
@@ -20,9 +23,9 @@ struct ResultView: View {
                         // TODO: 홈으로 이동하는 액션
                     }
                     .frame(maxWidth: .infinity, alignment: .topLeading)
-                
+
                 Spacer()
-                
+
                 /// 완성 텍스트
                 VStack(spacing: 10) {
                     Text("완성되었습니다!")
@@ -32,11 +35,32 @@ struct ResultView: View {
                         .font(.caption)
                         .foregroundStyle(Color(.label).opacity(0.5))
                 }
-                
+
                 /// 결과 이미지
                 Image(systemName: "photo")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .scaleEffect(scale)
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                scale = lastScale * value
+                            }
+                            .onEnded { value in
+                                lastScale = scale
+                                if scale < 1.0 {
+                                    withAnimation(.spring()) {
+                                        scale = 1.0
+                                        lastScale = 1.0
+                                    }
+                                } else if scale > 3.0 {
+                                    withAnimation(.spring()) {
+                                        scale = 3.0
+                                        lastScale = 3.0
+                                    }
+                                }
+                            }
+                    )
                 
                 /// 버튼
                 HStack {
@@ -56,8 +80,8 @@ struct ResultView: View {
                         // TODO: Airdrop 액션
                     }
                 }
-                //.hidden() // 저장 로직 추가 후 제거
-                
+//                .hidden() // 저장 로직 추가 후 제거
+
                 Spacer()
             }
             .padding()
