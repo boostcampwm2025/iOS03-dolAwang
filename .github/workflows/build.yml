@@ -31,6 +31,7 @@ jobs:
         run: brew install swiftlint
 
       - name: SwiftLint (no errors)
+        if: ${{ matrix.platform == 'iOS Simulator' }}
         working-directory: mirroringBooth
         run: |
           set -euo pipefail
