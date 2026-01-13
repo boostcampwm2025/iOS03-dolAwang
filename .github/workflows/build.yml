@@ -30,7 +30,7 @@ jobs:
       - name: Install SwiftLint
         run: brew install swiftlint
 
-      - name: SwiftLint (no warnings, no errors)
+      - name: SwiftLint (no errors)
         working-directory: mirroringBooth
         run: |
           set -euo pipefail
