@@ -1,6 +1,6 @@
 //
-//  mirroringBoothWatchApp.swift
-//  mirroringBoothWatch
+//  MirroringBoothWatchApp.swift
+//  MirroringBoothWatchApp
 //
 //  Created by 최윤진 on 1/7/26.
 //
