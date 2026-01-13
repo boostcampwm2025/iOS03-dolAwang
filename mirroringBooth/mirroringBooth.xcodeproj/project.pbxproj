@@ -163,6 +163,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				DF4C17D72F15ED0D000A7DAC /* PBXTargetDependency */,
 			);
 			name = mirroringBoothWatch;
 			packageProductDependencies = (
@@ -255,6 +256,10 @@
 			isa = PBXTargetDependency;
 			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
 			targetProxy = DF40C6B42F0E079500D116A3 /* PBXContainerItemProxy */;
+		};
+		DF4C17D72F15ED0D000A7DAC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = DF4C17D62F15ED0D000A7DAC /* SwiftLintBuildToolPlugin */;
 		};
 /* End PBXTargetDependency section */
 
@@ -595,6 +600,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		D771CA772F0BBB26004285EA /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D7E651BF2F0BB36000C0524D /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		DF4C17D62F15ED0D000A7DAC /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D7E651BF2F0BB36000C0524D /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
