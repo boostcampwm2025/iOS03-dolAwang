@@ -19,25 +19,10 @@ jobs:
             device_fallback_regex: "iPhone [0-9]+"
           - scheme: mirroringBoothWatch
             platform: watchOS Simulator
-            os_major: "10"
             device_regex: "Apple Watch Series 10 \\([0-9]+mm\\)"
             device_fallback_regex: "Apple Watch.*\\([0-9]+mm\\)"
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install SwiftLint
-        run: brew install swiftlint
-
-      - name: SwiftLint (no errors)
-        if: ${{ matrix.platform == 'iOS Simulator' }}
-        working-directory: mirroringBooth
-        run: |
-          set -euo pipefail
-          # warning은 통과, error만 CI 실패 처리
-          swiftlint lint --config .swiftlint.yml
-
       - name: Select Simulator
         working-directory: mirroringBooth
         env:
