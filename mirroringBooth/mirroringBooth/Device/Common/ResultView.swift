@@ -10,7 +10,7 @@ import SwiftUI
 struct ResultView: View {
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
-    
+
     var body: some View {
         ZStack {
             Color.background
@@ -30,7 +30,7 @@ struct ResultView: View {
                 VStack(spacing: 10) {
                     Text("완성되었습니다!")
                         .font(.title.bold())
-                    
+
                     Text("순간들이 기록되었습니다.")
                         .font(.caption)
                         .foregroundStyle(Color(.label).opacity(0.5))
@@ -46,7 +46,7 @@ struct ResultView: View {
                             .onChanged { value in
                                 scale = lastScale * value
                             }
-                            .onEnded { value in
+                            .onEnded { _ in
                                 lastScale = scale
                                 if scale < 1.0 {
                                     withAnimation(.spring()) {
@@ -61,7 +61,7 @@ struct ResultView: View {
                                 }
                             }
                     )
-                
+
                 /// 버튼
                 HStack {
                     sharingButton(
@@ -71,7 +71,7 @@ struct ResultView: View {
                     ) {
                         // TODO: 갤러리 저장 액션
                     }
-                    
+
                     sharingButton(
                         icon: "paperplane",
                         title: "Airdrop",
@@ -100,7 +100,7 @@ struct ResultView: View {
         } label: {
             HStack {
                 Image(systemName: icon)
-                
+
                 Text(title)
             }
             .padding(.vertical, 15)
