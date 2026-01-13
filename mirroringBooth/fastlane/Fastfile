@@ -1,0 +1,30 @@
+# 환경 변수 로드 (.env 파일)
+require 'dotenv'
+Dotenv.load
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Development IPA build & AppBox internal distribution"
+  lane :dev_ipa do |options|
+    # env에서 이메일 가져오기 (파라미터 -> 환경 변수 -> 기본값 순서입니다.)
+    emails = options[:emails] || ENV["APPBOX_EMAILS"] || "kayuaao96@gmail.com"
+    
+    build_app(
+      scheme: "mirroringBooth",
+      export_method: "development",
+      output_directory: "./build",
+      output_name: "mirroringBooth.ipa",
+      clean: true
+    )
+
+    appbox(
+      emails: emails,
+      message: "MirroringBooth - 개발용 빌드 {BUILD_VERSION}({BUILD_NUMBER}) 준비 완료 🚀",
+      keep_same_link: true
+    )
+
+    UI.success("✅ 빌드 및 AppBox 업로드 완료")
+    UI.message("📦 설치 링크: #{lane_context[SharedValues::APPBOX_SHARE_URL]}")
+  end
+end
