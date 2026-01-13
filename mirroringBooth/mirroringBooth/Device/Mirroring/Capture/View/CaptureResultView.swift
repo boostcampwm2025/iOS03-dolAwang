@@ -34,7 +34,7 @@ struct CaptureResultView: View {
                                         frameColor: store.state.layoutColor
                                     )
                                     .frame(width: geometry.size.width / 2)
-                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 12)
                                 } else {
                                     EmptyView()
                                         .frame(height: geometry.size.height / 2)

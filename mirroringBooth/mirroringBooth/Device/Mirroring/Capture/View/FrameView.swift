@@ -74,6 +74,10 @@ struct FrameView: View {
                     }
                 }
             }
+            .background {
+                Rectangle()
+                .strokeBorder(.primary, lineWidth: 1)
+            }
         }
         .aspectRatio(width / height, contentMode: .fit)
         .background(frameColor)

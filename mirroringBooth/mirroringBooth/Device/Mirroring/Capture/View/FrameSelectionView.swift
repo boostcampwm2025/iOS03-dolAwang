@@ -220,3 +220,17 @@ private struct SimpleColorButton: View {
         }
     }
 }
+
+private struct SimpleLayoutButtonView: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .foregroundStyle(Color.primary)
+            .lineLimit(1)
+            .background {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.buttonComponent)
+            }
+    }
+}
