@@ -11,10 +11,23 @@ struct BrowserReconnectionView: View {
     let reconnectionType: ReconnectionType
     let store: BrowsingStore
 
+    private var isAllConnected: Bool {
+        switch reconnectionType {
+        case .both:
+            let mirroring = store.state.mirroringDevice
+            let remote = store.state.remoteDevice
+            return mirroring != nil && remote != nil
+        case .mirroringOnly:
+            return store.state.mirroringDevice != nil
+        case .remoteOnly:
+            return store.state.remoteDevice != nil
+        }
+    }
+
     var body: some View {
         ZStack {
             SearchingBackground(
-                color: store.state.hasSelectedDevice ? .green : .red
+                color: isAllConnected ? .green : .red
             )
 
             if store.state.isConnecting {
@@ -26,11 +39,11 @@ struct BrowserReconnectionView: View {
                     Image(systemName: reconnectionType.icon)
                         .padding(15)
                         .font(.title.bold())
-                        .foregroundStyle(store.state.hasSelectedDevice ? .green : .red)
-                        .background((store.state.hasSelectedDevice ? Color.green : Color.red).opacity(0.2))
+                        .foregroundStyle(isAllConnected ? .green : .red)
+                        .background((isAllConnected ? Color.green : Color.red).opacity(0.2))
                         .clipShape(Capsule())
 
-                    Text("연결이 끊어졌습니다")
+                    Text(reconnectionType.title)
                         .font(.title2)
                         .bold()
 
@@ -62,33 +75,17 @@ struct BrowserReconnectionView: View {
                 .padding(.horizontal)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(.bottom, 5)
-
-                if store.state.hasSelectedDevice {
-                    Button {
-                        // 재연결 로직
-                    } label: {
-                        Text("재연결")
-                            .font(.callout)
-                            .foregroundStyle(Color(.secondaryLabel))
-                    }
-                }
             }
             .padding()
         }
         .onAppear {
+            if let firstTarget = reconnectionType.targetTypes.first {
+                store.state.currentTarget = firstTarget
+            }
             store.send(.entry)
         }
         .onDisappear {
             store.send(.exit)
-        }
-    }
-
-    private var selectedDevice: NearbyDevice? {
-        switch store.state.currentTarget {
-        case .mirroring:
-            store.state.mirroringDevice
-        case .remote:
-            store.state.remoteDevice
         }
     }
 
@@ -104,5 +101,5 @@ struct BrowserReconnectionView: View {
 
 // UI 테스트를 위한 프리뷰입니다.
 #Preview {
-    BrowserReconnectionView(reconnectionType: .both, store: BrowsingStore(Browser()))
+    BrowserReconnectionView(reconnectionType: .remoteOnly, store: BrowsingStore(Browser()))
 }
