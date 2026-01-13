@@ -56,6 +56,7 @@ struct CaptureResultView: View {
 }
 
 private struct PhotoGridView: View {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     var store: CaptureResultStore
 
     var body: some View {
@@ -72,12 +73,13 @@ private struct PhotoGridView: View {
 
             // 사진 표시 구역
             GeometryReader { geometry in
+                let rows = calculateRows(forHeight: geometry.size.height)
                 ScrollView(.horizontal) {
                     LazyHGrid(
                         rows: Array(
                             repeating: GridItem(.flexible(), spacing: 12),
-                            // 4열, 안 되면 2열 배치
-                            count: geometry.size.height > 800 ? 4 : 2
+                            // 4열, 작은 기기에서 2열 배치
+                            count: rows
                         ),
                         spacing: 20
                     ) {
@@ -122,17 +124,22 @@ private struct PhotoGridView: View {
                             .cornerRadius(8)
                             .clipped()
                             .frame(maxHeight: 200)
-                            .frame(height: geometry.size.height / 2 - 20)
+                            // 공간에 맞는 높이 조정, 아래 줄 패딩만큼 여유
+                            .frame(height: geometry.size.height / CGFloat(rows) - 20)
                         }
                     }
+                    .padding(.vertical, 20)
                 }
-                .position(
-                    x: geometry.size.width / 2,
-                    y: geometry.size.height / 2
-                )
             }
         }
         .padding()
+    }
+
+    private func calculateRows(forHeight height: CGFloat) -> Int {
+        let minItemHeight: CGFloat = 110
+        let spacing: CGFloat = 20
+        let targetRows = min(Int((height + spacing) / (minItemHeight + spacing)), 4)
+        return max(targetRows, 1)
     }
 }
 
