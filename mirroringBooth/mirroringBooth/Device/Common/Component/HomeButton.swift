@@ -33,6 +33,5 @@ struct HomeButton: View {
                         .stroke(Color(.label), lineWidth: 2)
                 }
         }
-        .foregroundStyle(.clear)
     }
 }
