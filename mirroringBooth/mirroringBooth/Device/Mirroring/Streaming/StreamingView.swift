@@ -161,7 +161,3 @@ struct StreamingView: View {
         CaptureStatusBadge(isTimerMode: isTimerMode, isCompact: isCompact)
     }
 }
-
-#Preview {
-    StreamingView(advertiser: Advertiser(), isTimerMode: true)
-}
