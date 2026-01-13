@@ -24,11 +24,10 @@ struct HomeButton: View {
             action()
         } label: {
             Image(systemName: "house")
-                .padding(5)
-                .font(size)
                 .foregroundStyle(Color(.label))
                 .bold()
-                .overlay {
+                .padding(5)
+                .background {
                     Circle()
                         .stroke(Color(.label), lineWidth: 2)
                 }
