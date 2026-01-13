@@ -136,12 +136,12 @@ private struct PhotoCell: View {
                 .clipped()
 
             if selectedNumber != nil {
-                Color.selectionBlue.opacity(0.25) // TODO: 에셋 색상으로 변경
+                Color.main.opacity(0.25)
             }
 
             if let selectedNumber {
                 RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(Color.selectionBlue, lineWidth: 4)
+                    .strokeBorder(Color.main, lineWidth: 4)
 
                 Text("\(selectedNumber)")
                     .font(.system(size: 40).bold())
