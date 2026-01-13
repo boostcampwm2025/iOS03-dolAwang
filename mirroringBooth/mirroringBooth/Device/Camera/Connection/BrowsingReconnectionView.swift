@@ -26,9 +26,7 @@ struct BrowsingReconnectionView: View {
 
     var body: some View {
         ZStack {
-            SearchingBackground(
-                color: isAllConnected ? .green : .red
-            )
+            SearchingBackground(color: isAllConnected ? .green : .red)
 
             if store.state.isConnecting {
                 ProgressView()
@@ -97,9 +95,4 @@ struct BrowsingReconnectionView: View {
         }
         return nil
     }
-}
-
-// UI 테스트를 위한 프리뷰입니다.
-#Preview {
-    BrowserReconnectionView(reconnectionType: .remoteOnly, store: BrowsingStore(Browser()))
 }
