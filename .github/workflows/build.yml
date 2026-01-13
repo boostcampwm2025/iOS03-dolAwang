@@ -89,7 +89,8 @@ jobs:
           xcodebuild build \
             -scheme "${SCHEME}" \
             -project "mirroringBooth.xcodeproj" \
-            -destination "platform=${PLATFORM},name=${DEVICE}"
+            -destination "platform=${PLATFORM},name=${DEVICE}" \
+            -skipPackagePluginValidation
 
       - name: Notify Slack on failure
         if: failure()
