@@ -111,7 +111,8 @@ private struct LayoutButtonView: View {
     @Binding var frameColor: Color
 
     private var isCompact: Bool {
-        UIDevice.current.userInterfaceIdiom == .phone && !UIDevice.current.orientation.isLandscape
+        UIDevice.current.userInterfaceIdiom == .phone
+        && UIScreen.main.bounds.width < UIScreen.main.bounds.height
     }
     private let gridItems = Array(repeating: GridItem(.flexible()), count: 3)
 
