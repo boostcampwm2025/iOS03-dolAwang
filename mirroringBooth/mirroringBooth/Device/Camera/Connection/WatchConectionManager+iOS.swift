@@ -75,7 +75,7 @@ final class WatchConnectionManager: NSObject {
     }
 
     func stop() {
-        guard let session = self.session else {
+        guard self.session != nil else {
             self.logger.error("WCSession이 지원되지 않아 비활성화할 수 없습니다.")
             return
         }

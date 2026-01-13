@@ -11,6 +11,30 @@
 		DF40C6B62F0E079500D116A3 /* mirroringBoothWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = DF40C6AC2F0E079400D116A3 /* mirroringBoothWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		DF40C6B42F0E079500D116A3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C796EA22EF52FB200280FED /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DF40C6AB2F0E079400D116A3;
+			remoteInfo = "mirroringBoothWatch Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DF5F24262F0E04EB00EED174 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				DF40C6B62F0E079500D116A3 /* mirroringBoothWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		8C796EAA2EF52FB200280FED /* mirroringBooth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mirroringBooth.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D771C9762F0BB448004285EA /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
@@ -63,30 +87,6 @@
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
-
-/* Begin PBXContainerItemProxy section */
-		DF40C6B42F0E079500D116A3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8C796EA22EF52FB200280FED /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = DF40C6AB2F0E079400D116A3;
-			remoteInfo = "mirroringBoothWatch Watch App";
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		DF5F24262F0E04EB00EED174 /* Embed Watch Content */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
-			dstSubfolderSpec = 16;
-			files = (
-				DF40C6B62F0E079500D116A3 /* mirroringBoothWatch.app in Embed Watch Content */,
-			);
-			name = "Embed Watch Content";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8C796EA72EF52FB200280FED /* Frameworks */ = {
@@ -190,11 +190,10 @@
 				};
 			};
 			buildConfigurationList = 8C796EA52EF52FB200280FED /* Build configuration list for PBXProject "mirroringBooth" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
-				Base,
+				ko,
 			);
 			mainGroup = 8C796EA12EF52FB200280FED;
 			minimizedProjectReferenceProxies = 1;
@@ -391,6 +390,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = mirroringBooth/App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_NSCameraUsageDescription = "비디오 스트리밍을 위해 카메라 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "주변 Apple 기기와의 연결 및 미러링 기능을 위해 로컬 네트워크를 사용합니다.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -440,6 +441,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = mirroringBooth/App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_NSCameraUsageDescription = "비디오 스트리밍을 위해 카메라 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "주변 Apple 기기와의 연결 및 미러링 기능을 위해 로컬 네트워크를 사용합니다.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

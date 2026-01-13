@@ -15,14 +15,7 @@ struct BrowsingView: View {
 
     var body: some View {
         ZStack {
-            // 배경에 그려지는 2개의 원
-            Circle()
-                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.3))
-                .frame(width: 180, height: 180)
-
-            Circle()
-                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.2))
-                .frame(width: 260, height: 260)
+            animatedCircle
 
             if store.state.isConnecting {
                 ProgressView()
@@ -116,6 +109,35 @@ struct BrowsingView: View {
             default: state = .inactive
             }
             store.send(.didChangeAppState(state))
+        }
+    }
+
+    private var animatedCircle: some View {
+        ZStack {
+            let trigger = store.state.animationTrigger
+            Circle()
+                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.3))
+                .frame(width: 180, height: 180)
+
+            Circle()
+                .stroke(Color(store.state.currentTarget.color), lineWidth: 3)
+                .frame(width: 180, height: 180)
+                .scaleEffect(trigger ? 2 : 1)
+                .opacity(trigger ? 0 : 0.5)
+                .animation(
+                    .easeOut(duration: 1.4).repeatForever(autoreverses: false),
+                    value: trigger
+                )
+
+            Circle()
+                .stroke(Color(store.state.currentTarget.color), lineWidth: 3)
+                .frame(width: 180, height: 180)
+                .scaleEffect(trigger ? 3 : 1)
+                .opacity(trigger ? 0.0 : 0.3)
+                .animation(
+                    .easeOut(duration: 1.8).repeatForever(autoreverses: false).delay(0.3),
+                    value: trigger
+                )
         }
     }
 

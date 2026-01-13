@@ -157,10 +157,6 @@ extension Advertiser: MCSessionDelegate {
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         if session === self.session {
             // 스트림 세션에서 수신
-            logger.info("스트림 데이터 수신: \(data.count) bytes")
-            if onReceivedStreamData == nil {
-                logger.warning("onReceivedStreamData 콜백이 nil입니다.")
-            }
             onReceivedStreamData?(data)
         } else if session === commandSession {
             // 명령 세션에서 수신
