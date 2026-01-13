@@ -14,6 +14,7 @@ final class CameraPreviewStore: StoreProtocol {
         var animationFlag = false
         var buffer: CMSampleBuffer?
         var deviceName: String
+        var isTransferring = false
     }
 
     enum Intent {
@@ -27,11 +28,17 @@ final class CameraPreviewStore: StoreProtocol {
         case startSession
     }
 
-    private let manager: CameraManager
+    private let browser: Browser
+    private let cameraManager: CameraManager
     private(set) var state: State
 
-    init(manager: CameraManager, deviceName: String) {
-        self.manager = manager
+    init(
+        browser: Browser,
+        manager: CameraManager,
+        deviceName: String,
+    ) {
+        self.browser = browser
+        self.cameraManager = manager
         self.state = State(deviceName: deviceName)
     }
 
@@ -40,9 +47,10 @@ final class CameraPreviewStore: StoreProtocol {
         case .startAnimation:
             return [.startAnimation]
         case .startSession:
+            setupCallbacks()
             return [.startSession]
         case .tapExitButton:
-            manager.stopSession()
+            cameraManager.stopSession()
         }
         return []
     }
@@ -53,11 +61,38 @@ final class CameraPreviewStore: StoreProtocol {
         case .startAnimation:
             state.animationFlag = true
         case .startSession:
-            manager.startSession()
-            manager.rawData = { buffer in
+            cameraManager.startSession()
+            cameraManager.rawData = { buffer in
                 self.state.buffer = buffer
             }
         }
         self.state = state
+    }
+}
+
+private extension CameraPreviewStore {
+    func setupCallbacks() {
+        // 비디오 스트림 콜백
+        cameraManager.onEncodedData = { data in
+            guard !self.state.isTransferring else { return }
+            self.browser.sendStreamData(data)
+        }
+        // 촬영 명령 수신
+        browser.onCaptureCommand = {
+            self.cameraManager.capturePhoto()
+        }
+        // 일괄 전송 시작 명령 수신
+        browser.onStartTransferCommand = {
+            self.state.isTransferring = true
+            self.cameraManager.sendAllPhotos(using: self.browser)
+        }
+        // 전송 완료
+        cameraManager.onTransferCompleted = {
+            self.state.isTransferring = false
+        }
+        // 10장 모두 저장 완료 시 iPad에 알림 전송
+        cameraManager.onAllPhotosStored = { _ in
+            self.browser.sendCommand(.allPhotosStored)
+        }
     }
 }
