@@ -71,10 +71,11 @@ struct CaptureResultView: View {
                             }
 
                             Divider()
-                                .background(.primary)
+                                .background(.main)
 
                             FrameSelectionView(store: store)
                                 .padding(.bottom, 16)
+                                .padding(.trailing, 10)
                         }
                         // 화면 표시 비율
                         .frame(width: geometry.size.width * 0.33)
