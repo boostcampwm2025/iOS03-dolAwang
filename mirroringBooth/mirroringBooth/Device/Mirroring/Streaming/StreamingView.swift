@@ -8,23 +8,56 @@
 import SwiftUI
 
 struct StreamingView: View {
-    /// 총 사진 촬영 수
-    private let totalCaptureCount = 10
-    /// 현재까지 촬영한 사진 개수
-    private var captureCount: Int = 0
+    @State private var store: StreamingStore
+    let advertiser: Advertiser
+
+    private let isTimerMode: Bool
+
+    init(advertiser: Advertiser, isTimerMode: Bool) {
+        self.advertiser = advertiser
+        self.isTimerMode = isTimerMode
+        // 디코더는 임시로 생성합니다.
+        _store = State(initialValue: StreamingStore(advertiser, decoder: H264Decoder()))
+    }
 
     // MARK: - Body
 
     var body: some View {
         ZStack {
             // 스트리밍 영역 배경
-            Color("Background")
+            Color("background")
                 .ignoresSafeArea()
 
-            streamingPlaceholder // 비디오 스트리밍이 오면 해당 Placeholder를 변경
+            // 비디오 스트리밍 표시
+            if let sampleBuffer = store.state.currentSampleBuffer {
+                VideoPlayerView(sampleBuffer: sampleBuffer)
+                    .ignoresSafeArea()
+            } else {
+                streamingPlaceholder
+            }
 
             // 상단 HUD
             streamingHUD
+
+            // 타이머 모드 오버레이
+            if isTimerMode {
+                TimerOverlay(
+                    phase: store.state.timerPhase,
+                    countdownValue: store.state.countdownValue,
+                    shootingCountdown: store.state.shootingCountdown,
+                    receivedPhotoCount: store.state.receivedPhotoCount,
+                    totalCaptureCount: store.state.totalCaptureCount,
+                    onReadyTapped: {
+                        store.send(.startCountdown)
+                    }
+                )
+            }
+        }
+        .onAppear {
+            store.send(.startStreaming)
+        }
+        .onDisappear {
+            store.send(.stopStreaming)
         }
     }
 
@@ -35,7 +68,7 @@ struct StreamingView: View {
         VStack(spacing: 12) {
             Image(systemName: "video.fill")
                 .font(.largeTitle)
-                .foregroundStyle(Color.main)
+                .foregroundStyle(Color("mainColor"))
 
             Text("스트리밍 표시 영역")
                 .font(.title3)
@@ -65,8 +98,8 @@ struct StreamingView: View {
                     }
                     Spacer()
                     CaptureCountBadge(
-                        current: captureCount,
-                        total: totalCaptureCount,
+                        current: store.state.captureCount,
+                        total: store.state.totalCaptureCount,
                         isCompact: isCompact
                     )
                 }
@@ -84,6 +117,6 @@ struct StreamingView: View {
             isConnected: false,
             isCompact: isCompact
         )
-        CaptureStatusBadge(isTimerMode: true, isCompact: isCompact)
+        CaptureStatusBadge(isTimerMode: isTimerMode, isCompact: isCompact)
     }
 }

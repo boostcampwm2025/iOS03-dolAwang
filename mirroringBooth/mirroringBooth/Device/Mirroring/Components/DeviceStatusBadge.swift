@@ -27,7 +27,7 @@ struct DeviceStatusBadge: View {
                     .foregroundStyle(batteryColor)
                 Text("\(batteryLevel)%")
                 Image(systemName: wifiSymbol)
-                    .foregroundStyle(isConnected ? Color.main : .red)
+                    .foregroundStyle(isConnected ? Color("mainColor") : .red)
             }
         }
         .font(isCompact ? .caption : nil)

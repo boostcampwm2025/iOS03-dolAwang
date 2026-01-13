@@ -17,15 +17,17 @@ enum VideoStreamSettings {
 
     /// 해상도 설정
     enum Resolution {
-        case hd720p      // 1280x720
-        case hd1080p  // 1920x1080
-        case hd4k // 3840x2160
+        case hd720p           // 1280x720 (가로)
+        case hd1080p          // 1920x1080 (가로)
+        case hd4k             // 3840x2160 (가로)
+        case portraitHD1080p  // 1080x1920 (세로)
 
         var width: Int32 {
             switch self {
             case .hd720p: 1280
             case .hd1080p: 1920
             case .hd4k: 3840
+            case .portraitHD1080p: 1080
             }
         }
 
@@ -34,6 +36,7 @@ enum VideoStreamSettings {
             case .hd720p: 720
             case .hd1080p: 1080
             case .hd4k: 2160
+            case .portraitHD1080p: 1920
             }
         }
     }

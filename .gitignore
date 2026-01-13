@@ -10,3 +10,25 @@ Config.xcconfig
 xcuserdata/
 *.xcuserstate
 Breakpoints_v2.xcbkptlist
+
+# Fastlane
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots/**/*.png
+**/fastlane/test_output
+**/fastlane/.env
+**/fastlane/.env.*
+
+# 빌드 결과물
+build/
+**/build/
+*.ipa
+*.dSYM.zip
+*.app.dSYM
+
+# 환경 변수
+.env
+.env.local
+**/.env
+**/.env.local
+!**/.env.example

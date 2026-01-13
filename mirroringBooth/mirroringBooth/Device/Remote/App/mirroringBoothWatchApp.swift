@@ -8,10 +8,10 @@
 import SwiftUI
 
 @main
-struct mirroringBoothWatchApp: App {
+struct MirroringBoothWatchApp: App {
     var body: some Scene {
         WindowGroup {
-            WatchView(store: WatchViewStore(connectionManager: WatchConnectionManager()))
+            WatchView()
         }
     }
 }

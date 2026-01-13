@@ -9,8 +9,9 @@ import SwiftUI
 
 struct BrowsingView: View {
 
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(Router.self) var router: Router
-    @State private var store = BrowsingStore(Browser())
+    @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
 
     var body: some View {
         ZStack {
@@ -50,7 +51,7 @@ struct BrowsingView: View {
                                 } label: {
                                     deviceRow(device)
                                 }
-                                .disabled(isDeviceSelected(device) != nil)
+                                .disabled(isDeviceDisabled(device))
                             }
                         }
                     }
@@ -80,7 +81,8 @@ struct BrowsingView: View {
                                         cameraName: store.browser.myDeviceName,
                                         mirroringName: mirroringDevice.id,
                                         remoteName: store.state.remoteDevice?.id ?? nil
-                                    )
+                                    ),
+                                    store.browser
                                 )
                             )
                         }
@@ -98,6 +100,15 @@ struct BrowsingView: View {
         }
         .onDisappear {
             store.send(.exit)
+        }
+        .onChange(of: scenePhase) { _, newValue in
+            let state: UIApplication.State
+            switch newValue {
+            case .active: state = .active
+            case .background: state = .background
+            default: state = .inactive
+            }
+            store.send(.didChangeAppState(state))
         }
     }
 
@@ -159,7 +170,7 @@ struct BrowsingView: View {
         .foregroundStyle(Color(.label))
         .background(Color(.secondarySystemBackground).opacity(0.6))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .opacity(target != nil ? 0.5 : 1)
+        .opacity(isDeviceDisabled(device) ? 0.5 : 1)
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {
@@ -169,5 +180,10 @@ struct BrowsingView: View {
             return .remote
         }
         return nil
+    }
+
+    private func isDeviceDisabled(_ device: NearbyDevice) -> Bool {
+        return isDeviceSelected(device) != nil ||
+        (store.state.currentTarget == .mirroring && device.type == .watch)
     }
 }

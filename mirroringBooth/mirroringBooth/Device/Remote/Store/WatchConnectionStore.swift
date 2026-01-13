@@ -1,5 +1,5 @@
 //
-//  WatchViewStore.swift
+//  WatchConnectionStore.swift
 //  mirroringBooth
 //
 //  Created by 최윤진 on 1/6/26.
@@ -8,19 +8,21 @@
 import Foundation
 
 @Observable
-final class WatchViewStore: StoreProtocol {
+final class WatchConnectionStore: StoreProtocol {
     struct State {
         var connectionState: ConnectionState = .notConnected
+        var isReadyToCapture: Bool = false
     }
 
     enum Intent {
-        case onAppear
         case tapRequestCapture
-        case tapDisconnect
+        case startConnecting
+        case disconnect
     }
 
     enum Result {
         case setConnectionState(ConnectionState)
+        case setIsReadyToCapture(Bool)
     }
 
     private let connectionManager: WatchConnectionManager
@@ -36,19 +38,27 @@ final class WatchViewStore: StoreProtocol {
             let connectivity: ConnectionState = reachable ? .connected : .notConnected
             self.reduce(.setConnectionState(connectivity))
         }
+
+        self.connectionManager.onReceiveConnectionCompleted = { [weak self] in
+            self?.reduce(.setConnectionState(.connected))
+        }
+
+        self.connectionManager.onReceiveRequestToPrepare = { [weak self] in
+            self?.reduce(.setIsReadyToCapture(true))
+        }
     }
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
-        case .onAppear:
-            self.connectionManager.start()
         case .tapRequestCapture:
             Task {
                 await self.connectionManager.sendCaptureRequest()
             }
-        case .tapDisconnect:
+        case .disconnect:
             self.connectionManager.stop()
             return [.setConnectionState(.notConnected)]
+        case .startConnecting:
+            self.connectionManager.start()
         }
         return []
     }
@@ -58,6 +68,9 @@ final class WatchViewStore: StoreProtocol {
         switch result {
         case .setConnectionState(let value):
             state.connectionState = value
+
+        case .setIsReadyToCapture(let value):
+            state.isReadyToCapture = value
         }
         self.state = state
     }
