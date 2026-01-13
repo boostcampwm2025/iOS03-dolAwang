@@ -23,7 +23,7 @@ struct FrameSelectionView: View {
                     .bold()
                     .foregroundStyle(.primary)
             } else {
-                Label("레이아웃 및 프레임 선택", systemImage: "rectangle.grid.2x2")
+                Label("레이아웃 & 프레임", systemImage: "rectangle.grid.2x2")
                     .bold()
                     .foregroundStyle(.primary)
             }
@@ -110,49 +110,75 @@ private struct LayoutButtonView: View {
     @Binding var columns: Int
     @Binding var frameColor: Color
 
+    private var isCompact: Bool {
+        UIDevice.current.userInterfaceIdiom == .phone && !UIDevice.current.orientation.isLandscape
+    }
+    private let gridItems = Array(repeating: GridItem(.flexible()), count: 3)
+
     var body: some View {
-        HStack {
-            LayoutButton(
-                rows: $rows,
-                columns: $columns,
-                image: "square.fill",
-                row: 1,
-                column: 1
-            )
-
-            LayoutButton(
-                rows: $rows,
-                columns: $columns,
-                image: "rectangle.split.2x1.fill",
-                row: 1,
-                column: 2
-            )
-
-            LayoutButton(
-                rows: $rows,
-                columns: $columns,
-                image: "rectangle.grid.1x3.fill",
-                row: 3,
-                column: 1
-            )
-
-            LayoutButton(
-                rows: $rows,
-                columns: $columns,
-                image: "rectangle.split.2x2.fill",
-                row: 2,
-                column: 2
-            )
-
-            LayoutButton(
-                rows: $rows,
-                columns: $columns,
-                image: "square.grid.3x2.fill",
-                row: 2,
-                column: 3
-            )
+        if isCompact {
+            VStack {
+                LazyVGrid(columns: gridItems) {
+                    button1x1; button1x2; button3x1
+                    button2x2; button2x3
+                }
+            }
+        } else {
+            HStack {
+                button1x1; button1x2; button3x1; button2x2; button2x3
+            }
+            .padding(.horizontal)
         }
-        .padding(.horizontal)
+    }
+
+    private var button1x1: some View {
+        LayoutButton(
+            rows: $rows,
+            columns: $columns,
+            image: "square.fill",
+            row: 1,
+            column: 1
+        )
+    }
+
+    private var button1x2: some View {
+        LayoutButton(
+            rows: $rows,
+            columns: $columns,
+            image: "rectangle.split.2x1.fill",
+            row: 1,
+            column: 2
+        )
+    }
+
+    private var button3x1: some View {
+        LayoutButton(
+            rows: $rows,
+            columns: $columns,
+            image: "rectangle.grid.1x3.fill",
+            row: 3,
+            column: 1
+        )
+    }
+
+    private var button2x2: some View {
+        LayoutButton(
+            rows: $rows,
+            columns: $columns,
+            image: "rectangle.split.2x2.fill",
+            row: 2,
+            column: 2
+        )
+    }
+
+    private var button2x3: some View {
+        LayoutButton(
+            rows: $rows,
+            columns: $columns,
+            image: "square.grid.3x2.fill",
+            row: 2,
+            column: 3
+        )
     }
 }
 
@@ -232,16 +258,4 @@ private struct LayoutButton: View {
     }
 }
 
-private struct SimpleLayoutButtonView: View {
-    let text: String
-
-    var body: some View {
-        Text(text)
-            .foregroundStyle(Color.primary)
-            .lineLimit(1)
-            .background {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.buttonComponent)
-            }
-    }
 }

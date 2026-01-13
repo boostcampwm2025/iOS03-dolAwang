@@ -33,7 +33,6 @@ struct CaptureResultView: View {
                                         columns: store.state.layoutColumnCount,
                                         frameColor: store.state.layoutColor
                                     )
-                                    .frame(width: geometry.size.width / 2)
                                     .padding(.horizontal, 12)
                                 } else {
                                     EmptyView()
@@ -50,7 +49,6 @@ struct CaptureResultView: View {
                             .frame(height: geometry.size.height * 0.5)
                         }
                     }
-
                 } else {
                     HStack {
                         PhotoGridView(store: store)
@@ -177,7 +175,7 @@ private struct PhotoGridView: View {
 
     private func calculateRows(width: CGFloat, height: CGFloat) -> Int {
         // 세로모드일 경우 2줄 배치
-        if UIDevice.current.orientation.isPortrait { return 2 }
+        if !UIDevice.current.orientation.isLandscape { return 2 }
         // 이외의 경우 최소 Height를 유지하는 선에서 최대 4줄 배치
         let minItemHeight: CGFloat = 110
         let spacing: CGFloat = 20
