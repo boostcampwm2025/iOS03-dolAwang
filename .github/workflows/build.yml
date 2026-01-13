@@ -35,7 +35,7 @@ jobs:
         run: |
           set -euo pipefail
           # warning은 통과, error만 CI 실패 처리
-          swiftlint lint --config .swiftlint.yml
+          swiftlint lint --config mirroringBooth/.swiftlint.yml
 
       - name: Select Simulator
         working-directory: mirroringBooth
