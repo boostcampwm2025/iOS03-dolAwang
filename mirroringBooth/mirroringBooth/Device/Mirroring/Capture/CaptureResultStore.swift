@@ -86,15 +86,17 @@ final class CaptureResultStore: StoreProtocol {
         case .decreaseSelectionCount:
             state.currentSelectionCount -= 1
         case let .setLayout(row, column, color):
-            for index in 0 ..< state.photos.count {
-                state.photos[index].selectNumber = nil
+            var copyState = state
+            for index in 0 ..< copyState.photos.count {
+                copyState.photos[index].selectNumber = nil
             }
-            state.selectedPhotos = []
-            state.maxSelection = row * column
-            state.currentSelectionCount = 0
-            state.layoutRowCount = row
-            state.layoutColumnCount = column
-            state.layoutColor = color
+            copyState.selectedPhotos = []
+            copyState.maxSelection = row * column
+            copyState.currentSelectionCount = 0
+            copyState.layoutRowCount = row
+            copyState.layoutColumnCount = column
+            copyState.layoutColor = color
+            state = copyState
         }
     }
 }
