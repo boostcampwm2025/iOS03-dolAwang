@@ -10,21 +10,21 @@ import SwiftUI
 struct DeviceRow: View {
     let device: NearbyDevice
     let selectedTarget: DeviceUseType?
-    
+
     var body: some View {
         HStack {
             Image(systemName: device.type.icon)
                 .font(.title)
-            
+
             VStack(alignment: .leading) {
                 Text(device.id)
                     .font(.headline.bold())
                 Text(device.type.rawValue)
                     .font(.footnote)
             }
-            
+
             Spacer()
-            
+
             // 선택된 기기인 경우 상징적인 아이콘 표시
             if let target = selectedTarget {
                 Image(systemName: target.icon)
