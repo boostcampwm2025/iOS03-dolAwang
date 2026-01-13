@@ -17,11 +17,6 @@ struct ResultView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 30) {
-                /// 홈 버튼
-                HomeButton(size: .title3) {
-                        // TODO: 홈으로 이동하는 액션
-                    }
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
 
                 Spacer()
 
@@ -84,7 +79,14 @@ struct ResultView: View {
                 Spacer()
             }
             .padding()
-            .navigationBarBackButtonHidden()
+        }
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                HomeButton(size: .headline) {
+                    // TODO: 홈으로 이동하는 액션
+                }
+            }
         }
     }
 
