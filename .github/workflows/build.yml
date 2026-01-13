@@ -45,31 +45,31 @@ jobs:
           DEVICE_REGEX: ${{ matrix.device_regex }}
           DEVICE_FALLBACK_REGEX: ${{ matrix.device_fallback_regex }}
         run: |
-          set -euo pipefail
+            set -euo pipefail
 
-          echo "Searching for simulator matching: ${DEVICE_REGEX}"
-          device=$(xcrun simctl list devices available | \
-            grep -E "${DEVICE_REGEX}" | \
-            head -1 | \
-            sed -E 's/[[:space:]]*([^(]+).*/\1/' | \
-            sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-
-          if [ -z "${device}" ]; then
-            echo "⚠️ No exact match found. Falling back to: ${DEVICE_FALLBACK_REGEX}"
+            echo "Searching for simulator matching: ${DEVICE_REGEX}"
             device=$(xcrun simctl list devices available | \
-              grep -E "${DEVICE_FALLBACK_REGEX}" | \
+              grep -E "${DEVICE_REGEX}" || true | \
               head -1 | \
               sed -E 's/[[:space:]]*([^(]+).*/\1/' | \
               sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-          fi
 
-          if [ -z "${device}" ]; then
-            echo "❌ No simulator found for platform ${PLATFORM}"
-            exit 1
-          fi
+            if [ -z "${device}" ]; then
+              echo "⚠️ No exact match found. Falling back to: ${DEVICE_FALLBACK_REGEX}"
+              device=$(xcrun simctl list devices available | \
+                grep -E "${DEVICE_FALLBACK_REGEX}" || true | \
+                head -1 | \
+                sed -E 's/[[:space:]]*([^(]+).*/\1/' | \
+                sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+            fi
 
-          echo "✅ Using simulator: ${device}"
-          echo "device=${device}" >> "$GITHUB_OUTPUT"
+            if [ -z "${device}" ]; then
+              echo "❌ No simulator found for platform ${PLATFORM}"
+              exit 1
+            fi
+
+            echo "✅ Using simulator: ${device}"
+            echo "device=${device}" >> "$GITHUB_OUTPUT"
         id: sim
 
       - name: Build
