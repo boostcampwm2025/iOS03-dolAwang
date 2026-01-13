@@ -23,14 +23,22 @@ struct HomeButton: View {
         Button {
             action()
         } label: {
-            Image(systemName: "house")
-                .foregroundStyle(Color(.label))
-                .bold()
-                .padding(5)
-                .background {
-                    Circle()
-                        .stroke(Color(.label), lineWidth: 2)
-                }
+            if #available(iOS 26, *) {
+                homeImage
+            } else {
+                homeImage
+                    .background {
+                        Circle()
+                            .stroke(Color(.label), lineWidth: 2)
+                    }
+            }
         }
+    }
+
+    private var homeImage: some View {
+        Image(systemName: "house")
+            .foregroundStyle(Color(.label))
+            .bold()
+            .padding(5)
     }
 }
