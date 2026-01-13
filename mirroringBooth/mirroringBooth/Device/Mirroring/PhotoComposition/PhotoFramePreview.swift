@@ -21,10 +21,8 @@ struct PhotoFramePreview: View {
                 let canvas = CGRect(origin: .zero, size: size)
 
                 // 1. 프레임 (배경)
-                context.drawLayer { layer in
-                    let frameTarget = aspectFillRect(for: frame.size, into: canvas)
-                    layer.draw(Image(uiImage: frame), in: frameTarget)
-                }
+                let frameTarget = aspectFillRect(for: frame.size, into: canvas)
+                context.draw(Image(uiImage: frame), in: frameTarget)
 
                 // 2. 사진 슬롯들
                 let slots = layout.frameRects().map { $0.denormalized(in: size) }
