@@ -13,10 +13,10 @@ final class CaptureResultStore: StoreProtocol {
     struct State {
         var photos: [Photo] = []
         var selectedPhotos: [Photo] = []
-        var maxSelection: Int = 0
+        var maxSelection: Int = 1
         var currentSelectionCount: Int = 0
-        var layoutRowCount: Int = 0
-        var layoutColumnCount: Int = 0
+        var layoutRowCount: Int = 1
+        var layoutColumnCount: Int = 1
         var layoutColor: Color = .black
     }
 
@@ -54,7 +54,7 @@ final class CaptureResultStore: StoreProtocol {
                 return [.deselectPhoto(index), .decreaseSelectionCount]
             }
         case let .selectLayout(row, column, color):
-            if state.layoutRowCount == row && state.layoutColumnCount == column {
+            if state.layoutRowCount == row && state.layoutColumnCount == column && state.layoutColor == color {
                 return []
             }
             return [
