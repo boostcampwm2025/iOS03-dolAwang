@@ -131,4 +131,3 @@ private extension CaptureResultView {
         .padding(5)
     }
 }
-}

@@ -156,6 +156,7 @@ private extension FrameSelectionView {
                         .foregroundStyle(Color.secondary)
                 }
                 .aspectRatio(contentMode: .fit)
+                .opacity(0.6)
         }
     }
 }
