@@ -12,7 +12,6 @@ final class CaptureResultStore: StoreProtocol {
     struct State {
         var photos: [Photo] = []
         var selectedPhotos: [Photo] = []
-        var maxSelection: Int = 1
         var currentSelectionCount: Int = 0
         var selectedLayout: PhotoFrameLayout = .oneByOne
         var selectedFrame: FrameAsset = .black
@@ -49,7 +48,7 @@ final class CaptureResultStore: StoreProtocol {
 
         case let .selectPhoto(index):
             if state.photos[index].selectNumber == nil {
-                guard state.currentSelectionCount < state.maxSelection else { return [] }
+                guard state.currentSelectionCount < state.selectedLayout.capacity else { return [] }
                 return [.selectPhoto(index), .increaseSelectionCount]
             } else {
                 return [.deselectPhoto(index), .decreaseSelectionCount]

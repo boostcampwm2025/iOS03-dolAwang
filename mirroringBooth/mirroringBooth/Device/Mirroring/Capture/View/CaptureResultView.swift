@@ -95,7 +95,7 @@ private extension CaptureResultView {
     var photoGridView: some View {
         VStack(alignment: .leading) {
             // 제목 및 Description
-            Text("사진 선택 (\(store.state.currentSelectionCount)/\(store.state.maxSelection))")
+            Text("사진 선택 (\(store.state.currentSelectionCount)/\(store.state.selectedLayout.capacity))")
                 .font(.title.bold())
                 .foregroundColor(.primary)
 
