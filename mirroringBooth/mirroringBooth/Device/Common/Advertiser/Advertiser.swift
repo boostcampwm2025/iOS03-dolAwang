@@ -84,7 +84,9 @@ final class Advertiser: NSObject {
     }
 
     func setupCacheManager() {
-        photoCacheManager.startNewSession()
+        Task {
+            await photoCacheManager.startNewSession()
+        }
     }
 
     func startSearching() {

@@ -25,9 +25,10 @@ final class PhotoCacheManager {
         sessionDirectory = cahcheDirectory.appendingPathComponent("CurrentSession")
     }
 
-    func startNewSession() {
+    func startNewSession() async {
         // 지난 캐시는 지우기(캐시는 세션 단위)
         clearCache()
+        cacheCount = 0
         do {
             try FileManager.default.createDirectory(
                 at: sessionDirectory,
