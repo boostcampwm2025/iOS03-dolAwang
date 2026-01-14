@@ -57,6 +57,9 @@ private struct PhotoItem: View {
             .clipped()
             .frame(maxHeight: 200)
             .frame(height: geometry.size.height / CGFloat(rows) - 20)
+            .onTapGesture {
+                onTap()
+            }
     }
 }
 
