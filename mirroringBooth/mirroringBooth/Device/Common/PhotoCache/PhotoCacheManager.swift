@@ -45,16 +45,6 @@ final class PhotoCacheManager {
         cacheCount += 1
     }
 
-    func loadPhotoData(index: Int) -> UIImage? {
-        let fileURL = sessionDirectory.appendingPathComponent("photo\(index).jpg")
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-            return UIImage(contentsOfFile: fileURL.path)
-        } else {
-            logger.error("❌ [Cache] 사진 파일 없음 (index: \(index))")
-        }
-        return nil
-    }
-
     func getPhotoURL(index: Int) -> URL {
         sessionDirectory.appendingPathComponent("photo\(index).jpg")
     }
