@@ -68,13 +68,19 @@ private extension CaptureResultView {
     @ViewBuilder
     func editingPanel(isPortrait: Bool) -> some View {
         if store.state.layoutRowCount != 0 && store.state.layoutColumnCount != 0 {
-            FrameView(
-                photos: store.state.selectedPhotos,
-                rows: store.state.layoutRowCount,
-                columns: store.state.layoutColumnCount,
-                frameColor: store.state.layoutColor
+            // 임시로 적용해둔 상태, State 연결 필요
+            PhotoFramePreview(
+                layout: .fourByOne,
+                frame: UIImage(named: "testFramee")!,
+                photos: [
+                    UIImage(named: "test")!,
+                    UIImage(named: "test")!,
+                    UIImage(named: "test")!,
+                    UIImage(named: "test")!
+                ]
             )
-            .padding(isPortrait ? .horizontal : .vertical, 12)
+            .padding(12)
+            .padding(isPortrait ? .leading : .trailing, 7)
         }
 
         Divider()
