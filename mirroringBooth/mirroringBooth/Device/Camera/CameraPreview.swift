@@ -19,44 +19,53 @@ struct CameraPreview: View {
             VideoDisplayLayer(buffer: store.state.buffer)
                 .aspectRatio(9/16, contentMode: .fit)
                 .overlay(alignment: .top) {
-                    ZStack(alignment: .trailing) {
-                        HStack {
-                            Spacer()
-                            Text("LIVE")
-                                .foregroundStyle(.orange)
-                                .font(.footnote.bold())
-                                .padding(.vertical, 2)
-                                .padding(.horizontal, 10)
-                                .background {
-                                    Capsule()
-                                        .fill(Color.black.opacity(0.5))
-                                }
-                            Spacer()
+                    headerView
+                }
+                .overlay(alignment: .bottom) {
+                    Text("\(store.state.deviceName) 연결됨")
+                        .foregroundStyle(Color.remote)
+                        .font(.footnote.bold())
+                        .opacity(store.state.animationFlag ? 1 : 0.4)
+                        .padding(.vertical, 2)
+                        .padding(.horizontal, 10)
+                        .background {
+                            Capsule()
+                                .fill(Color.black.opacity(0.8))
                         }
-                        exitButton
-                    }
-                    .padding()
-            }
-            .overlay(alignment: .bottom) {
-                Text("\(store.state.deviceName) 연결됨")
-                    .foregroundStyle(Color.remote)
-                    .font(.footnote.bold())
-                    .opacity(store.state.animationFlag ? 1 : 0.4)
-                    .padding(.vertical, 2)
-                    .padding(.horizontal, 10)
-                    .background {
-                        Capsule()
-                            .fill(Color.black.opacity(0.8))
-                    }
-                    .padding(.bottom, 10)
-            }
+                        .padding(.bottom, 10)
+                }
+        }
+        .overlay(alignment: .topTrailing) {
+            exitButton
+                .padding(4)
         }
         .onAppear {
             withAnimation(.linear(duration: 0.8).repeatForever(autoreverses: true)) {
                 store.send(.startAnimation)
             }
             store.send(.startSession)
+            store.send(.updateAngle(rawValue: UIDevice.current.orientation.rawValue))
         }
+        .onChange(of: UIDevice.current.orientation.rawValue) { _, value in
+            withAnimation(.easeInOut(duration: 0.3)) {
+                store.send(.updateAngle(rawValue: value))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var headerView: some View {
+        Text("LIVE")
+            .foregroundStyle(.orange)
+            .font(.footnote.bold())
+            .padding(.vertical, 2)
+            .padding(.horizontal, 10)
+            .background {
+                Capsule()
+                    .fill(Color.black.opacity(0.5))
+            }
+            .rotationEffect(Angle(degrees: store.state.angle))
+            .padding(.top)
     }
 
     private var exitButton: some View {
