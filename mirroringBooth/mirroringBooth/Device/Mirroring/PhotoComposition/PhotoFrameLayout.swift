@@ -42,7 +42,7 @@ enum PhotoFrameLayout: CaseIterable, Identifiable {
 
         case .twoByOne:
             return .init(
-                size: CGSize(width: 96, height: 140),
+                size: CGSize(width: 96, height: 239),
                 slotFrame: [
                     CGRect(x: 8, y: 8, width: 80, height: 100),
                     CGRect(x: 8, y: 115, width: 80, height: 100)
