@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PhotoComposer {
+    @MainActor
     static func render(
         layout: PhotoFrameLayout,
         frame: UIImage,
