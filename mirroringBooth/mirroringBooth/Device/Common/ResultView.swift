@@ -35,30 +35,32 @@ struct ResultView: View {
                 }
 
                 /// 결과 이미지
-                Image(systemName: "photo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .scaleEffect(scale)
-                    .gesture(
-                        MagnificationGesture()
-                            .onChanged { value in
-                                scale = lastScale * value
-                            }
-                            .onEnded { _ in
-                                lastScale = scale
-                                if scale < 1.0 {
-                                    withAnimation(.spring()) {
-                                        scale = 1.0
-                                        lastScale = 1.0
-                                    }
-                                } else if scale > 3.0 {
-                                    withAnimation(.spring()) {
-                                        scale = 3.0
-                                        lastScale = 3.0
+                if let result = PhotoComposer.render(with: resultPhoto) {
+                    Image(uiImage: result)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .scaleEffect(scale)
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    scale = lastScale * value
+                                }
+                                .onEnded { _ in
+                                    lastScale = scale
+                                    if scale < 1.0 {
+                                        withAnimation(.spring()) {
+                                            scale = 1.0
+                                            lastScale = 1.0
+                                        }
+                                    } else if scale > 3.0 {
+                                        withAnimation(.spring()) {
+                                            scale = 3.0
+                                            lastScale = 3.0
+                                        }
                                     }
                                 }
-                            }
-                    )
+                        )
+                }
 
                 /// 버튼
                 HStack {
