@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CaptureResultView: View {
     @State var store: CaptureResultStore
+    @Environment(Router.self) var router: Router
 
     var body: some View {
         ZStack {
@@ -111,7 +112,15 @@ private extension CaptureResultView {
 
     var completionButton: some View {
         Button {
-            // TODO: 완료 버튼 액션
+            router.push(
+                to: MirroringRoute.result(
+                    PhotoInformation(
+                        layout: store.state.selectedLayout,
+                        frame: store.state.selectedFrame,
+                        photos: store.state.selectedPhotos
+                    )
+                )
+            )
         } label: {
             Text("편집 완료하기")
                 .font(.headline.bold())
