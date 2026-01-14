@@ -8,18 +8,30 @@
 import SwiftUI
 
 struct ConnectionCheckView: View {
+    @Environment(Router.self) var router: Router
     private let cameraDevice: String
     private let mirroringDevice: String
     private let remoteDevice: String?
-    private let cameraManager = CameraManager()
+    private let cameraManager: CameraManager
     private let browser: Browser
-    @State private var showPreview = false
 
-    init(_ list: ConnectionList, browser: Browser) {
+    @State private var showPreview = false
+    @State private var cameraPreviewStore: CameraPreviewStore
+
+    init(_ list: ConnectionList, browser: Browser, manager: CameraManager = CameraManager()) {
         self.cameraDevice = list.cameraName
         self.mirroringDevice = list.mirroringName
         self.remoteDevice = list.remoteName
         self.browser = browser
+        self.cameraManager = manager
+
+        _cameraPreviewStore = State(
+            initialValue: CameraPreviewStore(
+                browser: browser,
+                manager: manager,
+                deviceName: list.mirroringName
+            )
+        )
     }
 
     var body: some View {
@@ -64,30 +76,31 @@ struct ConnectionCheckView: View {
 
                 Spacer()
 
-                // 3. 촬영 준비 버튼
-                Button {
-                    showPreview = true
-                    browser.sendCommand(.navigateToSelectMode)
-                } label: {
-                    Text("촬영 준비하기")
-                        .padding(14)
-                        .frame(maxWidth: .infinity)
-                        .foregroundStyle(Color(.systemBackground))
-                        .background(Color(.label))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
+            // 3. 촬영 준비 버튼
+            Button {
+                showPreview = true
+                browser.sendCommand(.navigateToSelectMode)
+                cameraPreviewStore.send(.resetCaptureCompleted)
+            } label: {
+                Text("촬영 준비하기")
+                    .padding(14)
+                    .frame(maxWidth: .infinity)
+                    .foregroundStyle(Color(.systemBackground))
+                    .background(Color(.label))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .fullScreenCover(isPresented: $showPreview) {
-            CameraPreview(
-                store: CameraPreviewStore(
-                    browser: browser,
-                    manager: cameraManager,
-                    deviceName: mirroringDevice
-                )
-            )
+            CameraPreview(store: cameraPreviewStore)
+        }
+        .onChange(of: cameraPreviewStore.state.isCaptureCompleted) { _, isCompleted in
+            if isCompleted {
+                showPreview = false
+                router.push(to: CameraRoute.completion)
+                cameraPreviewStore.send(.resetCaptureCompleted)
+            }
         }
     }
 }
