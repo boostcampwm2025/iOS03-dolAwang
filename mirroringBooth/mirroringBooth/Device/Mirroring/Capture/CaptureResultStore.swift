@@ -32,6 +32,7 @@ final class CaptureResultStore: StoreProtocol {
         case increaseSelectionCount
         case decreaseSelectionCount
         case setLayout(Int, Int, Color)
+        case setColor(Color)
     }
 
     var state: State = .init()
@@ -53,8 +54,12 @@ final class CaptureResultStore: StoreProtocol {
                 return [.deselectPhoto(index), .decreaseSelectionCount]
             }
         case let .selectLayout(row, column, color):
-            if state.layoutRowCount == row && state.layoutColumnCount == column && state.layoutColor == color {
-                return []
+            if state.layoutRowCount == row && state.layoutColumnCount == column {
+                if state.layoutColor == color {
+                    return []
+                } else {
+                    return [.setColor(color)]
+                }
             }
             return [
                 .setLayout(row, column, color)
@@ -96,6 +101,8 @@ final class CaptureResultStore: StoreProtocol {
             copyState.layoutColumnCount = column
             copyState.layoutColor = color
             state = copyState
+        case let .setColor(color):
+            state.layoutColor = color
         }
     }
 }
