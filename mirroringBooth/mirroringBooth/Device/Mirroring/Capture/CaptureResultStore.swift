@@ -29,8 +29,7 @@ final class CaptureResultStore: StoreProtocol {
         case setPhotos([Photo])
         case selectPhoto(Int)
         case deselectPhoto(Int)
-        case increaseSelectionCount
-        case decreaseSelectionCount
+        case setSelectionCount(Int)
         case setLayout(Int, Int, Color)
         case setColor(Color)
     }
@@ -49,9 +48,9 @@ final class CaptureResultStore: StoreProtocol {
         case let .selectPhoto(index):
             if state.photos[index].selectNumber == nil {
                 guard state.currentSelectionCount < state.maxSelection else { return [] }
-                return [.selectPhoto(index), .increaseSelectionCount]
+                return [.selectPhoto(index), .setSelectionCount(state.currentSelectionCount + 1)]
             } else {
-                return [.deselectPhoto(index), .decreaseSelectionCount]
+                return [.deselectPhoto(index), .setSelectionCount(state.currentSelectionCount - 1)]
             }
         case let .selectLayout(row, column, color):
             if state.layoutRowCount == row && state.layoutColumnCount == column {
@@ -85,10 +84,8 @@ final class CaptureResultStore: StoreProtocol {
                 }
             }
             state = copyState
-        case .increaseSelectionCount:
-            state.currentSelectionCount += 1
-        case .decreaseSelectionCount:
-            state.currentSelectionCount -= 1
+        case .setSelectionCount(let count):
+            state.currentSelectionCount = count
         case let .setLayout(row, column, color):
             var copyState = state
             for index in 0 ..< copyState.photos.count {
