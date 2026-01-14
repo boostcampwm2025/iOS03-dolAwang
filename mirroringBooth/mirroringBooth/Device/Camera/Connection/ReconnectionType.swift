@@ -17,7 +17,7 @@ enum ReconnectionType {
         case .remoteOnly:
             "리모트 기기 재연결"
         case .both:
-            "미러링/리모트 기기 재연결"
+            "모든 기기 재연결"
         }
     }
 
