@@ -103,7 +103,6 @@ private struct VideoDisplayLayer: UIViewRepresentable {
 
         override init(frame: CGRect) {
             super.init(frame: frame)
-//            displayLayer.setAffineTransform(CGAffineTransform(rotationAngle: .pi / 2))
             displayLayer.videoGravity = .resizeAspect
         }
 
