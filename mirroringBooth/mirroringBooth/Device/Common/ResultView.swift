@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct ResultView: View {
+    @Environment(Router.self) var router: Router
+
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
+
+    let resultPhoto: PhotoInformation
 
     var body: some View {
         ZStack {
