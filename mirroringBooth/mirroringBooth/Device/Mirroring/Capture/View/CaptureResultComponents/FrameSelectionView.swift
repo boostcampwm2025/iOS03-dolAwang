@@ -62,7 +62,7 @@ private extension FrameSelectionView {
                     }
                 }
             } else {
-                HStack {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3)) {
                     ForEach(FrameAsset.allCases) { frame in
                         Button {
                             store.send(.selectFrame(frame))
@@ -71,6 +71,7 @@ private extension FrameSelectionView {
                         }
                     }
                 }
+                .padding(.top, 10)
             }
         }
     }
