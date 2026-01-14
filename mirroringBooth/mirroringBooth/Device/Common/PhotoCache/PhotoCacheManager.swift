@@ -18,7 +18,7 @@ final class PhotoCacheManager {
         Logger.photoCacheManager
     }
 
-    init() {
+    private init() {
         // 앱 껐다 켰을 때 캐시를 원하는 것이 아니므로 Library/Caches보다 tmp 선택.
         // 문제가 발생할 경우 변경 고려
         let cahcheDirectory = FileManager.default.temporaryDirectory
@@ -38,15 +38,11 @@ final class PhotoCacheManager {
         }
     }
 
-    func savePhotoData(localURL: URL) {
+    func savePhotoData(localURL: URL) async throws {
         let fileURL = sessionDirectory.appendingPathComponent("photo\(cacheCount).jpg")
-        do {
-            try FileManager.default.moveItem(at: localURL, to: fileURL)
-            logger.debug("[Cache] \(self.cacheCount)번 인덱스 사진 저장됨")
-            cacheCount += 1
-        } catch {
-            logger.error("❌ [Cache] 저장 실패: \(error)")
-        }
+        try FileManager.default.moveItem(at: localURL, to: fileURL)
+        logger.debug("[Cache] \(self.cacheCount)번 인덱스 사진 저장됨")
+        cacheCount += 1
     }
 
     func loadPhotoData(index: Int) -> UIImage? {
