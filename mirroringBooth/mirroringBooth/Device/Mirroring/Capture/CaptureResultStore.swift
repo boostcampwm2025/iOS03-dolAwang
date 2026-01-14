@@ -35,16 +35,16 @@ final class CaptureResultStore: StoreProtocol {
     }
 
     var state: State = .init()
-    let advertiser: Advertiser
-
-    init(advertiser: Advertiser) {
-        self.advertiser = advertiser
-    }
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
         case .onAppear:
-            return [.setPhotos(advertiser.receivedPhotos)]
+            let cacheManger = PhotoCacheManager.shared
+            let photos: [Photo] = (0..<10).map { index in
+                let url = cacheManger.getPhotoURL(index: index)
+                return Photo(id: UUID(), url: url)
+            }
+            return [.setPhotos(photos)]
         case let .selectPhoto(index):
             if state.photos[index].selectNumber == nil {
                 guard state.currentSelectionCount < state.maxSelection else { return [] }

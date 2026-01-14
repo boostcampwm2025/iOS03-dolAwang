@@ -57,22 +57,18 @@ struct FrameView: View {
                     }
                 }
 
-                ForEach(Array(photos.enumerated()), id: \.element.id) { index, photo in
+                ForEach(Array(zip(photos.indices, photos)), id: \.1.id) { index, photo in
                     let row = index / columns
                     let col = index % columns
 
                     let (normX, normY) = calculatePosition(row: row, col: col)
                     let rectWidth = geometry.size.width * (Ratio.photoWidth.rawValue / width)
                     let rectHeight = geometry.size.height * (Ratio.photoHeight.rawValue / height)
-                    if case let .completed(data) = photo.state,
-                       let uiImage = UIImage(data: data) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: rectWidth, height: rectHeight)
-                            .clipped()
-                            .position(x: geometry.size.width * normX, y: geometry.size.height * normY)
-                    }
+
+                    LocalAsyncImage(url: photo.url)
+                        .frame(width: rectWidth, height: rectHeight)
+                        .clipped()
+                        .position(x: geometry.size.width * normX, y: geometry.size.height * normY)
                 }
             }
             .background {

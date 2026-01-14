@@ -51,29 +51,12 @@ private struct PhotoItem: View {
     let onTap: () -> Void
 
     var body: some View {
-        Group {
-            switch photo.state {
-            case .receiving(let progress):
-                ReceivingView(progress: progress)
-
-            case .completed(let data):
-                if let uiImage = UIImage(data: data) {
-                    PhotoCell(uiImage: uiImage, index: index, selectedNumber: photo.selectNumber)
-                        .onTapGesture { onTap() }
-                } else {
-                    Image(systemName: "questionmark.circle")
-                        .foregroundStyle(.yellow)
-                }
-
-            case .failed:
-                FailedView()
-            }
-        }
-        .background(Color.gray)
-        .cornerRadius(8)
-        .clipped()
-        .frame(maxHeight: 200)
-        .frame(height: geometry.size.height / CGFloat(rows) - 20)
+        PhotoCell(url: photo.url, index: index, selectedNumber: photo.selectNumber)
+            .background(Color.gray)
+            .cornerRadius(8)
+            .clipped()
+            .frame(maxHeight: 200)
+            .frame(height: geometry.size.height / CGFloat(rows) - 20)
     }
 }
 
@@ -101,7 +84,7 @@ private struct FailedView: View {
 }
 
 private struct PhotoCell: View {
-    let uiImage: UIImage
+    let url: URL
     let index: Int
     let selectedNumber: Int?
 
@@ -111,9 +94,7 @@ private struct PhotoCell: View {
 
     var body: some View {
         ZStack {
-            Image(uiImage: uiImage)
-                .resizable()
-                .scaledToFit()
+            LocalAsyncImage(url: url)
                 .frame(maxWidth: .infinity)
                 .clipped()
 
