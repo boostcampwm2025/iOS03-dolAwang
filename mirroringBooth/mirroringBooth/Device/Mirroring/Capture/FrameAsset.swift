@@ -8,40 +8,24 @@
 import SwiftUI
 
 enum FrameAsset: String, CaseIterable {
-    case black  //  블랙 색상
-    case white  //  화이트 색상
-    case crowded    //  이미지 어셋 이름
-    case orange     //  이미지 어셋 이름
-    case skyblue    //  이미지 어셋 이름
+    case black
+    case white
+    case crowded
+    case orange
+    case skyblue
 
-    enum UnifiedAsset {
-        case color(Color)
-        case image(Image)
-    }
-
-    func unifiedAsset() -> UnifiedAsset? {
+    var image: Image {
         switch self {
         case .black:
-            return .color(Color.black)
+            return Image("black")
         case .white:
-            return .color(Color.white)
-        case .crowded, .orange, .skyblue:
-            let assetName: String = self.rawValue
-            if let uiImage = UIImage(named: assetName) {
-                let imageValue = Image(uiImage: uiImage)
-                return .image(imageValue)
-            }
-            return nil
-        }
-    }
-
-    func unifiedAsset<T>(as typeValue: T.Type) -> T? {
-        guard let unifiedAsset = self.unifiedAsset() else { return nil }
-        switch unifiedAsset {
-        case .color(let colorValue):
-            return colorValue as? T
-        case .image(let imageValue):
-            return imageValue as? T
+            return Image("white")
+        case .crowded:
+            return Image("crowded")
+        case .orange:
+            return Image("orange")
+        case .skyblue:
+            return Image("skyblue")
         }
     }
 }
