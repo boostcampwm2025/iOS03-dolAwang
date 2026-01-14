@@ -10,6 +10,10 @@ import SwiftUI
 struct CaptureResultView: View {
     @State var store: CaptureResultStore
 
+    init(store: CaptureResultStore = CaptureResultStore()) {
+        self.store = store
+    }
+
     var body: some View {
         ZStack {
             Color.background
