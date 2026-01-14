@@ -21,8 +21,6 @@ struct FrameSelectionView: View {
         VStack(alignment: .leading) {
             layoutSection
             frameSection
-            Spacer()
-            completeButton
         }
         .padding(.top, 5)
         .padding(.bottom)
@@ -73,22 +71,6 @@ private extension FrameSelectionView {
                 }
                 .padding(.top, 10)
             }
-        }
-    }
-
-    var completeButton: some View {
-        Button {
-            // TODO: 완료 버튼 액션
-        } label: {
-            Text("편집 완료하기")
-                .foregroundStyle(Color(.label))
-                .frame(maxWidth: .infinity)
-                .background {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.main.opacity(0.3))
-                        .strokeBorder(Color.borderLine, lineWidth: 2)
-                        .frame(minHeight: 44)
-                }
         }
     }
 

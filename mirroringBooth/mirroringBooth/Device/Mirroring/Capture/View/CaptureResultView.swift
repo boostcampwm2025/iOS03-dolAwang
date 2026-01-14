@@ -40,8 +40,11 @@ private extension CaptureResultView {
             Divider()
                 .background(.main)
 
-            HStack {
-                editingPanel(isPortrait: true)
+            VStack {
+                HStack(alignment: .top) {
+                    editingPanel(isPortrait: true)
+                }
+                completionButton
             }
             // 화면 표시 비율
             .frame(height: geometry.size.height * 0.5)
@@ -51,7 +54,10 @@ private extension CaptureResultView {
     /// 가로 레이아웃
     func landscapeLayout(with geometry: GeometryProxy) -> some View {
         HStack {
-            photoGridView
+            VStack {
+                photoGridView
+                completionButton
+            }
 
             Divider()
                 .background(.main)
@@ -105,4 +111,24 @@ private extension CaptureResultView {
         }
         .padding()
     }
+
+    var completionButton: some View {
+        Button {
+            // TODO: 완료 버튼 액션
+        } label: {
+            Text("편집 완료하기")
+                .font(.headline.bold())
+                .padding(.vertical, 15)
+                .padding(.horizontal, 30)
+                .foregroundStyle(Color(.label))
+                .background {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.main.opacity(0.3))
+                        .strokeBorder(Color.borderLine, lineWidth: 2)
+                        .frame(minHeight: 44)
+                }
+        }
+        .padding(5)
+    }
+}
 }
