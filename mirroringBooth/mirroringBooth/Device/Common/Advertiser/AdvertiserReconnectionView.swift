@@ -10,6 +10,8 @@ import SwiftUI
 struct AdvertiserReconnectionView: View {
     let store: AdvertiserHomeStore
 
+    @State private var isRotating = false
+
     var body: some View {
         VStack(spacing: 16) {
             VStack(spacing: 8) {
@@ -21,33 +23,23 @@ struct AdvertiserReconnectionView: View {
                     .clipShape(Capsule())
                 Text("촬영 기기와의 연결이 끊어졌습니다.")
                     .font(.title2.bold())
-                Text("다시 연결해주세요.")
-                    .font(.footnote)
-                    .foregroundStyle(Color(.secondaryLabel))
-            }
-
-            if store.state.isAdvertising {
-                StandbyView(
-                    displayName: store.advertiser.myDeviceName,
-                    isAdvertising: store.state.isAdvertising
-                )
-            } else {
-                IdleView(displayName: store.advertiser.myDeviceName)
-            }
-
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    store.send(.didTapAdvertiseButton)
+                Group {
+                    Text("재연결을 시도합니다.")
+                        .font(.footnote)
+                    Image(systemName: "arrow.2.circlepath")
+                        .font(.title2)
+                        .rotationEffect(.degrees(-45))
+                        .rotationEffect(.degrees(isRotating ? 360 : 0))
+                        .animation(
+                            .linear(duration: 1).repeatForever(autoreverses: false),
+                            value: isRotating
+                        )
+                        .onAppear {
+                            isRotating = true
+                        }
                 }
-            } label: {
-                AdvertisingButton(isAdvertising: store.state.isAdvertising)
+                .foregroundStyle(Color(.secondaryLabel))
             }
-        }
-        .onAppear {
-            store.send(.didTapAdvertiseButton)
-        }
-        .onDisappear {
-            store.send(.exit)
         }
         .padding(16)
     }
