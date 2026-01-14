@@ -67,26 +67,22 @@ private extension CaptureResultView {
     /// 편집 패널 (결과 프리뷰 + 프레임/레이아웃 선택 뷰)
     @ViewBuilder
     func editingPanel(isPortrait: Bool) -> some View {
-        if store.state.layoutRowCount != 0 && store.state.layoutColumnCount != 0 {
-            // 임시로 적용해둔 상태, State 연결 필요
+        if let frameImage = store.state.selectedFrame.image {
             PhotoFramePreview(
-                layout: .fourByOne,
-                frame: UIImage(named: "testFramee")!,
-                photos: [
-                    UIImage(named: "test")!,
-                    UIImage(named: "test")!,
-                    UIImage(named: "test")!,
-                    UIImage(named: "test")!
-                ]
+                layout: store.state.selectedLayout,
+                frame: frameImage,
+                photos: store.state.selectedPhotos
+                    .compactMap { photo in
+                        photo.imageData.flatMap { UIImage(data: $0) }
+                    }
             )
             .padding(12)
             .padding(isPortrait ? .leading : .trailing, 7)
+            Divider()
+                .background(.main)
+
+            FrameSelectionView(store: store)
         }
-
-        Divider()
-            .background(.main)
-
-        FrameSelectionView(store: store)
     }
 
     /// 촬영된 사진 그리드 뷰

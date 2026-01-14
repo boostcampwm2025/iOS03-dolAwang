@@ -14,15 +14,15 @@ final class CaptureResultStore: StoreProtocol {
         var selectedPhotos: [Photo] = []
         var maxSelection: Int = 1
         var currentSelectionCount: Int = 0
-        var layoutRowCount: Int = 1
-        var layoutColumnCount: Int = 1
-        var layoutColor: Color = .black
+        var selectedLayout: PhotoFrameLayout = .oneByOne
+        var selectedFrame: FrameAsset = .black
     }
 
     enum Intent {
         case onAppear
         case selectPhoto(Int) // 사진을 선택한 경우 인덱스
-        case selectLayout(Int, Int, Color) // 레이아웃 row x column
+        case selectLayout(PhotoFrameLayout)
+        case selectFrame(FrameAsset)
     }
 
     enum Result {
@@ -31,7 +31,8 @@ final class CaptureResultStore: StoreProtocol {
         case deselectPhoto(Int)
         case increaseSelectionCount
         case decreaseSelectionCount
-        case setLayout(Int, Int, Color)
+        case setLayout(PhotoFrameLayout)
+        case setFrame(FrameAsset)
     }
 
     var state: State = .init()
@@ -45,6 +46,7 @@ final class CaptureResultStore: StoreProtocol {
         switch intent {
         case .onAppear:
             return [.setPhotos(advertiser.receivedPhotos)]
+
         case let .selectPhoto(index):
             if state.photos[index].selectNumber == nil {
                 guard state.currentSelectionCount < state.maxSelection else { return [] }
@@ -52,23 +54,26 @@ final class CaptureResultStore: StoreProtocol {
             } else {
                 return [.deselectPhoto(index), .decreaseSelectionCount]
             }
-        case let .selectLayout(row, column, color):
-            if state.layoutRowCount == row && state.layoutColumnCount == column && state.layoutColor == color {
-                return []
-            }
-            return [
-                .setLayout(row, column, color)
-            ]
+
+        case .selectLayout(let layout):
+            return [.setLayout(layout)]
+
+        case .selectFrame(let frame):
+            return [.setFrame(frame)]
         }
     }
 
     func reduce(_ result: Result) {
+        var state = self.state
+
         switch result {
         case let .setPhotos(photos):
             state.photos = photos
+
         case let .selectPhoto(index):
             state.photos[index].selectNumber = state.currentSelectionCount + 1
             state.selectedPhotos.append(state.photos[index])
+
         case let .deselectPhoto(index):
             var copyState = self.state
             guard let number = copyState.photos[index].selectNumber else { return }
@@ -80,22 +85,20 @@ final class CaptureResultStore: StoreProtocol {
                 }
             }
             state = copyState
+
         case .increaseSelectionCount:
             state.currentSelectionCount += 1
+
         case .decreaseSelectionCount:
             state.currentSelectionCount -= 1
-        case let .setLayout(row, column, color):
-            var copyState = state
-            for index in 0 ..< copyState.photos.count {
-                copyState.photos[index].selectNumber = nil
-            }
-            copyState.selectedPhotos = []
-            copyState.maxSelection = row * column
-            copyState.currentSelectionCount = 0
-            copyState.layoutRowCount = row
-            copyState.layoutColumnCount = column
-            copyState.layoutColor = color
-            state = copyState
+
+        case .setLayout(let layout):
+            state.selectedLayout = layout
+
+        case .setFrame(let frame):
+            state.selectedFrame = frame
         }
+
+        self.state = state
     }
 }

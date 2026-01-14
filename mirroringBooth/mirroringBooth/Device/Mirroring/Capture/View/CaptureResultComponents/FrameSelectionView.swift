@@ -12,9 +12,6 @@ struct FrameSelectionView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
     let store: CaptureResultStore
-    @State private var rows: Int = 1
-    @State private var columns: Int = 1
-    @State private var frameColor: Color = .black
 
     private var isRegularSize: Bool {
         horizontalSizeClass == .regular && verticalSizeClass == .regular
@@ -30,9 +27,6 @@ struct FrameSelectionView: View {
         .padding(.top, 5)
         .padding(.bottom)
         .padding(.trailing, 10)
-        .onChange(of: rows) { store.send(.selectLayout(rows, columns, frameColor)) }
-        .onChange(of: columns) { store.send(.selectLayout(rows, columns, frameColor)) }
-        .onChange(of: frameColor) { store.send(.selectLayout(rows, columns, frameColor)) }
     }
 }
 
@@ -48,7 +42,7 @@ private extension FrameSelectionView {
             .font(isRegularSize ? .callout.bold() : .caption.bold())
             .foregroundStyle(.primary)
 
-            LayoutButtonView(rows: $rows, columns: $columns, frameColor: $frameColor)
+            layoutButtonList
                 .frame(maxWidth: .infinity, alignment: .center)
         }
     }
@@ -59,24 +53,22 @@ private extension FrameSelectionView {
                 Label("프레임 디자인", systemImage: "paintpalette")
                     .font(.callout.bold())
                     .foregroundStyle(.primary)
-            }
 
-            if isRegularSize {
                 VStack {
-                    frameColorButton(with: .black, description: "Basic Black") {
-                        frameColor = .black
-                    }
-                    frameColorButton(with: .white, description: "Basic White") {
-                        frameColor = .white
+                    ForEach(FrameAsset.allCases) { frame in
+                        frameColorButton(with: frame, description: frame.rawValue) {
+                            store.send(.selectFrame(frame))
+                        }
                     }
                 }
             } else {
                 HStack {
-                    simpleColorButton(with: .black) {
-                        frameColor = .black
-                    }
-                    simpleColorButton(with: .white) {
-                        frameColor = .white
+                    ForEach(FrameAsset.allCases) { frame in
+                        Button {
+                            store.send(.selectFrame(frame))
+                        } label: {
+                            frameIcon(with: frame)
+                        }
                     }
                 }
             }
@@ -99,88 +91,42 @@ private extension FrameSelectionView {
         }
     }
 
-    struct LayoutButtonView: View {
-        @Environment(\.horizontalSizeClass) var horizontalSizeClass
-        @Binding var rows: Int
-        @Binding var columns: Int
-        @Binding var frameColor: Color
-
-        private var isCompact: Bool {
+    @ViewBuilder
+    var layoutButtonList: some View {
+        var isCompact: Bool {
             UIDevice.current.userInterfaceIdiom == .phone
             && UIScreen.main.bounds.width < UIScreen.main.bounds.height
         }
-        private let gridItems = Array(repeating: GridItem(.flexible()), count: 3)
+        let gridItems = Array(repeating: GridItem(.flexible()), count: 3)
 
-        var body: some View {
-            if isCompact {
-                VStack {
-                    LazyVGrid(columns: gridItems) {
-                        button1x1; button1x2; button3x1
-                        button2x2; button2x3
+        if isCompact {
+            LazyVGrid(columns: gridItems) {
+                ForEach(PhotoFrameLayout.allCases) { layout in
+                    layoutButton(layout.icon) {
+                        store.send(.selectLayout(layout))
                     }
                 }
-            } else {
-                HStack {
-                    button1x1; button1x2; button3x1; button2x2; button2x3
-                }
-                .padding(.horizontal)
             }
-        }
-
-        private var button1x1: some View {
-            LayoutButton(
-                rows: $rows,
-                columns: $columns,
-                row: 1,
-                column: 1
-            )
-        }
-
-        private var button1x2: some View {
-            LayoutButton(
-                rows: $rows,
-                columns: $columns,
-                row: 2,
-                column: 1
-            )
-        }
-
-        private var button3x1: some View {
-            LayoutButton(
-                rows: $rows,
-                columns: $columns,
-                row: 4,
-                column: 1
-            )
-        }
-
-        private var button2x2: some View {
-            LayoutButton(
-                rows: $rows,
-                columns: $columns,
-                row: 2,
-                column: 2
-            )
-        }
-
-        private var button2x3: some View {
-            LayoutButton(
-                rows: $rows,
-                columns: $columns,
-                row: 2,
-                column: 3
-            )
+        } else {
+            HStack {
+                ForEach(PhotoFrameLayout.allCases) { layout in
+                    layoutButton(layout.icon) {
+                        store.send(.selectLayout(layout))
+                    }
+                }
+            }
+            .padding(.horizontal)
         }
     }
 
     func frameColorButton(
-        with color: Color,
+        with frame: FrameAsset,
         description: String,
         _ action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
             HStack {
-                colorBox(with: color)
+                frameIcon(with: frame)
                     .padding()
 
                 Text(description)
@@ -197,51 +143,33 @@ private extension FrameSelectionView {
         }
     }
 
-    func simpleColorButton(with color: Color, _ action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            colorBox(with: color)
-                .overlay {
+    @ViewBuilder
+    func frameIcon(with frame: FrameAsset) -> some View {
+        if let icon = frame.image {
+            Image(uiImage: icon)
+                .resizable()
+                .frame(width: 30, height: 30)
+                .aspectRatio(1, contentMode: .fit)
+        }
+    }
+
+    func layoutButton(_ iconString: String, _ action: @escaping () -> Void) -> some View {
+        Button {
+            action()
+        } label: {
+            Image(iconString)
+                .resizable()
+                .renderingMode(.template)
+                .font(.footnote)
+                .foregroundStyle(Color.primary)
+                .frame(maxWidth: 60, maxHeight: 60)
+                .padding(2)
+                .background {
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.primary, lineWidth: 1)
+                        .strokeBorder(.primary, lineWidth: 2)
+                        .foregroundStyle(Color.secondary)
                 }
-        }
-    }
-
-    func colorBox(with color: Color) -> some View {
-        RoundedRectangle(cornerRadius: 8)
-            .frame(width: 30, height: 30)
-            .foregroundStyle(color)
-            .aspectRatio(1, contentMode: .fit)
-    }
-
-    struct LayoutButton: View {
-        @Binding var rows: Int
-        @Binding var columns: Int
-        let row: Int
-        let column: Int
-        var imageName: String {
-            "layout\(row)x\(column)"
-        }
-
-        var body: some View {
-            Button {
-                rows = row
-                columns = column
-            } label: {
-                Image(imageName)
-                    .resizable()
-                    .renderingMode(.template)
-                    .font(.footnote)
-                    .foregroundStyle(Color.primary)
-                    .frame(maxWidth: 60, maxHeight: 60)
-                    .padding(2)
-                    .background {
-                        RoundedRectangle(cornerRadius: 8)
-                            .strokeBorder(.primary, lineWidth: 2)
-                            .foregroundStyle(Color.secondary)
-                    }
-                    .aspectRatio(contentMode: .fit)
-            }
+                .aspectRatio(contentMode: .fit)
         }
     }
 }

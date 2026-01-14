@@ -30,7 +30,7 @@ enum PhotoFrameLayout: CaseIterable, Identifiable {
         case .fourByOne:
             return "layout4x1"
         case .threeByTwo:
-            return "layout3x2"
+            return "layout2x3"
         }
     }
 
