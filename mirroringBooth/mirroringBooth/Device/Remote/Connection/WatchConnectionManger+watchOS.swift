@@ -13,6 +13,9 @@ import WatchConnectivity
 final class WatchConnectionManager: NSObject {
     private enum ActionValue: String {
         case capture
+        case connect
+        case prepare
+        case connectAck
     }
 
     private enum MessageKey: String {
@@ -33,6 +36,10 @@ final class WatchConnectionManager: NSObject {
 
     var onReachableChanged: ((Bool) -> Void)?
 
+    var onReceiveConnectionCompleted: (() -> Void)?
+
+    var onReceiveRequestToPrepare: (() -> Void)?
+
     override init() {
         if WCSession.isSupported() {
             self.session = WCSession.default
@@ -50,17 +57,26 @@ final class WatchConnectionManager: NSObject {
 
     /// WCSession 활성화를 시작합니다.
     func start() {
-        Task { @MainActor in
-            self.onReachableChanged?(false)
-        }
         guard let session = self.session else {
             self.logger.error("WCSession이 지원되지 않아 활성화할 수 없습니다.")
             return
         }
+
         session.delegate = self
 
         if session.activationState == .activated {
             self.logger.info("WCSession이 이미 활성화되어 있습니다.")
+
+            // 이미 활성화된 경우에도 현재 상태를 확인하여 콜백 호출
+            let context: [String: Any] = session.receivedApplicationContext
+            let appStateRawValue: String? = context[MessageKey.appState.rawValue] as? String
+            let appStateValue: AppStateValue? = appStateRawValue.flatMap { AppStateValue(rawValue: $0) }
+            let reachable: Bool = (appStateValue == .active)
+
+            Task { @MainActor in
+                self.lastAppState = appStateValue ?? .terminated
+                self.onReachableChanged?(reachable)
+            }
             return
         }
 
@@ -73,8 +89,12 @@ final class WatchConnectionManager: NSObject {
             self.logger.error("WCSession이 지원되지 않아 비활성화할 수 없습니다.")
             return
         }
-        session.delegate = nil
-        self.logger.info("WCSession이 비활성화되었습니다.")
+
+        // delegate를 nil로 설정하지 말고, 연결 끊김 상태만 전달
+        Task { @MainActor in
+            self.onReachableChanged?(false)
+        }
+        self.logger.info("WCSession 연결 대기 중지")
     }
 
     /// 카메라 캡쳐 요청을 상대 기기로 전송합니다.
@@ -91,20 +111,26 @@ final class WatchConnectionManager: NSObject {
             return
         }
 
-        session.sendMessage(
-            message,
-            replyHandler: nil
-        )
+        session.sendMessage(message, replyHandler: nil)
     }
-}
 
-extension WatchConnectionManager: WCSessionDelegate {
-    nonisolated func session(
-        _ session: WCSession,
-        didReceiveApplicationContext applicationContext: [String: Any]
-    ) {
-        self.logger.info("WCSession applicationContext 수신: \(applicationContext)")
+    /// 연결 요청에 대한 응답을 iPhone으로 전송합니다.
+    private func sendConnectionAck() {
+        guard let session = self.session else {
+            self.logger.error("WCSession이 지원되지 않아 응답을 보낼 수 없습니다.")
+            return
+        }
 
+        guard session.isReachable else {
+            self.logger.error("iPhone에 도달할 수 없어 응답을 보낼 수 없습니다.")
+            return
+        }
+
+        let message = [MessageKey.action.rawValue: ActionValue.connectAck.rawValue]
+        session.sendMessage(message, replyHandler: nil)
+    }
+
+    private nonisolated func handleAppStateUpdate(_ applicationContext: [String: Any]) {
         let appStateRawValue = applicationContext[MessageKey.appState.rawValue] as? String
         let appStateValue = appStateRawValue.flatMap { AppStateValue(rawValue: $0) }
 
@@ -120,6 +146,17 @@ extension WatchConnectionManager: WCSessionDelegate {
             self.lastAppState = appStateValue ?? .terminated
             self.onReachableChanged?(reachable)
         }
+    }
+
+}
+
+extension WatchConnectionManager: WCSessionDelegate {
+    nonisolated func session(
+        _ session: WCSession,
+        didReceiveApplicationContext applicationContext: [String: Any]
+    ) {
+        self.logger.info("WCSession applicationContext 수신: \(applicationContext)")
+        handleAppStateUpdate(applicationContext)
     }
 
     nonisolated func session(
@@ -154,5 +191,27 @@ extension WatchConnectionManager: WCSessionDelegate {
             }
         }
     }
+
+    nonisolated func session(
+        _ session: WCSession,
+        didReceiveMessage message: [String: Any]
+    ) {
+        self.logger.info("WCSession 메시지 수신: \(message)")
+        let actionValue: String? = message[MessageKey.action.rawValue] as? String
+
+        if actionValue == ActionValue.connect.rawValue {
+            self.logger.info("연결 완료 알림 수신됨.")
+            self.sendConnectionAck()
+            Task { @MainActor in
+                self.onReceiveConnectionCompleted?()
+            }
+        } else if actionValue == ActionValue.prepare.rawValue {
+            self.logger.info("촬영 준비 요청 수신됨.")
+            Task { @MainActor in
+                self.onReceiveRequestToPrepare?()
+            }
+        }
+    }
+
 }
 #endif

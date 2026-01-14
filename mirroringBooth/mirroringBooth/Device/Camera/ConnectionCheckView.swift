@@ -11,11 +11,15 @@ struct ConnectionCheckView: View {
     private let cameraDevice: String
     private let mirroringDevice: String
     private let remoteDevice: String?
+    private let cameraManager = CameraManager()
+    private let browser: Browser
+    @State private var showPreview = false
 
-    init(_ list: ConnectionList) {
+    init(_ list: ConnectionList, browser: Browser) {
         self.cameraDevice = list.cameraName
         self.mirroringDevice = list.mirroringName
         self.remoteDevice = list.remoteName
+        self.browser = browser
     }
 
     var body: some View {
@@ -64,7 +68,8 @@ struct ConnectionCheckView: View {
 
             // 3. 촬영 준비 버튼
             Button {
-                // TODO: 카메라 프리뷰로 이동
+                showPreview = true
+                browser.sendCommand(.navigateToSelectMode)
             } label: {
                 Text("촬영 준비하기")
                     .padding(14)
@@ -76,6 +81,15 @@ struct ConnectionCheckView: View {
             .padding()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .fullScreenCover(isPresented: $showPreview) {
+            CameraPreview(
+                store: CameraPreviewStore(
+                    browser: browser,
+                    manager: cameraManager,
+                    deviceName: mirroringDevice
+                )
+            )
+        }
     }
 }
 

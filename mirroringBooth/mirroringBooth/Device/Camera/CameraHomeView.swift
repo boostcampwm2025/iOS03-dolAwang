@@ -12,24 +12,8 @@ struct CameraHomeView: View {
     @Environment(Router.self) var router: Router
 
     var body: some View {
-        VStack(spacing: 15) {
-            // 1. 타이틀
-            VStack(alignment: .leading) {
-                Group {
-                    Text("가장 선명하게,")
-                    Text("우리다운 순간을")
-                        .foregroundStyle(Color.main)
-                    Text("기록하다.")
-                }
-                    .font(.title.bold())
-            }
-            .frame(maxWidth: .infinity, alignment: .topLeading)
-
-            // 2. 서비스 이름
-            Text("Mirroring Booth")
-                .font(.caption.bold())
-                .foregroundStyle(Color(.secondaryLabel))
-                .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: 15) {
+            MainHeaderView()
 
             Spacer()
             // 3. 기기 용도 선택

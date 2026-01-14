@@ -22,16 +22,27 @@ struct RootView: View {
                             BrowsingView()
                                 .environment(router)
                         case .advertising:
-                            AdvertisierHomeView()
-                        case .connectionList(let list):
-                            ConnectionCheckView(list)
+                            AdvertiserHomeView()
+                                .environment(router)
+                        case .connectionList(let list, let browser):
+                            ConnectionCheckView(list, browser: browser)
                             .environment(router)
                         case .streaming:
                             EmptyView()
                         }
                     }
             default:
-                AdvertisierHomeView()
+                AdvertiserHomeView()
+                    .environment(router)
+                    .navigationDestination(for: MirroringRoute.self) { viewType in
+                        switch viewType {
+                        case .modeSelection(let advertiser):
+                            ModeSelectionView(advertiser: advertiser)
+                                .environment(router)
+                        case .streaming(let advertiser, let isTimerMode):
+                            StreamingView(advertiser: advertiser, isTimerMode: isTimerMode)
+                        }
+                    }
             }
         }
         .tint(.black)
