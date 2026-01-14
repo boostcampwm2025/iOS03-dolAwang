@@ -107,7 +107,7 @@ private struct PhotoCell: View {
 
             SelectionBorder(selectedNumber: selectedNumber)
         }
-        .aspectRatio(4/3, contentMode: .fit)
+        .aspectRatio(4/3, contentMode: .fill)
         .cornerRadius(12)
         .clipped()
     }

@@ -16,7 +16,6 @@ struct LocalAsyncImage: View {
             if let image = image {
                 image
                     .resizable()
-                    .scaledToFit()
             } else {
                 Color.gray.opacity(0.3)
             }
