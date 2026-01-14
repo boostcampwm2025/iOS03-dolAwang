@@ -53,6 +53,8 @@ final class PhotoCacheManager {
         let fileURL = sessionDirectory.appendingPathComponent("photo\(index).jpg")
         if FileManager.default.fileExists(atPath: fileURL.path) {
             return UIImage(contentsOfFile: fileURL.path)
+        } else {
+            logger.error("❌ [Cache] 사진 파일 없음 (index: \(index))")
         }
         return nil
     }
