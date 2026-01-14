@@ -11,7 +11,7 @@ struct AdvertiserReconnectionView: View {
     let store: AdvertiserHomeStore
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 16) {
             VStack(spacing: 8) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .padding(15)
@@ -32,9 +32,7 @@ struct AdvertiserReconnectionView: View {
                     isAdvertising: store.state.isAdvertising
                 )
             } else {
-                IdleView(
-                    displayName: store.advertiser.myDeviceName
-                )
+                IdleView(displayName: store.advertiser.myDeviceName)
             }
 
             Button {
@@ -51,13 +49,6 @@ struct AdvertiserReconnectionView: View {
         .onDisappear {
             store.send(.exit)
         }
+        .padding(16)
     }
-}
-
-#Preview {
-    AdvertiserReconnectionView(
-        store: AdvertiserHomeStore(
-            Advertiser(photoCacheManager: PhotoCacheManager.shared)
-        )
-    )
 }
