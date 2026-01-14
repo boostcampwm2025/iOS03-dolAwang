@@ -11,4 +11,5 @@ import Foundation
 struct Photo: Identifiable {
     let id: UUID
     var state: PhotoReceiveState
+    var selectNumber: Int?
 }
