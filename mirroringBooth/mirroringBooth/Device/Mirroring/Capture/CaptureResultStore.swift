@@ -35,9 +35,9 @@ final class CaptureResultStore: StoreProtocol {
     }
 
     var state: State = .init()
-    let advertiser: Advertisier
+    let advertiser: Advertiser
 
-    init(advertiser: Advertisier) {
+    init(advertiser: Advertiser) {
         self.advertiser = advertiser
     }
 
