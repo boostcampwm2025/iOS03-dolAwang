@@ -15,17 +15,20 @@ final class CameraPreviewStore: StoreProtocol {
         var buffer: CMSampleBuffer?
         var deviceName: String
         var isTransferring = false
+        var angle: Double = 0
     }
 
     enum Intent {
         case startAnimation
         case startSession
         case tapExitButton
+        case updateAngle(rawValue: Int)
     }
 
     enum Result {
         case startAnimation
         case startSession
+        case updateAngle(Int)
     }
 
     private let browser: Browser
@@ -51,6 +54,8 @@ final class CameraPreviewStore: StoreProtocol {
             return [.startSession]
         case .tapExitButton:
             cameraManager.stopSession()
+        case .updateAngle(let rawValue):
+            return [.updateAngle(rawValue)]
         }
         return []
     }
@@ -65,7 +70,10 @@ final class CameraPreviewStore: StoreProtocol {
             cameraManager.rawData = { buffer in
                 self.state.buffer = buffer
             }
+        case .updateAngle(let rawValue):
+            state.angle = getAngleByRawValue(rawValue)
         }
+
         self.state = state
     }
 }
@@ -93,6 +101,15 @@ private extension CameraPreviewStore {
         // 10장 모두 저장 완료 시 iPad에 알림 전송
         cameraManager.onAllPhotosStored = { _ in
             self.browser.sendCommand(.allPhotosStored)
+        }
+    }
+
+    func getAngleByRawValue(_ value: Int) -> Double {
+        switch value {
+        case 3: return 90   // landscapeLeft
+        case 4: return 90  // landscapeRight
+        case 5: return state.angle    // flat
+        default: return 0
         }
     }
 }
