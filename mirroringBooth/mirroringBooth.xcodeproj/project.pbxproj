@@ -49,10 +49,10 @@
 				Device/Remote/App/Assets.xcassets,
 				Device/Remote/App/MirroringBoothWatchApp.swift,
 				Device/Remote/Store/WatchConnectionStore.swift,
-				Device/Remote/View/WatchConnectionButton.swift,
-				Device/Remote/View/WatchConnectionView.swift,
-				Device/Remote/View/WatchView.swift,
+				Device/Remote/WatchConnectionButton.swift,
+				Device/Remote/WatchConnectionView.swift,
 				"Device/Remote/WatchKitView+.swift",
+				Device/Remote/WatchView.swift,
 			);
 			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
 		};
@@ -61,16 +61,16 @@
 			membershipExceptions = (
 				Core/AppLogger.swift,
 				Core/StoreProtocol.swift,
-				Device/Common/Component/CaptureButton.swift,
 				Device/Common/Model/ConnectionState.swift,
 				Device/Remote/App/Assets.xcassets,
 				Device/Remote/App/MirroringBoothWatchApp.swift,
+				Device/Remote/CaptureButton.swift,
 				"Device/Remote/Connection/WatchConnectionManger+watchOS.swift",
 				Device/Remote/Store/WatchConnectionStore.swift,
-				Device/Remote/View/WatchConnectionButton.swift,
-				Device/Remote/View/WatchConnectionView.swift,
-				Device/Remote/View/WatchView.swift,
+				Device/Remote/WatchConnectionButton.swift,
+				Device/Remote/WatchConnectionView.swift,
 				"Device/Remote/WatchKitView+.swift",
+				Device/Remote/WatchView.swift,
 			);
 			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
 		};
