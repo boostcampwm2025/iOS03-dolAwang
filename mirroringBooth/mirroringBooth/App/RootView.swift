@@ -30,6 +30,10 @@ struct RootView: View {
                         .environment(router)
                 case .connectionList(let list, let browser):
                     ConnectionCheckView(list, browser: browser)
+                        .environment(router)
+                case .completion:
+                    StreamingCompletionView()
+                        .environment(router)
                 }
             }
             .navigationDestination(for: MirroringRoute.self) { viewType in

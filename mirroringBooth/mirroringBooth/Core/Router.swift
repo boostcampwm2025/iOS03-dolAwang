@@ -28,6 +28,7 @@ enum CameraRoute: Hashable {
     case browsing
     case advertising
     case connectionList(ConnectionList, Browser)
+    case completion
 }
 
 struct ConnectionList: Hashable {
