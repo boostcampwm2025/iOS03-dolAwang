@@ -31,7 +31,7 @@ struct PhotoFramePreview: View {
                     let photo = photos[index]
 
                     context.drawLayer { layer in
-                        layer.clip(to: Path(roundedRect: slot, cornerRadius: 12))
+                        layer.clip(to: Path(roundedRect: slot, cornerRadius: 5))
                         let target = aspectFillRect(for: photo.size, into: slot)
                         layer.draw(Image(uiImage: photo), in: target)
                     }
