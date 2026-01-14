@@ -90,7 +90,7 @@ struct ResultView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 HomeButton(size: .headline) {
-                    // TODO: 홈으로 이동하는 액션
+                    router.reset()
                 }
             }
         }
