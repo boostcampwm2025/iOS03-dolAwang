@@ -81,6 +81,9 @@ final class Advertiser: NSObject {
         session.delegate = self
         commandSession.delegate = self
         advertiser.delegate = self
+    }
+
+    func setupCacheManager() {
         photoCacheManager.startNewSession()
     }
 
