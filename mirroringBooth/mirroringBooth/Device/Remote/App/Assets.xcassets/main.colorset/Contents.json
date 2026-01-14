@@ -5,15 +5,9 @@
         "color-space" : "display-p3",
         "components" : {
           "alpha" : "1.000",
-<<<<<<<< HEAD:mirroringBooth/mirroringBooth/Resources/Assets.xcassets/Colors/ComponentColor/buttonComponent.colorset/Contents.json
-          "blue" : "0xFF",
-          "green" : "0xE7",
-          "red" : "0xDE"
-========
           "blue" : "0.902",
           "green" : "0.280",
           "red" : "0.311"
->>>>>>>> develop:mirroringBooth/mirroringBooth/Device/Remote/App/Assets.xcassets/main.colorset/Contents.json
         }
       },
       "idiom" : "universal"
@@ -29,15 +23,9 @@
         "color-space" : "display-p3",
         "components" : {
           "alpha" : "1.000",
-<<<<<<<< HEAD:mirroringBooth/mirroringBooth/Resources/Assets.xcassets/Colors/ComponentColor/buttonComponent.colorset/Contents.json
-          "blue" : "0x22",
-          "green" : "0x1B",
-          "red" : "0x16"
-========
           "blue" : "0.901",
           "green" : "0.418",
           "red" : "0.378"
->>>>>>>> develop:mirroringBooth/mirroringBooth/Device/Remote/App/Assets.xcassets/main.colorset/Contents.json
         }
       },
       "idiom" : "universal"
