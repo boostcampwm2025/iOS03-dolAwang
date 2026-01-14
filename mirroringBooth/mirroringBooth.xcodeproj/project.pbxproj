@@ -47,12 +47,12 @@
 			membershipExceptions = (
 				App/Info.plist,
 				Device/Remote/App/Assets.xcassets,
-				Device/Remote/App/mirroringBoothWatchApp.swift,
+				Device/Remote/App/MirroringBoothWatchApp.swift,
 				Device/Remote/Store/WatchConnectionStore.swift,
-				Device/Remote/View/WatchConnectionButton.swift,
-				Device/Remote/View/WatchConnectionView.swift,
-				Device/Remote/View/WatchView.swift,
+				Device/Remote/WatchConnectionButton.swift,
+				Device/Remote/WatchConnectionView.swift,
 				"Device/Remote/WatchKitView+.swift",
+				Device/Remote/WatchView.swift,
 			);
 			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
 		};
@@ -61,16 +61,16 @@
 			membershipExceptions = (
 				Core/AppLogger.swift,
 				Core/StoreProtocol.swift,
-				Device/Common/Component/CaptureButton.swift,
 				Device/Common/Model/ConnectionState.swift,
 				Device/Remote/App/Assets.xcassets,
-				Device/Remote/App/mirroringBoothWatchApp.swift,
+				Device/Remote/App/MirroringBoothWatchApp.swift,
+				Device/Remote/CaptureButton.swift,
 				"Device/Remote/Connection/WatchConnectionManger+watchOS.swift",
 				Device/Remote/Store/WatchConnectionStore.swift,
-				Device/Remote/View/WatchConnectionButton.swift,
-				Device/Remote/View/WatchConnectionView.swift,
-				Device/Remote/View/WatchView.swift,
+				Device/Remote/WatchConnectionButton.swift,
+				Device/Remote/WatchConnectionView.swift,
 				"Device/Remote/WatchKitView+.swift",
+				Device/Remote/WatchView.swift,
 			);
 			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
 		};
@@ -163,6 +163,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				DF4C17D72F15ED0D000A7DAC /* PBXTargetDependency */,
 			);
 			name = mirroringBoothWatch;
 			packageProductDependencies = (
@@ -190,11 +191,10 @@
 				};
 			};
 			buildConfigurationList = 8C796EA52EF52FB200280FED /* Build configuration list for PBXProject "mirroringBooth" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
-				Base,
+				ko,
 			);
 			mainGroup = 8C796EA12EF52FB200280FED;
 			minimizedProjectReferenceProxies = 1;
@@ -256,6 +256,10 @@
 			isa = PBXTargetDependency;
 			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
 			targetProxy = DF40C6B42F0E079500D116A3 /* PBXContainerItemProxy */;
+		};
+		DF4C17D72F15ED0D000A7DAC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = DF4C17D62F15ED0D000A7DAC /* SwiftLintBuildToolPlugin */;
 		};
 /* End PBXTargetDependency section */
 
@@ -391,6 +395,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = mirroringBooth/App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_NSCameraUsageDescription = "비디오 스트리밍을 위해 카메라 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "주변 Apple 기기와의 연결 및 미러링 기능을 위해 로컬 네트워크를 사용합니다.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -440,6 +446,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = mirroringBooth/App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_NSCameraUsageDescription = "비디오 스트리밍을 위해 카메라 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "주변 Apple 기기와의 연결 및 미러링 기능을 위해 로컬 네트워크를 사용합니다.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -592,6 +600,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		D771CA772F0BBB26004285EA /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D7E651BF2F0BB36000C0524D /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		DF4C17D62F15ED0D000A7DAC /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D7E651BF2F0BB36000C0524D /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";

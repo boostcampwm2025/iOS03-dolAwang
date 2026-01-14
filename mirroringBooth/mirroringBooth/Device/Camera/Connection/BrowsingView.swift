@@ -15,14 +15,10 @@ struct BrowsingView: View {
 
     var body: some View {
         ZStack {
-            // 배경에 그려지는 2개의 원
-            Circle()
-                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.3))
-                .frame(width: 180, height: 180)
-
-            Circle()
-                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.2))
-                .frame(width: 260, height: 260)
+            AnimatedCircle(
+                color: Color(store.state.currentTarget.color),
+                animationTrigger: store.state.animationTrigger
+            )
 
             if store.state.isConnecting {
                 ProgressView()
@@ -56,7 +52,10 @@ struct BrowsingView: View {
                                         store.send(.didSelect(device))
                                     }
                                 } label: {
-                                    deviceRow(device)
+                                    DeviceRow(
+                                        device: device,
+                                        selectedTarget: isDeviceSelected(device)
+                                    )
                                 }
                                 .disabled(isDeviceDisabled(device))
                             }
@@ -117,38 +116,6 @@ struct BrowsingView: View {
             }
             store.send(.didChangeAppState(state))
         }
-    }
-
-    @ViewBuilder
-    private func deviceRow(_ device: NearbyDevice) -> some View {
-        let target = isDeviceSelected(device)
-
-        HStack {
-            Image(systemName: device.type.icon)
-                .font(.title)
-
-            VStack(alignment: .leading) {
-                Text(device.id)
-                    .font(.headline.bold())
-                Text(device.type.rawValue)
-                    .font(.footnote)
-            }
-
-            Spacer()
-
-            // 선택된 기기인 경우 상징적인 아이콘 표시
-            if let target {
-                Image(systemName: target.icon)
-                    .font(.title2)
-                    .foregroundStyle(Color(target.color))
-            }
-        }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .foregroundStyle(Color(.label))
-        .background(Color(.secondarySystemBackground).opacity(0.6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .opacity(isDeviceDisabled(device) ? 0.5 : 1)
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {

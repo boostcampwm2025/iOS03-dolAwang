@@ -112,7 +112,8 @@ final class Browser: NSObject {
         switch useType {
         case .mirroring:
             targetMirroringDeviceID = deviceID
-            targetSession = mirroringSession
+            // 커맨드 세션에 대해 먼저 연결을 요청합니다.
+            targetSession = mirroringCommandSession
         case .remote:
             targetRemoteDeviceID = deviceID
             targetSession = remoteSession
@@ -121,7 +122,7 @@ final class Browser: NSObject {
         browser.invitePeer(
             peer,
             to: targetSession,
-            withContext: SessionType.streaming.rawValue.data(using: .utf8),
+            withContext: SessionType.command.rawValue.data(using: .utf8),
             timeout: 10
         )
         logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
@@ -235,7 +236,20 @@ extension Browser: MCSessionDelegate {
         didChange state: MCSessionState
     ) {
         let sessionTypeLabel = getSessionTypeLabel(for: session)
+
         let newState = logAndConvertState(state, for: peerID.displayName, sessionType: sessionTypeLabel)
+
+        // 미러링 세션이 연결되면 명령 세션을 초대합니다.
+        if sessionTypeLabel == "미러링 명령", newState == .connected {
+            logger.info("미러링 커맨드 세션 연결 완료, 미러링 세션 초대 시작")
+            browser.invitePeer(
+                peerID,
+                to: mirroringSession,
+                withContext: SessionType.streaming.rawValue.data(using: .utf8),
+                timeout: 10
+            )
+            return
+        }
 
         let deviceType = discoveredPeers[peerID.displayName]?.type ?? .unknown
         discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
@@ -296,17 +310,6 @@ extension Browser: MCSessionDelegate {
         switch state {
         case .connected:
             onDeviceConnected?(device)
-
-            // 미러링 세션이 연결되면 명령 세션을 초대합니다.
-            if isMirroringTarget {
-                logger.info("미러링 세션 연결 완료, command 세션 초대 시작")
-                browser.invitePeer(
-                    peerID,
-                    to: mirroringCommandSession,
-                    withContext: SessionType.command.rawValue.data(using: .utf8),
-                    timeout: 10
-                )
-            }
 
         case .notConnected:
             onDeviceConnectionFailed?()

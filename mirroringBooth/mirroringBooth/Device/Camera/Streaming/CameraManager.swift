@@ -10,7 +10,6 @@ import Observation
 import OSLog
 import UIKit
 
-@Observable
 final class CameraManager: NSObject {
     private let logger = Logger.cameraManager
 
@@ -22,7 +21,10 @@ final class CameraManager: NSObject {
     private var videoOutput: AVCaptureVideoDataOutput?
     private var photoOutput = AVCapturePhotoOutput()
 
-    private let encoder: H264Encoder
+    private let encoder = H264Encoder(resolution: .portraitHD1080p)
+
+    /// 원시 데이터 콜백
+    var rawData: ((CMSampleBuffer) -> Void)?
 
     /// 인코딩된 데이터 콜백
     var onEncodedData: ((Data) -> Void)? {
@@ -40,15 +42,10 @@ final class CameraManager: NSObject {
     var onAllPhotosStored: ((Int) -> Void)?
 
     // 촬영된 이미지 임시 저장 배열
-    private(set) var capturedPhotos: [Data] = []
+    private var capturedPhotos: [Data] = []
 
     // 현재 전송 진행 상황
     var transferProgress: (current: Int, total: Int) = (0, 0)
-
-    init(encoder: H264Encoder) {
-        self.encoder = encoder
-        super.init()
-    }
 
     /// Session을 시작합니다.
     func startSession() {
@@ -190,6 +187,7 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         from connection: AVCaptureConnection
     ) {
         // 프레임 캡처 성공
+        rawData?(sampleBuffer)
         encoder.encode(sampleBuffer)
     }
 

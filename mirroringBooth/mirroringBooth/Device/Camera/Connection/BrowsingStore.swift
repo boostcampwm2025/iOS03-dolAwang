@@ -24,6 +24,7 @@ final class BrowsingStore: StoreProtocol {
             case .remote: return remoteDevice != nil
             }
         }
+        var animationTrigger = false
     }
 
     enum Intent {
@@ -41,6 +42,7 @@ final class BrowsingStore: StoreProtocol {
         case setRemoteDevice(NearbyDevice?)
         case setIsConnecting(Bool)
         case setCurrentTarget(DeviceUseType)
+        case startAnimation
     }
 
     var state: State = .init()
@@ -113,11 +115,10 @@ final class BrowsingStore: StoreProtocol {
         case .entry:
             browser.startSearching()
             watchConnectionManager.start()
-
+            return [.startAnimation]
         case .exit:
             browser.stopSearching()
             watchConnectionManager.stop()
-
         case .didSelect(let device):
             // 1. 현재 타겟에 맞는 연결된 기기 확인
             let currentDevice: NearbyDevice? = switch state.currentTarget {
@@ -181,6 +182,8 @@ final class BrowsingStore: StoreProtocol {
 
         case .setCurrentTarget(let target):
             state.currentTarget = target
+        case .startAnimation:
+            state.animationTrigger = true
         }
 
         self.state = state

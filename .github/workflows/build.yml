@@ -1,0 +1,106 @@
+name: build workflow
+
+on:
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  build:
+    name: Build (iOS + watchOS)
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - scheme: mirroringBooth
+            platform: iOS Simulator
+            os_major: "18"
+            device_regex: "iPhone.*"
+            device_fallback_regex: "iPhone.*"
+          - scheme: mirroringBoothWatch
+            platform: watchOS Simulator
+            os_major: "11"
+            device_regex: "Apple Watch.*"
+            device_fallback_regex: "Apple Watch.*"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Simulator
+        working-directory: mirroringBooth
+        env:
+          PLATFORM: ${{ matrix.platform }}
+          DEVICE_REGEX: ${{ matrix.device_regex }}
+          DEVICE_FALLBACK_REGEX: ${{ matrix.device_fallback_regex }}
+        run: |
+            set -euo pipefail
+
+            echo "Searching for simulator matching: ${DEVICE_REGEX}"
+            device=$(xcrun simctl list devices available | \
+              grep -E "${DEVICE_REGEX}" | \
+              head -1 | \
+              sed -E 's/^[[:space:]]*//; s/[[:space:]]*\([0-9A-Fa-f-]{36}\)[[:space:]]*\(.*\)[[:space:]]*$//')
+
+            if [ -z "${device}" ]; then
+            echo "⚠️ No exact match found. Falling back to: ${DEVICE_FALLBACK_REGEX}"
+            device=$(xcrun simctl list devices available | \
+              grep -E "${DEVICE_REGEX}" | \
+              head -1 | \
+              sed -E 's/^[[:space:]]*//; s/[[:space:]]*\([0-9A-Fa-f-]{36}\)[[:space:]]*\(.*\)[[:space:]]*$//')
+            fi
+
+            if [ -z "${device}" ]; then
+            echo "❌ No simulator found for platform ${PLATFORM}"
+            exit 1
+            fi
+
+            echo "✅ Using simulator: ${device}"
+            echo "device=${device}" >> "$GITHUB_OUTPUT"
+        id: sim
+
+      - name: Build
+        working-directory: mirroringBooth
+        env:
+          SCHEME: ${{ matrix.scheme }}
+          PLATFORM: ${{ matrix.platform }}
+          DEVICE: ${{ steps.sim.outputs.device }}
+        run: |
+          set -euo pipefail
+
+          echo "Scheme: ${SCHEME}"
+          echo "Destination: platform=${PLATFORM},name=${DEVICE}"
+
+          xcodebuild build \
+            -scheme "${SCHEME}" \
+            -project "mirroringBooth.xcodeproj" \
+            -destination "platform=${PLATFORM},name=${DEVICE}" \
+            -skipPackagePluginValidation
+
+      - name: Notify Slack on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SCHEME: ${{ matrix.scheme }}
+          PLATFORM: ${{ matrix.platform }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SLACK_WEBHOOK_URL}" ]; then
+            echo "SLACK_WEBHOOK_URL secret is not set"
+            exit 1
+          fi
+
+          payload=$(cat <<EOF
+          {
+            "text": ":x: CI 실패\n- repo: ${GITHUB_REPOSITORY}\n- workflow: ${GITHUB_WORKFLOW}\n- scheme: ${SCHEME}\n- platform: ${PLATFORM}\n- pr: ${PR_URL}\n- run: ${RUN_URL}"
+          }
+          EOF
+          )
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "${payload}" \
+            "${SLACK_WEBHOOK_URL}"
