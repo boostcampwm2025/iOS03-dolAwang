@@ -47,8 +47,10 @@
 			membershipExceptions = (
 				App/Info.plist,
 				Device/Remote/App/Assets.xcassets,
-				Device/Remote/App/mirroringBoothWatchApp.swift,
-				Device/Remote/Store/WatchViewStore.swift,
+				Device/Remote/App/MirroringBoothWatchApp.swift,
+				Device/Remote/Store/WatchConnectionStore.swift,
+				Device/Remote/WatchConnectionButton.swift,
+				Device/Remote/WatchConnectionView.swift,
 				"Device/Remote/WatchKitView+.swift",
 				Device/Remote/WatchView.swift,
 			);
@@ -61,11 +63,12 @@
 				Core/StoreProtocol.swift,
 				Device/Common/Model/ConnectionState.swift,
 				Device/Remote/App/Assets.xcassets,
-				Device/Remote/App/mirroringBoothWatchApp.swift,
+				Device/Remote/App/MirroringBoothWatchApp.swift,
 				Device/Remote/CaptureButton.swift,
-				Device/Remote/CompletionView.swift,
 				"Device/Remote/Connection/WatchConnectionManger+watchOS.swift",
-				Device/Remote/Store/WatchViewStore.swift,
+				Device/Remote/Store/WatchConnectionStore.swift,
+				Device/Remote/WatchConnectionButton.swift,
+				Device/Remote/WatchConnectionView.swift,
 				"Device/Remote/WatchKitView+.swift",
 				Device/Remote/WatchView.swift,
 			);
@@ -160,6 +163,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				DF4C17D72F15ED0D000A7DAC /* PBXTargetDependency */,
 			);
 			name = mirroringBoothWatch;
 			packageProductDependencies = (
@@ -187,11 +191,10 @@
 				};
 			};
 			buildConfigurationList = 8C796EA52EF52FB200280FED /* Build configuration list for PBXProject "mirroringBooth" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
-				Base,
+				ko,
 			);
 			mainGroup = 8C796EA12EF52FB200280FED;
 			minimizedProjectReferenceProxies = 1;
@@ -253,6 +256,10 @@
 			isa = PBXTargetDependency;
 			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
 			targetProxy = DF40C6B42F0E079500D116A3 /* PBXContainerItemProxy */;
+		};
+		DF4C17D72F15ED0D000A7DAC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = DF4C17D62F15ED0D000A7DAC /* SwiftLintBuildToolPlugin */;
 		};
 /* End PBXTargetDependency section */
 
@@ -388,6 +395,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = mirroringBooth/App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_NSCameraUsageDescription = "비디오 스트리밍을 위해 카메라 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "주변 Apple 기기와의 연결 및 미러링 기능을 위해 로컬 네트워크를 사용합니다.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -437,6 +446,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = mirroringBooth/App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_NSCameraUsageDescription = "비디오 스트리밍을 위해 카메라 권한이 필요합니다.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "주변 Apple 기기와의 연결 및 미러링 기능을 위해 로컬 네트워크를 사용합니다.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -476,6 +487,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B3PWYBKFUK;
@@ -492,6 +504,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.codesquad.boostcamp10.dolAwang.mirroringBooth.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -510,6 +523,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = B3PWYBKFUK;
@@ -526,6 +540,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.codesquad.boostcamp10.dolAwang.mirroringBooth.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -585,6 +600,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		D771CA772F0BBB26004285EA /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D7E651BF2F0BB36000C0524D /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		DF4C17D62F15ED0D000A7DAC /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D7E651BF2F0BB36000C0524D /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";

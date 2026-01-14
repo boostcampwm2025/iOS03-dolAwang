@@ -25,7 +25,7 @@ struct StreamingView: View {
     var body: some View {
         ZStack {
             // 스트리밍 영역 배경
-            Color("Background")
+            Color("background")
                 .ignoresSafeArea()
 
             // 비디오 스트리밍 표시

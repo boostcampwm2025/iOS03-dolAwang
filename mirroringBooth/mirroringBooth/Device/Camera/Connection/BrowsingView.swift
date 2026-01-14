@@ -9,19 +9,13 @@ import SwiftUI
 
 struct BrowsingView: View {
 
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(Router.self) var router: Router
-    @State private var store = BrowsingStore(Browser())
+    @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
 
     var body: some View {
         ZStack {
-            // 배경에 그려지는 2개의 원
-            Circle()
-                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.3))
-                .frame(width: 180, height: 180)
-
-            Circle()
-                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.2))
-                .frame(width: 260, height: 260)
+            animatedCircle
 
             if store.state.isConnecting {
                 ProgressView()
@@ -57,7 +51,7 @@ struct BrowsingView: View {
                                 } label: {
                                     deviceRow(device)
                                 }
-                                .disabled(isDeviceSelected(device) != nil)
+                                .disabled(isDeviceDisabled(device))
                             }
                         }
                     }
@@ -107,6 +101,44 @@ struct BrowsingView: View {
         .onDisappear {
             store.send(.exit)
         }
+        .onChange(of: scenePhase) { _, newValue in
+            let state: UIApplication.State
+            switch newValue {
+            case .active: state = .active
+            case .background: state = .background
+            default: state = .inactive
+            }
+            store.send(.didChangeAppState(state))
+        }
+    }
+
+    private var animatedCircle: some View {
+        ZStack {
+            let trigger = store.state.animationTrigger
+            Circle()
+                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.3))
+                .frame(width: 180, height: 180)
+
+            Circle()
+                .stroke(Color(store.state.currentTarget.color), lineWidth: 3)
+                .frame(width: 180, height: 180)
+                .scaleEffect(trigger ? 2 : 1)
+                .opacity(trigger ? 0 : 0.5)
+                .animation(
+                    .easeOut(duration: 1.4).repeatForever(autoreverses: false),
+                    value: trigger
+                )
+
+            Circle()
+                .stroke(Color(store.state.currentTarget.color), lineWidth: 3)
+                .frame(width: 180, height: 180)
+                .scaleEffect(trigger ? 3 : 1)
+                .opacity(trigger ? 0.0 : 0.3)
+                .animation(
+                    .easeOut(duration: 1.8).repeatForever(autoreverses: false).delay(0.3),
+                    value: trigger
+                )
+        }
     }
 
     @ViewBuilder
@@ -138,7 +170,7 @@ struct BrowsingView: View {
         .foregroundStyle(Color(.label))
         .background(Color(.secondarySystemBackground).opacity(0.6))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .opacity(target != nil ? 0.5 : 1)
+        .opacity(isDeviceDisabled(device) ? 0.5 : 1)
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {
@@ -148,5 +180,10 @@ struct BrowsingView: View {
             return .remote
         }
         return nil
+    }
+
+    private func isDeviceDisabled(_ device: NearbyDevice) -> Bool {
+        return isDeviceSelected(device) != nil ||
+        (store.state.currentTarget == .mirroring && device.type == .watch)
     }
 }

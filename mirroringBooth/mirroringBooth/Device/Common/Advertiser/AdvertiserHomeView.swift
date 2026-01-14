@@ -13,7 +13,6 @@ struct AdvertiserHomeView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            #if !os(watchOS)
             // 상단 헤더
             MainHeaderView()
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -28,13 +27,6 @@ struct AdvertiserHomeView: View {
             }
 
             Spacer()
-            #endif
-
-            #if os(watchOS)
-            Text(displayName)
-                .fontWeight(.heavy)
-                .foregroundStyle(Color(.lightGray))
-            #endif
 
             // 하단 버튼
             Button {

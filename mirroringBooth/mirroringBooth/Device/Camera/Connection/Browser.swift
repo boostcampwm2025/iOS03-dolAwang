@@ -84,10 +84,6 @@ final class Browser: NSObject {
         setup()
     }
 
-    deinit {
-        stopSearching()
-    }
-
     private func setup() {
         mirroringSession.delegate = self
         mirroringCommandSession.delegate = self
