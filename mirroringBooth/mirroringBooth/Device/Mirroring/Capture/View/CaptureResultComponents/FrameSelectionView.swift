@@ -52,10 +52,12 @@ private extension FrameSelectionView {
                     .font(.callout.bold())
                     .foregroundStyle(.primary)
 
-                VStack {
-                    ForEach(FrameAsset.allCases) { frame in
-                        frameColorButton(with: frame, description: frame.rawValue) {
-                            store.send(.selectFrame(frame))
+                ScrollView {
+                    VStack {
+                        ForEach(FrameAsset.allCases) { frame in
+                            frameColorButton(with: frame, description: frame.rawValue) {
+                                store.send(.selectFrame(frame))
+                            }
                         }
                     }
                 }
@@ -113,6 +115,7 @@ private extension FrameSelectionView {
                     .padding()
 
                 Text(description)
+                    .font(.callout.bold())
                     .foregroundStyle(Color.primary)
 
                 Spacer()
