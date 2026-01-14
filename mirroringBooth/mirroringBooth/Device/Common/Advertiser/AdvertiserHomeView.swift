@@ -158,8 +158,3 @@ private struct StandbyView: View {
         }
     }
 }
-
-// 작업 이전 뷰라서 Preview를 제거하지 않은 상태입니다
-#Preview {
-    AdvertiserHomeView()
-}
