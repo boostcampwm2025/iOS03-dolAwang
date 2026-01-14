@@ -21,7 +21,7 @@ struct FrameSelectionView: View {
     }
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             layoutSection
             frameSection
             Spacer()
@@ -49,6 +49,7 @@ private extension FrameSelectionView {
             .foregroundStyle(.primary)
 
             LayoutButtonView(rows: $rows, columns: $columns, frameColor: $frameColor)
+                .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 
@@ -139,8 +140,8 @@ private extension FrameSelectionView {
             LayoutButton(
                 rows: $rows,
                 columns: $columns,
-                row: 1,
-                column: 2
+                row: 2,
+                column: 1
             )
         }
 
@@ -148,7 +149,7 @@ private extension FrameSelectionView {
             LayoutButton(
                 rows: $rows,
                 columns: $columns,
-                row: 3,
+                row: 4,
                 column: 1
             )
         }
@@ -230,13 +231,16 @@ private extension FrameSelectionView {
                 Image(imageName)
                     .resizable()
                     .renderingMode(.template)
-                    .aspectRatio(1, contentMode: .fit)
+                    .font(.footnote)
                     .foregroundStyle(Color.primary)
+                    .frame(maxWidth: 60, maxHeight: 60)
+                    .padding(2)
                     .background {
                         RoundedRectangle(cornerRadius: 8)
-                            .strokeBorder(.primary, lineWidth: 1)
+                            .strokeBorder(.primary, lineWidth: 2)
                             .foregroundStyle(Color.secondary)
                     }
+                    .aspectRatio(contentMode: .fit)
             }
         }
     }

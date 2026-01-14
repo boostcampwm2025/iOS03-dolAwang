@@ -19,6 +19,21 @@ enum PhotoFrameLayout: CaseIterable, Identifiable {
         var aspect: CGFloat { size.width / max(size.height, 1) }
     }
 
+    var icon: String {
+        switch self {
+        case .twoByTwo:
+            return "layout2x2"
+        case .oneByOne:
+            return "layout1x1"
+        case .twoByOne:
+            return "layout2x1"
+        case .fourByOne:
+            return "layout4x1"
+        case .threeByTwo:
+            return "layout3x2"
+        }
+    }
+
     var spec: Spec {
         switch self {
         case .twoByTwo:
