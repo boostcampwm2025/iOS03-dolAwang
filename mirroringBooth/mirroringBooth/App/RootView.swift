@@ -28,8 +28,8 @@ struct RootView: View {
                 case .advertising:
                     AdvertiserHomeView()
                         .environment(router)
-                case .connectionList(let list, let browser):
-                    ConnectionCheckView(list, browser: browser)
+                case .connectionList(let list, let browser, let cameraManager):
+                    ConnectionCheckView(list, browser: browser, cameraManager: cameraManager)
                 }
             }
             .navigationDestination(for: MirroringRoute.self) { viewType in
