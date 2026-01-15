@@ -27,7 +27,7 @@ final class Router {
 enum CameraRoute: Hashable {
     case browsing
     case advertising
-    case connectionList(ConnectionList, Browser, CameraManager)
+    case connectionList(ConnectionList, Browser)
 }
 
 struct ConnectionList: Hashable {

@@ -14,6 +14,7 @@ final class Browser: NSObject {
     enum MirroringDeviceCommand: String {
         case navigateToSelectMode
         case allPhotosStored // 사진 10장 모두 저장 완료
+        case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
     }
 
     enum SessionType: String {
@@ -419,5 +420,13 @@ extension Browser: MCNearbyServiceBrowserDelegate {
         DispatchQueue.main.async {
             self.onDeviceLost?(device)
         }
+    }
+}
+
+// MARK: - WatchConnectionManager
+extension Browser {
+    func capturePhoto() {
+        self.onCaptureCommand?()
+        self.sendCommand(.onUpdateCaptureCount)
     }
 }
