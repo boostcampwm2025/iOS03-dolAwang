@@ -18,9 +18,11 @@ struct FrameSelectionView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
-            layoutSection
-            frameSection
+        ScrollView {
+            VStack(alignment: .leading) {
+                layoutSection
+                frameSection
+            }
         }
         .padding(.top, 5)
         .padding(.bottom)
@@ -52,12 +54,10 @@ private extension FrameSelectionView {
                     .font(.callout.bold())
                     .foregroundStyle(.primary)
 
-                ScrollView {
-                    VStack {
-                        ForEach(FrameAsset.allCases) { frame in
-                            frameAssetButton(with: frame, description: frame.rawValue) {
-                                store.send(.selectFrame(frame))
-                            }
+                VStack {
+                    ForEach(FrameAsset.allCases) { frame in
+                        frameAssetButton(with: frame, description: frame.rawValue) {
+                            store.send(.selectFrame(frame))
                         }
                     }
                 }
