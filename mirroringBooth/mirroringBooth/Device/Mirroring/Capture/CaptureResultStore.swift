@@ -12,17 +12,16 @@ final class CaptureResultStore: StoreProtocol {
     struct State {
         var photos: [Photo] = []
         var selectedPhotos: [Photo] = []
-        var maxSelection: Int = 1
         var currentSelectionCount: Int = 0
-        var layoutRowCount: Int = 1
-        var layoutColumnCount: Int = 1
-        var layoutColor: Color = .black
+        var selectedLayout: PhotoFrameLayout = .oneByOne
+        var selectedFrame: FrameAsset = .black
     }
 
     enum Intent {
         case onAppear
         case selectPhoto(Int) // 사진을 선택한 경우 인덱스
-        case selectLayout(Int, Int, Color) // 레이아웃 row x column
+        case selectLayout(PhotoFrameLayout)
+        case selectFrame(FrameAsset)
     }
 
     enum Result {
@@ -30,8 +29,8 @@ final class CaptureResultStore: StoreProtocol {
         case selectPhoto(Int)
         case deselectPhoto(Int)
         case setSelectionCount(Int)
-        case setLayout(Int, Int, Color)
-        case setColor(Color)
+        case setLayout(PhotoFrameLayout)
+        case setFrame(FrameAsset)
     }
 
     var state: State = .init()
@@ -47,33 +46,39 @@ final class CaptureResultStore: StoreProtocol {
             return [.setPhotos(photos)]
         case let .selectPhoto(index):
             if state.photos[index].selectNumber == nil {
-                guard state.currentSelectionCount < state.maxSelection else { return [] }
-                return [.selectPhoto(index), .setSelectionCount(state.currentSelectionCount + 1)]
-            } else {
-                return [.deselectPhoto(index), .setSelectionCount(state.currentSelectionCount - 1)]
-            }
-        case let .selectLayout(row, column, color):
-            if state.layoutRowCount == row && state.layoutColumnCount == column {
-                if state.layoutColor == color {
+                guard state.currentSelectionCount < state.selectedLayout.capacity else {
                     return []
-                } else {
-                    return [.setColor(color)]
                 }
+                return [
+                    .selectPhoto(index),
+                    .setSelectionCount(state.currentSelectionCount + 1)
+                ]
+            } else {
+                return [
+                    .deselectPhoto(index),
+                    .setSelectionCount(state.currentSelectionCount - 1)
+                ]
             }
-            return [
-                .setLayout(row, column, color)
-            ]
+        case .selectLayout(let layout):
+            return [.setLayout(layout)]
+
+        case .selectFrame(let frame):
+            return [.setFrame(frame)]
         }
     }
 
     func reduce(_ result: Result) {
+        var state = self.state
+
         switch result {
         case let .setPhotos(photos):
             state.photos = photos
+
         case let .selectPhoto(index):
             let photo = state.photos[index]
             state.photos[index] = Photo(id: photo.id, url: photo.url, selectNumber: state.currentSelectionCount + 1)
             state.selectedPhotos.append(state.photos[index])
+
         case let .deselectPhoto(index):
             var copyState = self.state
             guard let number = copyState.photos[index].selectNumber else { return }
@@ -93,26 +98,16 @@ final class CaptureResultStore: StoreProtocol {
                 }
             }
             state = copyState
-        case .setSelectionCount(let count):
+
+        case .setLayout(let layout):
+            state.selectedLayout = layout
+
+        case .setFrame(let frame):
+            state.selectedFrame = frame
+        case let .setSelectionCount(count):
             state.currentSelectionCount = count
-        case let .setLayout(row, column, color):
-            var copyState = state
-            for index in 0 ..< copyState.photos.count {
-                copyState.photos[index] = Photo(
-                    id: copyState.photos[index].id,
-                    url: copyState.photos[index].url,
-                    selectNumber: nil
-                )
-            }
-            copyState.selectedPhotos = []
-            copyState.maxSelection = row * column
-            copyState.currentSelectionCount = 0
-            copyState.layoutRowCount = row
-            copyState.layoutColumnCount = column
-            copyState.layoutColor = color
-            state = copyState
-        case let .setColor(color):
-            state.layoutColor = color
         }
+
+        self.state = state
     }
 }

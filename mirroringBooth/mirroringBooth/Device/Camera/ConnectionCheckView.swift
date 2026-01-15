@@ -33,12 +33,12 @@ struct ConnectionCheckView: View {
                     .font(.caption)
                     .foregroundStyle(Color(.secondaryLabel))
             }
-            .padding()
+            .padding(.horizontal)
 
             Divider()
 
-            // 2. 기기 목록
-            ScrollView {
+            VStack {
+                // 2. 기기 목록
                 VStack(spacing: 16) {
                     deviceCard(
                         title: "카메라",
@@ -61,22 +61,21 @@ struct ConnectionCheckView: View {
                         color: Color.remote
                     )
                 }
-            }
-            .padding()
 
-            Spacer()
+                Spacer()
 
-            // 3. 촬영 준비 버튼
-            Button {
-                showPreview = true
-                browser.sendCommand(.navigateToSelectMode)
-            } label: {
-                Text("촬영 준비하기")
-                    .padding(14)
-                    .frame(maxWidth: .infinity)
-                    .foregroundStyle(Color(.systemBackground))
-                    .background(Color(.label))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                // 3. 촬영 준비 버튼
+                Button {
+                    showPreview = true
+                    browser.sendCommand(.navigateToSelectMode)
+                } label: {
+                    Text("촬영 준비하기")
+                        .padding(14)
+                        .frame(maxWidth: .infinity)
+                        .foregroundStyle(Color(.systemBackground))
+                        .background(Color(.label))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
             }
             .padding()
         }
