@@ -27,6 +27,8 @@ final class Advertiser: NSObject {
 
     var navigateToSelectModeCommandCallBack: (() -> Void)?
 
+    var navigateToRemoteCommandCallBack: (() -> Void)?
+
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
         case capturePhoto  // 사진 촬영
@@ -60,7 +62,7 @@ final class Advertiser: NSObject {
         )
 
         let myDeviceType: String = {
-        #if os(iOS)
+#if os(iOS)
             if UIDevice.current.userInterfaceIdiom == .phone { return "iPhone" }
             if UIDevice.current.userInterfaceIdiom == .pad {
                 // build는 iOS이지만 실행 기기가 Mac인지 확인
@@ -70,11 +72,11 @@ final class Advertiser: NSObject {
                 return "iPad"
             }
             return "iOS"
-        #elseif os(macOS)
+#elseif os(macOS)
             return "Mac"
-        #else
+#else
             return "Unknown"
-        #endif
+#endif
         }()
 
         self.advertiser = MCNearbyServiceAdvertiser(
@@ -150,6 +152,14 @@ final class Advertiser: NSObject {
             case .onUpdateCaptureCount:
                 DispatchQueue.main.async {
                     self.onUpdateCaptureCount?()
+                }
+            }
+        } else if let type = Browser.RemoteDeviceCommand(rawValue: command) {
+            switch type {
+            case .navigateToRemoteConnection:
+                guard let navigateToRemoteCommandCallBack else { return }
+                DispatchQueue.main.async {
+                    navigateToRemoteCommandCallBack()
                 }
             }
         }
