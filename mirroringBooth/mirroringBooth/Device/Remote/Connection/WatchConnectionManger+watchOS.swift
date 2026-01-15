@@ -16,6 +16,7 @@ final class WatchConnectionManager: NSObject {
         case connect
         case prepare
         case connectAck
+        case disconnect
     }
 
     private enum MessageKey: String {
@@ -209,6 +210,11 @@ extension WatchConnectionManager: WCSessionDelegate {
             self.logger.info("촬영 준비 요청 수신됨.")
             Task { @MainActor in
                 self.onReceiveRequestToPrepare?()
+            }
+        } else if actionValue == ActionValue.disconnect.rawValue {
+            self.logger.info("연결 해제 알림 수신됨.")
+            Task { @MainActor in
+                self.onReachableChanged?(false)
             }
         }
     }
