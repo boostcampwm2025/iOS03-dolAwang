@@ -71,6 +71,11 @@ final class BrowsingStore: StoreProtocol {
 
         browser.onDeviceLost = { [weak self] device in
             self?.reduce(.removeDiscoveredDevice(device))
+            if device == self?.state.mirroringDevice {
+                self?.reduce(.setMirroringDevice(nil))
+            } else if device == self?.state.remoteDevice {
+                self?.reduce(.setRemoteDevice(nil))
+            }
         }
 
         browser.onDeviceConnected = { [weak self] device in
@@ -86,8 +91,15 @@ final class BrowsingStore: StoreProtocol {
             self?.reduce(.setIsConnecting(false))
         }
 
-        browser.onDeviceConnectionFailed = { [weak self] in
+        browser.onDeviceConnectionFailed = { [weak self] device in
             self?.reduce(.setIsConnecting(false))
+            self?.reduce(.setIsReconnectRequired(true))
+            if device == self?.state.mirroringDevice {
+                self?.reduce(.setMirroringDevice(nil))
+            } else if device == self?.state.remoteDevice {
+                self?.reduce(.setRemoteDevice(nil))
+            }
+            self?.reduce(.removeDiscoveredDevice(device))
         }
 
         browser.onSelectedTimerModeCommand = { [weak self] in

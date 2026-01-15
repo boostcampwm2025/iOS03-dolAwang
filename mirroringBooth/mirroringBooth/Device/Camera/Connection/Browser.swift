@@ -46,7 +46,7 @@ final class Browser: NSObject {
 
     var onDeviceConnected: ((NearbyDevice) -> Void)?
 
-    var onDeviceConnectionFailed: (() -> Void)?
+    var onDeviceConnectionFailed: ((NearbyDevice) -> Void)?
 
     /// 촬영 명령 수신 콜백
     var onCaptureCommand: (() -> Void)?
@@ -315,7 +315,7 @@ extension Browser: MCSessionDelegate {
             onDeviceConnected?(device)
 
         case .notConnected:
-            onDeviceConnectionFailed?()
+            onDeviceConnectionFailed?(device)
             if isMirroringTarget || isMirroringCommandTarget {
                 targetMirroringDeviceID = nil
             }
