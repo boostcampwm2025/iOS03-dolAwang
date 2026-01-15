@@ -16,6 +16,10 @@ final class Browser: NSObject {
         case allPhotosStored // 사진 10장 모두 저장 완료
     }
 
+    enum RemoteDeviceCommand: String {
+        case navigateToRemoteConnection
+    }
+
     enum SessionType: String {
         case streaming
         case command
@@ -28,6 +32,7 @@ final class Browser: NSObject {
     private let mirroringSession: MCSession
     private let mirroringCommandSession: MCSession
     private let remoteSession: MCSession
+    private let remoteCommandSession: MCSession
     private let browser: MCNearbyServiceBrowser
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
@@ -78,6 +83,11 @@ final class Browser: NSObject {
             securityIdentity: nil,
             encryptionPreference: .required
         )
+        self.remoteCommandSession = MCSession(
+            peer: peerID,
+            securityIdentity: nil,
+            encryptionPreference: .none
+        )
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
 
         super.init()
@@ -88,6 +98,7 @@ final class Browser: NSObject {
         mirroringSession.delegate = self
         mirroringCommandSession.delegate = self
         remoteSession.delegate = self
+        remoteCommandSession.delegate = self
         browser.delegate = self
     }
 
@@ -116,7 +127,7 @@ final class Browser: NSObject {
             targetSession = mirroringCommandSession
         case .remote:
             targetRemoteDeviceID = deviceID
-            targetSession = remoteSession
+            targetSession = remoteCommandSession
         }
 
         browser.invitePeer(
@@ -201,6 +212,27 @@ final class Browser: NSObject {
         }
     }
 
+    /// 리모트 기기에게 명령을 전송합니다.
+    func sendRemoteCommand(_ command: RemoteDeviceCommand) {
+        guard let data = command.rawValue.data(using: .utf8) else { return }
+        let connectedPeers = remoteCommandSession.connectedPeers
+        guard !connectedPeers.isEmpty else {
+            logger.warning("명령 전송 실패: commandSession에 연결된 피어가 없습니다")
+            return
+        }
+
+        do {
+            try remoteCommandSession.send(
+                data,
+                toPeers: connectedPeers,
+                with: .reliable
+            )
+            logger.info("명령 전송 성공: \(command.rawValue)")
+        } catch {
+            logger.warning("명령 전송 실패: \(error.localizedDescription)")
+        }
+    }
+
     /// 모든 세션의 연결을 해제합니다.
     func disconnect() {
         mirroringSession.disconnect()
@@ -239,7 +271,7 @@ extension Browser: MCSessionDelegate {
 
         let newState = logAndConvertState(state, for: peerID.displayName, sessionType: sessionTypeLabel)
 
-        // 미러링 세션이 연결되면 명령 세션을 초대합니다.
+        // 미러링 세션이 연결되면 미러링 명령 세션을 초대합니다.
         if sessionTypeLabel == "미러링 명령", newState == .connected {
             logger.info("미러링 커맨드 세션 연결 완료, 미러링 세션 초대 시작")
             browser.invitePeer(
@@ -249,6 +281,16 @@ extension Browser: MCSessionDelegate {
                 timeout: 10
             )
             return
+        }
+
+        // 리모트 명령 세션이 연결되면 리모트 명령 세션을 초대합니다.
+        if sessionTypeLabel == "리모트 명령", newState == .connected {
+            browser.invitePeer(
+                peerID,
+                to: remoteSession,
+                withContext: SessionType.streaming.rawValue.data(using: .utf8),
+                timeout: 10
+            )
         }
 
         let deviceType = discoveredPeers[peerID.displayName]?.type ?? .unknown
@@ -262,13 +304,20 @@ extension Browser: MCSessionDelegate {
     }
 
     private func getSessionTypeLabel(for session: MCSession) -> String {
-        if session === mirroringSession {
+        switch true {
+        case session === mirroringSession:
             return "미러링"
-        } else if session === mirroringCommandSession {
+
+        case session === mirroringCommandSession:
             return "미러링 명령"
-        } else if session === remoteSession {
+
+        case session === remoteSession:
             return "리모트"
-        } else {
+
+        case session === remoteCommandSession:
+            return "리모트 명령"
+
+        default:
             return "알 수 없음"
         }
     }
@@ -302,10 +351,13 @@ extension Browser: MCSessionDelegate {
     ) {
         let isMirroringTarget = session === mirroringSession && peerID.displayName == targetMirroringDeviceID
         let isMirroringCommandTarget = (session === mirroringCommandSession)
-            && (peerID.displayName == targetMirroringDeviceID)
-        let isRemoteTarget = session === remoteSession && peerID.displayName == targetRemoteDeviceID
+        && (peerID.displayName == targetMirroringDeviceID)
 
-        guard isMirroringTarget || isMirroringCommandTarget || isRemoteTarget else { return }
+        let isRemoteTarget = session === remoteSession && peerID.displayName == targetRemoteDeviceID
+        let isRemoteCommandTarget = (session === remoteCommandSession)
+        && (peerID.displayName == targetRemoteDeviceID)
+
+        guard isMirroringTarget || isMirroringCommandTarget || isRemoteTarget || isRemoteCommandTarget else { return }
 
         switch state {
         case .connected:
@@ -316,7 +368,7 @@ extension Browser: MCSessionDelegate {
             if isMirroringTarget || isMirroringCommandTarget {
                 targetMirroringDeviceID = nil
             }
-            if isRemoteTarget {
+            if isRemoteTarget || isRemoteCommandTarget {
                 targetRemoteDeviceID = nil
             }
         case .connecting:
@@ -329,7 +381,7 @@ extension Browser: MCSessionDelegate {
         didReceive data: Data,
         fromPeer peerID: MCPeerID
     ) {
-        if session === mirroringCommandSession {
+        if session === mirroringCommandSession || session === remoteCommandSession {
             executeCommand(data: data)
         } else if session === mirroringSession {
             logger.info("스트림 세션에서 데이터 수신: \(data.count) bytes")
