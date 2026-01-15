@@ -100,7 +100,19 @@ final class CaptureResultStore: StoreProtocol {
             state = copyState
 
         case .setLayout(let layout):
-            state.selectedLayout = layout
+            var copyState = state
+            for index in 0 ..< copyState.photos.count {
+                copyState.photos[index] = Photo(
+                    id: copyState.photos[index].id,
+                    url: copyState.photos[index].url,
+                    selectNumber: nil
+                )
+            }
+            copyState.selectedPhotos = []
+            copyState.currentSelectionCount = 0
+            copyState.selectedLayout = layout
+            copyState.selectedFrame = state.selectedFrame
+            state = copyState
 
         case .setFrame(let frame):
             state.selectedFrame = frame
