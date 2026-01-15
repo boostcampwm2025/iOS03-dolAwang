@@ -130,7 +130,6 @@ final class Advertiser: NSObject {
     private func executeCommand(data: Data) {
         guard let command = String(data: data, encoding: .utf8) else { return }
         if let type = Browser.MirroringDeviceCommand(rawValue: command) {
-            print(type)
             switch type {
             case .navigateToSelectMode:
                 guard let navigateToSelectModeCommandCallBack else { return }
