@@ -48,7 +48,7 @@ final class Advertiser: NSObject {
 
     init(serviceType: String = "mirroringbooth", photoCacheManager: PhotoCacheManager) {
         self.serviceType = serviceType
-        self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: true, with: UIDevice.current.name)
+        self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: true, with: UIDevice.current.deviceType)
         self.peerID = MCPeerID(displayName: myDeviceName)
         self.session = MCSession(
             peer: peerID,
@@ -64,7 +64,13 @@ final class Advertiser: NSObject {
         let myDeviceType: String = {
         #if os(iOS)
             if UIDevice.current.userInterfaceIdiom == .phone { return "iPhone" }
-            if UIDevice.current.userInterfaceIdiom == .pad { return "iPad" }
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                // build는 iOS이지만 실행 기기가 Mac인지 확인
+                if ProcessInfo.processInfo.isiOSAppOnMac {
+                    return "Mac"
+                }
+                return "iPad"
+            }
             return "iOS"
         #elseif os(macOS)
             return "Mac"
