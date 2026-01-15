@@ -13,11 +13,11 @@ struct CameraPreview: View {
     @Environment(\.dismiss) private var dismiss
     @State var store: CameraPreviewStore
 
-    let onCaptureCompleted: (() -> Void)?
+    let onDismissByCaptureCompletion: (() -> Void)?
 
-    init(store: CameraPreviewStore, onCaptureCompleted: (() -> Void)? = nil) {
+    init(store: CameraPreviewStore, onDismissByCaptureCompletion: (() -> Void)? = nil) {
         _store = State(initialValue: store)
-        self.onCaptureCompleted = onCaptureCompleted
+        self.onDismissByCaptureCompletion = onDismissByCaptureCompletion
     }
 
     var body: some View {
@@ -61,7 +61,7 @@ struct CameraPreview: View {
         }
         .onChange(of: store.state.isCaptureCompleted) { _, isCompleted in
             if isCompleted {
-                onCaptureCompleted?()
+                onDismissByCaptureCompletion?()
                 dismiss()
             }
         }
