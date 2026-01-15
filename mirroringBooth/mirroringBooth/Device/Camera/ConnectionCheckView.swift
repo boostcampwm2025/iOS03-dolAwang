@@ -68,6 +68,7 @@ struct ConnectionCheckView: View {
                 Button {
                     showPreview = true
                     browser.sendCommand(.navigateToSelectMode)
+                    browser.sendRemoteCommand(.navigateToRemoteConnection)
                 } label: {
                     Text("촬영 준비하기")
                         .padding(14)
