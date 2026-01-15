@@ -10,7 +10,7 @@ import OSLog
 
 /// 스트림 송신 측 (iPhone)
 /// 다른 기기를 탐색하고 연결하여 스트림 데이터(비디오/사진)를 전송
-final class Browser: NSObject {
+final class Browser: NSObject, Reconnectable {
     enum MirroringDeviceCommand: String {
         case navigateToSelectMode
         case allPhotosStored // 사진 10장 모두 저장 완료
@@ -29,6 +29,7 @@ final class Browser: NSObject {
     private let mirroringCommandSession: MCSession
     private let remoteSession: MCSession
     private let browser: MCNearbyServiceBrowser
+    private var isReconnecting: Bool = false
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
 
@@ -126,6 +127,14 @@ final class Browser: NSObject {
             timeout: 10
         )
         logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
+    }
+
+    func reconnect() {
+        isReconnecting = true
+        startSearching()
+        guard let targetMirroringDeviceID else { return }
+        connect(to: targetMirroringDeviceID, as: .mirroring)
+        logger.warning("Reconnecting...")
     }
 
     /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.
@@ -235,6 +244,10 @@ extension Browser: MCSessionDelegate {
         peer peerID: MCPeerID,
         didChange state: MCSessionState
     ) {
+        if case MCSessionState.notConnected = state {
+            reconnect()
+            return
+        }
         let sessionTypeLabel = getSessionTypeLabel(for: session)
 
         let newState = logAndConvertState(state, for: peerID.displayName, sessionType: sessionTypeLabel)
@@ -254,6 +267,12 @@ extension Browser: MCSessionDelegate {
         let deviceType = discoveredPeers[peerID.displayName]?.type ?? .unknown
         discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
+
+        if isReconnecting {
+            isReconnecting = false
+            stopSearching()
+            return
+        }
 
         DispatchQueue.main.async {
             self.onDeviceFound?(device)

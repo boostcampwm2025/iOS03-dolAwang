@@ -21,7 +21,7 @@ final class Advertiser: NSObject, Reconnectable {
     private let commandSession: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
     private let photoCacheManager: PhotoCacheManager
-    var isReconnecting: Bool = false
+    private var isReconnecting: Bool = false
     let myDeviceName: String
 
     /// 수신된 스트림 데이터 콜백
@@ -115,11 +115,6 @@ final class Advertiser: NSObject, Reconnectable {
         startSearching()
     }
 
-    func reconnectCompleted() {
-        isReconnecting = false
-        stopSearching()
-    }
-
     private func checkForReconnect(
         session: MCSession,
         commandSession: MCSession,
@@ -129,6 +124,8 @@ final class Advertiser: NSObject, Reconnectable {
         guard session.connectedPeers.contains(peerID),
               commandSession.connectedPeers.contains(peerID) else { return }
         logger.info("Reconnected to peer: \(peerID.displayName)")
+        isReconnecting = false
+        stopSearching()
     }
 
     /// 연결된 카메라 기기(iPhone)에게 명령을 전송합니다.
