@@ -89,6 +89,7 @@ struct ResultView: View {
                 }
             }
         }
+        .backgroundStyle()
     }
 
     private func sharingButton(

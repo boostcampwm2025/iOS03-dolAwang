@@ -89,6 +89,7 @@ struct ConnectionCheckView: View {
                 )
             )
         }
+        .backgroundStyle()
     }
 }
 

@@ -24,6 +24,7 @@ struct CompletionView: View {
             }
             .opacity(0.8)
         }
+        .backgroundStyle()
     }
 }
 

@@ -26,5 +26,6 @@ struct StreamingCompletionView: View {
                 .opacity(0.7)
                 .multilineTextAlignment(.center)
         }
+        .backgroundStyle()
     }
 }

@@ -88,6 +88,7 @@ struct BrowsingReconnectionView: View {
         .onDisappear {
             store.send(.exit)
         }
+        .backgroundStyle()
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {

@@ -76,6 +76,7 @@ struct ModeSelectionView: View {
         }
         .padding(.top, 20)
         .padding(.horizontal)
+        .backgroundStyle()
     }
 }
 
