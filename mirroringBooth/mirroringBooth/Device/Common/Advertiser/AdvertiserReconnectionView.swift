@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AdvertiserReconnectionView: View {
     let store: AdvertiserHomeStore
+    let onMoveToHome: () -> Void
 
     @State private var isRotating = false
 
