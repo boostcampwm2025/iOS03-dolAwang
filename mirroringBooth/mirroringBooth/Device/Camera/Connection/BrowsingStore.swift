@@ -85,17 +85,19 @@ final class BrowsingStore: StoreProtocol {
     }
 
     private func setupWatchConnectionManager() {
-        watchConnectionManager.onReachableChanged = { [weak self] state in
+        watchConnectionManager.onReachableChanged = { [weak self] isReachable in
             let watchDevice = NearbyDevice(
                 id: "나의 Apple Watch",
                 state: .notConnected,
                 type: .watch
             )
-            if state {
+            if isReachable {
                 self?.reduce(.addDiscoveredDevice(watchDevice))
             } else {
                 self?.reduce(.removeDiscoveredDevice(watchDevice))
-                self?.reduce(.setRemoteDevice(nil))
+                if self?.state.remoteDevice?.type == .watch {
+                    self?.reduce(.setRemoteDevice(nil))
+                }
             }
         }
 
