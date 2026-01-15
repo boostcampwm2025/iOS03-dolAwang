@@ -54,6 +54,12 @@ struct RootView: View {
                         .environment(router)
                 }
             }
+            .navigationDestination(for: RemoteRoute.self) { viewType in
+                switch viewType {
+                case .connectionTest(let advertiser):
+                    RemoteCaptureView(advertiser: advertiser)
+                }
+            }
         }
         .tint(.black)
     }
