@@ -16,7 +16,7 @@ struct ConnectionCheckView: View {
     private let cameraManager = CameraManager()
 
     @State private var showPreview = false
-    @State private var isCaptureCompletion = false
+    @State private var shouldNavigateToCompletion = false
 
     init(_ list: ConnectionList, browser: Browser) {
         self.cameraDevice = list.cameraName
@@ -71,7 +71,7 @@ struct ConnectionCheckView: View {
                 Button {
                     showPreview = true
                     browser.sendCommand(.navigateToSelectMode)
-                    isCaptureCompletion = false
+                    shouldNavigateToCompletion = false
                 } label: {
                     Text("촬영 준비하기")
                         .padding(14)
@@ -86,23 +86,24 @@ struct ConnectionCheckView: View {
             .fullScreenCover(
                 isPresented: $showPreview,
                 onDismiss: {
-                    if isCaptureCompletion {
+                    if shouldNavigateToCompletion {
                         router.push(to: CameraRoute.completion)
-                        isCaptureCompletion = false
+                        shouldNavigateToCompletion = false
                     }
+                },
+                content: {
+                    CameraPreview(
+                        store: CameraPreviewStore(
+                            browser: browser,
+                            manager: cameraManager,
+                            deviceName: mirroringDevice
+                        ),
+                        onDismissByCaptureCompletion: {
+                            shouldNavigateToCompletion = true
+                        }
+                    )
                 }
-            ) {
-                CameraPreview(
-                    store: CameraPreviewStore(
-                        browser: browser,
-                        manager: cameraManager,
-                        deviceName: mirroringDevice
-                    ),
-                    onCaptureCompleted: {
-                        isCaptureCompletion = true
-                    }
-                )
-            }
+            )
         }
     }
 }
