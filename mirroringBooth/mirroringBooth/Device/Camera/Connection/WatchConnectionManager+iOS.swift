@@ -1,5 +1,5 @@
 //
-//  WatchConectionManager+iOS.swift
+//  WatchConnectionManager+iOS.swift
 //  mirroringBooth
 //
 //  Created by 최윤진 on 1/8/26.
