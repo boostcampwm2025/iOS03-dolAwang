@@ -95,6 +95,7 @@ final class BrowsingStore: StoreProtocol {
                 self?.reduce(.addDiscoveredDevice(watchDevice))
             } else {
                 self?.reduce(.removeDiscoveredDevice(watchDevice))
+                self?.reduce(.setRemoteDevice(nil))
             }
         }
 
