@@ -40,6 +40,14 @@ final class AdvertiserHomeStore: StoreProtocol {
         advertiser.onDisconnected = { [weak self] in
             self?.reduce(.setIsReconnectRequired(true))
         }
+
+        advertiser.onReconnected = { [weak self] in
+            self?.reduce(.setIsReconnectRequired(false))
+        }
+    }
+
+    deinit {
+        advertiser.disconnect()
     }
 
     func action(_ intent: Intent) -> [Result] {

@@ -53,7 +53,11 @@ struct AdvertiserHomeView: View {
         }
         .fullScreenCover(isPresented: Binding(
             get: { store.state.isReconnectRequired },
-            set: { _ in }
+            set: { newValue in
+                if !newValue {
+                    store.reduce(.setIsReconnectRequired(false))
+                }
+            }
         )) {
             AdvertiserReconnectionView(store: store) {
                 router.reset()
