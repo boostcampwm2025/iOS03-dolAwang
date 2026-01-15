@@ -67,7 +67,7 @@ private extension FrameSelectionView {
                         Button {
                             store.send(.selectFrame(frame))
                         } label: {
-                            frameIcon(with: frame)
+                            frameIcon(with: frame, isSmall: false)
                         }
                     }
                 }
@@ -111,7 +111,7 @@ private extension FrameSelectionView {
     ) -> some View {
         Button(action: action) {
             HStack {
-                frameIcon(with: frame)
+                frameIcon(with: frame, isSmall: true)
                     .padding()
 
                 Text(description)
@@ -130,12 +130,24 @@ private extension FrameSelectionView {
     }
 
     @ViewBuilder
-    func frameIcon(with frame: FrameAsset) -> some View {
+    func frameIcon(with frame: FrameAsset, isSmall: Bool) -> some View {
         if let icon = frame.image {
-            Image(uiImage: icon)
-                .resizable()
-                .frame(width: 30, height: 30)
-                .aspectRatio(1, contentMode: .fit)
+            if isSmall {
+                Image(uiImage: icon)
+                    .resizable()
+                    .frame(width: 30, height: 30)
+                    .aspectRatio(1, contentMode: .fit)
+            } else {
+                Image(uiImage: icon)
+                    .resizable()
+                    .frame(maxWidth: 50, maxHeight: 50)
+                    .padding(2)
+                    .background {
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(.primary, lineWidth: 2)
+                            .foregroundStyle(Color.secondary.opacity(0.6))
+                    }
+            }
         }
     }
 
