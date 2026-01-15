@@ -10,7 +10,7 @@ import SwiftUI
 struct AnimatedCircle: View {
     let color: Color
     let animationTrigger: Bool
-    
+
     var body: some View {
         ZStack {
             Circle()

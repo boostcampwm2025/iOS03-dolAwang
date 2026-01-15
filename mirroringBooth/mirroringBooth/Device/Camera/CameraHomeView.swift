@@ -12,12 +12,11 @@ struct CameraHomeView: View {
     @Environment(Router.self) var router: Router
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
+        VStack(alignment: .leading) {
             MainHeaderView()
 
             Spacer()
-            // 3. 기기 용도 선택
-            ScrollView {
+            VStack {
                 Button {
                     router.push(to: CameraRoute.browsing)
                 } label: {
@@ -40,8 +39,9 @@ struct CameraHomeView: View {
                     )
                 }
             }
+            Spacer()
         }
-        .padding(20)
+        .padding(.horizontal)
     }
 }
 
