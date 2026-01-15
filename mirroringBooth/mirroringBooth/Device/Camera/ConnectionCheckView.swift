@@ -12,26 +12,17 @@ struct ConnectionCheckView: View {
     private let cameraDevice: String
     private let mirroringDevice: String
     private let remoteDevice: String?
-    private let cameraManager: CameraManager
     private let browser: Browser
+    private let cameraManager = CameraManager()
 
     @State private var showPreview = false
-    @State private var cameraPreviewStore: CameraPreviewStore
+    @State private var isCaptureCompletion = false
 
-    init(_ list: ConnectionList, browser: Browser, manager: CameraManager = CameraManager()) {
+    init(_ list: ConnectionList, browser: Browser) {
         self.cameraDevice = list.cameraName
         self.mirroringDevice = list.mirroringName
         self.remoteDevice = list.remoteName
         self.browser = browser
-        self.cameraManager = manager
-
-        _cameraPreviewStore = State(
-            initialValue: CameraPreviewStore(
-                browser: browser,
-                manager: manager,
-                deviceName: list.mirroringName
-            )
-        )
     }
 
     var body: some View {
@@ -80,7 +71,7 @@ struct ConnectionCheckView: View {
                 Button {
                     showPreview = true
                     browser.sendCommand(.navigateToSelectMode)
-                    cameraPreviewStore.send(.resetCaptureCompleted)
+                    isCaptureCompletion = false
                 } label: {
                     Text("촬영 준비하기")
                         .padding(14)
@@ -92,15 +83,25 @@ struct ConnectionCheckView: View {
                 .padding()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .fullScreenCover(isPresented: $showPreview) {
-                CameraPreview(store: cameraPreviewStore)
-            }
-            .onChange(of: cameraPreviewStore.state.isCaptureCompleted) { _, isCompleted in
-                if isCompleted {
-                    showPreview = false
-                    router.push(to: CameraRoute.completion)
-                    cameraPreviewStore.send(.resetCaptureCompleted)
+            .fullScreenCover(
+                isPresented: $showPreview,
+                onDismiss: {
+                    if isCaptureCompletion {
+                        router.push(to: CameraRoute.completion)
+                        isCaptureCompletion = false
+                    }
                 }
+            ) {
+                CameraPreview(
+                    store: CameraPreviewStore(
+                        browser: browser,
+                        manager: cameraManager,
+                        deviceName: mirroringDevice
+                    ),
+                    onCaptureCompleted: {
+                        isCaptureCompletion = true
+                    }
+                )
             }
         }
     }
