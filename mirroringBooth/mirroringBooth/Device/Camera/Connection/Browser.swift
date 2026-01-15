@@ -354,6 +354,8 @@ extension Browser: MCSessionDelegate {
                     self.onStartTransferCommand?()
                 }
             case .resetRemoteDevice:
+                // 리모트 세션 연결 해제
+                self.disconnect(useType: .remote)
                 DispatchQueue.main.async {
                     self.onResetRemoteDeviceCommand?()
                 }
