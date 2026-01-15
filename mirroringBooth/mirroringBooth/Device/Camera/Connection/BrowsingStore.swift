@@ -57,6 +57,11 @@ final class BrowsingStore: StoreProtocol {
         setupWatchConnectionManager()
     }
 
+    deinit {
+        browser.disconnect()
+        watchConnectionManager.stop()
+    }
+
     private func setupBrowser() {
         browser.onDeviceFound = { [weak self] device in
             self?.reduce(.addDiscoveredDevice(device))
