@@ -37,6 +37,9 @@ final class Advertiser: NSObject {
     /// 사진 수신 완료 콜백 (1장마다 호출)
     var onPhotoReceived: (() -> Void)?
 
+    /// 캡쳐 요청 카운트 콜백 (촬영기기에서 전송)
+    var onUpdateCaptureCount: (() -> Void)?
+
     /// 10장 모두 저장 완료 콜백 (촬영기기에서 전송)
     var onAllPhotosStored: (() -> Void)?
 
@@ -133,6 +136,7 @@ final class Advertiser: NSObject {
     private func executeCommand(data: Data) {
         guard let command = String(data: data, encoding: .utf8) else { return }
         if let type = Browser.MirroringDeviceCommand(rawValue: command) {
+            print(type)
             switch type {
             case .navigateToSelectMode:
                 guard let navigateToSelectModeCommandCallBack else { return }
@@ -142,6 +146,10 @@ final class Advertiser: NSObject {
             case .allPhotosStored:
                 DispatchQueue.main.async {
                     self.onAllPhotosStored?()
+                }
+            case .onUpdateCaptureCount:
+                DispatchQueue.main.async {
+                    self.onUpdateCaptureCount?()
                 }
             }
         }

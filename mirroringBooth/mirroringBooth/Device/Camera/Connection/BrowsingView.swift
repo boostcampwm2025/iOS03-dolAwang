@@ -11,7 +11,7 @@ struct BrowsingView: View {
 
     @Environment(\.scenePhase) private var scenePhase
     @Environment(Router.self) var router: Router
-    @State private var store = BrowsingStore(Browser(), WatchConnectionManager(), CameraManager())
+    @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
 
     var body: some View {
         ZStack {
@@ -88,8 +88,7 @@ struct BrowsingView: View {
                                         mirroringName: mirroringDevice.id,
                                         remoteName: store.state.remoteDevice?.id ?? nil
                                     ),
-                                    store.browser,
-                                    store.cameraManager
+                                    store.browser
                                 )
                             )
                         }
