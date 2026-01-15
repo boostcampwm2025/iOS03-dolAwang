@@ -11,7 +11,7 @@ import MultipeerConnectivity
 import OSLog
 
 /// 서비스를 광고하고 연결 요청을 수락하여 스트림 데이터(비디오/사진)를 수신
-final class Advertiser: NSObject {
+final class Advertiser: NSObject, Reconnectable {
 
     private let logger = Logger.advertiser
 
@@ -21,6 +21,7 @@ final class Advertiser: NSObject {
     private let commandSession: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
     private let photoCacheManager: PhotoCacheManager
+    var isReconnecting: Bool = false
     let myDeviceName: String
 
     /// 수신된 스트림 데이터 콜백
@@ -108,6 +109,28 @@ final class Advertiser: NSObject {
         logger.info("연결 해제: \(self.peerID.displayName)")
     }
 
+    func reconnect() {
+        logger.warning("Reconnecting...")
+        isReconnecting = true
+        startSearching()
+    }
+
+    func reconnectCompleted() {
+        isReconnecting = false
+        stopSearching()
+    }
+
+    private func checkForReconnect(
+        session: MCSession,
+        commandSession: MCSession,
+        peerID: MCPeerID
+    ) {
+        // 두 peerID 모두 연결되어있는지 확인
+        guard session.connectedPeers.contains(peerID),
+              commandSession.connectedPeers.contains(peerID) else { return }
+        logger.info("Reconnected to peer: \(peerID.displayName)")
+    }
+
     /// 연결된 카메라 기기(iPhone)에게 명령을 전송합니다.
     func sendCommand(_ command: CameraDeviceCommand) {
         guard let commandData = command.rawValue.data(using: .utf8) else { return }
@@ -154,7 +177,23 @@ final class Advertiser: NSObject {
 // MARK: - Session Delegate
 extension Advertiser: MCSessionDelegate {
 
-    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) { }
+    func session(
+        _ session: MCSession,
+        peer peerID: MCPeerID,
+        didChange state: MCSessionState
+    ) {
+        if case MCSessionState.notConnected = state {
+            reconnect()
+            return
+        }
+        if isReconnecting {
+            checkForReconnect(
+                session: session,
+                commandSession: commandSession,
+                peerID: peerID
+            )
+        }
+    }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         if session === self.session {
