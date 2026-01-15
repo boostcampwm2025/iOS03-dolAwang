@@ -22,6 +22,8 @@ final class Advertiser: NSObject, Reconnectable {
     private let advertiser: MCNearbyServiceAdvertiser
     private let photoCacheManager: PhotoCacheManager
     private var isReconnecting: Bool = false
+    private var lastHeartBeatTime: Date?
+    private var heartBeatTimer: Timer?
     let myDeviceName: String
 
     /// 수신된 스트림 데이터 콜백
@@ -111,21 +113,37 @@ final class Advertiser: NSObject, Reconnectable {
 
     func reconnect() {
         logger.warning("Reconnecting...")
+        heartBeatTimer?.invalidate()
+        heartBeatTimer = nil
         isReconnecting = true
+        session.disconnect()
+        commandSession.disconnect()
         startSearching()
     }
 
-    private func checkForReconnect(
-        session: MCSession,
-        commandSession: MCSession,
-        peerID: MCPeerID
-    ) {
+    private func checkForReconnect(peerID: MCPeerID) {
         // 두 peerID 모두 연결되어있는지 확인
         guard session.connectedPeers.contains(peerID),
               commandSession.connectedPeers.contains(peerID) else { return }
         logger.info("Reconnected to peer: \(peerID.displayName)")
         isReconnecting = false
         stopSearching()
+        startHeartbeatTimer()
+    }
+
+    private func startHeartbeatTimer() {
+        if heartBeatTimer != nil { return }
+        heartBeatTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
+            guard let self else {
+                timer.invalidate()
+                return
+            }
+            guard let lastHeartBeatTime else { return }
+            // 5초간 heartBeatTime이 갱신되지 않았으면 재연결 시도
+            if Date().timeIntervalSince(lastHeartBeatTime) > 3.0 {
+                reconnect()
+            }
+        }
     }
 
     /// 연결된 카메라 기기(iPhone)에게 명령을 전송합니다.
@@ -166,6 +184,8 @@ final class Advertiser: NSObject, Reconnectable {
                 DispatchQueue.main.async {
                     self.onAllPhotosStored?()
                 }
+            case .heartBeat:
+                lastHeartBeatTime = Date()
             }
         }
     }
@@ -179,16 +199,8 @@ extension Advertiser: MCSessionDelegate {
         peer peerID: MCPeerID,
         didChange state: MCSessionState
     ) {
-        if case MCSessionState.notConnected = state {
-            reconnect()
-            return
-        }
-        if isReconnecting {
-            checkForReconnect(
-                session: session,
-                commandSession: commandSession,
-                peerID: peerID
-            )
+        if isReconnecting, session === self.session, state == .connected {
+            checkForReconnect(peerID: peerID)
         }
     }
 
@@ -296,6 +308,10 @@ extension Advertiser: MCNearbyServiceAdvertiserDelegate {
         logger.info("초대 수신: \(peerID.displayName)(타입: \(type))")
         if type == "streaming" {
             invitationHandler(true, session)
+            if heartBeatTimer == nil {
+                startHeartbeatTimer()
+                lastHeartBeatTime = Date()
+            }
         } else if type == "command" {
             invitationHandler(true, commandSession)
         } else {

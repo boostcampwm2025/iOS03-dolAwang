@@ -14,6 +14,7 @@ final class Browser: NSObject, Reconnectable {
     enum MirroringDeviceCommand: String {
         case navigateToSelectMode
         case allPhotosStored // 사진 10장 모두 저장 완료
+        case heartBeat
     }
 
     enum SessionType: String {
@@ -30,6 +31,7 @@ final class Browser: NSObject, Reconnectable {
     private let remoteSession: MCSession
     private let browser: MCNearbyServiceBrowser
     private var isReconnecting: Bool = false
+    private var heartBeatTimer: Timer?
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
 
@@ -85,11 +87,16 @@ final class Browser: NSObject, Reconnectable {
         setup()
     }
 
+    deinit {
+        heartBeatTimer?.invalidate()
+    }
+
     private func setup() {
         mirroringSession.delegate = self
         mirroringCommandSession.delegate = self
         remoteSession.delegate = self
         browser.delegate = self
+        setupLifecycleObservers()
     }
 
     func startSearching() {
@@ -131,10 +138,38 @@ final class Browser: NSObject, Reconnectable {
 
     func reconnect() {
         isReconnecting = true
+        mirroringSession.disconnect()
+        mirroringCommandSession.disconnect()
         startSearching()
-        guard let targetMirroringDeviceID else { return }
-        connect(to: targetMirroringDeviceID, as: .mirroring)
         logger.warning("Reconnecting...")
+    }
+
+    private func startHeartbeatTimer() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if heartBeatTimer != nil { return }
+            heartBeatTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
+                guard let self else {
+                    timer.invalidate()
+                    return
+                }
+                // 5초마다 heartBeat 신호 보냄
+                self.sendCommand(.heartBeat)
+            }
+        }
+    }
+
+    private func setupLifecycleObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+    }
+
+    @objc private func applicationWillEnterForeground() {
+        reconnect()
     }
 
     /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.
@@ -244,10 +279,6 @@ extension Browser: MCSessionDelegate {
         peer peerID: MCPeerID,
         didChange state: MCSessionState
     ) {
-        if case MCSessionState.notConnected = state {
-            reconnect()
-            return
-        }
         let sessionTypeLabel = getSessionTypeLabel(for: session)
 
         let newState = logAndConvertState(state, for: peerID.displayName, sessionType: sessionTypeLabel)
@@ -268,10 +299,10 @@ extension Browser: MCSessionDelegate {
         discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
 
-        if isReconnecting {
-            isReconnecting = false
-            stopSearching()
-            return
+        if session === mirroringSession,
+           state == .connected,
+           heartBeatTimer == nil {
+            startHeartbeatTimer()
         }
 
         DispatchQueue.main.async {
@@ -332,12 +363,6 @@ extension Browser: MCSessionDelegate {
 
         case .notConnected:
             onDeviceConnectionFailed?()
-            if isMirroringTarget || isMirroringCommandTarget {
-                targetMirroringDeviceID = nil
-            }
-            if isRemoteTarget {
-                targetRemoteDeviceID = nil
-            }
         case .connecting:
             break
         }
@@ -402,6 +427,12 @@ extension Browser: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser,
                  foundPeer peerID: MCPeerID,
                  withDiscoveryInfo info: [String: String]?) {
+        if isReconnecting,
+            let targetMirroringDeviceID,
+            targetMirroringDeviceID == peerID.displayName {
+            connect(to: targetMirroringDeviceID, as: .mirroring)
+            return
+        }
         logger.info("발견된 기기: \(peerID.displayName)")
         guard let deviceTypeString = info?["deviceType"],
               let deviceType = DeviceType.from(string: deviceTypeString)
