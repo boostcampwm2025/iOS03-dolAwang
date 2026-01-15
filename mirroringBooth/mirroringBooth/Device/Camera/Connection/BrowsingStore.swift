@@ -84,6 +84,10 @@ final class BrowsingStore: StoreProtocol {
         }
 
         browser.onResetRemoteDeviceCommand = { [weak self] in
+            // 리모트 기기가 워치인 경우 워치에게 연결 해제 알림
+            if self?.state.remoteDevice?.type == .watch {
+                self?.watchConnectionManager.sendDisconnectionNotification()
+            }
             self?.reduce(.setRemoteDevice(nil))
         }
     }
