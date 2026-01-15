@@ -64,6 +64,9 @@ final class WatchConnectionManager: NSObject {
 
         session.delegate = self
 
+        // iPhone에게 Watch 앱이 active 상태임을 전달
+        pushWatchAppState(.active)
+
         if session.activationState == .activated {
             self.logger.info("WCSession이 이미 활성화되어 있습니다.")
 
@@ -74,7 +77,7 @@ final class WatchConnectionManager: NSObject {
             let reachable: Bool = (appStateValue == .active)
 
             Task { @MainActor in
-                self.lastAppState = appStateValue ?? .terminated
+                self.lastAppState = .active
                 self.onReachableChanged?(reachable)
             }
             return
@@ -85,12 +88,15 @@ final class WatchConnectionManager: NSObject {
     }
 
     func stop() {
-        guard let session = self.session else {
+        guard self.session != nil else {
             self.logger.error("WCSession이 지원되지 않아 비활성화할 수 없습니다.")
             return
         }
 
-        // delegate를 nil로 설정하지 말고, 연결 끊김 상태만 전달
+        // iPhone에게 연결 끊김 상태 전달
+        pushWatchAppState(.inactive)
+
+        // 내부 연결 끊김 상태 전달
         Task { @MainActor in
             self.onReachableChanged?(false)
         }
@@ -112,6 +118,21 @@ final class WatchConnectionManager: NSObject {
         }
 
         session.sendMessage(message, replyHandler: nil)
+    }
+
+    /// iPhone에게 Watch 앱 상태를 전달합니다.
+    private func pushWatchAppState(_ state: AppStateValue) {
+        guard let session = self.session else {
+            self.logger.error("WCSession이 지원되지 않아 상태를 푸시할 수 없습니다.")
+            return
+        }
+
+        do {
+            try session.updateApplicationContext([MessageKey.appState.rawValue: state.rawValue])
+            self.logger.info("Watch 앱 상태 푸시: \(state.rawValue)")
+        } catch {
+            self.logger.error("Watch 앱 상태 푸시 실패: \(error.localizedDescription)")
+        }
     }
 
     /// 연결 요청에 대한 응답을 iPhone으로 전송합니다.
