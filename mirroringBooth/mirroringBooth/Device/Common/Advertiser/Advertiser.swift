@@ -31,7 +31,7 @@ final class Advertiser: NSObject {
     enum CameraDeviceCommand: String {
         case capturePhoto  // 사진 촬영
         case startTransfer // 일괄 전송 시작
-        case resetRemoteDevice // 리모트 기기 연결 해제
+        case selectedTimerMode // 타이머 모드 선택
     }
 
     /// 사진 수신 완료 콜백 (1장마다 호출)

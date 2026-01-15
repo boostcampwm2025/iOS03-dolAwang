@@ -54,8 +54,8 @@ final class Browser: NSObject {
     /// 일괄 전송 시작 명령 수신 콜백
     var onStartTransferCommand: (() -> Void)?
 
-    /// 리모트 기기 연결 해제 명령 수신 콜백
-    var onResetRemoteDeviceCommand: (() -> Void)?
+    /// 타이머 모드 선택 명령 수신 콜백
+    var onSelectedTimerModeCommand: (() -> Void)?
 
     /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
     var isVideoSender: Bool {
@@ -353,11 +353,11 @@ extension Browser: MCSessionDelegate {
                 DispatchQueue.main.async {
                     self.onStartTransferCommand?()
                 }
-            case .resetRemoteDevice:
+            case .selectedTimerMode:
                 // 리모트 세션 연결 해제
                 self.disconnect(useType: .remote)
                 DispatchQueue.main.async {
-                    self.onResetRemoteDeviceCommand?()
+                    self.onSelectedTimerModeCommand?()
                 }
             }
         }

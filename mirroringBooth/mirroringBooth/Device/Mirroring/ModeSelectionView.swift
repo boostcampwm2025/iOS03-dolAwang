@@ -22,8 +22,8 @@ struct ModeSelectionView: View {
             title: "타이머 모드",
             description: "80초 동안 8초 간격으로\n자동 촬영합니다."
         ) {
-            // 촬영 기기에게 리모트 기기 연결 해제 명령 전송
-            advertiser.sendCommand(.resetRemoteDevice)
+            // 촬영 기기에게 타이머 모드 선택 알림
+            advertiser.sendCommand(.selectedTimerMode)
             router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: true))
         }
     }
