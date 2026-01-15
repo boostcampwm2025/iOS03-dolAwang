@@ -13,6 +13,13 @@ struct CameraPreview: View {
     @Environment(\.dismiss) private var dismiss
     @State var store: CameraPreviewStore
 
+    let onCaptureCompleted: (() -> Void)?
+
+    init(store: CameraPreviewStore, onCaptureCompleted: (() -> Void)? = nil) {
+        _store = State(initialValue: store)
+        self.onCaptureCompleted = onCaptureCompleted
+    }
+
     var body: some View {
         ZStack(alignment: .top) {
             Color.black.ignoresSafeArea()
@@ -40,6 +47,7 @@ struct CameraPreview: View {
                 .padding(4)
         }
         .onAppear {
+            store.send(.resetCaptureCompleted)
             withAnimation(.linear(duration: 0.8).repeatForever(autoreverses: true)) {
                 store.send(.startAnimation)
             }
@@ -49,6 +57,12 @@ struct CameraPreview: View {
         .onChange(of: UIDevice.current.orientation.rawValue) { _, value in
             withAnimation(.easeInOut(duration: 0.3)) {
                 store.send(.updateAngle(rawValue: value))
+            }
+        }
+        .onChange(of: store.state.isCaptureCompleted) { _, isCompleted in
+            if isCompleted {
+                onCaptureCompleted?()
+                dismiss()
             }
         }
     }
