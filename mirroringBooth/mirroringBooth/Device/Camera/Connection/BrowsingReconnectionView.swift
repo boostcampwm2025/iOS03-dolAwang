@@ -55,6 +55,16 @@ struct BrowsingReconnectionView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
+
+                    Button {
+                        store.reduce(.setIsReconnectRequired(false))
+                        onMoveToHome()
+                    } label: {
+                        Text("첫 화면으로 돌아가기")
+                            .font(.footnote)
+                            .opacity(0.8)
+                            .foregroundStyle(Color(.label))
+                    }
                 }
 
                 ScrollView {
