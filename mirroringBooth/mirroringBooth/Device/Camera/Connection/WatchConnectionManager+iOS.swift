@@ -1,5 +1,5 @@
 //
-//  WatchConectionManager+iOS.swift
+//  WatchConnectionManager+iOS.swift
 //  mirroringBooth
 //
 //  Created by 최윤진 on 1/8/26.
@@ -109,36 +109,52 @@ final class WatchConnectionManager: NSObject {
         }
     }
 
-    // 워치에 연결 요청을 전송
-    func sendConnectionRequest() {
+    private func sendMessage(
+        action: ActionValue,
+        rejectedActionString: String,
+        successLog: String? = nil
+    ) {
         guard let session = self.session else {
-            self.logger.error("WCSession이 지원되지 않아 워치와 연결 수 없습니다.")
+            self.logger.error("WCSession이 지원되지 않아 \(rejectedActionString)")
             return
         }
 
         guard session.isReachable else {
-            self.logger.error("워치에 도달할 수 없어 연결 요청을 보낼 수 없습니다.")
+            self.logger.error("워치에 도달할 수 없어 \(rejectedActionString)")
             return
         }
 
-        let message = [MessageKey.action.rawValue: ActionValue.connect.rawValue]
+        let message = [MessageKey.action.rawValue: action.rawValue]
         session.sendMessage(message, replyHandler: nil)
+
+        if let successLog = successLog {
+            self.logger.info("\(successLog)")
+        }
+    }
+
+    // 워치에 연결 요청을 전송
+    func sendConnectionRequest() {
+        self.sendMessage(
+            action: .connect,
+            rejectedActionString: "연결 요청을 보낼 수 없습니다."
+        )
     }
 
     // 촬영 기기와 미러링 기기에서 촬영을 시작할 때 워치에게도 알림
     func prepareWatchToCapture() {
-        guard let session = self.session else {
-            self.logger.error("WCSession이 지원되지 않아 워치를 등록할 수 없습니다.")
-            return
-        }
+        self.sendMessage(
+            action: .prepare,
+            rejectedActionString: "촬영 준비 요청을 보낼 수 없습니다."
+        )
+    }
 
-        guard session.isReachable else {
-            self.logger.error("워치에 도달할 수 없어 촬영 준비 요청을 보낼 수 없습니다.")
-            return
-        }
-
-        let message = [MessageKey.action.rawValue: ActionValue.prepare.rawValue]
-        session.sendMessage(message, replyHandler: nil)
+    // 워치에게 연결 해제를 알림
+    func sendDisconnectionNotification() {
+        self.sendMessage(
+            action: .disconnect,
+            rejectedActionString: "연결 해제 요청을 보낼 수 없습니다.",
+            successLog: "워치에 연결 해제 알림 전송"
+        )
     }
 
     // 워치에 연결 해제 요청을 전송

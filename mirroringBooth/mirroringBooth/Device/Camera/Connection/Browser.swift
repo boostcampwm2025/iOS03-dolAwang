@@ -58,6 +58,9 @@ final class Browser: NSObject {
     /// 원격 모드 설정 명령 수신 콜백
     var onRemoteModeCommand: (() -> Void)?
 
+    /// 타이머 모드 선택 명령 수신 콜백
+    var onSelectedTimerModeCommand: (() -> Void)?
+
     /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
     var isVideoSender: Bool {
         UIDevice.current.userInterfaceIdiom == .phone
@@ -357,6 +360,10 @@ extension Browser: MCSessionDelegate {
             case .setRemoteMode:
                 DispatchQueue.main.async {
                     self.onRemoteModeCommand?()
+                }
+            case .selectedTimerMode:
+                DispatchQueue.main.async {
+                    self.onSelectedTimerModeCommand?()
                 }
             }
         }
