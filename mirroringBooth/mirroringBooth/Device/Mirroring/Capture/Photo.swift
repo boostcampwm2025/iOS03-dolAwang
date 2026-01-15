@@ -12,4 +12,11 @@ struct Photo: Identifiable {
     let id: UUID
     var state: PhotoReceiveState
     var selectNumber: Int?
+
+    var imageData: Data? {
+        if case let .completed(data) = state {
+            return data
+        }
+        return nil
+    }
 }

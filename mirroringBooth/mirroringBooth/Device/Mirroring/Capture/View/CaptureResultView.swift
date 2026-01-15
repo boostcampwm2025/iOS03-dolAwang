@@ -40,8 +40,11 @@ private extension CaptureResultView {
             Divider()
                 .background(.main)
 
-            HStack {
-                editingPanel(isPortrait: true)
+            VStack {
+                HStack(alignment: .top) {
+                    editingPanel(isPortrait: true)
+                }
+                completionButton
             }
             // 화면 표시 비율
             .frame(height: geometry.size.height * 0.5)
@@ -51,7 +54,10 @@ private extension CaptureResultView {
     /// 가로 레이아웃
     func landscapeLayout(with geometry: GeometryProxy) -> some View {
         HStack {
-            photoGridView
+            VStack {
+                photoGridView
+                completionButton
+            }
 
             Divider()
                 .background(.main)
@@ -67,33 +73,29 @@ private extension CaptureResultView {
     /// 편집 패널 (결과 프리뷰 + 프레임/레이아웃 선택 뷰)
     @ViewBuilder
     func editingPanel(isPortrait: Bool) -> some View {
-        if store.state.layoutRowCount != 0 && store.state.layoutColumnCount != 0 {
-            // 임시로 적용해둔 상태, State 연결 필요
+        if let frameImage = store.state.selectedFrame.image {
             PhotoFramePreview(
-                layout: .fourByOne,
-                frame: UIImage(named: "testFramee")!,
-                photos: [
-                    UIImage(named: "test")!,
-                    UIImage(named: "test")!,
-                    UIImage(named: "test")!,
-                    UIImage(named: "test")!
-                ]
+                layout: store.state.selectedLayout,
+                frame: frameImage,
+                photos: store.state.selectedPhotos
+                    .compactMap { photo in
+                        photo.imageData.flatMap { UIImage(data: $0) }
+                    }
             )
             .padding(12)
             .padding(isPortrait ? .leading : .trailing, 7)
+            Divider()
+                .background(.main)
+
+            FrameSelectionView(store: store)
         }
-
-        Divider()
-            .background(.main)
-
-        FrameSelectionView(store: store)
     }
 
     /// 촬영된 사진 그리드 뷰
     var photoGridView: some View {
         VStack(alignment: .leading) {
             // 제목 및 Description
-            Text("사진 선택 (\(store.state.currentSelectionCount)/\(store.state.maxSelection))")
+            Text("사진 선택 (\(store.state.currentSelectionCount)/\(store.state.selectedLayout.capacity))")
                 .font(.title.bold())
                 .foregroundColor(.primary)
 
@@ -108,5 +110,24 @@ private extension CaptureResultView {
             }
         }
         .padding()
+    }
+
+    var completionButton: some View {
+        Button {
+            // TODO: 완료 버튼 액션
+        } label: {
+            Text("편집 완료하기")
+                .font(.headline.bold())
+                .padding(.vertical, 15)
+                .padding(.horizontal, 30)
+                .foregroundStyle(Color(.label))
+                .background {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.main.opacity(0.3))
+                        .strokeBorder(Color.borderLine, lineWidth: 2)
+                        .frame(minHeight: 44)
+                }
+        }
+        .padding(5)
     }
 }
