@@ -142,6 +142,12 @@ final class BrowsingStore: StoreProtocol {
         case .cancel:
             // 1. 모든 연결 해제
             browser.disconnect()
+
+            // 워치가 연결되어 있다면 연결 해제 요청 전송
+            if state.remoteDevice?.type == .watch {
+                watchConnectionManager.sendDisconnectRequest()
+            }
+
             result.append(.setMirroringDevice(nil))
             result.append(.setRemoteDevice(nil))
 
