@@ -65,6 +65,7 @@
 				Device/Remote/App/Assets.xcassets,
 				Device/Remote/App/MirroringBoothWatchApp.swift,
 				Device/Remote/CaptureButton.swift,
+				Device/Remote/CompletionView.swift,
 				"Device/Remote/Connection/WatchConnectionManger+watchOS.swift",
 				Device/Remote/Store/WatchConnectionStore.swift,
 				Device/Remote/WatchConnectionButton.swift,
