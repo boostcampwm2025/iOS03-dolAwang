@@ -99,21 +99,14 @@ struct StreamingView: View {
     /// 스트리밍 영역 상단 HUD
     private var streamingHUD: some View {
         GeometryReader { geometry in
-            let screenWidth = geometry.size.width
-            let layoutType = StreamingLayoutType(width: screenWidth)
+            let layoutType = StreamingLayoutType(width: geometry.size.width)
             let isShooting = isTimerMode && store.state.timerPhase == .shooting
+            let isCompact = layoutType == .compact
 
             ZStack {
                 VStack {
                     HStack(alignment: .top) {
-                        if layoutType == .compact {
-                            // 뱃지를 세로로 배치
-                            VStack(alignment: .leading, spacing: 8) {
-                                badgeGroup(isCompact: true)
-                            }
-                        } else {
-                            badgeGroup(isCompact: false)
-                        }
+                        badgeGroup(isCompact: isCompact)
 
                         Spacer() // medium, compact는 Spacer로 우측 정렬
 
@@ -121,10 +114,10 @@ struct StreamingView: View {
                             CaptureCountBadge(
                                 current: store.state.captureCount,
                                 total: store.state.totalCaptureCount,
-                                isCompact: layoutType == .compact
+                                isCompact: isCompact
                             )
 
-                            if (layoutType == .medium || layoutType == .compact) && isShooting {
+                            if (layoutType == .medium || isCompact) && isShooting {
                                 if layoutType == .compact {
                                     ProgressIndicator(countdown: store.state.shootingCountdown)
                                         .padding(.top, 16)
@@ -152,12 +145,29 @@ struct StreamingView: View {
 
     @ViewBuilder
     private func badgeGroup(isCompact: Bool) -> some View {
+        if isCompact {
+            VStack(alignment: .leading, spacing: 8) {
+                badgeContents(isCompact: isCompact)
+            }
+        } else {
+            HStack(spacing: 8) {
+                badgeContents(isCompact: isCompact)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func badgeContents(isCompact: Bool) -> some View {
         DeviceStatusBadge(
             deviceName: "몽이의 iPhone",
             batteryLevel: 82,
             isConnected: false,
             isCompact: isCompact
         )
-        CaptureStatusBadge(isTimerMode: isTimerMode, isCompact: isCompact)
+
+        CaptureStatusBadge(
+            isTimerMode: isTimerMode,
+            isCompact: isCompact
+        )
     }
 }
