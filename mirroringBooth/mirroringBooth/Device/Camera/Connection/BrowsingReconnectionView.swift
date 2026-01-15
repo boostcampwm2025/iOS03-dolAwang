@@ -10,6 +10,9 @@ import SwiftUI
 struct BrowsingReconnectionView: View {
     let reconnectionType: ReconnectionType
     let store: BrowsingStore
+    let onMoveToHome: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
 
     private var isAllConnected: Bool {
         switch reconnectionType {
@@ -52,6 +55,16 @@ struct BrowsingReconnectionView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
+
+                    Button {
+                        store.reduce(.setIsReconnectRequired(false))
+                        onMoveToHome()
+                    } label: {
+                        Text("첫 화면으로 돌아가기")
+                            .font(.footnote)
+                            .opacity(0.8)
+                            .foregroundStyle(Color(.label))
+                    }
                 }
 
                 ScrollView {
@@ -76,6 +89,17 @@ struct BrowsingReconnectionView: View {
                 .padding(.horizontal)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(.bottom, 5)
+
+                if reconnectionType == .remoteOnly {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("건너뛰기")
+                            .font(.footnote)
+                            .opacity(0.8)
+                            .foregroundStyle(Color(.label))
+                    }
+                }
             }
             .padding()
         }

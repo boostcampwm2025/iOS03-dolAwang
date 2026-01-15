@@ -13,6 +13,7 @@ final class AdvertiserHomeStore: StoreProtocol {
     struct State {
         var isAdvertising: Bool = false
         var hasConnectionStarted: Bool = false
+        var isReconnectRequired: Bool = false
     }
 
     enum Intent {
@@ -23,6 +24,7 @@ final class AdvertiserHomeStore: StoreProtocol {
     enum Result {
         case setIsAdvertising(Bool)
         case setIsConnecting(Bool)
+        case setIsReconnectRequired(Bool)
     }
 
     var state: State = .init()
@@ -34,6 +36,18 @@ final class AdvertiserHomeStore: StoreProtocol {
         advertiser.navigateToSelectModeCommandCallBack = { [weak self] in
             self?.reduce(.setIsConnecting(true))
         }
+
+        advertiser.onDisconnected = { [weak self] in
+            self?.reduce(.setIsReconnectRequired(true))
+        }
+
+        advertiser.onReconnected = { [weak self] in
+            self?.reduce(.setIsReconnectRequired(false))
+        }
+    }
+
+    deinit {
+        advertiser.disconnect()
     }
 
     func action(_ intent: Intent) -> [Result] {
@@ -62,6 +76,9 @@ final class AdvertiserHomeStore: StoreProtocol {
 
         case .setIsConnecting(let status):
             state.hasConnectionStarted = status
+
+        case .setIsReconnectRequired(let status):
+            state.isReconnectRequired = status
         }
 
         self.state = state

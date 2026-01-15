@@ -25,6 +25,7 @@ final class BrowsingStore: StoreProtocol {
             }
         }
         var animationTrigger = false
+        var isReconnectRequired: Bool = false
     }
 
     enum Intent {
@@ -43,6 +44,7 @@ final class BrowsingStore: StoreProtocol {
         case setIsConnecting(Bool)
         case setCurrentTarget(DeviceUseType)
         case startAnimation
+        case setIsReconnectRequired(Bool)
     }
 
     var state: State = .init()
@@ -57,6 +59,11 @@ final class BrowsingStore: StoreProtocol {
         setupWatchConnectionManager()
     }
 
+    deinit {
+        browser.disconnect()
+        watchConnectionManager.stop()
+    }
+
     private func setupBrowser() {
         browser.onDeviceFound = { [weak self] device in
             self?.reduce(.addDiscoveredDevice(device))
@@ -64,6 +71,11 @@ final class BrowsingStore: StoreProtocol {
 
         browser.onDeviceLost = { [weak self] device in
             self?.reduce(.removeDiscoveredDevice(device))
+            if device == self?.state.mirroringDevice {
+                self?.reduce(.setMirroringDevice(nil))
+            } else if device == self?.state.remoteDevice {
+                self?.reduce(.setRemoteDevice(nil))
+            }
         }
 
         browser.onDeviceConnected = { [weak self] device in
@@ -79,8 +91,15 @@ final class BrowsingStore: StoreProtocol {
             self?.reduce(.setIsConnecting(false))
         }
 
-        browser.onDeviceConnectionFailed = { [weak self] in
+        browser.onDeviceConnectionFailed = { [weak self] device in
             self?.reduce(.setIsConnecting(false))
+            self?.reduce(.setIsReconnectRequired(true))
+            if device == self?.state.mirroringDevice {
+                self?.reduce(.setMirroringDevice(nil))
+            } else if device == self?.state.remoteDevice {
+                self?.reduce(.setRemoteDevice(nil))
+            }
+            self?.reduce(.removeDiscoveredDevice(device))
         }
 
         browser.onRemoteModeCommand = { [weak self] in
@@ -207,8 +226,12 @@ final class BrowsingStore: StoreProtocol {
 
         case .setCurrentTarget(let target):
             state.currentTarget = target
+
         case .startAnimation:
             state.animationTrigger = true
+
+        case .setIsReconnectRequired(let isReconnectRequired):
+            state.isReconnectRequired = isReconnectRequired
         }
 
         self.state = state

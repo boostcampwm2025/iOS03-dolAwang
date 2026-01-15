@@ -44,6 +44,12 @@ final class Advertiser: NSObject {
     /// 10장 모두 저장 완료 콜백 (촬영기기에서 전송)
     var onAllPhotosStored: (() -> Void)?
 
+    /// 연결 끊김 콜백 (재연결 시도)
+    var onDisconnected: (() -> Void)?
+
+    /// 재연결 완료 콜백
+    var onReconnected: (() -> Void)?
+
     init(serviceType: String = "mirroringbooth", photoCacheManager: PhotoCacheManager) {
         self.serviceType = serviceType
         self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: true, with: UIDevice.current.deviceType)
@@ -159,7 +165,13 @@ final class Advertiser: NSObject {
 // MARK: - Session Delegate
 extension Advertiser: MCSessionDelegate {
 
-    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) { }
+    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+        if state == .notConnected {
+            onDisconnected?()
+        } else if state == .connected {
+            onReconnected?()
+        }
+    }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         if session === self.session {

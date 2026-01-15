@@ -51,5 +51,17 @@ struct AdvertiserHomeView: View {
                 router.push(to: MirroringRoute.modeSelection(store.advertiser))
             }
         }
+        .fullScreenCover(isPresented: Binding(
+            get: { store.state.isReconnectRequired },
+            set: { newValue in
+                if !newValue {
+                    store.reduce(.setIsReconnectRequired(false))
+                }
+            }
+        )) {
+            AdvertiserReconnectionView(store: store) {
+                router.reset()
+            }
+        }
     }
 }
