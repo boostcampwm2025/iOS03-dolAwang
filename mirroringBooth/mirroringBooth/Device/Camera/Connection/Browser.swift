@@ -239,7 +239,7 @@ extension Browser: MCSessionDelegate {
 
         let newState = logAndConvertState(state, for: peerID.displayName, sessionType: sessionTypeLabel)
 
-        // 미러링 세션이 연결되면 명령 세션을 초대합니다.
+        // 명령 세션이 연결되면 미러링 세션을 초대합니다.
         if sessionTypeLabel == "미러링 명령", newState == .connected {
             logger.info("미러링 커맨드 세션 연결 완료, 미러링 세션 초대 시작")
             browser.invitePeer(
