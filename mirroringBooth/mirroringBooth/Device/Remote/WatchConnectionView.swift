@@ -8,21 +8,39 @@
 import SwiftUI
 
 struct WatchConnectionView: View {
+    let onClose: () -> Void
     @State private var store = WatchConnectionStore(connectionManager: WatchConnectionManager())
     @State private var spin = false
 
     var body: some View {
-        if store.state.connectionState == .connected {
-            if store.state.isReadyToCapture {
-                captureView
-            } else {
-                connectionView
-            }
-        } else {
-            watingView
-                .onAppear {
-                    store.send(.startConnecting)
+        Group {
+            if store.state.connectionState == .connected {
+                if store.state.isReadyToCapture {
+                    captureView
+                } else {
+                    connectionView
                 }
+            } else {
+                watingView
+                    .onAppear {
+                        store.send(.startConnecting)
+                    }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .topLeading) {
+            Button {
+                store.send(.disconnect)
+                onClose()
+            } label: {
+                Image(systemName: "multiply")
+                    .padding()
+                    .background(
+                        Circle()
+                            .fill(.gray)
+                    )
+            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -39,6 +57,9 @@ struct WatchConnectionView: View {
                     )
                     .onAppear {
                         spin = true
+                    }
+                    .onDisappear {
+                        spin = false
                     }
 
                 Text("연결 대기 중...")
