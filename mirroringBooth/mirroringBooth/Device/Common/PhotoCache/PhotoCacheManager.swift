@@ -9,7 +9,7 @@ import Foundation
 import OSLog
 import UIKit
 
-final class PhotoCacheManager {
+actor PhotoCacheManager {
     static let shared = PhotoCacheManager()
 
     private let sessionDirectory: URL
@@ -25,7 +25,7 @@ final class PhotoCacheManager {
         sessionDirectory = cahcheDirectory.appendingPathComponent("CurrentSession")
     }
 
-    func startNewSession() async {
+    func startNewSession() {
         // 지난 캐시는 지우기(캐시는 세션 단위)
         clearCache()
         cacheCount = 0
@@ -39,14 +39,14 @@ final class PhotoCacheManager {
         }
     }
 
-    func savePhotoData(localURL: URL) async throws {
+    func savePhotoData(localURL: URL) throws {
         let fileURL = sessionDirectory.appendingPathComponent("photo\(cacheCount).jpg")
         try FileManager.default.moveItem(at: localURL, to: fileURL)
         logger.debug("[Cache] \(self.cacheCount)번 인덱스 사진 저장됨")
         cacheCount += 1
     }
 
-    func getPhotoURL(index: Int) -> URL {
+    nonisolated func getPhotoURL(index: Int) -> URL {
         sessionDirectory.appendingPathComponent("photo\(index).jpg")
     }
 
