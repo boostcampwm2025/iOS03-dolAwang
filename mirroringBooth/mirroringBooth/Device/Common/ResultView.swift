@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct ResultView: View {
+    @Environment(Router.self) var router: Router
+
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
+
+    let resultPhoto: PhotoInformation
 
     var body: some View {
         ZStack {
@@ -31,30 +35,32 @@ struct ResultView: View {
                 }
 
                 /// 결과 이미지
-                Image(systemName: "photo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .scaleEffect(scale)
-                    .gesture(
-                        MagnificationGesture()
-                            .onChanged { value in
-                                scale = lastScale * value
-                            }
-                            .onEnded { _ in
-                                lastScale = scale
-                                if scale < 1.0 {
-                                    withAnimation(.spring()) {
-                                        scale = 1.0
-                                        lastScale = 1.0
-                                    }
-                                } else if scale > 3.0 {
-                                    withAnimation(.spring()) {
-                                        scale = 3.0
-                                        lastScale = 3.0
+                if let result = PhotoComposer.render(with: resultPhoto) {
+                    Image(uiImage: result)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .scaleEffect(scale)
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    scale = lastScale * value
+                                }
+                                .onEnded { _ in
+                                    lastScale = scale
+                                    if scale < 1.0 {
+                                        withAnimation(.spring()) {
+                                            scale = 1.0
+                                            lastScale = 1.0
+                                        }
+                                    } else if scale > 3.0 {
+                                        withAnimation(.spring()) {
+                                            scale = 3.0
+                                            lastScale = 3.0
+                                        }
                                     }
                                 }
-                            }
-                    )
+                        )
+                }
 
                 /// 버튼
                 HStack {
@@ -84,7 +90,7 @@ struct ResultView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 HomeButton(size: .headline) {
-                    // TODO: 홈으로 이동하는 액션
+                    router.reset()
                 }
             }
         }

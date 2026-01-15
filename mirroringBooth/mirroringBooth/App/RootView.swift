@@ -39,6 +39,9 @@ struct RootView: View {
                         .environment(router)
                 case .streaming(let advertiser, let isTimerMode):
                     StreamingView(advertiser: advertiser, isTimerMode: isTimerMode)
+                case .result(let result):
+                    ResultView(resultPhoto: result)
+                        .environment(router)
                 }
             }
         }

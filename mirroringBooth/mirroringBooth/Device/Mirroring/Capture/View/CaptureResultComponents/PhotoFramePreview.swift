@@ -9,9 +9,7 @@ import SwiftUI
 import UIKit
 
 struct PhotoFramePreview: View {
-    let layout: PhotoFrameLayout
-    let frame: UIImage
-    let photos: [UIImage]
+    let information: PhotoInformation
 
     var body: some View {
         GeometryReader { geometry in
@@ -21,14 +19,18 @@ struct PhotoFramePreview: View {
                 let canvas = CGRect(origin: .zero, size: size)
 
                 // 1. 프레임 (배경)
-                let frameTarget = aspectFillRect(for: frame.size, into: canvas)
-                context.draw(Image(uiImage: frame), in: frameTarget)
+                if let frameImage = information.frame.image {
+                    let frameTarget = aspectFillRect(for: frameImage.size, into: canvas)
+                    context.draw(Image(uiImage: frameImage), in: frameTarget)
+                }
 
                 // 2. 사진 슬롯들
-                let slots = layout.frameRects().map { $0.denormalized(in: size) }
+                let slots = information.layout.frameRects().map { $0.denormalized(in: size) }
                 for (index, slot) in slots.enumerated() {
-                    guard index < photos.count else { continue }
-                    let photo = photos[index]
+                    guard index < information.photos.count,
+                          let photoData = information.photos[index].imageData,
+                          let photo = UIImage(data: photoData)
+                    else { continue }
 
                     context.drawLayer { layer in
                         layer.clip(to: Path(roundedRect: slot, cornerRadius: 5))
@@ -38,7 +40,7 @@ struct PhotoFramePreview: View {
                 }
             }
         }
-        .aspectRatio(layout.previewAspect, contentMode: .fit)
+        .aspectRatio(information.layout.previewAspect, contentMode: .fit)
     }
 
     /// Cliping 될 때 크기에 맞게 잘 잘리도록 전처리

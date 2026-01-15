@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CaptureResultView: View {
     @State var store: CaptureResultStore
+    @Environment(Router.self) var router: Router
 
     var body: some View {
         ZStack {
@@ -73,22 +74,19 @@ private extension CaptureResultView {
     /// 편집 패널 (결과 프리뷰 + 프레임/레이아웃 선택 뷰)
     @ViewBuilder
     func editingPanel(isPortrait: Bool) -> some View {
-        if let frameImage = store.state.selectedFrame.image {
-            PhotoFramePreview(
+        PhotoFramePreview(
+            information: PhotoInformation(
                 layout: store.state.selectedLayout,
-                frame: frameImage,
+                frame: store.state.selectedFrame,
                 photos: store.state.selectedPhotos
-                    .compactMap { photo in
-                        photo.imageData.flatMap { UIImage(data: $0) }
-                    }
             )
-            .padding(12)
-            .padding(isPortrait ? .leading : .trailing, 7)
-            Divider()
-                .background(.main)
+        )
+        .padding(12)
+        .padding(isPortrait ? .leading : .trailing, 7)
+        Divider()
+            .background(.main)
 
-            FrameSelectionView(store: store)
-        }
+        FrameSelectionView(store: store)
     }
 
     /// 촬영된 사진 그리드 뷰
@@ -114,7 +112,15 @@ private extension CaptureResultView {
 
     var completionButton: some View {
         Button {
-            // TODO: 완료 버튼 액션
+            router.push(
+                to: MirroringRoute.result(
+                    PhotoInformation(
+                        layout: store.state.selectedLayout,
+                        frame: store.state.selectedFrame,
+                        photos: store.state.selectedPhotos
+                    )
+                )
+            )
         } label: {
             Text("편집 완료하기")
                 .font(.headline.bold())
