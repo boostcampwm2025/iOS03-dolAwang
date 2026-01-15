@@ -10,14 +10,11 @@ import Foundation
 // View 표시용 모델
 struct Photo: Identifiable, Hashable {
     let id: UUID
-    var state: PhotoReceiveState
-    var selectNumber: Int?
+    let url: URL
+    let selectNumber: Int?
 
     var imageData: Data? {
-        if case let .completed(data) = state {
-            return data
-        }
-        return nil
+        return try? Data(contentsOf: url)
     }
 
     static func == (lhs: Photo, rhs: Photo) -> Bool {

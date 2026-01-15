@@ -5,7 +5,6 @@
 //  Created by 이상유 on 2025-12-28.
 //
 
-import Combine
 import Foundation
 import MultipeerConnectivity
 import OSLog
@@ -39,12 +38,6 @@ final class Advertiser: NSObject {
 
     /// 10장 모두 저장 완료 콜백 (촬영기기에서 전송)
     var onAllPhotosStored: (() -> Void)?
-
-    /// 사진 수신 Progress 구독 관리용 cancellables
-    private var progressCancellables: [UUID: AnyCancellable] = [:]
-
-    /// 수신된 사진 목록
-    var receivedPhotos: [Photo] = []
 
     init(serviceType: String = "mirroringbooth", photoCacheManager: PhotoCacheManager) {
         self.serviceType = serviceType
@@ -88,7 +81,12 @@ final class Advertiser: NSObject {
         session.delegate = self
         commandSession.delegate = self
         advertiser.delegate = self
-        photoCacheManager.startNewSession()
+    }
+
+    func setupCacheManager() {
+        Task {
+            await photoCacheManager.startNewSession()
+        }
     }
 
     func startSearching() {
@@ -123,14 +121,6 @@ final class Advertiser: NSObject {
         } catch {
             logger.warning("명령 전송 실패: \(error.localizedDescription)")
         }
-    }
-
-    private func updatePhotoState(
-        photoID: UUID,
-        state: PhotoReceiveState
-    ) {
-        guard let index = receivedPhotos.firstIndex(where: { $0.id == photoID }) else { return }
-        receivedPhotos[index].state = state
     }
 
     private func executeCommand(data: Data) {
@@ -181,32 +171,6 @@ extension Advertiser: MCSessionDelegate {
         with progress: Progress
     ) {
         logger.info("사진 수신 시작: \(resourceName) from \(peerID.displayName)")
-
-        guard let photoID = UUID(
-            uuidString: resourceName.replacingOccurrences(of: ".jpg", with: "")
-        ) else { return }
-
-        DispatchQueue.main.async {
-            self.receivedPhotos.insert(
-                Photo(id: photoID, state: .receiving(progress: 0)),
-                at: 0
-            )
-        }
-
-        let cancellable = progress.publisher(for: \.fractionCompleted)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] fraction in
-                self?.updatePhotoState(
-                    photoID: photoID,
-                    state: .receiving(progress: fraction)
-                )
-
-                if fraction >= 1.0 {
-                    self?.progressCancellables[photoID] = nil
-                }
-            }
-
-        progressCancellables[photoID] = cancellable
     }
 
     /// 파일 전송이 완료되었거나 실패했음을 알립니다.
@@ -217,30 +181,28 @@ extension Advertiser: MCSessionDelegate {
         at localURL: URL?,
         withError error: Error?
     ) {
-        guard let photoID = UUID(
-            uuidString: resourceName.replacingOccurrences(of: ".jpg", with: "")
-        ) else { return }
-
-        progressCancellables[photoID] = nil
-
         if let error {
             logger.warning("사진 수신 실패: \(error.localizedDescription)")
-            updatePhotoState(photoID: photoID, state: .failed)
             return
         }
 
         guard let localURL else {
-            logger.warning("사진 수신 실패: URL 없음 - \(photoID)")
+            logger.warning("사진 수신 실패: URL 없음")
             return
         }
-        photoCacheManager.savePhotoData(localURL: localURL)
-
+        // 사진 캐싱
+        Task {
+            do {
+                try await photoCacheManager.savePhotoData(localURL: localURL)
+            } catch {
+                logger.error("사진 저장 실패: \(error.localizedDescription)")
+            }
+        }
         /// 사진 수신 완료
         DispatchQueue.main.async {
             self.onPhotoReceived?()
         }
     }
-
 }
 
 // MARK: - Advertiser Delegate

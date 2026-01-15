@@ -120,6 +120,7 @@ final class StreamingStore: StoreProtocol {
         case .startTransfer:
             result.append(.phaseChanged(.transferring))
             advertiser.sendCommand(.startTransfer)
+            advertiser.setupCacheManager()
 
         case .photoReceived:
             let newCount = state.receivedPhotoCount + 1

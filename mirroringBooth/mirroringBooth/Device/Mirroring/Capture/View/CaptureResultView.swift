@@ -11,6 +11,10 @@ struct CaptureResultView: View {
     @State var store: CaptureResultStore
     @Environment(Router.self) var router: Router
 
+    init(store: CaptureResultStore = CaptureResultStore()) {
+        self.store = store
+    }
+
     var body: some View {
         ZStack {
             Color.background

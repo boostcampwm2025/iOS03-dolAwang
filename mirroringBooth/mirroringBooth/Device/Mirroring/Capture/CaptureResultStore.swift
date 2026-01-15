@@ -28,32 +28,37 @@ final class CaptureResultStore: StoreProtocol {
         case setPhotos([Photo])
         case selectPhoto(Int)
         case deselectPhoto(Int)
-        case increaseSelectionCount
-        case decreaseSelectionCount
+        case setSelectionCount(Int)
         case setLayout(PhotoFrameLayout)
         case setFrame(FrameAsset)
     }
 
     var state: State = .init()
-    let advertiser: Advertiser
-
-    init(advertiser: Advertiser) {
-        self.advertiser = advertiser
-    }
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
         case .onAppear:
-            return [.setPhotos(advertiser.receivedPhotos)]
-
+            let cacheManger = PhotoCacheManager.shared
+            let photos: [Photo] = (0..<10).map { index in
+                let url = cacheManger.getPhotoURL(index: index)
+                return Photo(id: UUID(), url: url, selectNumber: nil)
+            }
+            return [.setPhotos(photos)]
         case let .selectPhoto(index):
             if state.photos[index].selectNumber == nil {
-                guard state.currentSelectionCount < state.selectedLayout.capacity else { return [] }
-                return [.selectPhoto(index), .increaseSelectionCount]
+                guard state.currentSelectionCount < state.selectedLayout.capacity else {
+                    return []
+                }
+                return [
+                    .selectPhoto(index),
+                    .setSelectionCount(state.currentSelectionCount + 1)
+                ]
             } else {
-                return [.deselectPhoto(index), .decreaseSelectionCount]
+                return [
+                    .deselectPhoto(index),
+                    .setSelectionCount(state.currentSelectionCount - 1)
+                ]
             }
-
         case .selectLayout(let layout):
             return [.setLayout(layout)]
 
@@ -70,32 +75,49 @@ final class CaptureResultStore: StoreProtocol {
             state.photos = photos
 
         case let .selectPhoto(index):
-            state.photos[index].selectNumber = state.currentSelectionCount + 1
+            let photo = state.photos[index]
+            state.photos[index] = Photo(id: photo.id, url: photo.url, selectNumber: state.currentSelectionCount + 1)
             state.selectedPhotos.append(state.photos[index])
 
         case let .deselectPhoto(index):
             var copyState = self.state
             guard let number = copyState.photos[index].selectNumber else { return }
-            copyState.photos[index].selectNumber = nil
+            copyState.photos[index] = Photo(
+                id: copyState.photos[index].id,
+                url: copyState.photos[index].url,
+                selectNumber: nil
+            )
             copyState.selectedPhotos.remove(at: number - 1)
             for (index, photo) in copyState.photos.enumerated() {
                 if let iterator = photo.selectNumber, iterator > number {
-                    copyState.photos[index].selectNumber = iterator - 1
+                    copyState.photos[index] = Photo(
+                        id: photo.id,
+                        url: photo.url,
+                        selectNumber: iterator - 1
+                    )
                 }
             }
             state = copyState
 
-        case .increaseSelectionCount:
-            state.currentSelectionCount += 1
-
-        case .decreaseSelectionCount:
-            state.currentSelectionCount -= 1
-
         case .setLayout(let layout):
-            state.selectedLayout = layout
+            var copyState = state
+            for index in 0 ..< copyState.photos.count {
+                copyState.photos[index] = Photo(
+                    id: copyState.photos[index].id,
+                    url: copyState.photos[index].url,
+                    selectNumber: nil
+                )
+            }
+            copyState.selectedPhotos = []
+            copyState.currentSelectionCount = 0
+            copyState.selectedLayout = layout
+            copyState.selectedFrame = state.selectedFrame
+            state = copyState
 
         case .setFrame(let frame):
             state.selectedFrame = frame
+        case let .setSelectionCount(count):
+            state.currentSelectionCount = count
         }
 
         self.state = state
