@@ -27,7 +27,7 @@ final class Advertiser: NSObject {
 
     var navigateToSelectModeCommandCallBack: (() -> Void)?
 
-    var navigateToRemoteConnectionCommandCallBack: (() -> Void)?
+    var navigateToRemoteCommandCallBack: (() -> Void)?
 
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
@@ -148,9 +148,9 @@ final class Advertiser: NSObject {
         } else if let type = Browser.RemoteDeviceCommand(rawValue: command) {
             switch type {
             case .navigateToRemoteConnection:
-                guard let navigateToRemoteConnectionCommandCallBack else { return }
+                guard let navigateToRemoteCommandCallBack else { return }
                 DispatchQueue.main.async {
-                    navigateToRemoteConnectionCommandCallBack()
+                    navigateToRemoteCommandCallBack()
                 }
             }
         }

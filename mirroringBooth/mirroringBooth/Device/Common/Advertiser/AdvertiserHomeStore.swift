@@ -13,7 +13,7 @@ final class AdvertiserHomeStore: StoreProtocol {
     struct State {
         var isAdvertising: Bool = false
         var hasConnectionStarted: Bool = false
-        var deviceUseType: DeviceUseType? = nil
+        var deviceUseType: DeviceUseType?
     }
 
     enum Intent {
@@ -36,7 +36,7 @@ final class AdvertiserHomeStore: StoreProtocol {
             self?.reduce(.setIsConnecting(true, type: .mirroring))
         }
 
-        advertiser.navigateToRemoteConnectionCommandCallBack = { [weak self] in
+        advertiser.navigateToRemoteCommandCallBack = { [weak self] in
             self?.reduce(.setIsConnecting(true, type: .remote))
         }
     }
