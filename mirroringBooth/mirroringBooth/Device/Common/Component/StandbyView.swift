@@ -11,26 +11,10 @@ struct StandbyView: View {
     let displayName: String
     let isAdvertising: Bool
 
-    @State private var spin = false
-
     var body: some View {
         VStack(spacing: 6) {
             Group {
-                Image(systemName: "arrow.2.circlepath")
-                    .font(.title2)
-                    .rotationEffect(.degrees(-45))
-                    .rotationEffect(.degrees(spin ? 360 : 0))
-                    .animation(
-                        .linear(duration: 1).repeatForever(autoreverses: false),
-                        value: spin
-                    )
-                    .onAppear {
-                        // "상태 변화"를 만들어 repeatForever 트리거
-                        if isAdvertising { spin = true }
-                    }
-                    .onChange(of: isAdvertising) { _, newValue in
-                        spin = newValue
-                    }
+                SpinningIndicatorView(isActive: isAdvertising)
 
                 Text("연결 대기 중...")
                     .fontWeight(.heavy)

@@ -26,17 +26,8 @@ struct AdvertiserReconnectionView: View {
                 Group {
                     Text("재연결을 시도합니다.")
                         .font(.footnote)
-                    Image(systemName: "arrow.2.circlepath")
-                        .font(.title2)
-                        .rotationEffect(.degrees(-45))
-                        .rotationEffect(.degrees(isRotating ? 360 : 0))
-                        .animation(
-                            .linear(duration: 1).repeatForever(autoreverses: false),
-                            value: isRotating
-                        )
-                        .onAppear {
-                            isRotating = true
-                        }
+
+                    SpinningIndicatorView(isActive: true)
                 }
                 .foregroundStyle(Color(.secondaryLabel))
             }
