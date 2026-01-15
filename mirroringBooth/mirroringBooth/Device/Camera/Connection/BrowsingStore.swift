@@ -25,6 +25,7 @@ final class BrowsingStore: StoreProtocol {
             }
         }
         var animationTrigger = false
+        var isReconnectRequired: Bool = false
     }
 
     enum Intent {
@@ -43,6 +44,7 @@ final class BrowsingStore: StoreProtocol {
         case setIsConnecting(Bool)
         case setCurrentTarget(DeviceUseType)
         case startAnimation
+        case setIsReconnectRequired(Bool)
     }
 
     var state: State = .init()
@@ -195,8 +197,12 @@ final class BrowsingStore: StoreProtocol {
 
         case .setCurrentTarget(let target):
             state.currentTarget = target
+
         case .startAnimation:
             state.animationTrigger = true
+
+        case .setIsReconnectRequired(let isReconnectRequired):
+            state.isReconnectRequired = isReconnectRequired
         }
 
         self.state = state

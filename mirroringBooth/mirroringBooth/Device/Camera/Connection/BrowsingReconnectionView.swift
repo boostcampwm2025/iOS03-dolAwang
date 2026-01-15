@@ -10,6 +10,9 @@ import SwiftUI
 struct BrowsingReconnectionView: View {
     let reconnectionType: ReconnectionType
     let store: BrowsingStore
+    let onMoveToHome: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
 
     private var isAllConnected: Bool {
         switch reconnectionType {

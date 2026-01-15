@@ -116,6 +116,28 @@ struct BrowsingView: View {
             }
             store.send(.didChangeAppState(state))
         }
+        .fullScreenCover(isPresented: Binding(
+            get: { store.state.isReconnectRequired },
+            set: { newValue in
+                if !newValue {
+                    store.reduce(.setIsReconnectRequired(false))
+                }
+            }
+        )) {
+            if store.state.mirroringDevice == nil && store.state.remoteDevice == nil {
+                BrowsingReconnectionView(reconnectionType: .both, store: store) {
+                    router.reset()
+                }
+            } else if store.state.remoteDevice == nil {
+                BrowsingReconnectionView(reconnectionType: .remoteOnly, store: store) {
+                    router.reset()
+                }
+            } else if store.state.mirroringDevice == nil {
+                BrowsingReconnectionView(reconnectionType: .mirroringOnly, store: store) {
+                    router.reset()
+                }
+            }
+        }
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {
