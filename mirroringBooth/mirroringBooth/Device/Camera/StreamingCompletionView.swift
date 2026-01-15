@@ -9,7 +9,7 @@ import SwiftUI
 
 struct StreamingCompletionView: View {
     @Environment(Router.self) var router: Router
-    
+
     var body: some View {
         ZStack {
             Color.background
