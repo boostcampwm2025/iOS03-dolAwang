@@ -89,16 +89,19 @@ final class BrowsingStore: StoreProtocol {
     }
 
     private func setupWatchConnectionManager() {
-        watchConnectionManager.onReachableChanged = { [weak self] state in
+        watchConnectionManager.onReachableChanged = { [weak self] isReachable in
             let watchDevice = NearbyDevice(
                 id: "나의 Apple Watch",
                 state: .notConnected,
                 type: .watch
             )
-            if state {
+            if isReachable {
                 self?.reduce(.addDiscoveredDevice(watchDevice))
             } else {
                 self?.reduce(.removeDiscoveredDevice(watchDevice))
+                if self?.state.remoteDevice?.type == .watch {
+                    self?.reduce(.setRemoteDevice(nil))
+                }
             }
         }
 
@@ -149,6 +152,12 @@ final class BrowsingStore: StoreProtocol {
         case .cancel:
             // 1. 모든 연결 해제
             browser.disconnect()
+
+            // 워치가 연결되어 있다면 연결 해제 요청 전송
+            if state.remoteDevice?.type == .watch {
+                watchConnectionManager.sendDisconnectRequest()
+            }
+
             result.append(.setMirroringDevice(nil))
             result.append(.setRemoteDevice(nil))
 

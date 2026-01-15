@@ -12,20 +12,8 @@ struct WatchView: View {
 
     var body: some View {
         if isConnecting {
-            WatchConnectionView()
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay(alignment: .topLeading) {
-                Button {
-                    isConnecting = false
-                } label: {
-                    Image(systemName: "multiply")
-                        .padding()
-                        .background(
-                            Circle()
-                                .fill(.gray)
-                        )
-                }
-                .buttonStyle(.plain)
+            WatchConnectionView {
+                isConnecting = false
             }
         } else {
             WatchConnectionButton {
