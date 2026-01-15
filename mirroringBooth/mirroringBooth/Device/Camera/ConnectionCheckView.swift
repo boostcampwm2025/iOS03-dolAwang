@@ -76,30 +76,31 @@ struct ConnectionCheckView: View {
 
                 Spacer()
 
-            // 3. 촬영 준비 버튼
-            Button {
-                showPreview = true
-                browser.sendCommand(.navigateToSelectMode)
-                cameraPreviewStore.send(.resetCaptureCompleted)
-            } label: {
-                Text("촬영 준비하기")
-                    .padding(14)
-                    .frame(maxWidth: .infinity)
-                    .foregroundStyle(Color(.systemBackground))
-                    .background(Color(.label))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                // 3. 촬영 준비 버튼
+                Button {
+                    showPreview = true
+                    browser.sendCommand(.navigateToSelectMode)
+                    cameraPreviewStore.send(.resetCaptureCompleted)
+                } label: {
+                    Text("촬영 준비하기")
+                        .padding(14)
+                        .frame(maxWidth: .infinity)
+                        .foregroundStyle(Color(.systemBackground))
+                        .background(Color(.label))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .padding()
             }
-            .padding()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .fullScreenCover(isPresented: $showPreview) {
-            CameraPreview(store: cameraPreviewStore)
-        }
-        .onChange(of: cameraPreviewStore.state.isCaptureCompleted) { _, isCompleted in
-            if isCompleted {
-                showPreview = false
-                router.push(to: CameraRoute.completion)
-                cameraPreviewStore.send(.resetCaptureCompleted)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .fullScreenCover(isPresented: $showPreview) {
+                CameraPreview(store: cameraPreviewStore)
+            }
+            .onChange(of: cameraPreviewStore.state.isCaptureCompleted) { _, isCompleted in
+                if isCompleted {
+                    showPreview = false
+                    router.push(to: CameraRoute.completion)
+                    cameraPreviewStore.send(.resetCaptureCompleted)
+                }
             }
         }
     }
