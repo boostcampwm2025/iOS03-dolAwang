@@ -48,10 +48,15 @@ final class BrowsingStore: StoreProtocol {
     var state: State = .init()
     let browser: Browser
     let watchConnectionManager: WatchConnectionManager
+    let cameraManager: CameraManager
 
-    init(_ browser: Browser, _ watchConnectionManager: WatchConnectionManager) {
+    init(_ browser: Browser,
+         _ watchConnectionManager: WatchConnectionManager,
+         _ cameraManager: CameraManager
+    ) {
         self.browser = browser
         self.watchConnectionManager = watchConnectionManager
+        self.cameraManager = cameraManager
 
         setupBrowser()
         setupWatchConnectionManager()
@@ -100,6 +105,11 @@ final class BrowsingStore: StoreProtocol {
             } else {
                 self?.reduce(.removeDiscoveredDevice(watchDevice))
             }
+        }
+
+        watchConnectionManager.onReceiveCaptureRequest = { [ weak self] in
+            // MARK: CameraManager의 capturePhoto() 호출하면 됨
+            self?.cameraManager.capturePhoto()
         }
 
         watchConnectionManager.onReceiveConnectionAck = { [weak self] in
