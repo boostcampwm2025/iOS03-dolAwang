@@ -42,7 +42,7 @@ final class CaptureResultStore: StoreProtocol {
             let cacheManger = PhotoCacheManager.shared
             let photos: [Photo] = (0..<10).map { index in
                 let url = cacheManger.getPhotoURL(index: index)
-                return Photo(id: UUID(), url: url)
+                return Photo(id: UUID(), url: url, selectNumber: nil)
             }
             return [.setPhotos(photos)]
         case let .selectPhoto(index):
@@ -71,16 +71,25 @@ final class CaptureResultStore: StoreProtocol {
         case let .setPhotos(photos):
             state.photos = photos
         case let .selectPhoto(index):
-            state.photos[index].selectNumber = state.currentSelectionCount + 1
+            let photo = state.photos[index]
+            state.photos[index] = Photo(id: photo.id, url: photo.url, selectNumber: state.currentSelectionCount + 1)
             state.selectedPhotos.append(state.photos[index])
         case let .deselectPhoto(index):
             var copyState = self.state
             guard let number = copyState.photos[index].selectNumber else { return }
-            copyState.photos[index].selectNumber = nil
+            copyState.photos[index] = Photo(
+                id: copyState.photos[index].id,
+                url: copyState.photos[index].url,
+                selectNumber: nil
+            )
             copyState.selectedPhotos.remove(at: number - 1)
             for (index, photo) in copyState.photos.enumerated() {
                 if let iterator = photo.selectNumber, iterator > number {
-                    copyState.photos[index].selectNumber = iterator - 1
+                    copyState.photos[index] = Photo(
+                        id: photo.id,
+                        url: photo.url,
+                        selectNumber: iterator - 1
+                    )
                 }
             }
             state = copyState
@@ -89,7 +98,11 @@ final class CaptureResultStore: StoreProtocol {
         case let .setLayout(row, column, color):
             var copyState = state
             for index in 0 ..< copyState.photos.count {
-                copyState.photos[index].selectNumber = nil
+                copyState.photos[index] = Photo(
+                    id: copyState.photos[index].id,
+                    url: copyState.photos[index].url,
+                    selectNumber: nil
+                )
             }
             copyState.selectedPhotos = []
             copyState.maxSelection = row * column

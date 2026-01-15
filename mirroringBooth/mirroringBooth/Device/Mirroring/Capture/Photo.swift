@@ -10,6 +10,6 @@ import Foundation
 // View 표시용 모델
 struct Photo: Identifiable {
     let id: UUID
-    var url: URL
-    var selectNumber: Int?
+    let url: URL
+    let selectNumber: Int?
 }
