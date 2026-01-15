@@ -79,6 +79,17 @@ struct BrowsingReconnectionView: View {
                 .padding(.horizontal)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(.bottom, 5)
+
+                if reconnectionType == .remoteOnly {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("건너뛰기")
+                            .font(.footnote)
+                            .opacity(0.8)
+                            .foregroundStyle(Color(.label))
+                    }
+                }
             }
             .padding()
         }
