@@ -33,6 +33,7 @@ struct ModeSelectionView: View {
             title: "리모콘 모드",
             description: "나의 Apple Watch에서 \n직접 셔터를 누르세요."
         ) {
+            advertiser.sendCommand(.setRemoteMode)
             router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: false))
         }
     }

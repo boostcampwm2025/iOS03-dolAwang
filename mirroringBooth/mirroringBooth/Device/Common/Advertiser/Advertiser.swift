@@ -31,6 +31,7 @@ final class Advertiser: NSObject {
     enum CameraDeviceCommand: String {
         case capturePhoto  // 사진 촬영
         case startTransfer // 일괄 전송 시작
+        case setRemoteMode // 원격 촬영 모드 설정
     }
 
     /// 사진 수신 완료 콜백 (1장마다 호출)
