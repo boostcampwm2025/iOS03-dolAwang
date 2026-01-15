@@ -103,7 +103,6 @@ struct ShootingProgressBadge: View {
                 Text("NEXT SHOT")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.6))
-                    .textCase(.uppercase)
 
                 Text("\(countdown)초 남음")
                     .font(.system(size: 16, weight: .bold))
