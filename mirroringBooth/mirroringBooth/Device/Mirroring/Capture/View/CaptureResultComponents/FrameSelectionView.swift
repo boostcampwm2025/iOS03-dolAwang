@@ -55,7 +55,7 @@ private extension FrameSelectionView {
                 ScrollView {
                     VStack {
                         ForEach(FrameAsset.allCases) { frame in
-                            frameColorButton(with: frame, description: frame.rawValue) {
+                            frameAssetButton(with: frame, description: frame.rawValue) {
                                 store.send(.selectFrame(frame))
                             }
                         }
@@ -104,7 +104,7 @@ private extension FrameSelectionView {
         }
     }
 
-    func frameColorButton(
+    func frameAssetButton(
         with frame: FrameAsset,
         description: String,
         _ action: @escaping () -> Void
