@@ -40,6 +40,12 @@ struct RootView: View {
                 case .streaming(let advertiser, let isTimerMode):
                     StreamingView(advertiser: advertiser, isTimerMode: isTimerMode)
                         .environment(router)
+                        .onAppear {
+                            AppDelegate.unlockOrientation()
+                        }
+                        .onDisappear {
+                            AppDelegate.lockOrientation()
+                        }
                 case .captureResult:
                     CaptureResultView()
                         .environment(router)
