@@ -17,7 +17,7 @@ final class Browser: NSObject {
     }
 
     enum RemoteDeviceCommand: String {
-        case navigateToRemoteConnection
+        case navigateToRemoteCapture
     }
 
     enum SessionType: String {

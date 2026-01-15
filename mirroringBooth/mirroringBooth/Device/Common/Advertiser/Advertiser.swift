@@ -147,7 +147,7 @@ final class Advertiser: NSObject {
             }
         } else if let type = Browser.RemoteDeviceCommand(rawValue: command) {
             switch type {
-            case .navigateToRemoteConnection:
+            case .navigateToRemoteCapture:
                 guard let navigateToRemoteCommandCallBack else { return }
                 DispatchQueue.main.async {
                     navigateToRemoteCommandCallBack()
