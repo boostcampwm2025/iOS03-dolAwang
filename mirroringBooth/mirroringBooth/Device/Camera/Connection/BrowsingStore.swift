@@ -82,6 +82,10 @@ final class BrowsingStore: StoreProtocol {
         browser.onDeviceConnectionFailed = { [weak self] in
             self?.reduce(.setIsConnecting(false))
         }
+
+        browser.onRemoteModeCommand = { [weak self] in
+            self?.watchConnectionManager.prepareWatchToCapture()
+        }
     }
 
     private func setupWatchConnectionManager() {
