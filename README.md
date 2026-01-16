@@ -72,7 +72,7 @@ Apple Watch에서 촬영 버튼을 눌러 원격으로 촬영 (다른 Apple 기�
 ### 🔎 개발 환경
 구분 | 내용
 -- | --
-**언어** | Swift 6.1.0
+**언어** | Swift 5.0
 **iOS Deployment Target** | iOS 17.0+
 **코드 품질 관리** | SwiftLint
 
@@ -81,7 +81,7 @@ Apple Watch에서 촬영 버튼을 눌러 원격으로 촬영 (다른 Apple 기�
 구분 | 내용
 -- | --
 **UI** | SwiftUI
-**상태 관리** | @Observable (Swift 6)
+**상태 관리** | @Observable (iOS 17.0+)
 **기기 간 통신** | MultipeerConnectivity
 **Watch 통신** | WatchConnectivity
 **비동기 처리** | Combine, async/await
