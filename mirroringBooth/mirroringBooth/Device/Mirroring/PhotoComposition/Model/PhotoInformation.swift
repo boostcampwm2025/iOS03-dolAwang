@@ -6,7 +6,7 @@
 //
 
 struct PhotoInformation: Hashable {
-    let layout: PhotoFrameLayout
+    let layout: LayoutAsset
     let frame: FrameAsset
     let photos: [Photo]
 }
