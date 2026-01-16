@@ -1,5 +1,5 @@
 //
-//  CaptureResultView.swift
+//  PhotoCompositionView.swift
 //  mirroringBooth
 //
 //  Created by Liam on 1/7/26.
@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct CaptureResultView: View {
-    @State var store: CaptureResultStore
+struct PhotoCompositionView: View {
+    @State var store: PhotoCompositionStore
     @Environment(Router.self) var router: Router
 
-    init(store: CaptureResultStore = CaptureResultStore()) {
+    init(store: PhotoCompositionStore = PhotoCompositionStore()) {
         self.store = store
     }
 
@@ -32,7 +32,7 @@ struct CaptureResultView: View {
 
 // MARK: - Components
 
-private extension CaptureResultView {
+private extension PhotoCompositionView {
     /// 세로 레이아웃
     func portraitLayout(with geometry: GeometryProxy) -> some View {
         VStack {

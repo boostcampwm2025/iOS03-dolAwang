@@ -9,7 +9,7 @@ import SwiftUI
 
 /// 촬영된 사진 목록 그리드
 struct PhotoGrid: View {
-    var store: CaptureResultStore
+    var store: PhotoCompositionStore
     let geometry: GeometryProxy
 
     private var rows: Int {

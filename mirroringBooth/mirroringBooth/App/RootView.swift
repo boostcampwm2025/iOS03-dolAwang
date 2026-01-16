@@ -51,7 +51,7 @@ struct RootView: View {
                             AppDelegate.lockOrientation()
                         }
                 case .captureResult:
-                    CaptureResultView()
+                    PhotoCompositionView()
                         .environment(router)
                 case .result(let result):
                     ResultView(resultPhoto: result)

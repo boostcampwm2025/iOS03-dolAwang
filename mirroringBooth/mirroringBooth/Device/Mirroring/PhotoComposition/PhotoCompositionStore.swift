@@ -1,5 +1,5 @@
 //
-//  CaptureResultStore.swift
+//  PhotoCompositionStore.swift
 //  mirroringBooth
 //
 //  Created by Liam on 1/7/26.
@@ -8,19 +8,19 @@
 import SwiftUI
 
 @Observable
-final class CaptureResultStore: StoreProtocol {
+final class PhotoCompositionStore: StoreProtocol {
     struct State {
         var photos: [Photo] = []
         var selectedPhotos: [Photo] = []
         var currentSelectionCount: Int = 0
-        var selectedLayout: PhotoFrameLayout = .oneByOne
+        var selectedLayout: LayoutAsset = .oneByOne
         var selectedFrame: FrameAsset = .black
     }
 
     enum Intent {
         case onAppear
         case selectPhoto(Int) // 사진을 선택한 경우 인덱스
-        case selectLayout(PhotoFrameLayout)
+        case selectLayout(LayoutAsset)
         case selectFrame(FrameAsset)
     }
 
@@ -29,7 +29,7 @@ final class CaptureResultStore: StoreProtocol {
         case selectPhoto(Int)
         case deselectPhoto(Int)
         case setSelectionCount(Int)
-        case setLayout(PhotoFrameLayout)
+        case setLayout(LayoutAsset)
         case setFrame(FrameAsset)
     }
 
