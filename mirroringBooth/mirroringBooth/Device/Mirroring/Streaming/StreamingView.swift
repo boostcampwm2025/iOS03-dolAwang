@@ -8,23 +8,77 @@
 import SwiftUI
 
 struct StreamingView: View {
-    /// 총 사진 촬영 수
-    private let totalCaptureCount = 10
-    /// 현재까지 촬영한 사진 개수
-    private var captureCount: Int = 0
+    @Environment(Router.self) var router: Router
+    @State private var store: StreamingStore
+    let advertiser: Advertiser
+
+    private let isTimerMode: Bool
+
+    init(advertiser: Advertiser, isTimerMode: Bool) {
+        self.advertiser = advertiser
+        self.isTimerMode = isTimerMode
+        _store = State(initialValue: StreamingStore(advertiser, decoder: H264Decoder()))
+    }
+
+    private enum StreamingLayoutType {
+        case compact  // 아이폰 세로모드
+        case medium   // 아이패드 세로모드, 작은 아이패드 가로모드
+        case large    // 큰 아이패드 가로모드, MacOS
+
+        init(width: CGFloat) {
+            if width < 500 {
+                self = .compact
+            } else if width < 1100 {
+                self = .medium
+            } else {
+                self = .large
+            }
+        }
+    }
 
     // MARK: - Body
 
     var body: some View {
         ZStack {
             // 스트리밍 영역 배경
-            Color("Background")
+            Color("background")
                 .ignoresSafeArea()
 
-            streamingPlaceholder // 비디오 스트리밍이 오면 해당 Placeholder를 변경
+            // 비디오 스트리밍 표시
+            if let sampleBuffer = store.state.currentSampleBuffer {
+                VideoPlayerView(sampleBuffer: sampleBuffer)
+                    .ignoresSafeArea()
+            } else {
+                streamingPlaceholder
+            }
 
             // 상단 HUD
             streamingHUD
+
+            // 타이머 모드 오버레이
+            if isTimerMode {
+                TimerOverlay(
+                    phase: store.state.timerPhase,
+                    countdownValue: store.state.countdownValue,
+                    shootingCountdown: store.state.shootingCountdown,
+                    receivedPhotoCount: store.state.receivedPhotoCount,
+                    totalCaptureCount: store.state.totalCaptureCount,
+                    onReadyTapped: {
+                        store.send(.startCountdown)
+                    }
+                )
+            }
+        }
+        .onAppear {
+            store.send(.startStreaming)
+        }
+        .onDisappear {
+            store.send(.stopStreaming)
+        }
+        .onChange(of: store.state.timerPhase) { _, new in
+            if new == .completed {
+                router.push(to: MirroringRoute.captureResult)
+            }
         }
     }
 
@@ -35,7 +89,7 @@ struct StreamingView: View {
         VStack(spacing: 12) {
             Image(systemName: "video.fill")
                 .font(.largeTitle)
-                .foregroundStyle(Color("Indigo"))
+                .foregroundStyle(Color("mainColor"))
 
             Text("스트리밍 표시 영역")
                 .font(.title3)
@@ -51,26 +105,45 @@ struct StreamingView: View {
     /// 스트리밍 영역 상단 HUD
     private var streamingHUD: some View {
         GeometryReader { geometry in
-            let isCompact = geometry.size.width < 500
+            let layoutType = StreamingLayoutType(width: geometry.size.width)
+            let isShooting = isTimerMode && store.state.timerPhase == .shooting
+            let isCompact = layoutType == .compact
 
-            VStack {
-                HStack(alignment: .top) {
-                    if isCompact {
-                        // 아이폰 가로모드와 같이 폭이 좁은 기기는 연결 상태, 배터리 상태 뱃지를 세로로 배치합니다.
-                        VStack(alignment: .leading, spacing: 8) {
-                            badgeGroup(isCompact: isCompact)
-                        }
-                    } else {
+            ZStack {
+                VStack {
+                    HStack(alignment: .top) {
                         badgeGroup(isCompact: isCompact)
+
+                        Spacer() // medium, compact는 Spacer로 우측 정렬
+
+                        VStack(alignment: .trailing, spacing: 0) {
+                            CaptureCountBadge(
+                                current: store.state.captureCount,
+                                total: store.state.totalCaptureCount,
+                                isCompact: isCompact
+                            )
+
+                            if (layoutType == .medium || isCompact) && isShooting {
+                                if layoutType == .compact {
+                                    ProgressIndicator(countdown: store.state.shootingCountdown)
+                                        .padding(.top, 16)
+                                } else {
+                                    ShootingProgressBadge(countdown: store.state.shootingCountdown)
+                                        .padding(.top, 16)
+                                }
+                            }
+                        }
                     }
                     Spacer()
-                    CaptureCountBadge(
-                        current: captureCount,
-                        total: totalCaptureCount,
-                        isCompact: isCompact
-                    )
                 }
-                Spacer()
+
+                if layoutType == .large && isShooting {
+                    VStack {
+                        ShootingProgressBadge(countdown: store.state.shootingCountdown)
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                }
             }
             .padding(16)
         }
@@ -78,12 +151,29 @@ struct StreamingView: View {
 
     @ViewBuilder
     private func badgeGroup(isCompact: Bool) -> some View {
+        if isCompact {
+            VStack(alignment: .leading, spacing: 8) {
+                badgeContents(isCompact: isCompact)
+            }
+        } else {
+            HStack(spacing: 8) {
+                badgeContents(isCompact: isCompact)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func badgeContents(isCompact: Bool) -> some View {
         DeviceStatusBadge(
             deviceName: "몽이의 iPhone",
             batteryLevel: 82,
             isConnected: false,
             isCompact: isCompact
         )
-        CaptureStatusBadge(isTimerMode: true, isCompact: isCompact)
+
+        CaptureStatusBadge(
+            isTimerMode: isTimerMode,
+            isCompact: isCompact
+        )
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 @Observable
 final class BrowsingStore: StoreProtocol {
@@ -23,6 +24,7 @@ final class BrowsingStore: StoreProtocol {
             case .remote: return remoteDevice != nil
             }
         }
+        var animationTrigger = false
     }
 
     enum Intent {
@@ -30,6 +32,7 @@ final class BrowsingStore: StoreProtocol {
         case exit
         case didSelect(NearbyDevice)
         case cancel
+        case didChangeAppState(UIApplication.State)
     }
 
     enum Result {
@@ -39,14 +42,22 @@ final class BrowsingStore: StoreProtocol {
         case setRemoteDevice(NearbyDevice?)
         case setIsConnecting(Bool)
         case setCurrentTarget(DeviceUseType)
+        case startAnimation
     }
 
     var state: State = .init()
     let browser: Browser
+    let watchConnectionManager: WatchConnectionManager
 
-    init(_ browser: Browser) {
+    init(_ browser: Browser, _ watchConnectionManager: WatchConnectionManager) {
         self.browser = browser
+        self.watchConnectionManager = watchConnectionManager
 
+        setupBrowser()
+        setupWatchConnectionManager()
+    }
+
+    private func setupBrowser() {
         browser.onDeviceFound = { [weak self] device in
             self?.reduce(.addDiscoveredDevice(device))
         }
@@ -71,6 +82,49 @@ final class BrowsingStore: StoreProtocol {
         browser.onDeviceConnectionFailed = { [weak self] in
             self?.reduce(.setIsConnecting(false))
         }
+
+        browser.onRemoteModeCommand = { [weak self] in
+            self?.watchConnectionManager.prepareWatchToCapture()
+        }
+
+        browser.onSelectedTimerModeCommand = { [weak self] in
+            // 리모트 기기가 워치인 경우 워치에게 연결 해제 알림
+            if self?.state.remoteDevice?.type == .watch {
+                self?.watchConnectionManager.sendDisconnectionNotification()
+            }
+            self?.reduce(.setRemoteDevice(nil))
+        }
+    }
+
+    private func setupWatchConnectionManager() {
+        watchConnectionManager.onReachableChanged = { [weak self] isReachable in
+            let watchDevice = NearbyDevice(
+                id: "나의 Apple Watch",
+                state: .notConnected,
+                type: .watch
+            )
+            if isReachable {
+                self?.reduce(.addDiscoveredDevice(watchDevice))
+            } else {
+                self?.reduce(.removeDiscoveredDevice(watchDevice))
+                if self?.state.remoteDevice?.type == .watch {
+                    self?.reduce(.setRemoteDevice(nil))
+                }
+            }
+        }
+
+        watchConnectionManager.onReceiveCaptureRequest = { [ weak self] in
+            self?.browser.capturePhoto()
+        }
+
+        watchConnectionManager.onReceiveConnectionAck = { [weak self] in
+            let watchDevice = NearbyDevice(
+                id: "나의 Apple Watch",
+                state: .connected,
+                type: .watch
+            )
+            self?.reduce(.setRemoteDevice(watchDevice))
+        }
     }
 
     func action(_ intent: Intent) -> [Result] {
@@ -79,10 +133,11 @@ final class BrowsingStore: StoreProtocol {
         switch intent {
         case .entry:
             browser.startSearching()
-
+            watchConnectionManager.start()
+            return [.startAnimation]
         case .exit:
             browser.stopSearching()
-
+            watchConnectionManager.stop()
         case .didSelect(let device):
             // 1. 현재 타겟에 맞는 연결된 기기 확인
             let currentDevice: NearbyDevice? = switch state.currentTarget {
@@ -93,15 +148,24 @@ final class BrowsingStore: StoreProtocol {
             }
 
             // 2. 연결된 기기와 다른 기기를 선택했을 경우 연결 요청 전송
-            // 실제 기기 설정은 onDeviceConnected 콜백에서 처리됨
             if currentDevice != device {
-                browser.connect(to: device.id, as: state.currentTarget)
-                result.append(.setIsConnecting(true))
+                if device.type == .watch {
+                    watchConnectionManager.sendConnectionRequest()
+                } else {
+                    browser.connect(to: device.id, as: state.currentTarget)
+                    result.append(.setIsConnecting(true))
+                }
             }
 
         case .cancel:
             // 1. 모든 연결 해제
             browser.disconnect()
+
+            // 워치가 연결되어 있다면 연결 해제 요청 전송
+            if state.remoteDevice?.type == .watch {
+                watchConnectionManager.sendDisconnectRequest()
+            }
+
             result.append(.setMirroringDevice(nil))
             result.append(.setRemoteDevice(nil))
 
@@ -109,6 +173,9 @@ final class BrowsingStore: StoreProtocol {
             if state.currentTarget == .remote {
                 result.append(.setCurrentTarget(.mirroring))
             }
+
+        case .didChangeAppState(let state):
+            watchConnectionManager.pushIOSAppState(state: state)
         }
 
         return result
@@ -140,6 +207,8 @@ final class BrowsingStore: StoreProtocol {
 
         case .setCurrentTarget(let target):
             state.currentTarget = target
+        case .startAnimation:
+            state.animationTrigger = true
         }
 
         self.state = state

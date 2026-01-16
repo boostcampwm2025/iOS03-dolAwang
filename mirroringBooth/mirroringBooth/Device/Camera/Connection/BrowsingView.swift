@@ -9,19 +9,16 @@ import SwiftUI
 
 struct BrowsingView: View {
 
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(Router.self) var router: Router
-    @State private var store = BrowsingStore(Browser())
+    @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
 
     var body: some View {
         ZStack {
-            // 배경에 그려지는 2개의 원
-            Circle()
-                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.3))
-                .frame(width: 180, height: 180)
-
-            Circle()
-                .foregroundStyle(Color(store.state.currentTarget.color).opacity(0.2))
-                .frame(width: 260, height: 260)
+            AnimatedCircle(
+                color: Color(store.state.currentTarget.color),
+                animationTrigger: store.state.animationTrigger
+            )
 
             if store.state.isConnecting {
                 ProgressView()
@@ -55,9 +52,12 @@ struct BrowsingView: View {
                                         store.send(.didSelect(device))
                                     }
                                 } label: {
-                                    deviceRow(device)
+                                    DeviceRow(
+                                        device: device,
+                                        selectedTarget: isDeviceSelected(device)
+                                    )
                                 }
-                                .disabled(isDeviceSelected(device) != nil)
+                                .disabled(isDeviceDisabled(device))
                             }
                         }
                     }
@@ -107,38 +107,16 @@ struct BrowsingView: View {
         .onDisappear {
             store.send(.exit)
         }
-    }
-
-    @ViewBuilder
-    private func deviceRow(_ device: NearbyDevice) -> some View {
-        let target = isDeviceSelected(device)
-
-        HStack {
-            Image(systemName: device.type.icon)
-                .font(.title)
-
-            VStack(alignment: .leading) {
-                Text(device.id)
-                    .font(.headline.bold())
-                Text(device.type.rawValue)
-                    .font(.footnote)
+        .onChange(of: scenePhase) { _, newValue in
+            let state: UIApplication.State
+            switch newValue {
+            case .active: state = .active
+            case .background: state = .background
+            default: state = .inactive
             }
-
-            Spacer()
-
-            // 선택된 기기인 경우 상징적인 아이콘 표시
-            if let target {
-                Image(systemName: target.icon)
-                    .font(.title2)
-                    .foregroundStyle(Color(target.color))
-            }
+            store.send(.didChangeAppState(state))
         }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .foregroundStyle(Color(.label))
-        .background(Color(.secondarySystemBackground).opacity(0.6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .opacity(target != nil ? 0.5 : 1)
+        .backgroundStyle()
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {
@@ -148,5 +126,10 @@ struct BrowsingView: View {
             return .remote
         }
         return nil
+    }
+
+    private func isDeviceDisabled(_ device: NearbyDevice) -> Bool {
+        return isDeviceSelected(device) != nil ||
+        (store.state.currentTarget == .mirroring && device.type == .watch)
     }
 }

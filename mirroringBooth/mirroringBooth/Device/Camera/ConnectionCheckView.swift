@@ -8,10 +8,15 @@
 import SwiftUI
 
 struct ConnectionCheckView: View {
+    @Environment(Router.self) var router: Router
     private let cameraDevice: String
     private let mirroringDevice: String
     private let remoteDevice: String?
     private let browser: Browser
+    private let cameraManager = CameraManager()
+
+    @State private var showPreview = false
+    @State private var shouldNavigateToCompletion = false
 
     init(_ list: ConnectionList, browser: Browser) {
         self.cameraDevice = list.cameraName
@@ -31,12 +36,12 @@ struct ConnectionCheckView: View {
                     .font(.caption)
                     .foregroundStyle(Color(.secondaryLabel))
             }
-            .padding()
+            .padding(.horizontal)
 
             Divider()
 
-            // 2. 기기 목록
-            ScrollView {
+            VStack {
+                // 2. 기기 목록
                 VStack(spacing: 16) {
                     deviceCard(
                         title: "카메라",
@@ -59,26 +64,48 @@ struct ConnectionCheckView: View {
                         color: Color.remote
                     )
                 }
-            }
-            .padding()
 
-            Spacer()
+                Spacer()
 
-            // 3. 촬영 준비 버튼
-            Button {
-                // TODO: 카메라 프리뷰로 이동
-                browser.sendCommand(.navigateToSelectMode)
-            } label: {
-                Text("촬영 준비하기")
-                    .padding(14)
-                    .frame(maxWidth: .infinity)
-                    .foregroundStyle(Color(.systemBackground))
-                    .background(Color(.label))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                // 3. 촬영 준비 버튼
+                Button {
+                    showPreview = true
+                    browser.sendCommand(.navigateToSelectMode)
+                    shouldNavigateToCompletion = false
+                } label: {
+                    Text("촬영 준비하기")
+                        .padding(14)
+                        .frame(maxWidth: .infinity)
+                        .foregroundStyle(Color(.systemBackground))
+                        .background(Color(.label))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .padding()
             }
-            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .fullScreenCover(
+                isPresented: $showPreview,
+                onDismiss: {
+                    if shouldNavigateToCompletion {
+                        router.push(to: CameraRoute.completion)
+                        shouldNavigateToCompletion = false
+                    }
+                },
+                content: {
+                    CameraPreview(
+                        store: CameraPreviewStore(
+                            browser: browser,
+                            manager: cameraManager,
+                            deviceName: mirroringDevice
+                        ),
+                        onDismissByCaptureCompletion: {
+                            shouldNavigateToCompletion = true
+                        }
+                    )
+                }
+            )
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .backgroundStyle()
     }
 }
 

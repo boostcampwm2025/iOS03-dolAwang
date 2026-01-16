@@ -28,7 +28,7 @@ enum CameraRoute: Hashable {
     case browsing
     case advertising
     case connectionList(ConnectionList, Browser)
-    case streaming
+    case completion
 }
 
 struct ConnectionList: Hashable {
@@ -38,5 +38,8 @@ struct ConnectionList: Hashable {
 }
 
 enum MirroringRoute: Hashable {
-    case modeSelection
+    case modeSelection(Advertiser)
+    case streaming(Advertiser, isTimerMode: Bool)
+    case captureResult
+    case result(PhotoInformation)
 }

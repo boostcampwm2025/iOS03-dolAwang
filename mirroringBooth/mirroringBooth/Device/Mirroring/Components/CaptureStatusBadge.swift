@@ -15,7 +15,7 @@ struct CaptureStatusBadge: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: isTimerMode ? "clock" : "checkmark.applewatch")
-                .foregroundStyle(isTimerMode ? Color("Indigo") : .green)
+                .foregroundStyle(isTimerMode ? Color("mainColor") : .green)
 
             Text(isTimerMode ? "타이머 대기중" : "원격 대기")
                 .fontWeight(.medium)
@@ -24,7 +24,6 @@ struct CaptureStatusBadge: View {
         .font(isCompact ? .caption : nil)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Capsule().fill(.black.opacity(0.5))
-        )
+        .background(Capsule().fill(.black.opacity(0.5)))
     }
 }

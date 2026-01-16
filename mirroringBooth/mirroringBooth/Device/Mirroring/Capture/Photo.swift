@@ -8,7 +8,20 @@
 import Foundation
 
 // View 표시용 모델
-struct Photo: Identifiable {
+struct Photo: Identifiable, Hashable {
     let id: UUID
-    var state: PhotoReceiveState
+    let url: URL
+    let selectNumber: Int?
+
+    var imageData: Data? {
+        return try? Data(contentsOf: url)
+    }
+
+    static func == (lhs: Photo, rhs: Photo) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
