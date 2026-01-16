@@ -59,6 +59,6 @@ struct RootView: View {
                 }
             }
         }
-        .tint(.black)
+        .tint(Color(.label))
     }
 }

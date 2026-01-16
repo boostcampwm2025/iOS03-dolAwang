@@ -116,6 +116,7 @@ struct BrowsingView: View {
             }
             store.send(.didChangeAppState(state))
         }
+        .backgroundStyle()
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {

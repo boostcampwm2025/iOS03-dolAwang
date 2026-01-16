@@ -16,21 +16,17 @@ struct CaptureResultView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color.background
-                .ignoresSafeArea()
-
-            GeometryReader { geometry in
-                if geometry.size.height > geometry.size.width {
-                    portraitLayout(with: geometry)
-                } else {
-                    landscapeLayout(with: geometry)
-                }
+        GeometryReader { geometry in
+            if geometry.size.height > geometry.size.width {
+                portraitLayout(with: geometry)
+            } else {
+                landscapeLayout(with: geometry)
             }
         }
         .onAppear {
             store.send(.onAppear)
         }
+        .backgroundStyle()
     }
 }
 
