@@ -11,7 +11,7 @@ import MultipeerConnectivity
 import OSLog
 
 /// 서비스를 광고하고 연결 요청을 수락하여 스트림 데이터(비디오/사진)를 수신
-final class Advertiser: NSObject, Reconnectable {
+final class Advertiser: NSObject {
 
     private let logger = Logger.advertiser
 
@@ -21,9 +21,7 @@ final class Advertiser: NSObject, Reconnectable {
     private let commandSession: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
     private let photoCacheManager: PhotoCacheManager
-    private var isReconnecting: Bool = false
-    private var lastHeartBeatTime: Date?
-    private var heartBeatTimer: Timer?
+    private let heartBeater: HeartBeater
     let myDeviceName: String
 
     /// 수신된 스트림 데이터 콜백
@@ -35,6 +33,7 @@ final class Advertiser: NSObject, Reconnectable {
     enum CameraDeviceCommand: String {
         case capturePhoto  // 사진 촬영
         case startTransfer // 일괄 전송 시작
+        case heartBeat // 세션 생존 확인
     }
 
     /// 사진 수신 완료 콜백 (1장마다 호출)
@@ -82,6 +81,9 @@ final class Advertiser: NSObject, Reconnectable {
             serviceType: serviceType
         )
         self.photoCacheManager = photoCacheManager
+        self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5) {
+            // TODO: Timeout action
+        }
 
         super.init()
         setup()
@@ -109,41 +111,6 @@ final class Advertiser: NSObject, Reconnectable {
         session.disconnect()
         commandSession.disconnect()
         logger.info("연결 해제: \(self.peerID.displayName)")
-    }
-
-    func reconnect() {
-        logger.warning("Reconnecting...")
-        heartBeatTimer?.invalidate()
-        heartBeatTimer = nil
-        isReconnecting = true
-        session.disconnect()
-        commandSession.disconnect()
-        startSearching()
-    }
-
-    private func checkForReconnect(peerID: MCPeerID) {
-        // 두 peerID 모두 연결되어있는지 확인
-        guard session.connectedPeers.contains(peerID),
-              commandSession.connectedPeers.contains(peerID) else { return }
-        logger.info("Reconnected to peer: \(peerID.displayName)")
-        isReconnecting = false
-        stopSearching()
-        startHeartbeatTimer()
-    }
-
-    private func startHeartbeatTimer() {
-        if heartBeatTimer != nil { return }
-        heartBeatTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard let self else {
-                timer.invalidate()
-                return
-            }
-            guard let lastHeartBeatTime else { return }
-            // 5초간 heartBeatTime이 갱신되지 않았으면 재연결 시도
-            if Date().timeIntervalSince(lastHeartBeatTime) > 3.0 {
-                reconnect()
-            }
-        }
     }
 
     /// 연결된 카메라 기기(iPhone)에게 명령을 전송합니다.
@@ -185,7 +152,7 @@ final class Advertiser: NSObject, Reconnectable {
                     self.onAllPhotosStored?()
                 }
             case .heartBeat:
-                lastHeartBeatTime = Date()
+                heartBeater.beat()
             }
         }
     }
@@ -199,8 +166,8 @@ extension Advertiser: MCSessionDelegate {
         peer peerID: MCPeerID,
         didChange state: MCSessionState
     ) {
-        if isReconnecting, session === self.session, state == .connected {
-            checkForReconnect(peerID: peerID)
+        if session === self.session, state == .connected {
+            heartBeater.start()
         }
     }
 
@@ -308,10 +275,6 @@ extension Advertiser: MCNearbyServiceAdvertiserDelegate {
         logger.info("초대 수신: \(peerID.displayName)(타입: \(type))")
         if type == "streaming" {
             invitationHandler(true, session)
-            if heartBeatTimer == nil {
-                startHeartbeatTimer()
-                lastHeartBeatTime = Date()
-            }
         } else if type == "command" {
             invitationHandler(true, commandSession)
         } else {

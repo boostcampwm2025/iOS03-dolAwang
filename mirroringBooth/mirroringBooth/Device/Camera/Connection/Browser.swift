@@ -10,7 +10,7 @@ import OSLog
 
 /// 스트림 송신 측 (iPhone)
 /// 다른 기기를 탐색하고 연결하여 스트림 데이터(비디오/사진)를 전송
-final class Browser: NSObject, Reconnectable {
+final class Browser: NSObject {
     enum MirroringDeviceCommand: String {
         case navigateToSelectMode
         case allPhotosStored // 사진 10장 모두 저장 완료
@@ -30,8 +30,7 @@ final class Browser: NSObject, Reconnectable {
     private let mirroringCommandSession: MCSession
     private let remoteSession: MCSession
     private let browser: MCNearbyServiceBrowser
-    private var isReconnecting: Bool = false
-    private var heartBeatTimer: Timer?
+    private let heartBeater: HeartBeater
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
 
@@ -82,13 +81,12 @@ final class Browser: NSObject, Reconnectable {
             encryptionPreference: .required
         )
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
+        self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5) {
+            // TODO: Timeout action
+        }
 
         super.init()
         setup()
-    }
-
-    deinit {
-        heartBeatTimer?.invalidate()
     }
 
     private func setup() {
@@ -96,7 +94,6 @@ final class Browser: NSObject, Reconnectable {
         mirroringCommandSession.delegate = self
         remoteSession.delegate = self
         browser.delegate = self
-        setupLifecycleObservers()
     }
 
     func startSearching() {
@@ -134,42 +131,6 @@ final class Browser: NSObject, Reconnectable {
             timeout: 10
         )
         logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
-    }
-
-    func reconnect() {
-        isReconnecting = true
-        mirroringSession.disconnect()
-        mirroringCommandSession.disconnect()
-        startSearching()
-        logger.warning("Reconnecting...")
-    }
-
-    private func startHeartbeatTimer() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            if heartBeatTimer != nil { return }
-            heartBeatTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-                guard let self else {
-                    timer.invalidate()
-                    return
-                }
-                // 5초마다 heartBeat 신호 보냄
-                self.sendCommand(.heartBeat)
-            }
-        }
-    }
-
-    private func setupLifecycleObservers() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(applicationWillEnterForeground),
-            name: UIApplication.willEnterForegroundNotification,
-            object: nil
-        )
-    }
-
-    @objc private func applicationWillEnterForeground() {
-        reconnect()
     }
 
     /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.
@@ -300,9 +261,8 @@ extension Browser: MCSessionDelegate {
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
 
         if session === mirroringSession,
-           state == .connected,
-           heartBeatTimer == nil {
-            startHeartbeatTimer()
+           state == .connected {
+            heartBeater.start()
         }
 
         DispatchQueue.main.async {
@@ -394,6 +354,8 @@ extension Browser: MCSessionDelegate {
                 DispatchQueue.main.async {
                     self.onStartTransferCommand?()
                 }
+            case .heartBeat:
+                heartBeater.beat()
             }
         }
     }
@@ -427,12 +389,6 @@ extension Browser: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser,
                  foundPeer peerID: MCPeerID,
                  withDiscoveryInfo info: [String: String]?) {
-        if isReconnecting,
-            let targetMirroringDeviceID,
-            targetMirroringDeviceID == peerID.displayName {
-            connect(to: targetMirroringDeviceID, as: .mirroring)
-            return
-        }
         logger.info("발견된 기기: \(peerID.displayName)")
         guard let deviceTypeString = info?["deviceType"],
               let deviceType = DeviceType.from(string: deviceTypeString)
