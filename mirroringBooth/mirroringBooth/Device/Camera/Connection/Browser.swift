@@ -323,6 +323,12 @@ extension Browser: MCSessionDelegate {
 
         case .notConnected:
             onDeviceConnectionFailed?()
+            if isMirroringTarget || isMirroringCommandTarget {
+                targetMirroringDeviceID = nil
+            }
+            if isRemoteTarget {
+                targetRemoteDeviceID = nil
+            }
         case .connecting:
             break
         }
