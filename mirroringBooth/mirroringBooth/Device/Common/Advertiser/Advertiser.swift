@@ -81,9 +81,7 @@ final class Advertiser: NSObject {
             serviceType: serviceType
         )
         self.photoCacheManager = photoCacheManager
-        self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5) {
-            // TODO: Timeout action
-        }
+        self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
 
         super.init()
         setup()
@@ -93,6 +91,7 @@ final class Advertiser: NSObject {
         session.delegate = self
         commandSession.delegate = self
         advertiser.delegate = self
+        heartBeater.delegate = self
         photoCacheManager.startNewSession()
     }
 

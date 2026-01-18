@@ -81,9 +81,7 @@ final class Browser: NSObject {
             encryptionPreference: .required
         )
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
-        self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5) {
-            // TODO: Timeout action
-        }
+        self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
 
         super.init()
         setup()
@@ -94,6 +92,7 @@ final class Browser: NSObject {
         mirroringCommandSession.delegate = self
         remoteSession.delegate = self
         browser.delegate = self
+        heartBeater.delegate = self
     }
 
     func startSearching() {

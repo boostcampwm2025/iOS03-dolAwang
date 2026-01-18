@@ -14,17 +14,15 @@ final class HeartBeater {
     private let queue = DispatchQueue(label: "mirroringBooth.HeartBeater", qos: .utility)
     let repeatInterval: TimeInterval
     let timeout: TimeInterval
-    let onTimeout: () -> Void
+    var delegate: HeartBeaterDelegate?
 
     /// 반복 시간, 타임아웃
     init(
         repeatInterval: TimeInterval,
-        timeout: TimeInterval,
-        onTimeout: @escaping () -> Void
+        timeout: TimeInterval
     ) {
         self.repeatInterval = repeatInterval
         self.timeout = timeout
-        self.onTimeout = onTimeout
     }
 
     deinit {
@@ -39,6 +37,7 @@ final class HeartBeater {
         timer?.schedule(deadline: .now(), repeating: repeatInterval)
         timer?.setEventHandler { [weak self] in
             self?.checkAlive()
+            self?.delegate?.onHeartBeat()
         }
         timer?.resume()
         Logger.heartBeater.debug("Heartbeat timer started (interval:\(self.repeatInterval)s, timeout:\(self.timeout)s)")
@@ -67,7 +66,7 @@ final class HeartBeater {
         if Date().timeIntervalSince(lastHeartbeat) > self.timeout {
             Logger.heartBeater.warning("Heartbeat timed out")
             stop()
-            onTimeout()
+            delegate?.onTimeout()
         }
     }
 }
