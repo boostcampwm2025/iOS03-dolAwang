@@ -17,6 +17,7 @@ final class WatchConnectionManager: NSObject {
         case prepare
         case connectAck
         case disconnect
+        case captureComplete
     }
 
     private enum MessageKey: String {
@@ -40,6 +41,8 @@ final class WatchConnectionManager: NSObject {
     var onReceiveConnectionCompleted: (() -> Void)?
 
     var onReceiveRequestToPrepare: (() -> Void)?
+
+    var onReceiveCaptureComplete: (() -> Void)?
 
     override init() {
         if WCSession.isSupported() {
@@ -236,6 +239,11 @@ extension WatchConnectionManager: WCSessionDelegate {
             self.logger.info("연결 해제 요청 수신됨.")
             Task { @MainActor in
                 self.onReachableChanged?(false)
+            }
+        } else if actionValue == ActionValue.captureComplete.rawValue {
+            self.logger.info("모든 촬영 완료 수신됨.")
+            Task { @MainActor in
+                self.onReceiveCaptureComplete?()
             }
         }
     }
