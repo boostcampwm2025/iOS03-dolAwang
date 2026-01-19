@@ -29,7 +29,7 @@ final class StreamingStore: StoreProtocol {
         var timerPhase: TimerPhase = .guide
         var countdownValue: Int = 8     // 첫 촬영 전 카운트 다운 (8, 7, 6, 5, 4, 3, 2, 1)
         var shootingCountdown: Int = 8  // 촬영 간격 카운트 다운 (8초마다)
-        var captureCount: Int = 0       // 현재 촬영 횟수
+        var capturePhotoCount: Int = 0       // 현재 촬영 횟수
         var totalCaptureCount: Int = 10 // 총 촬영 횟수
 
         // 이미지 전송 프로그래스
@@ -48,7 +48,7 @@ final class StreamingStore: StoreProtocol {
         // 사진 전송
         case startTransfer // 전송 시작
         case photoReceived // 사진 1장 수신
-        case captureCount  // 촬영 카운트 수신
+        case capturePhotoCount  // 촬영 카운트 수신
     }
 
     enum Result {
@@ -61,7 +61,7 @@ final class StreamingStore: StoreProtocol {
         case phaseChanged(TimerPhase)
         case countdownUpdated(Int)
         case shootingCountdownUpdated(Int)
-        case captureCountUpdated(Int)
+        case capturePhotoCountUpdated(Int)
 
         // 사진 전송
         case receivedPhotoCountUpdated(Int)
@@ -93,7 +93,7 @@ final class StreamingStore: StoreProtocol {
         }
 
         advertiser.onUpdateCaptureCount = { [weak self] in
-            self?.send(.captureCount)
+            self?.send(.capturePhotoCount)
         }
 
         // 10장 모두 저장 완료 콜백 (iPhone에서 전송)
@@ -134,9 +134,9 @@ final class StreamingStore: StoreProtocol {
                 result.append(.phaseChanged(.completed))
             }
 
-        case .captureCount:
-            let newCount = min(state.totalCaptureCount, state.captureCount + 1)
-            result.append(.captureCountUpdated(newCount))
+        case .capturePhotoCount:
+            let newCount = min(state.totalCaptureCount, state.capturePhotoCount + 1)
+            result.append(.capturePhotoCountUpdated(newCount))
         }
 
         return result
@@ -166,8 +166,8 @@ final class StreamingStore: StoreProtocol {
         case .shootingCountdownUpdated(let value):
             state.shootingCountdown = value
 
-        case .captureCountUpdated(let count):
-            state.captureCount = count
+        case .capturePhotoCountUpdated(let count):
+            state.capturePhotoCount = count
 
         case .receivedPhotoCountUpdated(let count):
             state.receivedPhotoCount = count
@@ -204,9 +204,9 @@ extension StreamingStore {
 
                 capturePhoto()
 
-                // 첫 촬영 시 captureCount를 먼저 업데이트
-                let firstCount = state.captureCount + 1
-                results.append(.captureCountUpdated(firstCount))
+                // 첫 촬영 시 capturePhotoCount를 먼저 업데이트
+                let firstCount = state.capturePhotoCount + 1
+                results.append(.capturePhotoCountUpdated(firstCount))
             }
         case .shooting:
             if state.shootingCountdown > 1 {
@@ -215,8 +215,8 @@ extension StreamingStore {
                 // 8초가 경과하면 촬영 (첫 촬영 후 8초마다)
                 capturePhoto()
 
-                let newCount = state.captureCount + 1
-                results.append(.captureCountUpdated(newCount))
+                let newCount = state.capturePhotoCount + 1
+                results.append(.capturePhotoCountUpdated(newCount))
 
                 // 10장 촬영 완료 시
                 if newCount >= state.totalCaptureCount {
