@@ -81,8 +81,8 @@ struct ConnectionCheckView: View {
                         .background(Color(.label))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .padding()
             }
+            .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .fullScreenCover(
                 isPresented: $showPreview,

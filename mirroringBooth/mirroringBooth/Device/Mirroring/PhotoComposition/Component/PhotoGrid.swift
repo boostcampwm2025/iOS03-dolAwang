@@ -52,14 +52,12 @@ private struct PhotoItem: View {
 
     var body: some View {
         PhotoCell(url: photo.url, index: index, selectedNumber: photo.selectNumber)
-            .background(Color.gray)
-            .cornerRadius(8)
-            .clipped()
-            .frame(maxHeight: 200)
-            .frame(height: geometry.size.height / CGFloat(rows) - 20)
+            .contentShape(Rectangle())
             .onTapGesture {
                 onTap()
             }
+            .frame(maxHeight: 200)
+            .frame(height: geometry.size.height / CGFloat(rows) - 20)
     }
 }
 
@@ -97,9 +95,7 @@ private struct PhotoCell: View {
 
     var body: some View {
         ZStack {
-            LocalAsyncImage(url: url)
-                .frame(maxWidth: .infinity)
-                .clipped()
+            LocalAsyncImage(url: url, slotAspect: 4 / 3)
 
             if isSelected {
                 Color.selectionBlue.opacity(0.25)
