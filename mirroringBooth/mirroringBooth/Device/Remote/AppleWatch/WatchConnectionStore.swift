@@ -12,6 +12,7 @@ final class WatchConnectionStore: StoreProtocol {
     struct State {
         var connectionState: ConnectionState = .notConnected
         var isReadyToCapture: Bool = false
+        var isCaptureCompleted: Bool = false
     }
 
     enum Intent {
@@ -45,6 +46,10 @@ final class WatchConnectionStore: StoreProtocol {
 
         self.connectionManager.onReceiveRequestToPrepare = { [weak self] in
             self?.reduce(.setIsReadyToCapture(true))
+        }
+
+        self.connectionManager.onReceiveCaptureComplete = { [weak self] in
+            self?.state.isCaptureCompleted = true
         }
     }
 
