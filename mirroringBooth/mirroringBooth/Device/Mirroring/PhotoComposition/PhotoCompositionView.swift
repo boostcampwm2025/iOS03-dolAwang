@@ -23,6 +23,7 @@ struct PhotoCompositionView: View {
                 landscapeLayout(with: geometry)
             }
         }
+        .navigationBarBackButtonHidden()
         .onAppear {
             store.send(.onAppear)
         }
