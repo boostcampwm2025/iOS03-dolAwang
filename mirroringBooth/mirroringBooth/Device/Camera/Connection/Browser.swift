@@ -5,6 +5,7 @@
 //  Created by 이상유 on 2025-12-28.
 //
 
+import Combine
 import MultipeerConnectivity
 import OSLog
 
@@ -53,7 +54,7 @@ final class Browser: NSObject {
     var onCaptureCommand: (() -> Void)?
 
     /// 일괄 전송 시작 명령 수신 콜백
-    var onStartTransferCommand: (() -> Void)?
+    var onStartTransferCommand = PassthroughSubject<Void, Never>()
 
     /// 원격 모드 설정 명령 수신 콜백
     var onRemoteModeCommand: (() -> Void)?
@@ -355,7 +356,7 @@ extension Browser: MCSessionDelegate {
                 }
             case .startTransfer:
                 DispatchQueue.main.async {
-                    self.onStartTransferCommand?()
+                    self.onStartTransferCommand.send()
                 }
             case .setRemoteMode:
                 DispatchQueue.main.async {
