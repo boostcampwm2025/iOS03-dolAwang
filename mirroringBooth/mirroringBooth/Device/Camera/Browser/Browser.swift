@@ -16,6 +16,7 @@ final class Browser: NSObject {
         case allPhotosStored // 사진 10장 모두 저장 완료
         case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
         case heartBeat
+        case navigateToRemoteCapture
     }
 
     enum SessionType: String {
@@ -85,7 +86,7 @@ final class Browser: NSObject {
         self.remoteSession = MCSession(
             peer: peerID,
             securityIdentity: nil,
-            encryptionPreference: .required
+            encryptionPreference: .none
         )
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
         self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
@@ -209,6 +210,27 @@ final class Browser: NSObject {
             logger.info("명령 전송 성공: \(command.rawValue)")
         } catch {
             logger.warning("명령 전송 실패: \(error.localizedDescription)")
+        }
+    }
+
+    /// 리모트 기기에게 명령을 전송합니다.
+    func sendRemoteCommand(_ command: MirroringDeviceCommand) {
+        guard let data = command.rawValue.data(using: .utf8) else { return }
+        let connectedPeers = remoteSession.connectedPeers
+        guard !connectedPeers.isEmpty else {
+            logger.warning("명령 전송 실패: remoteSession에 연결된 피어가 없습니다")
+            return
+        }
+
+        do {
+            try remoteSession.send(
+                data,
+                toPeers: connectedPeers,
+                with: .reliable
+            )
+            logger.info("리모트 명령 전송 성공: \(command.rawValue)")
+        } catch {
+            logger.warning("리모트 명령 전송 실패: \(error.localizedDescription)")
         }
     }
 
@@ -345,7 +367,7 @@ extension Browser: MCSessionDelegate {
         didReceive data: Data,
         fromPeer peerID: MCPeerID
     ) {
-        if session === mirroringCommandSession {
+        if session === mirroringCommandSession || session === remoteSession {
             executeCommand(data: data)
         } else if session === mirroringSession {
             logger.info("스트림 세션에서 데이터 수신: \(data.count) bytes")
