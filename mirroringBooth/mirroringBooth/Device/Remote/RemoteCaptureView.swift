@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct RemoteCaptureView: View {
+    @Environment(Router.self) var router: Router
     let advertiser: Advertiser
 
     var body: some View {
@@ -19,5 +20,10 @@ struct RemoteCaptureView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .backgroundStyle()
+        .onAppear {
+            advertiser.navigateToRemoteCompleteCallBack = {
+                router.push(to: RemoteRoute.completion)
+            }
+        }
     }
 }

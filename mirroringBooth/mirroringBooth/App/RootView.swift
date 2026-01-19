@@ -62,6 +62,7 @@ struct RootView: View {
                 switch viewType {
                 case .remoteCapture(let advertiser):
                     RemoteCaptureView(advertiser: advertiser)
+                        .environment(router)
                 case .completion:
                     CompletionView()
                 }
