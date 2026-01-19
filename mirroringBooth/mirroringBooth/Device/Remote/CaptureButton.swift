@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CaptureButton: View {
+    @Environment(\.colorScheme) private var colorScheme
     private let width: CGFloat
     var action: () -> Void
 
@@ -25,22 +26,30 @@ struct CaptureButton: View {
         } label: {
             ZStack {
                 Circle()
-                    .stroke(darkGrayContainer, lineWidth: 0.5)
-                Image(systemName: "camera")
-                    .font(.title2)
-                    .foregroundStyle(darkGrayContainer)
-                    .bold()
+                    .stroke(
+                        Color("TextPrimary").opacity(0.8),
+                        lineWidth: 1
+                    )
+                    .frame(width: width / 2)
+
+                Circle()
+                    .stroke(
+                        Color("buttonComponent").opacity(colorScheme == .dark ? 0.7 : 0.5),
+                        lineWidth: colorScheme == .dark ? 0.5 : 1
+                    )
+                    .frame(width: width / 2 * (colorScheme == .dark ? 1 : 0.85))
+
+                Image(systemName: "camera.fill")
+                    .font(.title.bold())
+                    .foregroundStyle(Color.black)
             }
             .frame(width: width / 2)
             .background {
                 Circle()
+                    .fill(colorScheme == .dark ? Color.white : Color.clear)
                     .frame(width: width / 2 * 1.1, height: width / 2 * 1.1)
             }
         }
         .buttonStyle(.plain)
     }
-
-    let lightGrayontainer = Color(#colorLiteral(red: 0.422652036, green: 0.4431175292, blue: 0.5056651235, alpha: 1)) // #6d7180
-    let darkGrayContainer = Color(#colorLiteral(red: 0.1215686275, green: 0.1607843137, blue: 0.2156862745, alpha: 1)) // #1f2937
-    let green400 = Color(#colorLiteral(red: 0.2901960784, green: 0.8705882353, blue: 0.5019607843, alpha: 1)) // #4ade80
 }
