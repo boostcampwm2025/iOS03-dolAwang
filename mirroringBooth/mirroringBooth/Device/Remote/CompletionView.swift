@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CompletionView: View {
+    var onTapGesture: (() -> Void)?
+
     var body: some View {
         VStack(spacing: 10) {
             Image(systemName: "checkmark.square")
@@ -28,7 +30,7 @@ struct CompletionView: View {
                 .font(.footnote)
                 .opacity(0.8)
                 .onTapGesture {
-
+                    onTapGesture?()
                 }
         }
         #if os(iOS)
