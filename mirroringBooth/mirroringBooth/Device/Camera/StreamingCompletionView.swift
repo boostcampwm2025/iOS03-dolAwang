@@ -37,9 +37,9 @@ struct StreamingCompletionView: View {
             Spacer()
         }
         .navigationBarBackButtonHidden()
+        .backgroundStyle()
         .homeAlert(isPresented: $showHomeAlert) {
             router.reset()
         }
-        .backgroundStyle()
     }
 }

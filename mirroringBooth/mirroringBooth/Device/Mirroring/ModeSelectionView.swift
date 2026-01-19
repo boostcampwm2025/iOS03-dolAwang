@@ -79,10 +79,10 @@ struct ModeSelectionView: View {
         .padding(.top, 20)
         .padding(.horizontal)
         .navigationBarBackButtonHidden()
+        .backgroundStyle()
         .homeAlert(isPresented: $showHomeAlert) {
             router.reset()
         }
-        .backgroundStyle()
     }
 }
 
