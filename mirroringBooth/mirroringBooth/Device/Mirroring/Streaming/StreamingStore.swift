@@ -136,7 +136,7 @@ final class StreamingStore: StoreProtocol {
 
         case .captureCount:
             let newCount = min(state.totalCaptureCount, state.captureCount + 1)
-            result.append(.receivedPhotoCountUpdated(newCount))
+            result.append(.captureCountUpdated(newCount))
         }
 
         return result
