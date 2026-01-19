@@ -96,7 +96,7 @@ struct WatchConnectionView: View {
                 .font(.caption.bold())
                 .padding(.top, 10)
             Spacer()
-            CaptureButton(width: screenWidth) {
+            CaptureButton(width: screenWidth / 2) {
                 store.send(.tapRequestCapture)
             }
             Spacer()
