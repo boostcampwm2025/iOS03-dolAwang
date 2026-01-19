@@ -9,13 +9,23 @@ import SwiftUI
 
 struct LocalAsyncImage: View {
     let url: URL
+    var slotAspect: CGFloat?
     @State private var image: Image?
 
     var body: some View {
         Group {
             if let image = image {
-                image
-                    .resizable()
+                if let slotAspect {
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                        .aspectRatio(slotAspect, contentMode: .fit)
+                        .clipped()
+                } else {
+                    image
+                        .resizable()
+                }
             } else {
                 Color.gray.opacity(0.3)
             }

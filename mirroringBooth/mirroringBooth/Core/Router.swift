@@ -43,3 +43,7 @@ enum MirroringRoute: Hashable {
     case captureResult
     case result(PhotoInformation)
 }
+
+enum RemoteRoute: Hashable {
+    case remoteCapture(Advertiser)
+}

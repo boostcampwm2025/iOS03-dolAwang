@@ -71,6 +71,7 @@ struct ConnectionCheckView: View {
                 Button {
                     showPreview = true
                     cameraDeviceSession.sendCommand(.navigateToSelectMode)
+                    cameraDeviceSession.sendCommand(.navigateToRemoteCapture)
                     shouldNavigateToCompletion = false
                 } label: {
                     Text("촬영 준비하기")
@@ -80,8 +81,8 @@ struct ConnectionCheckView: View {
                         .background(Color(.label))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .padding()
             }
+            .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .fullScreenCover(
                 isPresented: $showPreview,
@@ -94,7 +95,7 @@ struct ConnectionCheckView: View {
                 content: {
                     CameraPreview(
                         store: CameraPreviewStore(
-                            browser: cameraDeviceSession,
+                            cameraDeviceSession: cameraDeviceSession,
                             manager: cameraManager,
                             deviceName: mirroringDevice
                         ),

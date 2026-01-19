@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import Combine
 import Foundation
 
 @Observable
@@ -39,6 +40,7 @@ final class CameraPreviewStore: StoreProtocol {
     private let cameraDeviceSession: CameraDeviceSession
     private let cameraManager: CameraManager
     private(set) var state: State
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         cameraDeviceSession: CameraDeviceSession,
@@ -55,13 +57,14 @@ final class CameraPreviewStore: StoreProtocol {
         case .startAnimation:
             return [.startAnimation]
         case .startSession:
-            setupCallbacks()
+            setupSubscriptions()
             return [.startSession]
         case .tapExitButton:
             cameraManager.stopSession()
         case .updateAngle(let rawValue):
             return [.updateAngle(rawValue)]
         case .captureCompleted:
+            cameraManager.stopSession()
             cameraDeviceSession.sendCommand(.allPhotosStored)
             return [.captureCompleted]
         case .resetCaptureCompleted:
@@ -93,7 +96,7 @@ final class CameraPreviewStore: StoreProtocol {
 }
 
 private extension CameraPreviewStore {
-    func setupCallbacks() {
+    func setupSubscriptions() {
         // 비디오 스트림 콜백
         cameraManager.onEncodedData = { data in
             guard !self.state.isTransferring else { return }
@@ -104,10 +107,14 @@ private extension CameraPreviewStore {
             self.cameraManager.capturePhoto()
         }
         // 일괄 전송 시작 명령 수신
-        cameraDeviceSession.onStartTransferCommand = {
-            self.state.isTransferring = true
-            self.cameraManager.sendAllPhotos(using: self.cameraDeviceSession)
-        }
+        cameraDeviceSession.onStartTransferCommand
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                self.state.isTransferring = true
+                self.cameraManager.sendAllPhotos(using: self.cameraDeviceSession)
+            }
+            .store(in: &cancellables)
         // 전송 완료
         cameraManager.onTransferCompleted = {
             self.state.isTransferring = false

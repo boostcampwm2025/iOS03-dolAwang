@@ -10,7 +10,6 @@ import SwiftUI
 struct CompletionView: View {
     var body: some View {
         VStack(spacing: 10) {
-            // TODO: #26 병합 후 홈 버튼 추가
             Image(systemName: "checkmark.square")
                 .font(.largeTitle)
                 .foregroundStyle(Color.main)
@@ -23,11 +22,17 @@ struct CompletionView: View {
                     .multilineTextAlignment(.center)
             }
             .opacity(0.8)
-        }
-        .backgroundStyle()
-    }
-}
 
-#Preview {
-    CompletionView()
+            Text("첫 화면으로 돌아가기")
+                .padding(.top)
+                .font(.footnote)
+                .opacity(0.8)
+                .onTapGesture {
+
+                }
+        }
+        #if os(iOS)
+        .backgroundStyle()
+        #endif
+    }
 }

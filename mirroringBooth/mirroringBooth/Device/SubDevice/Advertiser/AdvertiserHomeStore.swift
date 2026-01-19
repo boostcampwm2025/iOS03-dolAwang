@@ -13,6 +13,7 @@ final class AdvertiserHomeStore: StoreProtocol {
     struct State {
         var isAdvertising: Bool = false
         var hasConnectionStarted: Bool = false
+        var deviceUseType: DeviceUseType?
     }
 
     enum Intent {
@@ -23,7 +24,7 @@ final class AdvertiserHomeStore: StoreProtocol {
 
     enum Result {
         case setIsAdvertising(Bool)
-        case setIsConnecting(Bool)
+        case setIsConnecting(Bool, type: DeviceUseType?)
     }
 
     var state: State = .init()
@@ -33,14 +34,18 @@ final class AdvertiserHomeStore: StoreProtocol {
         self.advertiser = advertiser
 
         advertiser.navigateToSelectModeCommandCallBack = { [weak self] in
-            self?.reduce(.setIsConnecting(true))
+            self?.reduce(.setIsConnecting(true, type: .mirroring))
+        }
+
+        advertiser.navigateToRemoteCaptureCallBack = { [weak self] in
+            self?.reduce(.setIsConnecting(true, type: .remote))
         }
     }
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
         case .onAppear:
-            return [.setIsAdvertising(false), .setIsConnecting(false)]
+            return [.setIsAdvertising(false), .setIsConnecting(false, type: nil)]
         case .didTapAdvertiseButton:
             let newState = !state.isAdvertising
             if newState {
@@ -63,8 +68,9 @@ final class AdvertiserHomeStore: StoreProtocol {
         case .setIsAdvertising(let status):
             state.isAdvertising = status
 
-        case .setIsConnecting(let status):
+        case .setIsConnecting(let status, let useType):
             state.hasConnectionStarted = status
+            state.deviceUseType = useType
         }
 
         self.state = state

@@ -78,6 +78,9 @@ final class H264Encoder {
 
             if status != noErr {
                 self?.logger.warning("프레임 인코딩 실패: \(status)")
+                if status == kVTInvalidSessionErr {
+                    self?.handleSessionError()
+                }
             }
         }
     }
@@ -281,6 +284,14 @@ extension H264Encoder {
             key: kVTCompressionPropertyKey_MaxKeyFrameInterval,
             value: NSNumber(value: frameRate)
         )
+    }
+
+    private func handleSessionError() {
+        if let compressionSession {
+            VTCompressionSessionInvalidate(compressionSession)
+        }
+        compressionSession = nil
+        setupCompressionSession()
     }
 }
 

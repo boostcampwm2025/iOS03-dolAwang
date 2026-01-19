@@ -19,7 +19,12 @@ struct PhotoComposer {
         .frame(width: targetSize.width, height: targetSize.height)
 
         let renderer = ImageRenderer(content: preview)
-        renderer.scale = UIScreen.main.scale // 고해상도
+
+        // GPU 텍스처 한계(약 8192px)를 초과하지 않도록 scale 조정
+        let maxDimension: CGFloat = 8192
+        let maxScale = min(maxDimension / targetWidth, maxDimension / targetHeight)
+        renderer.scale = min(UIScreen.main.scale, maxScale)
+
         return renderer.uiImage
     }
 }

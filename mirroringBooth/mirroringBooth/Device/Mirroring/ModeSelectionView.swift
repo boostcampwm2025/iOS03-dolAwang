@@ -11,6 +11,8 @@ struct ModeSelectionView: View {
     @Environment(Router.self) var router: Router
     private let advertiser: Advertiser
 
+    @State private var showHomeAlert: Bool = false
+
     init(advertiser: Advertiser) {
         self.advertiser = advertiser
     }
@@ -42,9 +44,9 @@ struct ModeSelectionView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            TopBarView()
-
-            Spacer()
+            DisconnectButtonView {
+                showHomeAlert = true
+            }
 
             TitleView()
 
@@ -76,20 +78,11 @@ struct ModeSelectionView: View {
         }
         .padding(.top, 20)
         .padding(.horizontal)
+        .navigationBarBackButtonHidden()
         .backgroundStyle()
-    }
-}
-
-private struct TopBarView: View {
-    var body: some View {
-        HStack {
-            DisconnectButtonView(action: {})
-
-            Spacer()
-
-            LightButtonView(action: {})
+        .homeAlert(isPresented: $showHomeAlert) {
+            router.reset()
         }
-        .padding(.horizontal, 30)
     }
 }
 

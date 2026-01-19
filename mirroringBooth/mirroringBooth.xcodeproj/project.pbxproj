@@ -71,6 +71,7 @@
 				"Device/Remote/AppleWatch/WatchConnectionManger+watchOS.swift",
 				Device/Remote/AppleWatch/WatchConnectionStore.swift,
 				Device/Remote/CaptureButton.swift,
+				Device/Remote/CompletionView.swift,
 			);
 			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
 		};

@@ -5,6 +5,7 @@
 //  Created by 이상유 on 2026-01-07.
 //
 
+import Combine
 import Foundation
 import UIKit
 
@@ -48,6 +49,7 @@ final class BrowsingStore: StoreProtocol {
     var state: State = .init()
     let cameraDeviceSession: CameraDeviceSession
     let watchConnectionManager: WatchConnectionManager
+    private var cancellables = Set<AnyCancellable>()
 
     init(_ session: CameraDeviceSession, _ watchConnectionManager: WatchConnectionManager) {
         self.cameraDeviceSession = session
@@ -94,6 +96,13 @@ final class BrowsingStore: StoreProtocol {
             }
             self?.reduce(.setRemoteDevice(nil))
         }
+
+        browser.onStartTransferCommand
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.watchConnectionManager.sendCaptureComplete()
+            }
+            .store(in: &cancellables)
     }
 
     private func setupWatchConnectionManager() {
