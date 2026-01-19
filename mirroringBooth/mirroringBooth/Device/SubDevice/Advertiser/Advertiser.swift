@@ -28,6 +28,7 @@ final class Advertiser: NSObject {
 
     var navigateToSelectModeCommandCallBack: (() -> Void)?
     var navigateToRemoteCaptureCallBack: (() -> Void)?
+    var navigateToRemoteCompleteCallBack: (() -> Void)?
 
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
@@ -168,6 +169,7 @@ final class Advertiser: NSObject {
             }
         case .navigateToRemoteComplete:
             DispatchQueue.main.async {
+                self.navigateToRemoteCompleteCallBack?()
             }
         }
     }
