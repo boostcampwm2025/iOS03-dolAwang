@@ -15,6 +15,8 @@ final class Browser: NSObject {
         case navigateToSelectMode
         case allPhotosStored // 사진 10장 모두 저장 완료
         case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
+        case heartBeat
+        case navigateToRemoteCapture
     }
 
     enum SessionType: String {
@@ -30,6 +32,7 @@ final class Browser: NSObject {
     private var mirroringCommandSession: MCSession?
     private var remoteSession: MCSession?
     private let browser: MCNearbyServiceBrowser
+    private let heartBeater: HeartBeater
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
 
@@ -71,9 +74,11 @@ final class Browser: NSObject {
         self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: false, with: UIDevice.current.deviceType)
         self.peerID = MCPeerID(displayName: myDeviceName)
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
+        self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
 
         super.init()
         browser.delegate = self
+        heartBeater.delegate = self
     }
 
     func startSearching() {
@@ -208,6 +213,28 @@ final class Browser: NSObject {
         }
     }
 
+    /// 리모트 기기에게 명령을 전송합니다.
+    func sendRemoteCommand(_ command: MirroringDeviceCommand) {
+        guard let data = command.rawValue.data(using: .utf8) else { return }
+
+        guard let connectedPeers = remoteSession?.connectedPeers,
+              !connectedPeers.isEmpty else {
+            logger.warning("명령 전송 실패: remoteSession에 연결된 피어가 없습니다")
+            return
+        }
+
+        do {
+            try remoteSession?.send(
+                data,
+                toPeers: connectedPeers,
+                with: .reliable
+            )
+            logger.info("리모트 명령 전송 성공: \(command.rawValue)")
+        } catch {
+            logger.warning("리모트 명령 전송 실패: \(error.localizedDescription)")
+        }
+    }
+
     /// 모든 세션의 연결을 해제합니다.
     func disconnect() {
         // disconnect의 호출이 세션을 아예 nil로 변경.
@@ -253,7 +280,7 @@ extension Browser: MCSessionDelegate {
 
         let newState = logAndConvertState(state, for: peerID.displayName, sessionType: sessionTypeLabel)
 
-        // 미러링 세션이 연결되면 명령 세션을 초대합니다.
+        // 명령 세션이 연결되면 미러링 세션을 초대합니다.
         if let mirroringSession, sessionTypeLabel == "미러링 명령", newState == .connected {
             logger.info("미러링 커맨드 세션 연결 완료, 미러링 세션 초대 시작")
             browser.invitePeer(
@@ -268,6 +295,11 @@ extension Browser: MCSessionDelegate {
         let deviceType = discoveredPeers[peerID.displayName]?.type ?? .unknown
         discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
+
+        if session === mirroringSession,
+           state == .connected {
+            heartBeater.start()
+        }
 
         DispatchQueue.main.async {
             self.onDeviceFound?(device)
@@ -343,7 +375,7 @@ extension Browser: MCSessionDelegate {
         didReceive data: Data,
         fromPeer peerID: MCPeerID
     ) {
-        if session === mirroringCommandSession {
+        if session === mirroringCommandSession || session === remoteSession {
             executeCommand(data: data)
         } else if session === mirroringSession {
             logger.info("스트림 세션에서 데이터 수신: \(data.count) bytes")
@@ -372,6 +404,8 @@ extension Browser: MCSessionDelegate {
                 DispatchQueue.main.async {
                     self.onSelectedTimerModeCommand?()
                 }
+            case .heartBeat:
+                heartBeater.beat()
             }
         }
     }

@@ -51,7 +51,14 @@ struct AdvertiserHomeView: View {
         }
         .onChange(of: store.state.hasConnectionStarted) { _, newValue in
             if newValue {
-                router.push(to: MirroringRoute.modeSelection(store.advertiser))
+                guard let deviceUseType = store.state.deviceUseType else { return }
+
+                switch deviceUseType {
+                case .mirroring:
+                    router.push(to: MirroringRoute.modeSelection(store.advertiser))
+                case .remote:
+                    router.push(to: RemoteRoute.remoteCapture(store.advertiser))
+                }
             }
         }
         .backgroundStyle()

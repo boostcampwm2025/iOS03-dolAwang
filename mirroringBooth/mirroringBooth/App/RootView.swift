@@ -58,6 +58,12 @@ struct RootView: View {
                         .environment(router)
                 }
             }
+            .navigationDestination(for: RemoteRoute.self) { viewType in
+                switch viewType {
+                case .remoteCapture(let advertiser):
+                    RemoteCaptureView(advertiser: advertiser)
+                }
+            }
         }
         .tint(Color(.label))
     }
