@@ -139,6 +139,12 @@ final class Browser: NSObject {
         logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
     }
 
+    /// 카메라 캡쳐 액션을 실행합니다.
+    func capturePhoto() {
+        self.onCaptureCommand?()
+        self.sendCommand(.onUpdateCaptureCount)
+    }
+
     /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.
     func sendStreamData(_ data: Data) {
         guard let mirroringSession else { return }
@@ -391,7 +397,7 @@ extension Browser: MCSessionDelegate {
             switch type {
             case .capturePhoto:
                 DispatchQueue.main.async {
-                    self.onCaptureCommand?()
+                    self.capturePhoto()
                 }
             case .startTransfer:
                 DispatchQueue.main.async {
@@ -469,13 +475,5 @@ extension Browser: MCNearbyServiceBrowserDelegate {
         DispatchQueue.main.async {
             self.onDeviceLost?(device)
         }
-    }
-}
-
-// MARK: - WatchConnectionManager
-extension Browser {
-    func capturePhoto() {
-        self.onCaptureCommand?()
-        self.sendCommand(.onUpdateCaptureCount)
     }
 }
