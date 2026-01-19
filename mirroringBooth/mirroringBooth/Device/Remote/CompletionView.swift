@@ -31,6 +31,8 @@ struct CompletionView: View {
 
                 }
         }
+        #if os(iOS)
         .backgroundStyle()
+        #endif
     }
 }
