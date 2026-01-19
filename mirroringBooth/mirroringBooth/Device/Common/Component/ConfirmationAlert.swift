@@ -76,6 +76,7 @@ struct ConfirmationAlert: View {
                 RoundedRectangle(cornerRadius: 24)
                     .fill(Color(.systemGray6).opacity(0.8))
             }
+            .frame(maxWidth: 500)
             .padding(.horizontal, 40)
         }
     }
