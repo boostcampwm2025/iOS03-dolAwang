@@ -16,8 +16,8 @@ final class Advertiser: NSObject {
 
     private let serviceType: String
     private let peerID: MCPeerID
-    private let session: MCSession
-    private let commandSession: MCSession
+    private var session: MCSession?
+    private var commandSession: MCSession?
     private let advertiser: MCNearbyServiceAdvertiser
     private let photoCacheManager: PhotoCacheManager
     let myDeviceName: String
@@ -48,16 +48,6 @@ final class Advertiser: NSObject {
         self.serviceType = serviceType
         self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: true, with: UIDevice.current.deviceType)
         self.peerID = MCPeerID(displayName: myDeviceName)
-        self.session = MCSession(
-            peer: peerID,
-            securityIdentity: nil,
-            encryptionPreference: .required
-        )
-        self.commandSession = MCSession(
-            peer: peerID,
-            securityIdentity: nil,
-            encryptionPreference: .none
-        )
 
         let myDeviceType: String = {
         #if os(iOS)
@@ -85,12 +75,6 @@ final class Advertiser: NSObject {
         self.photoCacheManager = photoCacheManager
 
         super.init()
-        setup()
-    }
-
-    private func setup() {
-        session.delegate = self
-        commandSession.delegate = self
         advertiser.delegate = self
     }
 
@@ -112,14 +96,16 @@ final class Advertiser: NSObject {
 
     /// 세션과 연결을 해제합니다.
     func disconnect() {
-        session.disconnect()
-        commandSession.disconnect()
+        session?.disconnect()
+        commandSession?.disconnect()
+        session = nil
+        commandSession = nil
         logger.info("연결 해제: \(self.peerID.displayName)")
     }
 
     /// 연결된 카메라 기기(iPhone)에게 명령을 전송합니다.
     func sendCommand(_ command: CameraDeviceCommand) {
-        guard let commandData = command.rawValue.data(using: .utf8) else { return }
+        guard let commandSession, let commandData = command.rawValue.data(using: .utf8) else { return }
         let connectedPeers = commandSession.connectedPeers
         guard !connectedPeers.isEmpty else {
             logger.warning("명령 전송 실패: commandSession에 연결된 피어가 없습니다")
@@ -159,7 +145,11 @@ final class Advertiser: NSObject {
 // MARK: - Session Delegate
 extension Advertiser: MCSessionDelegate {
 
-    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) { }
+    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+        if case .notConnected = state {
+            disconnect()
+        }
+    }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         if session === self.session {
@@ -236,8 +226,21 @@ extension Advertiser: MCNearbyServiceAdvertiserDelegate {
 
         logger.info("초대 수신: \(peerID.displayName)(타입: \(type))")
         if type == "streaming" {
+            // invite를 수락하는 시점에 session을 생성
+            self.session = MCSession(
+                peer: self.peerID,
+                securityIdentity: nil,
+                encryptionPreference: .required
+            )
+            session?.delegate = self
             invitationHandler(true, session)
         } else if type == "command" {
+            self.commandSession = MCSession(
+                peer: self.peerID,
+                securityIdentity: nil,
+                encryptionPreference: .none
+            )
+            commandSession?.delegate = self
             invitationHandler(true, commandSession)
         } else {
             invitationHandler(false, nil)
