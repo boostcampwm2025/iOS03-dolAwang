@@ -123,7 +123,7 @@ final class Browser: NSObject {
             self.remoteSession = MCSession(
                 peer: peerID,
                 securityIdentity: nil,
-                encryptionPreference: .required
+                encryptionPreference: .none
             )
             remoteSession?.delegate = self
             targetSession = remoteSession
