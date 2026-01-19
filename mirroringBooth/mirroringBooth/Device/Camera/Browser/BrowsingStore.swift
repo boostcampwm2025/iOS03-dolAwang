@@ -97,7 +97,7 @@ final class BrowsingStore: StoreProtocol {
             self?.reduce(.setRemoteDevice(nil))
         }
 
-        browser.onStartTransferCommand
+        cameraDeviceSession.onStartTransferCommand
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.watchConnectionManager.sendCaptureComplete()

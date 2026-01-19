@@ -5,7 +5,7 @@
 //  Created by Liam on 1/19/26.
 //
 
-extension Browser: HeartBeaterDelegate {
+extension CameraDeviceSession: HeartBeaterDelegate {
     func onHeartBeat() {
         sendCommand(.heartBeat)
     }

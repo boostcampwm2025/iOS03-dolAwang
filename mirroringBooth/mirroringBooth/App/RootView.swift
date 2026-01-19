@@ -28,8 +28,8 @@ struct RootView: View {
                 case .advertising:
                     AdvertiserHomeView()
                         .environment(router)
-                case .connectionList(let list, let browser):
-                    ConnectionCheckView(list, browser: browser)
+                case .connectionList(let list, let cameraSession):
+                    ConnectionCheckView(list, cameraDeviceSession: cameraSession)
                         .environment(router)
                 case .completion:
                     StreamingCompletionView()
