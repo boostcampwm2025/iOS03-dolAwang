@@ -26,9 +26,9 @@ final class Browser: NSObject {
 
     private let serviceType: String
     private let peerID: MCPeerID
-    private let mirroringSession: MCSession
-    private let mirroringCommandSession: MCSession
-    private let remoteSession: MCSession
+    private var mirroringSession: MCSession?
+    private var mirroringCommandSession: MCSession?
+    private var remoteSession: MCSession?
     private let browser: MCNearbyServiceBrowser
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
@@ -70,31 +70,9 @@ final class Browser: NSObject {
         self.serviceType = serviceType
         self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: false, with: UIDevice.current.deviceType)
         self.peerID = MCPeerID(displayName: myDeviceName)
-        self.mirroringSession = MCSession(
-            peer: peerID,
-            securityIdentity: nil,
-            encryptionPreference: .required
-        )
-        self.mirroringCommandSession = MCSession(
-            peer: peerID,
-            securityIdentity: nil,
-            encryptionPreference: .none
-        )
-        self.remoteSession = MCSession(
-            peer: peerID,
-            securityIdentity: nil,
-            encryptionPreference: .required
-        )
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
 
         super.init()
-        setup()
-    }
-
-    private func setup() {
-        mirroringSession.delegate = self
-        mirroringCommandSession.delegate = self
-        remoteSession.delegate = self
         browser.delegate = self
     }
 
@@ -115,16 +93,36 @@ final class Browser: NSObject {
             return
         }
 
-        let targetSession: MCSession
+        var targetSession: MCSession?
         switch useType {
         case .mirroring:
             targetMirroringDeviceID = deviceID
+            // 세션은 invite 직전에 생성함.
+            self.mirroringSession = MCSession(
+                peer: peerID,
+                securityIdentity: nil,
+                encryptionPreference: .required
+            )
+            self.mirroringCommandSession = MCSession(
+                peer: peerID,
+                securityIdentity: nil,
+                encryptionPreference: .none
+            )
+            mirroringSession?.delegate = self
+            mirroringCommandSession?.delegate = self
             // 커맨드 세션에 대해 먼저 연결을 요청합니다.
             targetSession = mirroringCommandSession
         case .remote:
             targetRemoteDeviceID = deviceID
+            self.remoteSession = MCSession(
+                peer: peerID,
+                securityIdentity: nil,
+                encryptionPreference: .required
+            )
+            remoteSession?.delegate = self
             targetSession = remoteSession
         }
+        guard let targetSession else { return }
 
         browser.invitePeer(
             peer,
@@ -137,6 +135,7 @@ final class Browser: NSObject {
 
     /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.
     func sendStreamData(_ data: Data) {
+        guard let mirroringSession else { return }
         let connectedPeers = mirroringSession.connectedPeers
         guard !connectedPeers.isEmpty else {
             logger.warning("스트림 전송 실패: 연결된 피어가 없습니다")
@@ -152,6 +151,7 @@ final class Browser: NSObject {
 
     /// 미러링 세션에 연결된 피어에게 사진 리소스를 전송합니다.
     func sendPhotoResource(_ data: Data) {
+        guard let mirroringSession else { return }
         guard let mirroringPeer = mirroringSession.connectedPeers.first else {
             logger.warning("사진 전송 실패: 미러링 세션에 연결된 피어가 없습니다.")
             return
@@ -189,7 +189,7 @@ final class Browser: NSObject {
 
     /// 미러링 기기에게 명령을 전송합니다.
     func sendCommand(_ command: MirroringDeviceCommand) {
-        guard let data = command.rawValue.data(using: .utf8) else { return }
+        guard let mirroringCommandSession, let data = command.rawValue.data(using: .utf8) else { return }
         let connectedPeers = mirroringCommandSession.connectedPeers
         guard !connectedPeers.isEmpty else {
             logger.warning("명령 전송 실패: commandSession에 연결된 피어가 없습니다")
@@ -210,9 +210,13 @@ final class Browser: NSObject {
 
     /// 모든 세션의 연결을 해제합니다.
     func disconnect() {
-        mirroringSession.disconnect()
-        mirroringCommandSession.disconnect()
-        remoteSession.disconnect()
+        // disconnect의 호출이 세션을 아예 nil로 변경.
+        mirroringSession?.disconnect()
+        mirroringCommandSession?.disconnect()
+        remoteSession?.disconnect()
+        mirroringSession = nil
+        mirroringCommandSession = nil
+        remoteSession = nil
         targetMirroringDeviceID = nil
         targetRemoteDeviceID = nil
         logger.info("모든 연결 해제")
@@ -222,12 +226,15 @@ final class Browser: NSObject {
     func disconnect(useType: DeviceUseType) {
         switch useType {
         case .mirroring:
-            mirroringSession.disconnect()
-            mirroringCommandSession.disconnect()
+            mirroringSession?.disconnect()
+            mirroringCommandSession?.disconnect()
+            mirroringSession = nil
+            mirroringCommandSession = nil
             targetMirroringDeviceID = nil
             logger.info("미러링 연결 해제")
         case .remote:
-            remoteSession.disconnect()
+            remoteSession?.disconnect()
+            remoteSession = nil
             targetRemoteDeviceID = nil
             logger.info("리모트 연결 해제")
         }
@@ -247,7 +254,7 @@ extension Browser: MCSessionDelegate {
         let newState = logAndConvertState(state, for: peerID.displayName, sessionType: sessionTypeLabel)
 
         // 미러링 세션이 연결되면 명령 세션을 초대합니다.
-        if sessionTypeLabel == "미러링 명령", newState == .connected {
+        if let mirroringSession, sessionTypeLabel == "미러링 명령", newState == .connected {
             logger.info("미러링 커맨드 세션 연결 완료, 미러링 세션 초대 시작")
             browser.invitePeer(
                 peerID,
