@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct StreamingView: View {
-//    @Environment(Router.self) var router: Router
+    @Environment(Router.self) var router: Router
     @State private var store: StreamingStore
     @State private var showHomeAlert: Bool = false
     let advertiser: Advertiser
@@ -80,14 +80,14 @@ struct StreamingView: View {
         }
         .onChange(of: store.state.timerPhase) { _, new in
             if new == .completed {
-//                router.push(to: MirroringRoute.captureResult)
+                router.push(to: MirroringRoute.captureResult)
             }
         }
         .homeAlert(
             isPresented: $showHomeAlert,
             message: "촬영된 사진이 모두 사라집니다.\n연결을 종료하시겠습니까?"
         ) {
-//            router.reset()
+            router.reset()
         }
     }
 
