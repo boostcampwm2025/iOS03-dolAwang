@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct StreamingView: View {
+    @Environment(Router.self) var router: Router
     @State private var store: StreamingStore
     let advertiser: Advertiser
 
@@ -73,6 +74,11 @@ struct StreamingView: View {
         }
         .onDisappear {
             store.send(.stopStreaming)
+        }
+        .onChange(of: store.state.timerPhase) { _, new in
+            if new == .completed {
+                router.push(to: MirroringRoute.captureResult)
+            }
         }
     }
 

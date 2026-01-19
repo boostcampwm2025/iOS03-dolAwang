@@ -51,5 +51,6 @@ struct AdvertiserHomeView: View {
                 router.push(to: MirroringRoute.modeSelection(store.advertiser))
             }
         }
+        .backgroundStyle()
     }
 }

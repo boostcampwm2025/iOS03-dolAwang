@@ -7,25 +7,27 @@
 
 import SwiftUI
 
-enum FrameAsset: String, CaseIterable {
-    case black
-    case white
-    case crowded
-    case orange
-    case skyblue
+enum FrameAsset: String, Identifiable, CaseIterable {
+    var id: Self { self }
 
-    var image: Image {
+    case black = "Basic Black"
+    case white = "Basic White"
+    case crowded = "Crowded persimmon"
+    case orange = "Persimmons (Orange)"
+    case skyblue = "Persimmons (Sky Blue)"
+
+    var image: UIImage? {
         switch self {
         case .black:
-            return Image("black")
+            return UIImage(named: "black")
         case .white:
-            return Image("white")
+            return UIImage(named: "white")
         case .crowded:
-            return Image("crowded")
+            return UIImage(named: "crowded")
         case .orange:
-            return Image("orange")
+            return UIImage(named: "orange")
         case .skyblue:
-            return Image("skyblue")
+            return UIImage(named: "skyblue")
         }
     }
 }

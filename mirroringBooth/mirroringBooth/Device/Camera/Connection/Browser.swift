@@ -14,6 +14,7 @@ final class Browser: NSObject {
     enum MirroringDeviceCommand: String {
         case navigateToSelectMode
         case allPhotosStored // 사진 10장 모두 저장 완료
+        case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
         case heartBeat
     }
 
@@ -56,6 +57,12 @@ final class Browser: NSObject {
     /// 일괄 전송 시작 명령 수신 콜백
     var onStartTransferCommand: (() -> Void)?
 
+    /// 원격 모드 설정 명령 수신 콜백
+    var onRemoteModeCommand: (() -> Void)?
+
+    /// 타이머 모드 선택 명령 수신 콜백
+    var onSelectedTimerModeCommand: (() -> Void)?
+
     /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
     var isVideoSender: Bool {
         UIDevice.current.userInterfaceIdiom == .phone
@@ -63,7 +70,7 @@ final class Browser: NSObject {
 
     init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
-        self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: false, with: UIDevice.current.name)
+        self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: false, with: UIDevice.current.deviceType)
         self.peerID = MCPeerID(displayName: myDeviceName)
         self.mirroringSession = MCSession(
             peer: peerID,
@@ -359,6 +366,14 @@ extension Browser: MCSessionDelegate {
                 DispatchQueue.main.async {
                     self.onStartTransferCommand?()
                 }
+            case .setRemoteMode:
+                DispatchQueue.main.async {
+                    self.onRemoteModeCommand?()
+                }
+            case .selectedTimerMode:
+                DispatchQueue.main.async {
+                    self.onSelectedTimerModeCommand?()
+                }
             case .heartBeat:
                 heartBeater.beat()
             }
@@ -423,5 +438,13 @@ extension Browser: MCNearbyServiceBrowserDelegate {
         DispatchQueue.main.async {
             self.onDeviceLost?(device)
         }
+    }
+}
+
+// MARK: - WatchConnectionManager
+extension Browser {
+    func capturePhoto() {
+        self.onCaptureCommand?()
+        self.sendCommand(.onUpdateCaptureCount)
     }
 }

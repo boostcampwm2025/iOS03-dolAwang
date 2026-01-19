@@ -22,6 +22,8 @@ struct ModeSelectionView: View {
             title: "타이머 모드",
             description: "80초 동안 8초 간격으로\n자동 촬영합니다."
         ) {
+            // 촬영 기기에게 타이머 모드 선택 알림
+            advertiser.sendCommand(.selectedTimerMode)
             router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: true))
         }
     }
@@ -33,51 +35,48 @@ struct ModeSelectionView: View {
             title: "리모콘 모드",
             description: "나의 Apple Watch에서 \n직접 셔터를 누르세요."
         ) {
+            advertiser.sendCommand(.setRemoteMode)
             router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: false))
         }
     }
 
     var body: some View {
-        ZStack {
-            Color.background
-                .ignoresSafeArea()
+        VStack(spacing: 20) {
+            TopBarView()
 
-            VStack(spacing: 20) {
-                TopBarView()
+            Spacer()
 
-                Spacer()
+            TitleView()
 
-                TitleView()
-
-                GeometryReader { proxy in
-                    if proxy.size.width > proxy.size.height {
-                        HStack(spacing: 40) {
-                            timerCard
-                            remoteCard
-                        }
-                        .frame(
-                            width: proxy.size.width,
-                            height: proxy.size.height
-                        )
-                    } else {
-                        VStack(spacing: 20) {
-                            timerCard
-                            remoteCard
-
-                        }
-                        .frame(
-                            width: proxy.size.width,
-                            height: proxy.size.height
-                        )
+            GeometryReader { proxy in
+                if proxy.size.width > proxy.size.height {
+                    HStack(spacing: 40) {
+                        timerCard
+                        remoteCard
                     }
+                    .frame(
+                        width: proxy.size.width,
+                        height: proxy.size.height
+                    )
+                } else {
+                    VStack(spacing: 20) {
+                        timerCard
+                        remoteCard
 
+                    }
+                    .frame(
+                        width: proxy.size.width,
+                        height: proxy.size.height
+                    )
                 }
 
-                Spacer()
             }
-            .padding(.top, 20)
-            .padding(.horizontal)
+
+            Spacer()
         }
+        .padding(.top, 20)
+        .padding(.horizontal)
+        .backgroundStyle()
     }
 }
 

@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct MirroringBoothApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     var body: some Scene {
         WindowGroup {
             RootView()

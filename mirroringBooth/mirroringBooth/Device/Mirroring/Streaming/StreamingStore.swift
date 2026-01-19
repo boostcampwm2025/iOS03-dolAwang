@@ -48,6 +48,7 @@ final class StreamingStore: StoreProtocol {
         // 사진 전송
         case startTransfer // 전송 시작
         case photoReceived // 사진 1장 수신
+        case captureCount  // 촬영 카운트 수신
     }
 
     enum Result {
@@ -91,6 +92,10 @@ final class StreamingStore: StoreProtocol {
             self?.send(.photoReceived)
         }
 
+        advertiser.onUpdateCaptureCount = { [weak self] in
+            self?.send(.captureCount)
+        }
+
         // 10장 모두 저장 완료 콜백 (iPhone에서 전송)
         advertiser.onAllPhotosStored = { [weak self] in
             self?.send(.startTransfer)
@@ -120,6 +125,7 @@ final class StreamingStore: StoreProtocol {
         case .startTransfer:
             result.append(.phaseChanged(.transferring))
             advertiser.sendCommand(.startTransfer)
+            advertiser.setupCacheManager()
 
         case .photoReceived:
             let newCount = state.receivedPhotoCount + 1
@@ -127,6 +133,10 @@ final class StreamingStore: StoreProtocol {
             if newCount >= state.totalCaptureCount {
                 result.append(.phaseChanged(.completed))
             }
+
+        case .captureCount:
+            let newCount = min(state.totalCaptureCount, state.captureCount + 1)
+            result.append(.receivedPhotoCountUpdated(newCount))
         }
 
         return result

@@ -15,17 +15,25 @@ final class CameraPreviewStore: StoreProtocol {
         var buffer: CMSampleBuffer?
         var deviceName: String
         var isTransferring = false
+        var angle: Double = 0
+        var isCaptureCompleted = false
     }
 
     enum Intent {
         case startAnimation
         case startSession
         case tapExitButton
+        case updateAngle(rawValue: Int)
+        case captureCompleted
+        case resetCaptureCompleted
     }
 
     enum Result {
         case startAnimation
         case startSession
+        case updateAngle(Int)
+        case captureCompleted
+        case resetCaptureCompleted
     }
 
     private let browser: Browser
@@ -51,6 +59,13 @@ final class CameraPreviewStore: StoreProtocol {
             return [.startSession]
         case .tapExitButton:
             cameraManager.stopSession()
+        case .updateAngle(let rawValue):
+            return [.updateAngle(rawValue)]
+        case .captureCompleted:
+            browser.sendCommand(.allPhotosStored)
+            return [.captureCompleted]
+        case .resetCaptureCompleted:
+            return [.resetCaptureCompleted]
         }
         return []
     }
@@ -65,7 +80,14 @@ final class CameraPreviewStore: StoreProtocol {
             cameraManager.rawData = { buffer in
                 self.state.buffer = buffer
             }
+        case .updateAngle(let rawValue):
+            state.angle = getAngleByRawValue(rawValue)
+        case .captureCompleted:
+            state.isCaptureCompleted = true
+        case .resetCaptureCompleted:
+            state.isCaptureCompleted = false
         }
+
         self.state = state
     }
 }
@@ -90,9 +112,18 @@ private extension CameraPreviewStore {
         cameraManager.onTransferCompleted = {
             self.state.isTransferring = false
         }
-        // 10장 모두 저장 완료 시 iPad에 알림 전송
+        // 10장 모두 저장 완료 시 미러링기기에 알림 전송
         cameraManager.onAllPhotosStored = { _ in
-            self.browser.sendCommand(.allPhotosStored)
+            self.send(.captureCompleted)
+        }
+    }
+
+    func getAngleByRawValue(_ value: Int) -> Double {
+        switch value {
+        case 3: return 90   // landscapeLeft
+        case 4: return 90  // landscapeRight
+        case 5: return state.angle    // flat
+        default: return 0
         }
     }
 }

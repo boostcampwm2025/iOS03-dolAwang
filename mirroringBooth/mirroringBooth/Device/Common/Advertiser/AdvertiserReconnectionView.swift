@@ -33,5 +33,6 @@ struct AdvertiserReconnectionView: View {
             }
         }
         .padding(16)
+        .backgroundStyle()
     }
 }

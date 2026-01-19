@@ -42,6 +42,7 @@ struct CameraHomeView: View {
             Spacer()
         }
         .padding(.horizontal)
+        .backgroundStyle()
     }
 }
 

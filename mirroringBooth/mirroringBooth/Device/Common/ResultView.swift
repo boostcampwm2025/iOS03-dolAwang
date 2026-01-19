@@ -8,30 +8,31 @@
 import SwiftUI
 
 struct ResultView: View {
+    @Environment(Router.self) var router: Router
+
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
 
+    let resultPhoto: PhotoInformation
+
     var body: some View {
-        ZStack {
-            Color.background
-                .ignoresSafeArea()
+        VStack(spacing: 30) {
 
-            VStack(spacing: 30) {
+            Spacer()
 
-                Spacer()
+            /// 완성 텍스트
+            VStack(spacing: 10) {
+                Text("완성되었습니다!")
+                    .font(.title.bold())
 
-                /// 완성 텍스트
-                VStack(spacing: 10) {
-                    Text("완성되었습니다!")
-                        .font(.title.bold())
+                Text("순간들이 기록되었습니다.")
+                    .font(.caption)
+                    .foregroundStyle(Color(.label).opacity(0.5))
+            }
 
-                    Text("순간들이 기록되었습니다.")
-                        .font(.caption)
-                        .foregroundStyle(Color(.label).opacity(0.5))
-                }
-
-                /// 결과 이미지
-                Image(systemName: "photo")
+            /// 결과 이미지
+            if let result = PhotoComposer.render(with: resultPhoto) {
+                Image(uiImage: result)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .scaleEffect(scale)
@@ -55,39 +56,40 @@ struct ResultView: View {
                                 }
                             }
                     )
+            }
 
-                /// 버튼
-                HStack {
-                    sharingButton(
-                        icon: "square.and.arrow.down",
-                        title: "갤러리 저장",
-                        isContrast: false
-                    ) {
-                        // TODO: 갤러리 저장 액션
-                    }
-
-                    sharingButton(
-                        icon: "paperplane",
-                        title: "Airdrop",
-                        isContrast: true
-                    ) {
-                        // TODO: Airdrop 액션
-                    }
+            /// 버튼
+            HStack {
+                sharingButton(
+                    icon: "square.and.arrow.down",
+                    title: "갤러리 저장",
+                    isContrast: false
+                ) {
+                    // TODO: 갤러리 저장 액션
                 }
+
+                sharingButton(
+                    icon: "paperplane",
+                    title: "Airdrop",
+                    isContrast: true
+                ) {
+                    // TODO: Airdrop 액션
+                }
+            }
 //                .hidden() // 저장 로직 추가 후 제거
 
-                Spacer()
-            }
-            .padding()
+            Spacer()
         }
+        .padding()
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 HomeButton(size: .headline) {
-                    // TODO: 홈으로 이동하는 액션
+                    router.reset()
                 }
             }
         }
+        .backgroundStyle()
     }
 
     private func sharingButton(

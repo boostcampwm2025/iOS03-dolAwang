@@ -8,12 +8,15 @@
 import SwiftUI
 
 struct ConnectionCheckView: View {
+    @Environment(Router.self) var router: Router
     private let cameraDevice: String
     private let mirroringDevice: String
     private let remoteDevice: String?
-    private let cameraManager = CameraManager()
     private let browser: Browser
+    private let cameraManager = CameraManager()
+
     @State private var showPreview = false
+    @State private var shouldNavigateToCompletion = false
 
     init(_ list: ConnectionList, browser: Browser) {
         self.cameraDevice = list.cameraName
@@ -68,6 +71,7 @@ struct ConnectionCheckView: View {
                 Button {
                     showPreview = true
                     browser.sendCommand(.navigateToSelectMode)
+                    shouldNavigateToCompletion = false
                 } label: {
                     Text("촬영 준비하기")
                         .padding(14)
@@ -76,19 +80,32 @@ struct ConnectionCheckView: View {
                         .background(Color(.label))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
+                .padding()
             }
-            .padding()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .fullScreenCover(isPresented: $showPreview) {
-            CameraPreview(
-                store: CameraPreviewStore(
-                    browser: browser,
-                    manager: cameraManager,
-                    deviceName: mirroringDevice
-                )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .fullScreenCover(
+                isPresented: $showPreview,
+                onDismiss: {
+                    if shouldNavigateToCompletion {
+                        router.push(to: CameraRoute.completion)
+                        shouldNavigateToCompletion = false
+                    }
+                },
+                content: {
+                    CameraPreview(
+                        store: CameraPreviewStore(
+                            browser: browser,
+                            manager: cameraManager,
+                            deviceName: mirroringDevice
+                        ),
+                        onDismissByCaptureCompletion: {
+                            shouldNavigateToCompletion = true
+                        }
+                    )
+                }
             )
         }
+        .backgroundStyle()
     }
 }
 

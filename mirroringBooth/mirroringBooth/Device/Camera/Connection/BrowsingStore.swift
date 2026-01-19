@@ -82,20 +82,39 @@ final class BrowsingStore: StoreProtocol {
         browser.onDeviceConnectionFailed = { [weak self] in
             self?.reduce(.setIsConnecting(false))
         }
+
+        browser.onRemoteModeCommand = { [weak self] in
+            self?.watchConnectionManager.prepareWatchToCapture()
+        }
+
+        browser.onSelectedTimerModeCommand = { [weak self] in
+            // 리모트 기기가 워치인 경우 워치에게 연결 해제 알림
+            if self?.state.remoteDevice?.type == .watch {
+                self?.watchConnectionManager.sendDisconnectionNotification()
+            }
+            self?.reduce(.setRemoteDevice(nil))
+        }
     }
 
     private func setupWatchConnectionManager() {
-        watchConnectionManager.onReachableChanged = { [weak self] state in
+        watchConnectionManager.onReachableChanged = { [weak self] isReachable in
             let watchDevice = NearbyDevice(
                 id: "나의 Apple Watch",
                 state: .notConnected,
                 type: .watch
             )
-            if state {
+            if isReachable {
                 self?.reduce(.addDiscoveredDevice(watchDevice))
             } else {
                 self?.reduce(.removeDiscoveredDevice(watchDevice))
+                if self?.state.remoteDevice?.type == .watch {
+                    self?.reduce(.setRemoteDevice(nil))
+                }
             }
+        }
+
+        watchConnectionManager.onReceiveCaptureRequest = { [ weak self] in
+            self?.browser.capturePhoto()
         }
 
         watchConnectionManager.onReceiveConnectionAck = { [weak self] in
@@ -141,6 +160,12 @@ final class BrowsingStore: StoreProtocol {
         case .cancel:
             // 1. 모든 연결 해제
             browser.disconnect()
+
+            // 워치가 연결되어 있다면 연결 해제 요청 전송
+            if state.remoteDevice?.type == .watch {
+                watchConnectionManager.sendDisconnectRequest()
+            }
+
             result.append(.setMirroringDevice(nil))
             result.append(.setRemoteDevice(nil))
 
