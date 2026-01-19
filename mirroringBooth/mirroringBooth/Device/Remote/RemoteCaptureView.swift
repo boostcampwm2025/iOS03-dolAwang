@@ -62,7 +62,3 @@ struct RemoteCaptureView: View {
         .backgroundStyle()
     }
 }
-
-#Preview {
-    RemoteCaptureView(advertiser: Advertiser(photoCacheManager: PhotoCacheManager.shared))
-}
