@@ -5,7 +5,7 @@
 //  Created by Liam on 1/19/26.
 //
 
-protocol HeartBeaterDelegate {
+protocol HeartBeaterDelegate: AnyObject {
     func onHeartBeat()
     func onTimeout()
 }
