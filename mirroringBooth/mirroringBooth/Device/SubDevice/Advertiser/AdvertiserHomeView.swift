@@ -43,6 +43,9 @@ struct AdvertiserHomeView: View {
             .padding(.bottom, 24)
         }
         .padding(.horizontal)
+        .onAppear {
+            store.send(.onAppear)
+        }
         .onDisappear {
             store.send(.exit)
         }

@@ -16,6 +16,7 @@ final class AdvertiserHomeStore: StoreProtocol {
     }
 
     enum Intent {
+        case onAppear
         case didTapAdvertiseButton
         case exit
     }
@@ -38,6 +39,8 @@ final class AdvertiserHomeStore: StoreProtocol {
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
+        case .onAppear:
+            return [.setIsAdvertising(false), .setIsConnecting(false)]
         case .didTapAdvertiseButton:
             let newState = !state.isAdvertising
             if newState {
