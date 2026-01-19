@@ -9,9 +9,8 @@ import SwiftUI
 
 extension View {
     func backgroundStyle() -> some View {
-        self.background(
-            Color.background
-                .ignoresSafeArea()
-        )
+        self
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.background, ignoresSafeAreaEdges: .all)
     }
 }
