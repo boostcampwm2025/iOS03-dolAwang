@@ -8,7 +8,15 @@
 import SwiftUI
 
 struct DisconnectButtonView: View {
+    let textFont: Font
+    let backgroundColor: Color
     let action: () -> Void
+
+    init(textFont: Font = .callout, backgroundColor: Color = .borderLine, action: @escaping () -> Void) {
+        self.textFont = textFont
+        self.backgroundColor = backgroundColor
+        self.action = action
+    }
 
     var body: some View {
         Button {
@@ -18,14 +26,14 @@ struct DisconnectButtonView: View {
                 Image(systemName: "rectangle.portrait.and.arrow.right")
                 Text("연결 끊기")
             }
-            .font(.callout)
+            .font(textFont)
             .foregroundColor(.red)
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
-            .background(
+            .background {
                 Capsule()
-                    .foregroundStyle(Color.borderLine)
-            )
+                    .fill(backgroundColor)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .padding(.vertical)
