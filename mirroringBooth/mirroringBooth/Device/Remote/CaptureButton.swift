@@ -47,6 +47,7 @@ struct CaptureButton: View {
                     .foregroundStyle(Color.black)
             }
             .frame(width: width / 2)
+            .contentShape(Circle())
             .background {
                 Circle()
                     .fill(colorScheme == .dark ? Color.white : Color.clear)
