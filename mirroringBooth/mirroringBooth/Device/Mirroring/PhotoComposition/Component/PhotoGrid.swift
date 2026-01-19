@@ -52,14 +52,12 @@ private struct PhotoItem: View {
 
     var body: some View {
         PhotoCell(url: photo.url, index: index, selectedNumber: photo.selectNumber)
-            .background(Color.gray)
-            .cornerRadius(8)
-            .clipped()
-            .frame(maxHeight: 200)
-            .frame(height: geometry.size.height / CGFloat(rows) - 20)
+            .contentShape(Rectangle())
             .onTapGesture {
                 onTap()
             }
+            .frame(maxHeight: 200)
+            .frame(height: geometry.size.height / CGFloat(rows) - 20)
     }
 }
 
