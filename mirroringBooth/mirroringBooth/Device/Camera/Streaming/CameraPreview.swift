@@ -66,7 +66,10 @@ struct CameraPreview: View {
                 dismiss()
             }
         }
-        .homeAlert(isPresented: $showHomeAlert) {
+        .homeAlert(
+            isPresented: $showHomeAlert,
+            message: "촬영된 사진이 모두 사라집니다.\n계속하시겠습니까?"
+        ) {
             store.send(.tapExitButton)
             dismiss()
         }
