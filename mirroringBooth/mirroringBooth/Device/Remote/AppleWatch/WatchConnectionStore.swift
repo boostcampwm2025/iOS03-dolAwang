@@ -24,6 +24,7 @@ final class WatchConnectionStore: StoreProtocol {
     enum Result {
         case setConnectionState(ConnectionState)
         case setIsReadyToCapture(Bool)
+        case setIsCaptureCompleted(Bool)
     }
 
     private let connectionManager: WatchConnectionManager
@@ -49,7 +50,7 @@ final class WatchConnectionStore: StoreProtocol {
         }
 
         self.connectionManager.onReceiveCaptureComplete = { [weak self] in
-            self?.state.isCaptureCompleted = true
+            self?.reduce(.setIsCaptureCompleted(true))
         }
     }
 
@@ -76,6 +77,8 @@ final class WatchConnectionStore: StoreProtocol {
 
         case .setIsReadyToCapture(let value):
             state.isReadyToCapture = value
+        case .setIsCaptureCompleted(let value):
+            state.isCaptureCompleted = value
         }
         self.state = state
     }
