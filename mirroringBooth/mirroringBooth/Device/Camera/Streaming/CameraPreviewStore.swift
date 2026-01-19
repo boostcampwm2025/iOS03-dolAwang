@@ -36,16 +36,16 @@ final class CameraPreviewStore: StoreProtocol {
         case resetCaptureCompleted
     }
 
-    private let browser: CameraDeviceSession
+    private let cameraDeviceSession: CameraDeviceSession
     private let cameraManager: CameraManager
     private(set) var state: State
 
     init(
-        browser: CameraDeviceSession,
+        cameraDeviceSession: CameraDeviceSession,
         manager: CameraManager,
         deviceName: String,
     ) {
-        self.browser = browser
+        self.cameraDeviceSession = cameraDeviceSession
         self.cameraManager = manager
         self.state = State(deviceName: deviceName)
     }
@@ -62,7 +62,7 @@ final class CameraPreviewStore: StoreProtocol {
         case .updateAngle(let rawValue):
             return [.updateAngle(rawValue)]
         case .captureCompleted:
-            browser.sendCommand(.allPhotosStored)
+            cameraDeviceSession.sendCommand(.allPhotosStored)
             return [.captureCompleted]
         case .resetCaptureCompleted:
             return [.resetCaptureCompleted]
@@ -97,16 +97,16 @@ private extension CameraPreviewStore {
         // 비디오 스트림 콜백
         cameraManager.onEncodedData = { data in
             guard !self.state.isTransferring else { return }
-            self.browser.sendStreamData(data)
+            self.cameraDeviceSession.sendStreamData(data)
         }
         // 촬영 명령 수신
-        browser.onCaptureCommand = {
+        cameraDeviceSession.onCaptureCommand = {
             self.cameraManager.capturePhoto()
         }
         // 일괄 전송 시작 명령 수신
-        browser.onStartTransferCommand = {
+        cameraDeviceSession.onStartTransferCommand = {
             self.state.isTransferring = true
-            self.cameraManager.sendAllPhotos(using: self.browser)
+            self.cameraManager.sendAllPhotos(using: self.cameraDeviceSession)
         }
         // 전송 완료
         cameraManager.onTransferCompleted = {
