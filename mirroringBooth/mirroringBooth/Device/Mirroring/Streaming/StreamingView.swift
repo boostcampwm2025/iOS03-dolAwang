@@ -85,7 +85,7 @@ struct StreamingView: View {
         }
         .homeAlert(
             isPresented: $showHomeAlert,
-            message: "촬영된 사진이 모두 사라집니다. 연결을 종료하시겠습니까?"
+            message: "촬영된 사진이 모두 사라집니다.\n연결을 종료하시겠습니까?"
         ) {
             router.reset()
         }
