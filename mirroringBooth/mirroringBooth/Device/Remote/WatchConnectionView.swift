@@ -16,7 +16,11 @@ struct WatchConnectionView: View {
         Group {
             if store.state.connectionState == .connected {
                 if store.state.isReadyToCapture {
-                    captureView
+                    if store.state.isCaptureCompleted {
+                        CompletionView()
+                    } else {
+                        captureView
+                    }
                 } else {
                     connectionView
                 }
