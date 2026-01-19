@@ -48,17 +48,22 @@ struct RemoteCaptureView: View {
                         .scaleEffect(buttonScale)
                 }
                 .frame(width: baseSize)
+                .contentShape(Circle())
                 .background {
                     if isDarkMode {
                         Circle()
                             .fill(Color.white)
                             .frame(width: baseSize * 1.1, height: baseSize * 1.1)
+                    } else {
+                        Circle()
+                            .fill(.clear)
+                            .frame(width: baseSize, height: baseSize)
                     }
                 }
             }
             .buttonStyle(.plain)
             .scaleEffect(buttonScale)
-            .gesture(magnificationGesture)
+            .simultaneousGesture(magnificationGesture)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .backgroundStyle()
@@ -68,14 +73,10 @@ struct RemoteCaptureView: View {
         MagnificationGesture()
             .onChanged { value in
                 let newScale = lastScale * value
-                buttonScale = min(max(newScale, 1.0), 2.0)
+                buttonScale = min(max(newScale, 1.0), 1.5) // 1배부터 1.5배까지 확대 가능
             }
             .onEnded { _ in
                 lastScale = buttonScale
             }
     }
-}
-
-#Preview {
-    RemoteCaptureView(advertiser: Advertiser(photoCacheManager: PhotoCacheManager.shared))
 }
