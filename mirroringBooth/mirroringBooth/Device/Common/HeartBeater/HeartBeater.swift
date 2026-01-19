@@ -31,7 +31,7 @@ final class HeartBeater {
 
     func start() {
         // 기존 타이머가 존재하면 정상적으로 제거 후 재시작
-        stop()
+        timer?.cancel()
         lastHeartbeat = Date()
         timer = DispatchSource.makeTimerSource(queue: queue)
         timer?.schedule(deadline: .now(), repeating: repeatInterval)
