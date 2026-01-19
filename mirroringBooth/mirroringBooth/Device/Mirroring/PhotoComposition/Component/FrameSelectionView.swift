@@ -11,7 +11,7 @@ import SwiftUI
 struct FrameSelectionView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
-    let store: CaptureResultStore
+    let store: PhotoCompositionStore
 
     private var isRegularSize: Bool {
         horizontalSizeClass == .regular && verticalSizeClass == .regular
@@ -86,7 +86,7 @@ private extension FrameSelectionView {
 
         if isCompact {
             LazyVGrid(columns: gridItems) {
-                ForEach(PhotoFrameLayout.allCases) { layout in
+                ForEach(LayoutAsset.allCases) { layout in
                     layoutButton(layout.icon) {
                         store.send(.selectLayout(layout))
                     }
@@ -94,7 +94,7 @@ private extension FrameSelectionView {
             }
         } else {
             HStack {
-                ForEach(PhotoFrameLayout.allCases) { layout in
+                ForEach(LayoutAsset.allCases) { layout in
                     layoutButton(layout.icon) {
                         store.send(.selectLayout(layout))
                     }

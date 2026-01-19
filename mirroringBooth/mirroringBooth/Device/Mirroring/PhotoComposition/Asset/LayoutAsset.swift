@@ -1,5 +1,5 @@
 //
-//  PhotoFrameLayout.swift
+//  LayoutAsset.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2026-01-13.
@@ -7,7 +7,7 @@
 
 import CoreGraphics
 
-enum PhotoFrameLayout: CaseIterable, Identifiable {
+enum LayoutAsset: CaseIterable, Identifiable {
     case twoByTwo, oneByOne, twoByOne, fourByOne, threeByTwo
 
     var id: Self { self }
