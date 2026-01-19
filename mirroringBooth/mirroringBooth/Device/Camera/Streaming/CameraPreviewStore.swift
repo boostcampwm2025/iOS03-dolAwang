@@ -62,6 +62,7 @@ final class CameraPreviewStore: StoreProtocol {
         case .updateAngle(let rawValue):
             return [.updateAngle(rawValue)]
         case .captureCompleted:
+            cameraManager.stopSession()
             browser.sendCommand(.allPhotosStored)
             return [.captureCompleted]
         case .resetCaptureCompleted:
