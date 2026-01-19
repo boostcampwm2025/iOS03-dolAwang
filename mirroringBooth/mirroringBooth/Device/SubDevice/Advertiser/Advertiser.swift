@@ -27,6 +27,7 @@ final class Advertiser: NSObject {
     var onReceivedStreamData: ((Data) -> Void)?
 
     var navigateToSelectModeCommandCallBack: (() -> Void)?
+    var navigateToRemoteCaptureCallBack: (() -> Void)?
 
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
@@ -157,6 +158,11 @@ final class Advertiser: NSObject {
                 }
             case .heartBeat:
                 heartBeater.beat()
+            case .navigateToRemoteCapture:
+                guard let navigateToRemoteCaptureCallBack else { return }
+                DispatchQueue.main.async {
+                    navigateToRemoteCaptureCallBack()
+                }
             }
         }
     }
