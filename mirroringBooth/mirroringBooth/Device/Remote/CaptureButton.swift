@@ -5,10 +5,13 @@
 //  Created by 최윤진 on 1/8/26.
 //
 
+import Combine
 import SwiftUI
 
 struct CaptureButton: View {
     @Environment(\.colorScheme) private var colorScheme
+    @State private var cancellable: AnyCancellable?
+    @State private var tapSubject: PassthroughSubject<Void, Never> = PassthroughSubject<Void, Never>()
     private let width: CGFloat
     var action: () -> Void
 
@@ -22,7 +25,7 @@ struct CaptureButton: View {
 
     var body: some View {
         Button {
-            action()
+            tapSubject.send(())
         } label: {
             ZStack {
                 Circle()
@@ -51,5 +54,18 @@ struct CaptureButton: View {
             }
         }
         .buttonStyle(.plain)
+        .onAppear {
+            if cancellable != nil { return }
+
+            cancellable = tapSubject
+                .throttle(for: .seconds(1), scheduler: RunLoop.main, latest: false)
+                .sink {
+                    action()
+                }
+        }
+        .onDisappear {
+            cancellable?.cancel()
+            cancellable = nil
+        }
     }
 }
