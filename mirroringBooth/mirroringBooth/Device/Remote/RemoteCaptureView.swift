@@ -38,7 +38,7 @@ struct RemoteCaptureView: View {
 
                         Image(systemName: "camera.fill")
                             .font(.title)
-                            .foregroundStyle(isDarkMode ? Color(.systemBackground) : .primary)
+                            .foregroundStyle(.black)
                             .bold()
                     }
                     .frame(width: buttonSize)
@@ -61,4 +61,8 @@ struct RemoteCaptureView: View {
         }
         .backgroundStyle()
     }
+}
+
+#Preview {
+    RemoteCaptureView(advertiser: Advertiser(photoCacheManager: PhotoCacheManager.shared))
 }
