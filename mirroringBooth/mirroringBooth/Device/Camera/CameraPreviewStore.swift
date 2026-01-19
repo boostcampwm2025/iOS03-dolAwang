@@ -57,7 +57,7 @@ final class CameraPreviewStore: StoreProtocol {
         case .startAnimation:
             return [.startAnimation]
         case .startSession:
-            setupCallbacks()
+            setupSubscriptions()
             return [.startSession]
         case .tapExitButton:
             cameraManager.stopSession()
@@ -95,7 +95,7 @@ final class CameraPreviewStore: StoreProtocol {
 }
 
 private extension CameraPreviewStore {
-    func setupCallbacks() {
+    func setupSubscriptions() {
         // 비디오 스트림 콜백
         cameraManager.onEncodedData = { data in
             guard !self.state.isTransferring else { return }
