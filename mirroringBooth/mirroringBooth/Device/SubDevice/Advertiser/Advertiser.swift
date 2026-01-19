@@ -160,9 +160,9 @@ extension Advertiser: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         if case .notConnected = state {
             disconnect()
-            if session === self.session, state == .connected {
-                heartBeater.start()
-            }
+        }
+        if session === self.session, state == .connected {
+            heartBeater.start()
         }
     }
 
