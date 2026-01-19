@@ -16,7 +16,7 @@ struct RemoteCaptureView: View {
     var body: some View {
         ZStack {
             Button {
-                // 촬영 커맨드 전송
+                advertiser.sendCommand(.capturePhoto)
             } label: {
                 ZStack {
                     Circle()
