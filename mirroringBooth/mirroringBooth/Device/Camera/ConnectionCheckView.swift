@@ -71,6 +71,7 @@ struct ConnectionCheckView: View {
                 Button {
                     showPreview = true
                     browser.sendCommand(.navigateToSelectMode)
+                    browser.sendRemoteCommand(.navigateToRemoteCapture)
                     shouldNavigateToCompletion = false
                 } label: {
                     Text("촬영 준비하기")
