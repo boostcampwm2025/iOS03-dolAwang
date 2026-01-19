@@ -20,6 +20,7 @@ final class Advertiser: NSObject {
     private let commandSession: MCSession
     private let advertiser: MCNearbyServiceAdvertiser
     private let photoCacheManager: PhotoCacheManager
+    private let heartBeater: HeartBeater
     let myDeviceName: String
 
     /// 수신된 스트림 데이터 콜백
@@ -33,6 +34,7 @@ final class Advertiser: NSObject {
         case startTransfer // 일괄 전송 시작
         case setRemoteMode // 원격 촬영 모드 설정
         case selectedTimerMode // 타이머 모드 선택
+        case heartBeat // 세션 생존 확인
     }
 
     /// 사진 수신 완료 콜백 (1장마다 호출)
@@ -83,6 +85,7 @@ final class Advertiser: NSObject {
             serviceType: serviceType
         )
         self.photoCacheManager = photoCacheManager
+        self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
 
         super.init()
         setup()
@@ -92,6 +95,7 @@ final class Advertiser: NSObject {
         session.delegate = self
         commandSession.delegate = self
         advertiser.delegate = self
+        heartBeater.delegate = self
     }
 
     func setupCacheManager() {
@@ -151,6 +155,8 @@ final class Advertiser: NSObject {
                 DispatchQueue.main.async {
                     self.onUpdateCaptureCount?()
                 }
+            case .heartBeat:
+                heartBeater.beat()
             }
         }
     }
@@ -159,7 +165,15 @@ final class Advertiser: NSObject {
 // MARK: - Session Delegate
 extension Advertiser: MCSessionDelegate {
 
-    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) { }
+    func session(
+        _ session: MCSession,
+        peer peerID: MCPeerID,
+        didChange state: MCSessionState
+    ) {
+        if session === self.session, state == .connected {
+            heartBeater.start()
+        }
+    }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         if session === self.session {

@@ -15,6 +15,7 @@ final class Browser: NSObject {
         case navigateToSelectMode
         case allPhotosStored // 사진 10장 모두 저장 완료
         case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
+        case heartBeat
     }
 
     enum SessionType: String {
@@ -30,6 +31,7 @@ final class Browser: NSObject {
     private let mirroringCommandSession: MCSession
     private let remoteSession: MCSession
     private let browser: MCNearbyServiceBrowser
+    private let heartBeater: HeartBeater
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
 
@@ -86,6 +88,7 @@ final class Browser: NSObject {
             encryptionPreference: .required
         )
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
+        self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
 
         super.init()
         setup()
@@ -96,6 +99,7 @@ final class Browser: NSObject {
         mirroringCommandSession.delegate = self
         remoteSession.delegate = self
         browser.delegate = self
+        heartBeater.delegate = self
     }
 
     func startSearching() {
@@ -246,7 +250,7 @@ extension Browser: MCSessionDelegate {
 
         let newState = logAndConvertState(state, for: peerID.displayName, sessionType: sessionTypeLabel)
 
-        // 미러링 세션이 연결되면 명령 세션을 초대합니다.
+        // 명령 세션이 연결되면 미러링 세션을 초대합니다.
         if sessionTypeLabel == "미러링 명령", newState == .connected {
             logger.info("미러링 커맨드 세션 연결 완료, 미러링 세션 초대 시작")
             browser.invitePeer(
@@ -261,6 +265,11 @@ extension Browser: MCSessionDelegate {
         let deviceType = discoveredPeers[peerID.displayName]?.type ?? .unknown
         discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
+
+        if session === mirroringSession,
+           state == .connected {
+            heartBeater.start()
+        }
 
         DispatchQueue.main.async {
             self.onDeviceFound?(device)
@@ -365,6 +374,8 @@ extension Browser: MCSessionDelegate {
                 DispatchQueue.main.async {
                     self.onSelectedTimerModeCommand?()
                 }
+            case .heartBeat:
+                heartBeater.beat()
             }
         }
     }
