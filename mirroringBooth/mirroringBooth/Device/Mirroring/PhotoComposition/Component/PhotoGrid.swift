@@ -97,9 +97,7 @@ private struct PhotoCell: View {
 
     var body: some View {
         ZStack {
-            LocalAsyncImage(url: url)
-                .frame(maxWidth: .infinity)
-                .clipped()
+            LocalAsyncImage(url: url, slotAspect: 4 / 3)
 
             if isSelected {
                 Color.selectionBlue.opacity(0.25)
