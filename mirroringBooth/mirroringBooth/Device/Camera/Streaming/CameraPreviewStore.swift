@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import Combine
 import Foundation
 
 @Observable
@@ -39,6 +40,7 @@ final class CameraPreviewStore: StoreProtocol {
     private let browser: Browser
     private let cameraManager: CameraManager
     private(set) var state: State
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         browser: Browser,
@@ -104,10 +106,14 @@ private extension CameraPreviewStore {
             self.cameraManager.capturePhoto()
         }
         // 일괄 전송 시작 명령 수신
-        browser.onStartTransferCommand = {
-            self.state.isTransferring = true
-            self.cameraManager.sendAllPhotos(using: self.browser)
-        }
+        browser.onStartTransferCommand
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                guard let self = self else { return }
+                self.state.isTransferring = true
+                self.cameraManager.sendAllPhotos(using: self.browser)
+            }
+            .store(in: &cancellables)
         // 전송 완료
         cameraManager.onTransferCompleted = {
             self.state.isTransferring = false
