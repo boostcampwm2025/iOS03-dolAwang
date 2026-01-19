@@ -19,7 +19,7 @@ struct LocalAsyncImage: View {
                     image
                         .resizable()
                         .scaledToFill()
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .aspectRatio(slotAspect, contentMode: .fit)
                         .clipped()
                 } else {
