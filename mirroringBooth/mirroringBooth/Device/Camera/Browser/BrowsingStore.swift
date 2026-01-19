@@ -46,10 +46,10 @@ final class BrowsingStore: StoreProtocol {
     }
 
     var state: State = .init()
-    let browser: Browser
+    let browser: CameraDeviceSession
     let watchConnectionManager: WatchConnectionManager
 
-    init(_ browser: Browser, _ watchConnectionManager: WatchConnectionManager) {
+    init(_ browser: CameraDeviceSession, _ watchConnectionManager: WatchConnectionManager) {
         self.browser = browser
         self.watchConnectionManager = watchConnectionManager
 

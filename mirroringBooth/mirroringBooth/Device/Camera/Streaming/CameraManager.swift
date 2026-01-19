@@ -89,7 +89,7 @@ final class CameraManager: NSObject {
     }
 
     /// 저장된 사진을 일괄 전송합니다.
-    func sendAllPhotos(using browser: Browser) {
+    func sendAllPhotos(using browser: CameraDeviceSession) {
         let total = capturedPhotos.count
         guard total > 0 else {
             logger.warning("전송할 사진이 없습니다.")

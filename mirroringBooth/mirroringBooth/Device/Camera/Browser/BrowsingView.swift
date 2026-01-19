@@ -11,7 +11,7 @@ struct BrowsingView: View {
 
     @Environment(\.scenePhase) private var scenePhase
     @Environment(Router.self) var router: Router
-    @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
+    @State private var store = BrowsingStore(CameraDeviceSession(), WatchConnectionManager())
 
     var body: some View {
         ZStack {

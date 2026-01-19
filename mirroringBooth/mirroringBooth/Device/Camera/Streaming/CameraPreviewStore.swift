@@ -36,12 +36,12 @@ final class CameraPreviewStore: StoreProtocol {
         case resetCaptureCompleted
     }
 
-    private let browser: Browser
+    private let browser: CameraDeviceSession
     private let cameraManager: CameraManager
     private(set) var state: State
 
     init(
-        browser: Browser,
+        browser: CameraDeviceSession,
         manager: CameraManager,
         deviceName: String,
     ) {

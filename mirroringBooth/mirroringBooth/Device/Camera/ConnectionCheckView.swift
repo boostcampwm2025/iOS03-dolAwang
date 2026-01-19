@@ -12,13 +12,13 @@ struct ConnectionCheckView: View {
     private let cameraDevice: String
     private let mirroringDevice: String
     private let remoteDevice: String?
-    private let browser: Browser
+    private let browser: CameraDeviceSession
     private let cameraManager = CameraManager()
 
     @State private var showPreview = false
     @State private var shouldNavigateToCompletion = false
 
-    init(_ list: ConnectionList, browser: Browser) {
+    init(_ list: ConnectionList, browser: CameraDeviceSession) {
         self.cameraDevice = list.cameraName
         self.mirroringDevice = list.mirroringName
         self.remoteDevice = list.remoteName

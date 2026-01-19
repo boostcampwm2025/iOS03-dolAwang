@@ -10,7 +10,7 @@ import OSLog
 
 /// 스트림 송신 측 (iPhone)
 /// 다른 기기를 탐색하고 연결하여 스트림 데이터(비디오/사진)를 전송
-final class Browser: NSObject {
+final class CameraDeviceSession: NSObject {
     enum MirroringDeviceCommand: String {
         case navigateToSelectMode
         case allPhotosStored // 사진 10장 모두 저장 완료
@@ -242,7 +242,7 @@ final class Browser: NSObject {
 }
 
 // MARK: - Session Delegate
-extension Browser: MCSessionDelegate {
+extension CameraDeviceSession: MCSessionDelegate {
 
     func session(
         _ session: MCSession,
@@ -401,7 +401,7 @@ extension Browser: MCSessionDelegate {
 }
 
 // MARK: - Browser Delegate
-extension Browser: MCNearbyServiceBrowserDelegate {
+extension CameraDeviceSession: MCNearbyServiceBrowserDelegate {
     func browser(_ browser: MCNearbyServiceBrowser,
                  foundPeer peerID: MCPeerID,
                  withDiscoveryInfo info: [String: String]?) {
@@ -438,7 +438,7 @@ extension Browser: MCNearbyServiceBrowserDelegate {
 }
 
 // MARK: - WatchConnectionManager
-extension Browser {
+extension CameraDeviceSession {
     func capturePhoto() {
         self.onCaptureCommand?()
         self.sendCommand(.onUpdateCaptureCount)
