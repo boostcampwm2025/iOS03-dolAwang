@@ -38,7 +38,10 @@ struct StreamingCompletionView: View {
         }
         .navigationBarBackButtonHidden()
         .backgroundStyle()
-        .homeAlert(isPresented: $showHomeAlert) {
+        .homeAlert(
+            isPresented: $showHomeAlert,
+            message: "편집이 완료된 사진을 이 디바이스에 저장하고 싶다면\n이 화면에서 대기해주세요."
+        ) {
             router.reset()
         }
     }
