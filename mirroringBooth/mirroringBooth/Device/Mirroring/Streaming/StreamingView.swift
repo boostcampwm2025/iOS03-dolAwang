@@ -118,7 +118,7 @@ struct StreamingView: View {
 
                         VStack(alignment: .trailing, spacing: 0) {
                             CaptureCountBadge(
-                                current: store.state.captureCount,
+                                current: store.state.capturePhotoCount,
                                 total: store.state.totalCaptureCount,
                                 isCompact: isCompact
                             )
