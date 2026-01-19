@@ -84,11 +84,11 @@ struct BrowsingView: View {
                             router.push(
                                 to: CameraRoute.connectionList(
                                     ConnectionList(
-                                        cameraName: store.browser.myDeviceName,
+                                        cameraName: store.cameraDeviceSession.myDeviceName,
                                         mirroringName: mirroringDevice.id,
                                         remoteName: store.state.remoteDevice?.id ?? nil
                                     ),
-                                    store.browser
+                                    store.cameraDeviceSession
                                 )
                             )
                         }

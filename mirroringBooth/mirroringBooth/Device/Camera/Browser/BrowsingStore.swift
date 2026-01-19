@@ -46,11 +46,11 @@ final class BrowsingStore: StoreProtocol {
     }
 
     var state: State = .init()
-    let browser: CameraDeviceSession
+    let cameraDeviceSession: CameraDeviceSession
     let watchConnectionManager: WatchConnectionManager
 
-    init(_ browser: CameraDeviceSession, _ watchConnectionManager: WatchConnectionManager) {
-        self.browser = browser
+    init(_ session: CameraDeviceSession, _ watchConnectionManager: WatchConnectionManager) {
+        self.cameraDeviceSession = session
         self.watchConnectionManager = watchConnectionManager
 
         setupBrowser()
@@ -58,15 +58,15 @@ final class BrowsingStore: StoreProtocol {
     }
 
     private func setupBrowser() {
-        browser.onDeviceFound = { [weak self] device in
+        cameraDeviceSession.browser.onDeviceFound = { [weak self] device in
             self?.reduce(.addDiscoveredDevice(device))
         }
 
-        browser.onDeviceLost = { [weak self] device in
+        cameraDeviceSession.browser.onDeviceLost = { [weak self] device in
             self?.reduce(.removeDiscoveredDevice(device))
         }
 
-        browser.onDeviceConnected = { [weak self] device in
+        cameraDeviceSession.onDeviceConnected = { [weak self] device in
             switch self?.state.currentTarget {
             case .mirroring:
                 self?.reduce(.setMirroringDevice(device))
@@ -79,15 +79,15 @@ final class BrowsingStore: StoreProtocol {
             self?.reduce(.setIsConnecting(false))
         }
 
-        browser.onDeviceConnectionFailed = { [weak self] in
+        cameraDeviceSession.onDeviceConnectionFailed = { [weak self] in
             self?.reduce(.setIsConnecting(false))
         }
 
-        browser.onRemoteModeCommand = { [weak self] in
+        cameraDeviceSession.onRemoteModeCommand = { [weak self] in
             self?.watchConnectionManager.prepareWatchToCapture()
         }
 
-        browser.onSelectedTimerModeCommand = { [weak self] in
+        cameraDeviceSession.onSelectedTimerModeCommand = { [weak self] in
             // 리모트 기기가 워치인 경우 워치에게 연결 해제 알림
             if self?.state.remoteDevice?.type == .watch {
                 self?.watchConnectionManager.sendDisconnectionNotification()
@@ -114,7 +114,7 @@ final class BrowsingStore: StoreProtocol {
         }
 
         watchConnectionManager.onReceiveCaptureRequest = { [ weak self] in
-            self?.browser.capturePhoto()
+            self?.cameraDeviceSession.capturePhoto()
         }
 
         watchConnectionManager.onReceiveConnectionAck = { [weak self] in
@@ -132,11 +132,11 @@ final class BrowsingStore: StoreProtocol {
 
         switch intent {
         case .entry:
-            browser.startSearching()
+            cameraDeviceSession.browser.startSearching()
             watchConnectionManager.start()
             return [.startAnimation]
         case .exit:
-            browser.stopSearching()
+            cameraDeviceSession.browser.stopSearching()
             watchConnectionManager.stop()
         case .didSelect(let device):
             // 1. 현재 타겟에 맞는 연결된 기기 확인
@@ -152,14 +152,14 @@ final class BrowsingStore: StoreProtocol {
                 if device.type == .watch {
                     watchConnectionManager.sendConnectionRequest()
                 } else {
-                    browser.connect(to: device.id, as: state.currentTarget)
+                    cameraDeviceSession.connect(to: device.id, as: state.currentTarget)
                     result.append(.setIsConnecting(true))
                 }
             }
 
         case .cancel:
             // 1. 모든 연결 해제
-            browser.disconnect()
+            cameraDeviceSession.disconnect()
 
             // 워치가 연결되어 있다면 연결 해제 요청 전송
             if state.remoteDevice?.type == .watch {

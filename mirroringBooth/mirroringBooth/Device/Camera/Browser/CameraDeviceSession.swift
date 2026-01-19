@@ -24,14 +24,11 @@ final class CameraDeviceSession: NSObject {
 
     private let logger = Logger.browser
 
-    private let serviceType: String
     private let peerID: MCPeerID
     private var mirroringSession: MCSession?
     private var mirroringCommandSession: MCSession?
     private var remoteSession: MCSession?
-    private let browser: MCNearbyServiceBrowser
-
-    private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
+    let browser: Browser
 
     /// 현재 연결 시도 중인 미러링 디바이스 ID
     private var targetMirroringDeviceID: String?
@@ -40,10 +37,6 @@ final class CameraDeviceSession: NSObject {
     private var targetRemoteDeviceID: String?
 
     let myDeviceName: String
-
-    var onDeviceFound: ((NearbyDevice) -> Void)?
-
-    var onDeviceLost: ((NearbyDevice) -> Void)?
 
     var onDeviceConnected: ((NearbyDevice) -> Void)?
 
@@ -67,32 +60,13 @@ final class CameraDeviceSession: NSObject {
     }
 
     init(serviceType: String = "mirroringbooth") {
-        self.serviceType = serviceType
-        self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: false, with: UIDevice.current.deviceType)
-        self.peerID = MCPeerID(displayName: myDeviceName)
-        self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
-
-        super.init()
-        browser.delegate = self
-    }
-
-    func startSearching() {
-        browser.startBrowsingForPeers()
-        logger.info("주변 기기를 검색합니다.")
-    }
-
-    func stopSearching() {
-        browser.stopBrowsingForPeers()
-        logger.info("주변 기기 검색을 중지합니다.")
+        myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: false, with: UIDevice.current.deviceType)
+        peerID = MCPeerID(displayName: myDeviceName)
+        browser = Browser(peerID: peerID)
     }
 
     /// 특정 기기에게 연결 요청을 전송합니다.
     func connect(to deviceID: String, as useType: DeviceUseType) {
-        guard let (peer, _) = discoveredPeers[deviceID] else {
-            logger.warning("[연결 실패] 기기를 찾을 수 없음 : \(deviceID)")
-            return
-        }
-
         var targetSession: MCSession?
         switch useType {
         case .mirroring:
@@ -123,12 +97,10 @@ final class CameraDeviceSession: NSObject {
             targetSession = remoteSession
         }
         guard let targetSession else { return }
-
-        browser.invitePeer(
-            peer,
-            to: targetSession,
-            withContext: SessionType.command.rawValue.data(using: .utf8),
-            timeout: 10
+        browser.connect(
+            to: deviceID,
+            session: targetSession,
+            withContext: SessionType.command.rawValue.data(using: .utf8)
         )
         logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
     }
@@ -256,21 +228,19 @@ extension CameraDeviceSession: MCSessionDelegate {
         // 미러링 세션이 연결되면 명령 세션을 초대합니다.
         if let mirroringSession, sessionTypeLabel == "미러링 명령", newState == .connected {
             logger.info("미러링 커맨드 세션 연결 완료, 미러링 세션 초대 시작")
-            browser.invitePeer(
-                peerID,
-                to: mirroringSession,
-                withContext: SessionType.streaming.rawValue.data(using: .utf8),
-                timeout: 10
+            browser.connect(
+                to: peerID.displayName,
+                session: mirroringSession,
+                withContext: SessionType.streaming.rawValue.data(using: .utf8)
             )
             return
         }
 
-        let deviceType = discoveredPeers[peerID.displayName]?.type ?? .unknown
-        discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
+        let deviceType = browser.getDeviceType(of: peerID)
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
 
         DispatchQueue.main.async {
-            self.onDeviceFound?(device)
+            self.browser.onDeviceFound?(device)
             self.handleConnectionStateChange(newState, device: device, session: session, peerID: peerID)
         }
     }
@@ -398,43 +368,6 @@ extension CameraDeviceSession: MCSessionDelegate {
         withError error: (any Error)?
     ) {}
 
-}
-
-// MARK: - Browser Delegate
-extension CameraDeviceSession: MCNearbyServiceBrowserDelegate {
-    func browser(_ browser: MCNearbyServiceBrowser,
-                 foundPeer peerID: MCPeerID,
-                 withDiscoveryInfo info: [String: String]?) {
-        logger.info("발견된 기기: \(peerID.displayName)")
-        guard let deviceTypeString = info?["deviceType"],
-              let deviceType = DeviceType.from(string: deviceTypeString)
-        else { return }
-
-        self.discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
-        let device = NearbyDevice(
-            id: peerID.displayName,
-            state: .notConnected,
-            type: deviceType
-        )
-        DispatchQueue.main.async {
-            self.onDeviceFound?(device)
-        }
-    }
-
-    func browser(_ browser: MCNearbyServiceBrowser,
-                 lostPeer peerID: MCPeerID) {
-        logger.info("사라진 기기: \(peerID.displayName)")
-        let deviceType = self.discoveredPeers[peerID.displayName]?.type ?? .unknown
-        self.discoveredPeers.removeValue(forKey: peerID.displayName)
-        let device = NearbyDevice(
-            id: peerID.displayName,
-            state: .notConnected,
-            type: deviceType
-        )
-        DispatchQueue.main.async {
-            self.onDeviceLost?(device)
-        }
-    }
 }
 
 // MARK: - WatchConnectionManager
