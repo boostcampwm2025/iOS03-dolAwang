@@ -77,7 +77,7 @@ struct ResultView: View {
                     // TODO: Airdrop 액션
                 }
             }
-//                .hidden() // 저장 로직 추가 후 제거
+            .hidden() // 저장 로직 추가 후 제거
 
             Spacer()
         }
