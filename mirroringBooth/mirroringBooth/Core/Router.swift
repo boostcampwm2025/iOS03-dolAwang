@@ -46,4 +46,5 @@ enum MirroringRoute: Hashable {
 
 enum RemoteRoute: Hashable {
     case remoteCapture(Advertiser)
+    case completion
 }
