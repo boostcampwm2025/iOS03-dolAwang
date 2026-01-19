@@ -47,9 +47,6 @@ struct ModeSelectionView: View {
             DisconnectButtonView {
                 showHomeAlert = true
             }
-            .frame(maxWidth: .infinity, alignment: .topLeading)
-            .padding(.vertical)
-            .padding(.horizontal, 20)
 
             TitleView()
 

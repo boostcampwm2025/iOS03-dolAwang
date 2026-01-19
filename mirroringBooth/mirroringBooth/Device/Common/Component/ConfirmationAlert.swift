@@ -8,13 +8,16 @@
 import SwiftUI
 
 struct ConfirmationAlert: View {
+    let message: String
     let onConfirm: () -> Void
     let onCancel: () -> Void
 
     init(
+        message: String,
         onConfirm: @escaping () -> Void,
         onCancel: @escaping () -> Void
     ) {
+        self.message = message
         self.onConfirm = onConfirm
         self.onCancel = onCancel
     }
@@ -37,7 +40,7 @@ struct ConfirmationAlert: View {
                         .font(.title2.bold())
                         .foregroundStyle(.primary)
 
-                    Text("진행 중인 작업이 사라질 수 있습니다.\n정말 나가시겠습니까?")
+                    Text(message)
                         .font(.body)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(.primary.opacity(0.8))
@@ -81,11 +84,13 @@ struct ConfirmationAlert: View {
 extension View {
     func homeAlert(
         isPresented: Binding<Bool>,
+        message: String = "진행 중인 작업이 사라질 수 있습니다.\n정말 나가시겠습니까?",
         onConfirm: @escaping () -> Void
     ) -> some View {
         self.overlay {
             if isPresented.wrappedValue {
                 ConfirmationAlert(
+                    message: message,
                     onConfirm: {
                         isPresented.wrappedValue = false
                         onConfirm()

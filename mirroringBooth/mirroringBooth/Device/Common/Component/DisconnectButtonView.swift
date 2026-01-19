@@ -27,5 +27,8 @@ struct DisconnectButtonView: View {
                     .foregroundStyle(Color.borderLine)
             )
         }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .padding(.vertical)
+        .padding(.horizontal, 20)
     }
 }
