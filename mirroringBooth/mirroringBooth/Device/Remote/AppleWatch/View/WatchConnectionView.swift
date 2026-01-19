@@ -17,7 +17,9 @@ struct WatchConnectionView: View {
             if store.state.connectionState == .connected {
                 if store.state.isReadyToCapture {
                     if store.state.isCaptureCompleted {
-                        CompletionView()
+                        CompletionView {
+                            store.send(.disconnect)
+                        }
                     } else {
                         captureView
                     }

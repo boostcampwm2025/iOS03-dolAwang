@@ -64,7 +64,9 @@ struct RootView: View {
                     RemoteCaptureView(advertiser: advertiser)
                         .environment(router)
                 case .completion:
-                    CompletionView()
+                    CompletionView {
+                        router.reset()
+                    }
                 }
             }
         }
