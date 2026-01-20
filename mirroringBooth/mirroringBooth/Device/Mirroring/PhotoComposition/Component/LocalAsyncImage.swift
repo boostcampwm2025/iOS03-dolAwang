@@ -11,10 +11,18 @@ struct LocalAsyncImage: View {
     let url: URL
     var slotAspect: CGFloat?
     @State private var image: Image?
+    @State private var loadFailed = false
 
     var body: some View {
         Group {
-            if let image = image {
+            if loadFailed {
+                Color.gray.opacity(0.3)
+                    .overlay {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.largeTitle)
+                            .foregroundStyle(.secondary)
+                    }
+            } else if let image = image {
                 if let slotAspect {
                     image
                         .resizable()
@@ -47,7 +55,7 @@ struct LocalAsyncImage: View {
                 self.image = Image(uiImage: loadedImage)
             }
         } else {
-            self.image = Image(systemName: "exclamationmark.triangle")
+            self.loadFailed = true
         }
     }
 }
