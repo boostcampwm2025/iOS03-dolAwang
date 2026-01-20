@@ -62,7 +62,6 @@ final class HeartBeater {
             stop()
             return
         }
-        Logger.heartBeater.debug("\(Date().timeIntervalSince(lastHeartbeat))")
         if Date().timeIntervalSince(lastHeartbeat) > self.timeout {
             Logger.heartBeater.warning("Heartbeat timed out")
             stop()
