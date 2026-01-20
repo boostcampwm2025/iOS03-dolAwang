@@ -27,15 +27,17 @@ struct PhotoFramePreview: View {
                 // 2. 사진 슬롯들
                 let slots = information.layout.frameRects().map { $0.denormalized(in: size) }
                 for (index, slot) in slots.enumerated() {
-                    guard index < information.photos.count,
-                          let photoData = information.photos[index].imageData,
-                          let photo = UIImage(data: photoData)
-                    else { continue }
-
                     context.drawLayer { layer in
                         layer.clip(to: Path(roundedRect: slot, cornerRadius: 5))
-                        let target = aspectFillRect(for: photo.size, into: slot)
-                        layer.draw(Image(uiImage: photo), in: target)
+
+                        if index < information.photos.count,
+                           let photoData = information.photos[index].imageData,
+                           let photo = UIImage(data: photoData) {
+                            let target = aspectFillRect(for: photo.size, into: slot)
+                            layer.draw(Image(uiImage: photo), in: target)
+                        } else {
+                            layer.fill(Path(roundedRect: slot, cornerRadius: 5), with: .color(.white.opacity(0.5)))
+                        }
                     }
                 }
             }
