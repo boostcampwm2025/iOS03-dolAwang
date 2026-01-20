@@ -104,7 +104,9 @@ struct BrowsingView: View {
         }
         .onAppear {
             store.send(.entry)
-            rootStore.browser = store.browser
+            if rootStore.browser == nil {
+                rootStore.browser = store.browser
+            }
             store.browser.onHeartbeatTimeout = {
                 rootStore.send(.showTimeoutAlert(true))
             }

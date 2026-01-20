@@ -33,6 +33,8 @@ final class RootStore: StoreProtocol {
         case .disconnect:
             advertiser?.disconnect()
             browser?.disconnect()
+            advertiser = nil
+            browser = nil
             return []
         }
     }
