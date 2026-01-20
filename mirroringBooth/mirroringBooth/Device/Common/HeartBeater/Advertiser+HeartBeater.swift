@@ -11,6 +11,6 @@ extension Advertiser: HeartBeaterDelegate {
     }
 
     func onTimeout() {
-        // TODO: on timeout action needed
+        onHeartBeatTimeout?()
     }
 }
