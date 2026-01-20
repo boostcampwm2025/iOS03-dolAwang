@@ -26,10 +26,11 @@ struct RemoteConnectionView: View {
             }
             Spacer()
         }
-        .navigationBarBackButtonHidden()
         .backgroundStyle()
         .onAppear {
-            advertiser.navigateToRemoteCaptureCallBack = {
+            // 리모트 모드 선택 시 촬영 뷰로 이동
+            advertiser.navigateToRemoteCaptureCallBack = { [weak router] in
+                guard let router else { return }
                 DispatchQueue.main.async {
                     router.push(to: RemoteRoute.remoteCapture(advertiser))
                 }
