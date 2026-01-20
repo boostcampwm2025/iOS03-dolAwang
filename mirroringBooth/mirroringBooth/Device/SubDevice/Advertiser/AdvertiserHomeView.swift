@@ -46,6 +46,7 @@ struct AdvertiserHomeView: View {
         .padding(.horizontal)
         .onAppear {
             store.send(.onAppear)
+            rootStore.advertiser = store.advertiser
             store.advertiser.onHeartBeatTimeout = {
                 rootStore.send(.showTimeoutAlert(true))
             }

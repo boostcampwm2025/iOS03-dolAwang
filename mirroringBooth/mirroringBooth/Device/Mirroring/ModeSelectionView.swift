@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ModeSelectionView: View {
     @Environment(Router.self) var router: Router
+    @Environment(RootStore.self) private var rootStore
     private let advertiser: Advertiser
 
     @State private var showHomeAlert: Bool = false
@@ -82,6 +83,7 @@ struct ModeSelectionView: View {
         .backgroundStyle()
         .homeAlert(isPresented: $showHomeAlert) {
             router.reset()
+            rootStore.send(.disconnect)
         }
     }
 }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ResultView: View {
     @Environment(Router.self) var router: Router
+    @Environment(RootStore.self) private var rootStore
     @State private var showHomeAlert: Bool = false
 
     @State private var scale: CGFloat = 1.0
@@ -86,6 +87,7 @@ struct ResultView: View {
         .backgroundStyle()
         .homeAlert(isPresented: $showHomeAlert) {
             router.reset()
+            rootStore.send(.disconnect)
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
