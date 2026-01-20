@@ -9,18 +9,15 @@ import SwiftUI
 
 struct ConfirmationAlert: View {
     let message: String
-    let cancellable: Bool
     let onConfirm: () -> Void
-    let onCancel: () -> Void
+    let onCancel: (() -> Void)?
 
     init(
         message: String,
-        cancellable: Bool = true,
         onConfirm: @escaping () -> Void,
-        onCancel: @escaping () -> Void
+        onCancel: (() -> Void)?
     ) {
         self.message = message
-        self.cancellable = cancellable
         self.onConfirm = onConfirm
         self.onCancel = onCancel
     }
@@ -30,7 +27,7 @@ struct ConfirmationAlert: View {
             Color.black.opacity(0.7)
                 .ignoresSafeArea()
                 .onTapGesture {
-                    onCancel()
+                    onCancel?()
                 }
 
             VStack(spacing: 24) {
@@ -50,9 +47,9 @@ struct ConfirmationAlert: View {
                 }
 
                 HStack(spacing: 16) {
-                    if cancellable {
+                    if onCancel != nil {
                         Button {
-                            onCancel()
+                            onCancel?()
                         } label: {
                             Text("계속하기")
                                 .frame(maxWidth: .infinity)
@@ -97,12 +94,11 @@ extension View {
             if isPresented.wrappedValue {
                 ConfirmationAlert(
                     message: message,
-                    cancellable: cancellable,
                     onConfirm: {
                         isPresented.wrappedValue = false
                         onConfirm()
                     },
-                    onCancel: {
+                    onCancel: !cancellable ? nil : {
                         isPresented.wrappedValue = false
                     }
                 )
