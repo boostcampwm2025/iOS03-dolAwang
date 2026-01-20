@@ -34,6 +34,7 @@ struct CompletionView: View {
                 }
         }
         #if os(iOS)
+        .navigationBarBackButtonHidden()
         .backgroundStyle()
         #endif
     }
