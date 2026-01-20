@@ -103,7 +103,7 @@ final class StreamingStore: StoreProtocol {
             self?.send(.capturePhotoCount)
         }
 
-        // 10장 모두 저장 완료 콜백 (iPhone에서 전송)
+        // 10장 사진 저장 시작
         advertiser.onAllPhotosStored = { [weak self] in
             self?.send(.startTransfer)
         }
@@ -138,6 +138,7 @@ final class StreamingStore: StoreProtocol {
             let newCount = state.receivedPhotoCount + 1
             result.append(.receivedPhotoCountUpdated(newCount))
             if newCount >= state.totalCaptureCount {
+                advertiser.stopHeartBeating()
                 result.append(.phaseChanged(.completed))
             }
 

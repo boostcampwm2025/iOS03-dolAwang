@@ -70,6 +70,9 @@ final class Browser: NSObject {
     /// 타이머 모드 선택 명령 수신 콜백
     var onSelectedTimerModeCommand: (() -> Void)?
 
+    /// heartbeat 메시지 타임아웃
+    var onHeartbeatTimeout: (() -> Void)?
+
     /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
     var isVideoSender: Bool {
         UIDevice.current.userInterfaceIdiom == .phone
@@ -419,6 +422,8 @@ extension Browser: MCSessionDelegate {
                 }
             case .heartBeat:
                 heartBeater.beat()
+            case .stopHeartBeat:
+                heartBeater.stop()
             }
         }
     }

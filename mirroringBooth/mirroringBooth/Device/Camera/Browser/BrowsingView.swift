@@ -12,6 +12,7 @@ struct BrowsingView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.colorScheme) private var colorScheme
     @Environment(Router.self) var router: Router
+    @Environment(RootStore.self) var rootStore: RootStore
     @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
 
     var body: some View {
@@ -114,6 +115,9 @@ struct BrowsingView: View {
         }
         .onAppear {
             store.send(.entry)
+            store.browser.onHeartbeatTimeout = {
+                rootStore.send(.showTimeoutAlert(true))
+            }
         }
         .onDisappear {
             store.send(.exit)

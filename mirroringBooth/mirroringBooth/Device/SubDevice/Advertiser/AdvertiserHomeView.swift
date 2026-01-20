@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AdvertiserHomeView: View {
     @Environment(Router.self) var router: Router
+    @Environment(RootStore.self) var rootStore: RootStore
     @State private var store = AdvertiserHomeStore(
         Advertiser(
             photoCacheManager: PhotoCacheManager.shared
@@ -45,6 +46,9 @@ struct AdvertiserHomeView: View {
         .padding(.horizontal)
         .onAppear {
             store.send(.onAppear)
+            store.advertiser.onHeartBeatTimeout = { [weak rootStore] in
+                rootStore?.send(.showTimeoutAlert(true))
+            }
         }
         .onDisappear {
             store.send(.exit)

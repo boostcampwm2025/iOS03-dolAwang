@@ -11,6 +11,8 @@ import SwiftUI
 
 struct CameraPreview: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(Router.self) private var router
+    @Environment(RootStore.self) private var rootStore
     @State var store: CameraPreviewStore
     @State private var showHomeAlert: Bool = false
 
@@ -72,6 +74,17 @@ struct CameraPreview: View {
         ) {
             store.send(.tapExitButton)
             dismiss()
+        }
+        .homeAlert(
+            isPresented: Binding(
+                get: { rootStore.state.showTimeoutAlert },
+                set: { rootStore.send(.showTimeoutAlert($0)) }
+            ),
+            message: "기기 연결이 끊겼습니다.",
+            cancellable: false
+        ) {
+            router.reset()
+            rootStore.send(.showTimeoutAlert(false))
         }
     }
 

@@ -10,12 +10,12 @@ import SwiftUI
 struct ConfirmationAlert: View {
     let message: String
     let onConfirm: () -> Void
-    let onCancel: () -> Void
+    let onCancel: (() -> Void)?
 
     init(
         message: String,
         onConfirm: @escaping () -> Void,
-        onCancel: @escaping () -> Void
+        onCancel: (() -> Void)?
     ) {
         self.message = message
         self.onConfirm = onConfirm
@@ -27,7 +27,7 @@ struct ConfirmationAlert: View {
             Color.black.opacity(0.3)
                 .ignoresSafeArea()
                 .onTapGesture {
-                    onCancel()
+                    onCancel?()
                 }
 
             VStack(spacing: 24) {
@@ -48,17 +48,18 @@ struct ConfirmationAlert: View {
                 }
 
                 HStack(spacing: 16) {
-                    Button {
-                        onCancel()
-                    } label: {
-                        Text("계속하기")
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(.gray.opacity(0.4))
-                            .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    if onCancel != nil {
+                        Button {
+                            onCancel?()
+                        } label: {
+                            Text("계속하기")
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 14)
+                                .background(.gray.opacity(0.4))
+                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
                     }
-
                     Button {
                         onConfirm()
                     } label: {
@@ -87,6 +88,7 @@ extension View {
     func homeAlert(
         isPresented: Binding<Bool>,
         message: String = "진행 중인 작업이 사라질 수 있습니다.\n정말 나가시겠습니까?",
+        cancellable: Bool = true,
         onConfirm: @escaping () -> Void
     ) -> some View {
         self.overlay {
@@ -97,7 +99,7 @@ extension View {
                         isPresented.wrappedValue = false
                         onConfirm()
                     },
-                    onCancel: {
+                    onCancel: !cancellable ? nil : {
                         isPresented.wrappedValue = false
                     }
                 )
