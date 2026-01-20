@@ -17,10 +17,12 @@ extension Browser: HeartBeaterDelegate {
 
     func onTimeout(_ sender: HeartBeater) {
         if sender === heartBeater {
+            disconnect(useType: .mirroring)
             DispatchQueue.main.async {
                 self.onHeartbeatTimeout?()
             }
         } else if sender === remoteHeartBeater {
+            disconnect(useType: .remote)
             DispatchQueue.main.async {
                 self.onRemoteHeartbeatTimeout?()
             }

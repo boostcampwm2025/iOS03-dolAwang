@@ -17,6 +17,8 @@ struct ConnectionCheckView: View {
 
     @State private var showPreview = false
     @State private var shouldNavigateToCompletion = false
+    @State private var onMirroringDisconnected: Bool = false
+    @State private var showRemoteDisconnectedAlert: Bool = false
 
     init(_ list: ConnectionList, browser: Browser) {
         self.cameraDevice = list.cameraName
@@ -111,6 +113,25 @@ struct ConnectionCheckView: View {
             )
         }
         .backgroundStyle()
+        .onAppear {
+            browser.onHeartbeatTimeout = {
+                onMirroringDisconnected = true
+            }
+            browser.onRemoteHeartbeatTimeout = {
+                showRemoteDisconnectedAlert = true
+            }
+        }
+        .onChange(of: onMirroringDisconnected) {
+            router.pop()
+        }
+        .homeAlert(
+            isPresented: $showRemoteDisconnectedAlert,
+            message: "리모트 기기 연결이 끊겼습니다.",
+            confirmButtonText: "확인",
+            cancellable: false
+        ) {
+            showRemoteDisconnectedAlert = false
+        }
     }
 }
 

@@ -66,6 +66,9 @@ final class BrowsingStore: StoreProtocol {
 
         browser.onDeviceLost = { [weak self] device in
             self?.reduce(.removeDiscoveredDevice(device))
+            if device == self?.state.mirroringDevice {
+                self?.reduce(.setCurrentTarget(.mirroring))
+            }
         }
 
         browser.onDeviceConnected = { [weak self] device in
@@ -154,7 +157,20 @@ final class BrowsingStore: StoreProtocol {
         case .entry:
             browser.startSearching()
             watchConnectionManager.start()
-            return [.startAnimation]
+            result.append(.startAnimation)
+            if !browser.isMirroringSessionActive {
+                if let mirroringDevice = state.mirroringDevice {
+                    result.append(.setMirroringDevice(nil))
+                    result.append(.removeDiscoveredDevice(mirroringDevice))
+                }
+                result.append(.setCurrentTarget(.mirroring))
+            } else if !browser.isRemoteSessionActive {
+                if let remoteDevice = state.remoteDevice {
+                    result.append(.setRemoteDevice(nil))
+                    result.append(.removeDiscoveredDevice(remoteDevice))
+                }
+                result.append(.setCurrentTarget(.remote))
+            }
         case .exit:
             browser.stopSearching()
             watchConnectionManager.stop()

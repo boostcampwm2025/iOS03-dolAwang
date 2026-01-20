@@ -38,8 +38,10 @@ final class Browser: NSObject {
     private let serviceType: String
     private let peerID: MCPeerID
     private var mirroringSession: MCSession?
+    var isMirroringSessionActive: Bool { mirroringSession?.connectedPeers.count == 1 }
     private var mirroringCommandSession: MCSession?
     private var remoteSession: MCSession?
+    var isRemoteSessionActive: Bool { remoteSession?.connectedPeers.count == 1 }
     private let browser: MCNearbyServiceBrowser
     let heartBeater: HeartBeater
     var remoteHeartBeater: HeartBeater?
