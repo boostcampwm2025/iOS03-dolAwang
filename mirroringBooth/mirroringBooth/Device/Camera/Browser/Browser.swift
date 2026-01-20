@@ -25,6 +25,7 @@ final class Browser: NSObject {
         case navigateToRemoteComplete
         case navigateToRemoteConnected
         case navigateToHome
+        case heartBeat
     }
 
     enum SessionType: String {

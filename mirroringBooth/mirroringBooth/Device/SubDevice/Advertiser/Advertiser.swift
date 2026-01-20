@@ -208,6 +208,8 @@ final class Advertiser: NSObject {
             DispatchQueue.main.async {
                 navigateToHomeCallback()
             }
+        case .heartBeat:
+            heartBeater.beat()
         }
     }
 }
@@ -219,7 +221,7 @@ extension Advertiser: MCSessionDelegate {
         if case .notConnected = state {
             disconnect()
         }
-        if session === self.session, state == .connected {
+        if session === self.commandSession, state == .connected {
             heartBeater.start()
         }
     }
