@@ -38,9 +38,12 @@ struct RootView: View {
             }
             .navigationDestination(for: MirroringRoute.self) { viewType in
                 switch viewType {
-                case .modeSelection(let advertiser):
-                    ModeSelectionView(advertiser: advertiser)
-                        .environment(router)
+                case .modeSelection(let advertiser, let isRemoteEnable):
+                    ModeSelectionView(
+                        advertiser: advertiser,
+                        isRemoteModeEnabled: isRemoteEnable
+                    )
+                    .environment(router)
                 case .streaming(let advertiser, let isTimerMode):
                     StreamingView(advertiser: advertiser, isTimerMode: isTimerMode)
                         .environment(router)
