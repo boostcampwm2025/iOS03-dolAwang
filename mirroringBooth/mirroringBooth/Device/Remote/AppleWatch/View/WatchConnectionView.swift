@@ -17,7 +17,10 @@ struct WatchConnectionView: View {
             if store.state.connectionState == .connected {
                 if store.state.isReadyToCapture {
                     if store.state.isCaptureCompleted {
-                        CompletionView()
+                        CompletionView {
+                            store.send(.disconnect)
+                            onClose()
+                        }
                     } else {
                         captureView
                     }
@@ -96,7 +99,7 @@ struct WatchConnectionView: View {
                 .font(.caption.bold())
                 .padding(.top, 10)
             Spacer()
-            CaptureButton(width: screenWidth) {
+            CaptureButton(width: screenWidth / 2) {
                 store.send(.tapRequestCapture)
             }
             Spacer()

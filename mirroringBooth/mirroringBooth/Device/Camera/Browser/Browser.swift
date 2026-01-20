@@ -18,7 +18,11 @@ final class Browser: NSObject {
         case allPhotosStored // 사진 10장 모두 저장 완료
         case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
         case heartBeat
+    }
+
+    enum RemoteDeviceCommand: String {
         case navigateToRemoteCapture
+        case navigateToRemoteComplete
     }
 
     enum SessionType: String {
@@ -222,7 +226,7 @@ final class Browser: NSObject {
     }
 
     /// 리모트 기기에게 명령을 전송합니다.
-    func sendRemoteCommand(_ command: MirroringDeviceCommand) {
+    func sendRemoteCommand(_ command: RemoteDeviceCommand) {
         guard let data = command.rawValue.data(using: .utf8) else { return }
 
         guard let connectedPeers = remoteSession?.connectedPeers,
@@ -403,6 +407,7 @@ extension Browser: MCSessionDelegate {
             case .startTransfer:
                 DispatchQueue.main.async {
                     self.onStartTransferCommand.send()
+                    self.sendRemoteCommand(.navigateToRemoteComplete)
                 }
             case .setRemoteMode:
                 DispatchQueue.main.async {

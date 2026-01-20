@@ -28,6 +28,7 @@ final class Advertiser: NSObject {
 
     var navigateToSelectModeCommandCallBack: ((_ isRemoteEnable: Bool) -> Void)?
     var navigateToRemoteCaptureCallBack: (() -> Void)?
+    var navigateToRemoteCompleteCallBack: (() -> Void)?
 
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
@@ -152,6 +153,48 @@ final class Advertiser: NSObject {
                 DispatchQueue.main.async {
                     navigateToRemoteCaptureCallBack()
                 }
+
+        if let mirroringDeviceCommand = Browser.MirroringDeviceCommand(rawValue: command) {
+            handleMirroringDeviceCommand(mirroringDeviceCommand)
+            return
+        }
+
+        if let remoteDeviceCommand = Browser.RemoteDeviceCommand(rawValue: command) {
+            handleRemoteDeviceCommand(remoteDeviceCommand)
+            return
+        }
+    }
+
+    private func handleMirroringDeviceCommand(_ mirroringDeviceCommand: Browser.MirroringDeviceCommand) {
+        switch mirroringDeviceCommand {
+        case .navigateToSelectMode:
+            guard let navigateToSelectModeCommandCallBack else { return }
+            DispatchQueue.main.async {
+                navigateToSelectModeCommandCallBack()
+            }
+        case .allPhotosStored:
+            DispatchQueue.main.async {
+                self.onAllPhotosStored?()
+            }
+        case .onUpdateCaptureCount:
+            DispatchQueue.main.async {
+                self.onUpdateCaptureCount?()
+            }
+        case .heartBeat:
+            heartBeater.beat()
+        }
+    }
+
+    private func handleRemoteDeviceCommand(_ remoteDeviceCommand: Browser.RemoteDeviceCommand) {
+        switch remoteDeviceCommand {
+        case .navigateToRemoteCapture:
+            guard let navigateToRemoteCaptureCallBack else { return }
+            DispatchQueue.main.async {
+                navigateToRemoteCaptureCallBack()
+            }
+        case .navigateToRemoteComplete:
+            DispatchQueue.main.async {
+                self.navigateToRemoteCompleteCallBack?()
             }
         }
     }
