@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-/// 타이머 오버레이 컨테이너
-struct TimerOverlay: View {
-    let phase: StreamingStore.TimerPhase
+/// 오버레이 컨테이너
+struct StreamingOverlay: View {
+    let phase: StreamingStore.OverlayPhase
     let countdownValue: Int
     let shootingCountdown: Int
     let receivedPhotoCount: Int
@@ -22,8 +22,6 @@ struct TimerOverlay: View {
             TimerGuideOverlay(onReadyTapped: onReadyTapped)
         case .countdown:
             CountdownOverlay(value: countdownValue)
-        case .shooting:
-            EmptyView()
         case .transferring:
             TransferringOverlay(
                 receivedCount: receivedPhotoCount,
@@ -31,6 +29,8 @@ struct TimerOverlay: View {
             )
         case .completed:
             CaptureCompleteOverlay() // 임시
+        default:
+            EmptyView()
         }
     }
 }
