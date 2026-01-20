@@ -10,11 +10,13 @@ import SwiftUI
 struct ModeSelectionView: View {
     @Environment(Router.self) var router: Router
     private let advertiser: Advertiser
+    private let isRemoteModeEnabled: Bool
 
     @State private var showHomeAlert: Bool = false
 
-    init(advertiser: Advertiser) {
+    init(advertiser: Advertiser, isRemoteModeEnabled: Bool) {
         self.advertiser = advertiser
+        self.isRemoteModeEnabled = isRemoteModeEnabled
     }
 
     var timerCard: some View {
