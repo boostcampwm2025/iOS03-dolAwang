@@ -8,11 +8,11 @@
 import Foundation
 
 extension Advertiser: HeartBeaterDelegate {
-    func onHeartBeat() {
+    func onHeartBeat(_ sender: HeartBeater) {
         sendCommand(.heartBeat)
     }
 
-    func onTimeout() {
+    func onTimeout(_ sender: HeartBeater) {
         DispatchQueue.main.async {
             self.onHeartBeatTimeout?()
         }

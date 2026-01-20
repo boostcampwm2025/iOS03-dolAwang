@@ -40,7 +40,8 @@ final class Browser: NSObject {
     private var mirroringCommandSession: MCSession?
     private var remoteSession: MCSession?
     private let browser: MCNearbyServiceBrowser
-    private let heartBeater: HeartBeater
+    let heartBeater: HeartBeater
+    let remoteHeartBeater: HeartBeater
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
 
