@@ -84,7 +84,10 @@ struct ResultView: View {
         .padding()
         .navigationBarBackButtonHidden()
         .backgroundStyle()
-        .homeAlert(isPresented: $showHomeAlert) {
+        .homeAlert(
+            isPresented: $showHomeAlert,
+            message: "사진을 저장하셨나요?\n홈으로 돌아가시겠습니까?"
+        ) {
             router.reset()
         }
         .toolbar {
