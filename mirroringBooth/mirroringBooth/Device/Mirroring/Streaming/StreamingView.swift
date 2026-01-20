@@ -18,7 +18,13 @@ struct StreamingView: View {
     init(advertiser: Advertiser, isTimerMode: Bool) {
         self.advertiser = advertiser
         self.isTimerMode = isTimerMode
-        _store = State(initialValue: StreamingStore(advertiser, decoder: H264Decoder()))
+        self._store = State(
+            initialValue: StreamingStore(
+                advertiser,
+                decoder: H264Decoder(),
+                initialPhase: isTimerMode ? .guide : .none
+            )
+        )
     }
 
     private enum StreamingLayoutType {
@@ -57,19 +63,16 @@ struct StreamingView: View {
             // 상단 HUD
             streamingHUD
 
-            // 타이머 모드 오버레이
-            if isTimerMode {
-                TimerOverlay(
-                    phase: store.state.timerPhase,
-                    countdownValue: store.state.countdownValue,
-                    shootingCountdown: store.state.shootingCountdown,
-                    receivedPhotoCount: store.state.receivedPhotoCount,
-                    totalCaptureCount: store.state.totalCaptureCount,
-                    onReadyTapped: {
-                        store.send(.startCountdown)
-                    }
-                )
-            }
+            StreamingOverlay(
+                phase: store.state.overlayPhase,
+                countdownValue: store.state.countdownValue,
+                shootingCountdown: store.state.shootingCountdown,
+                receivedPhotoCount: store.state.receivedPhotoCount,
+                totalCaptureCount: store.state.totalCaptureCount,
+                onReadyTapped: {
+                    store.send(.startCountdown)
+                }
+            )
         }
         .navigationBarBackButtonHidden()
         .onAppear {
@@ -78,7 +81,7 @@ struct StreamingView: View {
         .onDisappear {
             store.send(.stopStreaming)
         }
-        .onChange(of: store.state.timerPhase) { _, new in
+        .onChange(of: store.state.overlayPhase) { _, new in
             if new == .completed {
                 router.push(to: MirroringRoute.captureResult)
             }
@@ -115,7 +118,7 @@ struct StreamingView: View {
     private var streamingHUD: some View {
         GeometryReader { geometry in
             let layoutType = StreamingLayoutType(width: geometry.size.width)
-            let isShooting = isTimerMode && store.state.timerPhase == .shooting
+            let isShooting = isTimerMode && store.state.overlayPhase == .shooting
             let isCompact = layoutType == .compact
 
             ZStack {
