@@ -41,7 +41,7 @@ final class Browser: NSObject {
     private var remoteSession: MCSession?
     private let browser: MCNearbyServiceBrowser
     let heartBeater: HeartBeater
-    let remoteHeartBeater: HeartBeater
+    var remoteHeartBeater: HeartBeater?
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
 
@@ -75,6 +75,7 @@ final class Browser: NSObject {
 
     /// heartbeat 메시지 타임아웃
     var onHeartbeatTimeout: (() -> Void)?
+    var onRemoteHeartbeatTimeout: (() -> Void)?
 
     /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
     var isVideoSender: Bool {
@@ -87,10 +88,12 @@ final class Browser: NSObject {
         self.peerID = MCPeerID(displayName: myDeviceName)
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
         self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
+        self.remoteHeartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
 
         super.init()
         browser.delegate = self
         heartBeater.delegate = self
+        remoteHeartBeater.delegate = self
     }
 
     func startSearching() {
@@ -265,6 +268,7 @@ final class Browser: NSObject {
         targetMirroringDeviceID = nil
         targetRemoteDeviceID = nil
         heartBeater.stop()
+        remoteHeartBeater.stop()
         logger.info("모든 연결 해제")
     }
 
@@ -315,9 +319,10 @@ extension Browser: MCSessionDelegate {
         discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
 
-        if session === mirroringSession,
-           state == .connected {
+        if session === mirroringSession, state == .connected {
             heartBeater.start()
+        } else if session === remoteSession, state == .connected {
+            remoteHeartBeater.start()
         }
 
         DispatchQueue.main.async {
@@ -428,8 +433,11 @@ extension Browser: MCSessionDelegate {
                 }
             case .heartBeat:
                 heartBeater.beat()
+            case .remoteHeartBeat:
+                remoteHeartBeater.beat()
             case .stopHeartBeat:
                 heartBeater.stop()
+                remoteHeartBeater.stop()
             }
         }
     }

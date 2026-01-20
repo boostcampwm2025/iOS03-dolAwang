@@ -10,6 +10,9 @@ import Foundation
 extension Browser: HeartBeaterDelegate {
     func onHeartBeat(_ sender: HeartBeater) {
         sendCommand(.heartBeat)
+        if remoteHeartBeater != nil {
+            sendRemoteCommand(.remoteHeartBeat)
+        }
     }
 
     func onTimeout(_ sender: HeartBeater) {
