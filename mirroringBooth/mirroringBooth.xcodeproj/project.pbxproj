@@ -46,13 +46,13 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				App/Info.plist,
-				Device/Remote/App/Assets.xcassets,
-				Device/Remote/App/MirroringBoothWatchApp.swift,
-				Device/Remote/Store/WatchConnectionStore.swift,
-				Device/Remote/WatchConnectionButton.swift,
-				Device/Remote/WatchConnectionView.swift,
-				"Device/Remote/WatchKitView+.swift",
-				Device/Remote/WatchView.swift,
+				Device/Remote/AppleWatch/App/Assets.xcassets,
+				Device/Remote/AppleWatch/App/MirroringBoothWatchApp.swift,
+				Device/Remote/AppleWatch/View/WatchConnectionButton.swift,
+				Device/Remote/AppleWatch/View/WatchConnectionView.swift,
+				"Device/Remote/AppleWatch/View/WatchKitView+.swift",
+				Device/Remote/AppleWatch/View/WatchView.swift,
+				Device/Remote/AppleWatch/WatchConnectionStore.swift,
 			);
 			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
 		};
@@ -61,16 +61,17 @@
 			membershipExceptions = (
 				Core/AppLogger.swift,
 				Core/StoreProtocol.swift,
-				Device/Common/Model/ConnectionState.swift,
-				Device/Remote/App/Assets.xcassets,
-				Device/Remote/App/MirroringBoothWatchApp.swift,
+				Device/Common/ConnectionState.swift,
+				Device/Remote/AppleWatch/App/Assets.xcassets,
+				Device/Remote/AppleWatch/App/MirroringBoothWatchApp.swift,
+				Device/Remote/AppleWatch/View/WatchConnectionButton.swift,
+				Device/Remote/AppleWatch/View/WatchConnectionView.swift,
+				"Device/Remote/AppleWatch/View/WatchKitView+.swift",
+				Device/Remote/AppleWatch/View/WatchView.swift,
+				"Device/Remote/AppleWatch/WatchConnectionManger+watchOS.swift",
+				Device/Remote/AppleWatch/WatchConnectionStore.swift,
 				Device/Remote/CaptureButton.swift,
-				"Device/Remote/Connection/WatchConnectionManger+watchOS.swift",
-				Device/Remote/Store/WatchConnectionStore.swift,
-				Device/Remote/WatchConnectionButton.swift,
-				Device/Remote/WatchConnectionView.swift,
-				"Device/Remote/WatchKitView+.swift",
-				Device/Remote/WatchView.swift,
+				Device/Remote/CompletionView.swift,
 			);
 			target = DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */;
 		};

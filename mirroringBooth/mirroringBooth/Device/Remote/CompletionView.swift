@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct CompletionView: View {
+    var onTapGesture: (() -> Void)?
+
     var body: some View {
         VStack(spacing: 10) {
-            // TODO: #26 병합 후 홈 버튼 추가
             Image(systemName: "checkmark.square")
                 .font(.largeTitle)
                 .foregroundStyle(Color.main)
@@ -23,11 +24,18 @@ struct CompletionView: View {
                     .multilineTextAlignment(.center)
             }
             .opacity(0.8)
-        }
-        .backgroundStyle()
-    }
-}
 
-#Preview {
-    CompletionView()
+            Text("첫 화면으로 돌아가기")
+                .padding(.top)
+                .font(.footnote)
+                .opacity(0.8)
+                .onTapGesture {
+                    onTapGesture?()
+                }
+        }
+        #if os(iOS)
+        .navigationBarBackButtonHidden()
+        .backgroundStyle()
+        #endif
+    }
 }

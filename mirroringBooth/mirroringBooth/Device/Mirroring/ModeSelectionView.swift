@@ -9,10 +9,15 @@ import SwiftUI
 
 struct ModeSelectionView: View {
     @Environment(Router.self) var router: Router
+    @Environment(RootStore.self) private var rootStore
     private let advertiser: Advertiser
+    private let isRemoteModeEnabled: Bool
 
-    init(advertiser: Advertiser) {
+    @State private var showHomeAlert: Bool = false
+
+    init(advertiser: Advertiser, isRemoteModeEnabled: Bool) {
         self.advertiser = advertiser
+        self.isRemoteModeEnabled = isRemoteModeEnabled
     }
 
     var timerCard: some View {
@@ -38,13 +43,14 @@ struct ModeSelectionView: View {
             advertiser.sendCommand(.setRemoteMode)
             router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: false))
         }
+        .disabled(!isRemoteModeEnabled)
     }
 
     var body: some View {
         VStack(spacing: 20) {
-            TopBarView()
-
-            Spacer()
+            DisconnectButtonView {
+                showHomeAlert = true
+            }
 
             TitleView()
 
@@ -76,20 +82,12 @@ struct ModeSelectionView: View {
         }
         .padding(.top, 20)
         .padding(.horizontal)
+        .navigationBarBackButtonHidden()
         .backgroundStyle()
-    }
-}
-
-private struct TopBarView: View {
-    var body: some View {
-        HStack {
-            DisconnectButtonView(action: {})
-
-            Spacer()
-
-            LightButtonView(action: {})
+        .homeAlert(isPresented: $showHomeAlert) {
+            router.reset()
+            rootStore.send(.disconnect)
         }
-        .padding(.horizontal, 30)
     }
 }
 

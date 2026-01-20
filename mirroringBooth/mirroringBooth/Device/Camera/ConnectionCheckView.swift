@@ -70,7 +70,12 @@ struct ConnectionCheckView: View {
                 // 3. 촬영 준비 버튼
                 Button {
                     showPreview = true
-                    browser.sendCommand(.navigateToSelectMode)
+                    browser.sendCommand(
+                        remoteDevice == nil
+                        ? .navigateToSelectModeWithoutRemote
+                        : .navigateToSelectModeWithRemote
+                    )
+                    browser.sendRemoteCommand(.navigateToRemoteCapture)
                     shouldNavigateToCompletion = false
                 } label: {
                     Text("촬영 준비하기")
@@ -80,8 +85,8 @@ struct ConnectionCheckView: View {
                         .background(Color(.label))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .padding()
             }
+            .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .fullScreenCover(
                 isPresented: $showPreview,

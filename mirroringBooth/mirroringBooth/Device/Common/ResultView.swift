@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ResultView: View {
     @Environment(Router.self) var router: Router
+    @Environment(RootStore.self) private var rootStore
+    @State private var showHomeAlert: Bool = false
 
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
@@ -76,20 +78,27 @@ struct ResultView: View {
                     // TODO: Airdrop 액션
                 }
             }
-//                .hidden() // 저장 로직 추가 후 제거
+            .hidden() // 저장 로직 추가 후 제거
 
             Spacer()
         }
         .padding()
         .navigationBarBackButtonHidden()
+        .backgroundStyle()
+        .homeAlert(
+            isPresented: $showHomeAlert,
+            message: "사진을 저장하셨나요?\n홈으로 돌아가시겠습니까?"
+        ) {
+            router.reset()
+            rootStore.send(.disconnect)
+        }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 HomeButton(size: .headline) {
-                    router.reset()
+                    showHomeAlert = true
                 }
             }
         }
-        .backgroundStyle()
     }
 
     private func sharingButton(
