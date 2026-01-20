@@ -33,7 +33,6 @@ final class H264Decoder {
     }
 
     func decode(_ data: Data) {
-        logger.info("디코딩 시작: \(data.count) bytes")
         decoderQueue.async { [weak self] in
             self?.processNALUnits(data)
         }
@@ -199,7 +198,6 @@ extension H264Decoder {
         }
 
         if sampleStatus == noErr, let sample = sampleBuffer {
-            logger.info("✅ 프레임 디코딩 성공")
             onDecodedSampleBuffer?(sample)
         } else {
             logger.warning("SampleBuffer 생성 실패 (디코딩 출력): \(sampleStatus)")
