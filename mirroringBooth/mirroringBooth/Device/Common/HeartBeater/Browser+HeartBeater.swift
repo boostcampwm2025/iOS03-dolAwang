@@ -11,6 +11,6 @@ extension Browser: HeartBeaterDelegate {
     }
 
     func onTimeout() {
-        // TODO: on timeout action needed
+        onHeartbeatTimeout?()
     }
 }
