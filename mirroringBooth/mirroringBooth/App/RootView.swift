@@ -76,6 +76,7 @@ struct RootView: View {
             cancellable: false
         ) {
             router.reset()
+            store.send(.showTimeoutAlert(false))
         }
     }
 }
