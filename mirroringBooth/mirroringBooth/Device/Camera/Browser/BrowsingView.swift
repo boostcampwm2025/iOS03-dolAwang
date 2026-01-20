@@ -106,7 +106,7 @@ struct BrowsingView: View {
                                 ? Color(store.state.currentTarget.color)
                                 : Color("mirroringColor").opacity(0.6)
                             )
-                            .cornerRadius(12)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
             }
