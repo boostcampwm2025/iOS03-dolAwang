@@ -21,8 +21,8 @@ struct RemoteCaptureView: View {
         }
         .backgroundStyle()
         .onAppear {
-            advertiser.navigateToRemoteCompleteCallBack = {
-                router.push(to: RemoteRoute.completion)
+            advertiser.navigateToRemoteCompleteCallBack = { [weak router] in
+                router?.push(to: RemoteRoute.completion)
             }
         }
     }
