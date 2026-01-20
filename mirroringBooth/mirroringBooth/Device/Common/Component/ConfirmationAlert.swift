@@ -9,15 +9,18 @@ import SwiftUI
 
 struct ConfirmationAlert: View {
     let message: String
+    let cancellable: Bool
     let onConfirm: () -> Void
     let onCancel: () -> Void
 
     init(
         message: String,
+        cancellable: Bool = true,
         onConfirm: @escaping () -> Void,
         onCancel: @escaping () -> Void
     ) {
         self.message = message
+        self.cancellable = cancellable
         self.onConfirm = onConfirm
         self.onCancel = onCancel
     }
@@ -47,17 +50,18 @@ struct ConfirmationAlert: View {
                 }
 
                 HStack(spacing: 16) {
-                    Button {
-                        onCancel()
-                    } label: {
-                        Text("계속하기")
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(.gray.opacity(0.3))
-                            .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    if cancellable {
+                        Button {
+                            onCancel()
+                        } label: {
+                            Text("계속하기")
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 14)
+                                .background(.gray.opacity(0.3))
+                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
                     }
-
                     Button {
                         onConfirm()
                     } label: {
@@ -86,12 +90,14 @@ extension View {
     func homeAlert(
         isPresented: Binding<Bool>,
         message: String = "진행 중인 작업이 사라질 수 있습니다.\n정말 나가시겠습니까?",
+        cancellable: Bool = true,
         onConfirm: @escaping () -> Void
     ) -> some View {
         self.overlay {
             if isPresented.wrappedValue {
                 ConfirmationAlert(
                     message: message,
+                    cancellable: cancellable,
                     onConfirm: {
                         isPresented.wrappedValue = false
                         onConfirm()
