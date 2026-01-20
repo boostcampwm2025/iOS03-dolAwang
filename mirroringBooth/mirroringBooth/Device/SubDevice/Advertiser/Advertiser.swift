@@ -26,7 +26,7 @@ final class Advertiser: NSObject {
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
 
-    var navigateToSelectModeCommandCallBack: (() -> Void)?
+    var navigateToSelectModeCommandCallBack: ((_ isRemoteEnable: Bool) -> Void)?
     var navigateToRemoteCaptureCallBack: (() -> Void)?
 
     /// 카메라 기기에게 보내는 명령
@@ -129,10 +129,13 @@ final class Advertiser: NSObject {
         guard let command = String(data: data, encoding: .utf8) else { return }
         if let type = Browser.MirroringDeviceCommand(rawValue: command) {
             switch type {
-            case .navigateToSelectMode:
-                guard let navigateToSelectModeCommandCallBack else { return }
+            case .navigateToSelectModeWithRemote:
                 DispatchQueue.main.async {
-                    navigateToSelectModeCommandCallBack()
+                    self.navigateToSelectModeCommandCallBack?(true)
+                }
+            case .navigateToSelectModeWithoutRemote:
+                DispatchQueue.main.async {
+                    self.navigateToSelectModeCommandCallBack?(false)
                 }
             case .allPhotosStored:
                 DispatchQueue.main.async {

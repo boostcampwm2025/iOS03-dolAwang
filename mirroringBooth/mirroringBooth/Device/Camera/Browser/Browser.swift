@@ -13,7 +13,8 @@ import OSLog
 /// 다른 기기를 탐색하고 연결하여 스트림 데이터(비디오/사진)를 전송
 final class Browser: NSObject {
     enum MirroringDeviceCommand: String {
-        case navigateToSelectMode
+        case navigateToSelectModeWithRemote
+        case navigateToSelectModeWithoutRemote
         case allPhotosStored // 사진 10장 모두 저장 완료
         case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
         case heartBeat
