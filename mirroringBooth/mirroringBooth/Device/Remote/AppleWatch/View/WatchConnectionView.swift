@@ -19,6 +19,7 @@ struct WatchConnectionView: View {
                     if store.state.isCaptureCompleted {
                         CompletionView {
                             store.send(.disconnect)
+                            onClose()
                         }
                     } else {
                         captureView
