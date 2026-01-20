@@ -201,6 +201,7 @@ final class Advertiser: NSObject {
         case .navigateToRemoteComplete:
             DispatchQueue.main.async {
                 self.navigateToRemoteCompleteCallBack?()
+            }
         case .navigateToHome:
             guard let navigateToHomeCallback else { return }
             DispatchQueue.main.async {
