@@ -38,6 +38,9 @@ final class Advertiser: NSObject {
     /// 촬영 완료 이동 콜백 (리모트 기기)
     var navigateToRemoteCompleteCallBack: (() -> Void)?
 
+    /// 홈 화면으로 이동 (리모트 기기)
+    var navigateToHomeCallback: (() -> Void)?
+
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
         case capturePhoto  // 사진 촬영
@@ -198,6 +201,10 @@ final class Advertiser: NSObject {
         case .navigateToRemoteComplete:
             DispatchQueue.main.async {
                 self.navigateToRemoteCompleteCallBack?()
+        case .navigateToHome:
+            guard let navigateToHomeCallback else { return }
+            DispatchQueue.main.async {
+                navigateToHomeCallback()
             }
         }
     }

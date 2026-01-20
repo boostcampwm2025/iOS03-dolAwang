@@ -24,6 +24,7 @@ final class Browser: NSObject {
         case navigateToRemoteCapture
         case navigateToRemoteComplete
         case navigateToRemoteConnection
+        case navigateToHome
     }
 
     enum SessionType: String {
@@ -422,6 +423,7 @@ extension Browser: MCSessionDelegate {
             case .selectedTimerMode:
                 DispatchQueue.main.async {
                     self.onSelectedTimerModeCommand?()
+                    self.sendRemoteCommand(.navigateToHome)
                 }
             case .heartBeat:
                 heartBeater.beat()

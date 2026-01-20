@@ -35,9 +35,18 @@ struct RemoteConnectionView: View {
                     router.push(to: RemoteRoute.remoteCapture(advertiser))
                 }
             }
+
+            // 타이머 모드 선택 시 처음 화면으로 이동
+            advertiser.navigateToHomeCallback = { [weak router] in
+                guard let router else { return }
+                DispatchQueue.main.async {
+                    router.reset()
+                }
+            }
         }
         .onDisappear {
             advertiser.navigateToRemoteCaptureCallBack = nil
+            advertiser.navigateToHomeCallback = nil
         }
     }
 }
