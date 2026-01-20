@@ -9,7 +9,11 @@ import Foundation
 
 extension Advertiser: HeartBeaterDelegate {
     func onHeartBeat(_ sender: HeartBeater) {
-        sendCommand(.heartBeat)
+        if isForRemote {
+            sendCommand(.remoteHeartBeat)
+        } else {
+            sendCommand(.heartBeat)
+        }
     }
 
     func onTimeout(_ sender: HeartBeater) {
