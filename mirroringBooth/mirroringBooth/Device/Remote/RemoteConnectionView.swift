@@ -11,18 +11,33 @@ struct RemoteConnectionView: View {
     @Environment(Router.self) var router: Router
     let advertiser: Advertiser
 
+    @State private var showCheckmark = false
+
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 30) {
             Spacer()
 
-            VStack(spacing: 6) {
-                Text("연결 완료!")
-                    .fontWeight(.heavy)
-                    .font(.title)
+            ZStack {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 60))
+                    .foregroundStyle(Color("remoteColor"))
+                    .scaleEffect(showCheckmark ? 1.0 : 0.3)
+                    .opacity(showCheckmark ? 1.0 : 0.0)
+                    .animation(.spring(response: 0.6, dampingFraction: 0.6), value: showCheckmark)
+            }
+            .padding(.bottom, 10)
 
-                Text("촬영 준비를 완료해주세요")
-                    .font(.caption2.bold())
-                    .foregroundStyle(Color(.darkGray))
+            VStack(spacing: 20) {
+                VStack(spacing: 6) {
+                    Text("연결 완료!")
+                        .fontWeight(.heavy)
+                        .font(.title)
+
+                    Text("미러링 기기에서 촬영 방식을 선택해주세요")
+                        .font(.subheadline)
+                        .foregroundStyle(Color(.secondaryLabel))
+                        .padding(.horizontal, 40)
+                }
             }
             Spacer()
         }
@@ -41,6 +56,12 @@ struct RemoteConnectionView: View {
                 guard let router else { return }
                 DispatchQueue.main.async {
                     router.reset()
+                }
+            }
+
+            DispatchQueue.main.async {
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.6)) {
+                    showCheckmark = true
                 }
             }
         }
