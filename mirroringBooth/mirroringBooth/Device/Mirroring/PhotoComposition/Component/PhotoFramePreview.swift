@@ -36,7 +36,12 @@ struct PhotoFramePreview: View {
                             let target = aspectFillRect(for: photo.size, into: slot)
                             layer.draw(Image(uiImage: photo), in: target)
                         } else {
-                            layer.fill(Path(roundedRect: slot, cornerRadius: 5), with: .color(.gray.opacity(0.6)))
+                            layer.fill(
+                                Path(roundedRect: slot, cornerRadius: 5),
+                                with: .color(information.frame == .white
+                                             ? .gray
+                                             : .white)
+                            )
                         }
                     }
                 }
