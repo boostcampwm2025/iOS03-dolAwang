@@ -9,15 +9,21 @@ import SwiftUI
 
 struct ConfirmationAlert: View {
     let message: String
+    let cancelButtonText: String
+    let confirmButtonText: String
     let onConfirm: () -> Void
     let onCancel: (() -> Void)?
 
     init(
         message: String,
+        cancelButtonText: String,
+        confirmButtonText: String,
         onConfirm: @escaping () -> Void,
         onCancel: (() -> Void)?
     ) {
         self.message = message
+        self.cancelButtonText = cancelButtonText
+        self.confirmButtonText = confirmButtonText
         self.onConfirm = onConfirm
         self.onCancel = onCancel
     }
@@ -52,7 +58,7 @@ struct ConfirmationAlert: View {
                         Button {
                             onCancel?()
                         } label: {
-                            Text("계속하기")
+                            Text(cancelButtonText)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 14)
                                 .background(.gray.opacity(0.4))
@@ -63,7 +69,7 @@ struct ConfirmationAlert: View {
                     Button {
                         onConfirm()
                     } label: {
-                        Text("나가기")
+                        Text(confirmButtonText)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
                             .background(.white)
@@ -88,6 +94,8 @@ extension View {
     func homeAlert(
         isPresented: Binding<Bool>,
         message: String = "진행 중인 작업이 사라질 수 있습니다.\n정말 나가시겠습니까?",
+        cancleButtonText: String = "계속하기",
+        confirmButtonText: String = "나가기",
         cancellable: Bool = true,
         onConfirm: @escaping () -> Void
     ) -> some View {
@@ -95,6 +103,8 @@ extension View {
             if isPresented.wrappedValue {
                 ConfirmationAlert(
                     message: message,
+                    cancelButtonText: cancleButtonText,
+                    confirmButtonText: confirmButtonText,
                     onConfirm: {
                         isPresented.wrappedValue = false
                         onConfirm()
