@@ -21,7 +21,7 @@ final class RootStore: StoreProtocol {
         case showTimeoutAlert(Bool)
     }
 
-    var state: State = .init()
+    private(set) var state: State = .init()
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {

@@ -71,7 +71,10 @@ struct RootView: View {
             .tint(Color(.label))
         }
         .homeAlert(
-            isPresented: $store.state.showTimeoutAlert,
+            isPresented: Binding(
+                get: { store.state.showTimeoutAlert },
+                set: { store.send(.showTimeoutAlert($0)) }
+            ),
             message: "기기 연결이 끊겼습니다.",
             cancellable: false
         ) {
