@@ -15,6 +15,7 @@ final class RootStore: StoreProtocol {
 
     enum Intent {
         case showTimeoutAlert(Bool)
+        case disconnect
     }
 
     enum Result {
@@ -22,11 +23,17 @@ final class RootStore: StoreProtocol {
     }
 
     var state: State = .init()
+    var advertiser: Advertiser?
+    var browser: Browser?
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
         case let .showTimeoutAlert(bool):
             return [.showTimeoutAlert(bool)]
+        case .disconnect:
+            advertiser?.disconnect()
+            browser?.disconnect()
+            return []
         }
     }
 
