@@ -26,8 +26,16 @@ final class Advertiser: NSObject {
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
 
+    /// 촬영 선택 모드 이동 콜백 (미러링 기기)
     var navigateToSelectModeCommandCallBack: ((_ isRemoteEnable: Bool) -> Void)?
+
+    /// 촬영 대기 화면 이동 콜백 (리모트 기기)
+    var navigateToRemoteConnectionCallBack: (() -> Void)?
+
+    /// 촬영 화면 이동 콜백 (리모트 기기)
     var navigateToRemoteCaptureCallBack: (() -> Void)?
+
+    /// 촬영 완료 이동 콜백 (리모트 기기)
     var navigateToRemoteCompleteCallBack: (() -> Void)?
 
     /// 카메라 기기에게 보내는 명령
@@ -177,6 +185,11 @@ final class Advertiser: NSObject {
 
     private func handleRemoteDeviceCommand(_ remoteDeviceCommand: Browser.RemoteDeviceCommand) {
         switch remoteDeviceCommand {
+        case .navigateToRemoteConnection:
+            guard let navigateToRemoteConnectionCallBack else { return }
+            DispatchQueue.main.async {
+                navigateToRemoteConnectionCallBack()
+            }
         case .navigateToRemoteCapture:
             guard let navigateToRemoteCaptureCallBack else { return }
             DispatchQueue.main.async {
