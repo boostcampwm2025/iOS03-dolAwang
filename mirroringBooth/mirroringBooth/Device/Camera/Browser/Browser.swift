@@ -25,6 +25,7 @@ final class Browser: NSObject {
         case navigateToRemoteComplete
         case navigateToRemoteConnected
         case navigateToHome
+        case noticeIsRemoteDevice
         case heartBeat
     }
 
@@ -328,6 +329,7 @@ extension Browser: MCSessionDelegate {
         if session === mirroringSession, state == .connected {
             heartBeater.start()
         } else if session === remoteSession, state == .connected {
+            sendRemoteCommand(.noticeIsRemoteDevice)
             if remoteHeartBeater == nil {
                 createRemoteHeartBeater()
             }
