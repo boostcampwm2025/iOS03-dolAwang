@@ -36,6 +36,7 @@ final class Advertiser: NSObject {
         case setRemoteMode // 원격 촬영 모드 설정
         case selectedTimerMode // 타이머 모드 선택
         case heartBeat // 세션 생존 확인
+        case stopHeartBeat // heartbeat 종료
     }
 
     /// 사진 수신 완료 콜백 (1장마다 호출)
@@ -109,6 +110,11 @@ final class Advertiser: NSObject {
         session = nil
         commandSession = nil
         logger.info("연결 해제: \(self.peerID.displayName)")
+    }
+
+    func stopHeartBeating() {
+        sendCommand(.stopHeartBeat)
+        heartBeater.stop()
     }
 
     /// 연결된 카메라 기기(iPhone)에게 명령을 전송합니다.

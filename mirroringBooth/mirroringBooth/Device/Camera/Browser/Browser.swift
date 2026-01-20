@@ -410,6 +410,8 @@ extension Browser: MCSessionDelegate {
                 }
             case .heartBeat:
                 heartBeater.beat()
+            case .stopHeartBeat:
+                heartBeater.stop()
             }
         }
     }
