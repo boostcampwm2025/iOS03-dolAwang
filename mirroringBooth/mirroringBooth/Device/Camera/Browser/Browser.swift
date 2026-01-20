@@ -88,12 +88,15 @@ final class Browser: NSObject {
         self.peerID = MCPeerID(displayName: myDeviceName)
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
         self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
-        self.remoteHeartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
 
         super.init()
         browser.delegate = self
         heartBeater.delegate = self
-        remoteHeartBeater.delegate = self
+    }
+
+    private func createRemoteHeartBeater() {
+        self.remoteHeartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
+        remoteHeartBeater?.delegate = self
     }
 
     func startSearching() {
@@ -268,7 +271,7 @@ final class Browser: NSObject {
         targetMirroringDeviceID = nil
         targetRemoteDeviceID = nil
         heartBeater.stop()
-        remoteHeartBeater.stop()
+        remoteHeartBeater?.stop()
         logger.info("모든 연결 해제")
     }
 
@@ -322,7 +325,10 @@ extension Browser: MCSessionDelegate {
         if session === mirroringSession, state == .connected {
             heartBeater.start()
         } else if session === remoteSession, state == .connected {
-            remoteHeartBeater.start()
+            if remoteHeartBeater == nil {
+                createRemoteHeartBeater()
+            }
+            remoteHeartBeater?.start()
         }
 
         DispatchQueue.main.async {
@@ -434,10 +440,10 @@ extension Browser: MCSessionDelegate {
             case .heartBeat:
                 heartBeater.beat()
             case .remoteHeartBeat:
-                remoteHeartBeater.beat()
+                remoteHeartBeater?.beat()
             case .stopHeartBeat:
                 heartBeater.stop()
-                remoteHeartBeater.stop()
+                remoteHeartBeater?.stop()
             }
         }
     }
