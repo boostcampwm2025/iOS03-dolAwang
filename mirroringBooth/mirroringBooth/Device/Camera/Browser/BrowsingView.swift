@@ -141,7 +141,8 @@ struct BrowsingView: View {
         .homeAlert(
             isPresented: $showMirroringDisconnectedAlert,
             message: "미러링 기기 연결이 끊겼습니다. 다시 시도해 주세요.",
-            cancellable: true
+            confirmButtonText: "확인",
+            cancellable: false
         ) {}
     }
 
