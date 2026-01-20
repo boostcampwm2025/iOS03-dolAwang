@@ -103,6 +103,17 @@ final class BrowsingStore: StoreProtocol {
                 self?.watchConnectionManager.sendCaptureComplete()
             }
             .store(in: &cancellables)
+
+        // 미러링 기기 연결 끊긴 경우
+        browser.onHeartbeatTimeout = { [weak self] in
+            self?.reduce(.setMirroringDevice(nil))
+            self?.reduce(.setCurrentTarget(.mirroring))
+        }
+        // 리모트 기기 연결 끊긴 경우
+        browser.onRemoteHeartbeatTimeout = { [weak self] in
+            self?.reduce(.setRemoteDevice(nil))
+            self?.reduce(.setCurrentTarget(.remote))
+        }
     }
 
     private func setupWatchConnectionManager() {

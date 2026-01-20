@@ -14,6 +14,7 @@ struct BrowsingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) var rootStore: RootStore
     @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
+    @State private var showMirroringDisconnectedAlert: Bool = false
 
     var body: some View {
         ZStack {
@@ -118,9 +119,6 @@ struct BrowsingView: View {
             if rootStore.browser == nil {
                 rootStore.browser = store.browser
             }
-            store.browser.onHeartbeatTimeout = {
-                rootStore.send(.showTimeoutAlert(true))
-            }
         }
         .onDisappear {
             store.send(.exit)
@@ -134,7 +132,17 @@ struct BrowsingView: View {
             }
             store.send(.didChangeAppState(state))
         }
+        .onChange(of: store.state.currentTarget) { old, new in
+            if old == .remote && new == .mirroring {
+                showMirroringDisconnectedAlert = true
+            }
+        }
         .backgroundStyle()
+        .homeAlert(
+            isPresented: $showMirroringDisconnectedAlert,
+            message: "미러링 기기 연결이 끊겼습니다. 다시 시도해 주세요.",
+            cancellable: true
+        ) {}
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {
