@@ -42,6 +42,7 @@ struct ModeSelectionView: View {
             advertiser.sendCommand(.setRemoteMode)
             router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: false))
         }
+        .disabled(!isRemoteModeEnabled)
     }
 
     var body: some View {
