@@ -9,35 +9,33 @@ import SwiftUI
 
 struct ConfirmationAlert: View {
     let message: String
-    let cancellable: Bool
     let onConfirm: () -> Void
-    let onCancel: () -> Void
+    let onCancel: (() -> Void)?
 
     init(
         message: String,
-        cancellable: Bool = true,
         onConfirm: @escaping () -> Void,
-        onCancel: @escaping () -> Void
+        onCancel: (() -> Void)?
     ) {
         self.message = message
-        self.cancellable = cancellable
         self.onConfirm = onConfirm
         self.onCancel = onCancel
     }
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.7)
+            Color.black.opacity(0.3)
                 .ignoresSafeArea()
                 .onTapGesture {
-                    onCancel()
+                    onCancel?()
                 }
 
             VStack(spacing: 24) {
                 VStack(spacing: 12) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.system(size: 48))
-                        .foregroundStyle(.yellow)
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(.black, .yellow)
 
                     Text("주의")
                         .font(.title2.bold())
@@ -50,14 +48,14 @@ struct ConfirmationAlert: View {
                 }
 
                 HStack(spacing: 16) {
-                    if cancellable {
+                    if onCancel != nil {
                         Button {
-                            onCancel()
+                            onCancel?()
                         } label: {
                             Text("계속하기")
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 14)
-                                .background(.gray.opacity(0.3))
+                                .background(.gray.opacity(0.4))
                                 .foregroundStyle(.white)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
@@ -78,7 +76,7 @@ struct ConfirmationAlert: View {
             .padding(32)
             .background {
                 RoundedRectangle(cornerRadius: 24)
-                    .fill(Color(.systemGray6).opacity(0.8))
+                    .fill(Color(.systemGray6).opacity(0.9))
             }
             .frame(maxWidth: 500)
             .padding(.horizontal, 40)
@@ -97,12 +95,11 @@ extension View {
             if isPresented.wrappedValue {
                 ConfirmationAlert(
                     message: message,
-                    cancellable: cancellable,
                     onConfirm: {
                         isPresented.wrappedValue = false
                         onConfirm()
                     },
-                    onCancel: {
+                    onCancel: !cancellable ? nil : {
                         isPresented.wrappedValue = false
                     }
                 )

@@ -11,11 +11,13 @@ struct ModeSelectionView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) private var rootStore
     private let advertiser: Advertiser
+    private let isRemoteModeEnabled: Bool
 
     @State private var showHomeAlert: Bool = false
 
-    init(advertiser: Advertiser) {
+    init(advertiser: Advertiser, isRemoteModeEnabled: Bool) {
         self.advertiser = advertiser
+        self.isRemoteModeEnabled = isRemoteModeEnabled
     }
 
     var timerCard: some View {
@@ -41,6 +43,7 @@ struct ModeSelectionView: View {
             advertiser.sendCommand(.setRemoteMode)
             router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: false))
         }
+        .disabled(!isRemoteModeEnabled)
     }
 
     var body: some View {

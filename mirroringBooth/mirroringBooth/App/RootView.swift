@@ -40,9 +40,12 @@ struct RootView: View {
                 }
                 .navigationDestination(for: MirroringRoute.self) { viewType in
                     switch viewType {
-                    case .modeSelection(let advertiser):
-                        ModeSelectionView(advertiser: advertiser)
-                            .environment(router)
+                    case .modeSelection(let advertiser, let isRemoteEnable):
+                        ModeSelectionView(
+                            advertiser: advertiser,
+                            isRemoteModeEnabled: isRemoteEnable
+                        )
+                        .environment(router)
                     case .streaming(let advertiser, let isTimerMode):
                         StreamingView(advertiser: advertiser, isTimerMode: isTimerMode)
                             .environment(router)
@@ -64,6 +67,11 @@ struct RootView: View {
                     switch viewType {
                     case .remoteCapture(let advertiser):
                         RemoteCaptureView(advertiser: advertiser)
+                            .environment(router)
+                    case .completion:
+                        CompletionView {
+                            router.reset()
+                        }
                     }
                 }
             }
@@ -71,7 +79,10 @@ struct RootView: View {
             .tint(Color(.label))
         }
         .homeAlert(
-            isPresented: $store.state.showTimeoutAlert,
+            isPresented: Binding(
+                get: { store.state.showTimeoutAlert },
+                set: { store.send(.showTimeoutAlert($0)) }
+            ),
             message: "기기 연결이 끊겼습니다.",
             cancellable: false
         ) {

@@ -10,9 +10,9 @@ import Foundation
 
 @Observable
 final class StreamingStore: StoreProtocol {
-
-    // 타이머 촬영 단계를 구분하기 위한 enum
-    enum TimerPhase {
+    // 오버레이 상태
+    enum OverlayPhase {
+        case none
         case guide // 가이드라인 오버레이
         case countdown // 8, 7, 6, 5, 4, 3, 2, 1 카운트다운
         case shooting // 촬영 중 (8초 간격)
@@ -25,8 +25,10 @@ final class StreamingStore: StoreProtocol {
         var isStreaming: Bool = false
         var currentSampleBuffer: CMSampleBuffer?
 
+        // 오버레이
+        var overlayPhase: OverlayPhase
+
         // 타이머
-        var timerPhase: TimerPhase = .guide
         var countdownValue: Int = 8     // 첫 촬영 전 카운트 다운 (8, 7, 6, 5, 4, 3, 2, 1)
         var shootingCountdown: Int = 8  // 촬영 간격 카운트 다운 (8초마다)
         var capturePhotoCount: Int = 0       // 현재 촬영 횟수
@@ -58,7 +60,7 @@ final class StreamingStore: StoreProtocol {
         case videoFrameDecoded(CMSampleBuffer)
 
         // 타이머
-        case phaseChanged(TimerPhase)
+        case phaseChanged(OverlayPhase)
         case countdownUpdated(Int)
         case shootingCountdownUpdated(Int)
         case capturePhotoCountUpdated(Int)
@@ -67,15 +69,20 @@ final class StreamingStore: StoreProtocol {
         case receivedPhotoCountUpdated(Int)
     }
 
-    var state: State = .init()
+    var state: State
 
     private let advertiser: Advertiser
     private let decoder: H264Decoder
     private var timer: Timer?
 
-    init(_ advertiser: Advertiser, decoder: H264Decoder) {
+    init(
+        _ advertiser: Advertiser,
+        decoder: H264Decoder,
+        initialPhase: OverlayPhase
+    ) {
         self.advertiser = advertiser
         self.decoder = decoder
+        self.state = State(overlayPhase: initialPhase)
 
         decoder.onDecodedSampleBuffer = { [weak self] sampleBuffer in
             Task { @MainActor in
@@ -96,7 +103,7 @@ final class StreamingStore: StoreProtocol {
             self?.send(.capturePhotoCount)
         }
 
-        // 10장 모두 저장 완료 콜백 (iPhone에서 전송)
+        // 10장 사진 저장 시작
         advertiser.onAllPhotosStored = { [weak self] in
             self?.send(.startTransfer)
         }
@@ -131,6 +138,7 @@ final class StreamingStore: StoreProtocol {
             let newCount = state.receivedPhotoCount + 1
             result.append(.receivedPhotoCountUpdated(newCount))
             if newCount >= state.totalCaptureCount {
+                advertiser.stopHeartBeating()
                 result.append(.phaseChanged(.completed))
             }
 
@@ -158,7 +166,7 @@ final class StreamingStore: StoreProtocol {
             state.currentSampleBuffer = sampleBuffer
             // MARK: - 타이머
         case .phaseChanged(let phase):
-            state.timerPhase = phase
+            state.overlayPhase = phase
 
         case .countdownUpdated(let value):
             state.countdownValue = value
@@ -193,7 +201,7 @@ extension StreamingStore {
     private func handleTick() -> [Result] {
         var results: [Result] = []
 
-        switch state.timerPhase {
+        switch state.overlayPhase {
         case .countdown:
             if state.countdownValue > 1 {
                 results.append(.countdownUpdated(state.countdownValue - 1))
@@ -221,7 +229,6 @@ extension StreamingStore {
                 // 10장 촬영 완료 시
                 if newCount >= state.totalCaptureCount {
                     stopTimer()
-                    results.append(.phaseChanged(.transferring))
                 } else {
                     // 다음 촬영을 위한 카운트다운 재설정
                     results.append(.shootingCountdownUpdated(8))

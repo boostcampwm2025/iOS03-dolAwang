@@ -10,6 +10,7 @@ import SwiftUI
 struct BrowsingView: View {
 
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) var rootStore: RootStore
     @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
@@ -20,6 +21,7 @@ struct BrowsingView: View {
                 color: Color(store.state.currentTarget.color),
                 animationTrigger: store.state.animationTrigger
             )
+            .opacity(colorScheme == .dark ? 0.4 : 0.2)
 
             if store.state.isConnecting {
                 ProgressView()
@@ -94,9 +96,18 @@ struct BrowsingView: View {
                             )
                         }
                     } label: {
-                        Text(store.state.hasSelectedDevice ? "다음" : "건너뛰기")
-                            .font(.callout)
-                            .foregroundStyle(Color(.secondaryLabel))
+                        Text(store.state.hasSelectedDevice ? "다음" : "리모트 기기 없이 시작")
+                            .font(.body)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                store.state.hasSelectedDevice
+                                ? Color(store.state.currentTarget.color)
+                                : Color("mirroringColor").opacity(0.6)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
             }

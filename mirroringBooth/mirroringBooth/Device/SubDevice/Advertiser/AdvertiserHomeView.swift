@@ -49,8 +49,8 @@ struct AdvertiserHomeView: View {
             if rootStore.advertiser == nil {
                 rootStore.advertiser = store.advertiser
             }
-            store.advertiser.onHeartBeatTimeout = {
-                rootStore.send(.showTimeoutAlert(true))
+            store.advertiser.onHeartBeatTimeout = { [weak rootStore] in
+                rootStore?.send(.showTimeoutAlert(true))
             }
         }
         .onDisappear {
@@ -62,7 +62,12 @@ struct AdvertiserHomeView: View {
 
                 switch deviceUseType {
                 case .mirroring:
-                    router.push(to: MirroringRoute.modeSelection(store.advertiser))
+                    router.push(
+                        to: MirroringRoute.modeSelection(
+                            store.advertiser,
+                            isRemoteEnable: store.state.isRemoteSelected
+                        )
+                    )
                 case .remote:
                     router.push(to: RemoteRoute.remoteCapture(store.advertiser))
                 }

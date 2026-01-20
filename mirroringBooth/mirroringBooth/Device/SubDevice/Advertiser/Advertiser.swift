@@ -26,8 +26,9 @@ final class Advertiser: NSObject {
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
 
-    var navigateToSelectModeCommandCallBack: (() -> Void)?
+    var navigateToSelectModeCommandCallBack: ((_ isRemoteEnable: Bool) -> Void)?
     var navigateToRemoteCaptureCallBack: (() -> Void)?
+    var navigateToRemoteCompleteCallBack: (() -> Void)?
 
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
@@ -137,28 +138,53 @@ final class Advertiser: NSObject {
 
     private func executeCommand(data: Data) {
         guard let command = String(data: data, encoding: .utf8) else { return }
-        if let type = Browser.MirroringDeviceCommand(rawValue: command) {
-            switch type {
-            case .navigateToSelectMode:
-                guard let navigateToSelectModeCommandCallBack else { return }
-                DispatchQueue.main.async {
-                    navigateToSelectModeCommandCallBack()
-                }
-            case .allPhotosStored:
-                DispatchQueue.main.async {
-                    self.onAllPhotosStored?()
-                }
-            case .onUpdateCaptureCount:
-                DispatchQueue.main.async {
-                    self.onUpdateCaptureCount?()
-                }
-            case .heartBeat:
-                heartBeater.beat()
-            case .navigateToRemoteCapture:
-                guard let navigateToRemoteCaptureCallBack else { return }
-                DispatchQueue.main.async {
-                    navigateToRemoteCaptureCallBack()
-                }
+
+        if let mirroringDeviceCommand = Browser.MirroringDeviceCommand(rawValue: command) {
+            handleMirroringDeviceCommand(mirroringDeviceCommand)
+            return
+        }
+
+        if let remoteDeviceCommand = Browser.RemoteDeviceCommand(rawValue: command) {
+            handleRemoteDeviceCommand(remoteDeviceCommand)
+            return
+        }
+    }
+
+    private func handleMirroringDeviceCommand(_ mirroringDeviceCommand: Browser.MirroringDeviceCommand) {
+        switch mirroringDeviceCommand {
+        case .navigateToSelectModeWithRemote:
+            guard let navigateToSelectModeCommandCallBack else { return }
+            DispatchQueue.main.async {
+                navigateToSelectModeCommandCallBack(true)
+            }
+        case .navigateToSelectModeWithoutRemote:
+            guard let navigateToSelectModeCommandCallBack else { return }
+            DispatchQueue.main.async {
+                navigateToSelectModeCommandCallBack(false)
+            }
+        case .allPhotosStored:
+            DispatchQueue.main.async {
+                self.onAllPhotosStored?()
+            }
+        case .onUpdateCaptureCount:
+            DispatchQueue.main.async {
+                self.onUpdateCaptureCount?()
+            }
+        case .heartBeat:
+            heartBeater.beat()
+        }
+    }
+
+    private func handleRemoteDeviceCommand(_ remoteDeviceCommand: Browser.RemoteDeviceCommand) {
+        switch remoteDeviceCommand {
+        case .navigateToRemoteCapture:
+            guard let navigateToRemoteCaptureCallBack else { return }
+            DispatchQueue.main.async {
+                navigateToRemoteCaptureCallBack()
+            }
+        case .navigateToRemoteComplete:
+            DispatchQueue.main.async {
+                self.navigateToRemoteCompleteCallBack?()
             }
         }
     }
