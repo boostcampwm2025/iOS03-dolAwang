@@ -34,7 +34,8 @@ struct ConfirmationAlert: View {
                 VStack(spacing: 12) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.system(size: 48))
-                        .foregroundStyle(.yellow)
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(.black, .yellow)
 
                     Text("주의")
                         .font(.title2.bold())
