@@ -48,6 +48,7 @@ final class Advertiser: NSObject {
         case setRemoteMode // 원격 촬영 모드 설정
         case selectedTimerMode // 타이머 모드 선택
         case heartBeat // 세션 생존 확인
+        case remoteHeartBeat // 리모트 세션 확인용
         case stopHeartBeat // heartbeat 종료
     }
 
