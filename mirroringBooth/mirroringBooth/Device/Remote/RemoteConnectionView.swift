@@ -65,9 +65,5 @@ struct RemoteConnectionView: View {
                 }
             }
         }
-        .onDisappear {
-            advertiser.navigateToRemoteCaptureCallBack = nil
-            advertiser.navigateToHomeCallback = nil
-        }
     }
 }
