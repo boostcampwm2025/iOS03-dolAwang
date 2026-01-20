@@ -206,28 +206,19 @@ extension StreamingStore {
             if state.countdownValue > 1 {
                 results.append(.countdownUpdated(state.countdownValue - 1))
             } else {
-                // 8초 카운트다운 완료 후 첫 촬영
                 results.append(.phaseChanged(.shooting))
                 results.append(.shootingCountdownUpdated(8))
 
                 capturePhoto()
-
-                // 첫 촬영 시 capturePhotoCount를 먼저 업데이트
-                let firstCount = state.capturePhotoCount + 1
-                results.append(.capturePhotoCountUpdated(firstCount))
             }
         case .shooting:
             if state.shootingCountdown > 1 {
                 results.append(.shootingCountdownUpdated(state.shootingCountdown - 1))
             } else {
-                // 8초가 경과하면 촬영 (첫 촬영 후 8초마다)
                 capturePhoto()
 
-                let newCount = state.capturePhotoCount + 1
-                results.append(.capturePhotoCountUpdated(newCount))
-
                 // 10장 촬영 완료 시
-                if newCount >= state.totalCaptureCount {
+                if state.capturePhotoCount >= state.totalCaptureCount - 1 {
                     stopTimer()
                 } else {
                     // 다음 촬영을 위한 카운트다운 재설정
