@@ -84,6 +84,7 @@ struct CameraPreview: View {
             cancellable: false
         ) {
             router.reset()
+            rootStore.send(.showTimeoutAlert(false))
         }
     }
 
