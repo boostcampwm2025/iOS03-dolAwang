@@ -74,16 +74,6 @@ private struct ReceivingView: View {
     }
 }
 
-private struct FailedView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "exclamationmark.triangle")
-            Text("수신 실패")
-        }
-        .foregroundStyle(.red)
-    }
-}
-
 private struct PhotoCell: View {
     let url: URL
     let index: Int
