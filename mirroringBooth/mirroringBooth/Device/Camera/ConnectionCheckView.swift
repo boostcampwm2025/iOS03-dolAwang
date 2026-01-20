@@ -70,7 +70,11 @@ struct ConnectionCheckView: View {
                 // 3. 촬영 준비 버튼
                 Button {
                     showPreview = true
-                    browser.sendCommand(.navigateToSelectMode)
+                    browser.sendCommand(
+                        remoteDevice == nil
+                        ? .navigateToSelectModeWithoutRemote
+                        : .navigateToSelectModeWithRemote
+                    )
                     browser.sendRemoteCommand(.navigateToRemoteCapture)
                     shouldNavigateToCompletion = false
                 } label: {

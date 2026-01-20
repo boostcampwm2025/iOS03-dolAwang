@@ -59,7 +59,12 @@ struct AdvertiserHomeView: View {
 
                 switch deviceUseType {
                 case .mirroring:
-                    router.push(to: MirroringRoute.modeSelection(store.advertiser))
+                    router.push(
+                        to: MirroringRoute.modeSelection(
+                            store.advertiser,
+                            isRemoteEnable: store.state.isRemoteSelected
+                        )
+                    )
                 case .remote:
                     router.push(to: RemoteRoute.remoteCapture(store.advertiser))
                 }

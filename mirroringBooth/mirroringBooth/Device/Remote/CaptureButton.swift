@@ -33,24 +33,25 @@ struct CaptureButton: View {
                         Color("TextPrimary").opacity(0.8),
                         lineWidth: 1
                     )
-                    .frame(width: width / 2)
+                    .frame(width: width)
 
                 Circle()
                     .stroke(
                         Color("buttonComponent").opacity(colorScheme == .dark ? 0.7 : 0.5),
                         lineWidth: colorScheme == .dark ? 0.5 : 1
                     )
-                    .frame(width: width / 2 * (colorScheme == .dark ? 1 : 0.85))
+                    .frame(width: width * (colorScheme == .dark ? 1 : 0.85))
 
                 Image(systemName: "camera.fill")
                     .font(.title.bold())
                     .foregroundStyle(Color.black)
             }
-            .frame(width: width / 2)
+            .frame(width: width)
+            .contentShape(Circle())
             .background {
                 Circle()
                     .fill(colorScheme == .dark ? Color.white : Color.clear)
-                    .frame(width: width / 2 * 1.1, height: width / 2 * 1.1)
+                    .frame(width: width * 1.1, height: width * 1.1)
             }
         }
         .buttonStyle(.plain)

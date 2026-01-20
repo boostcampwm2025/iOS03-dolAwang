@@ -13,11 +13,16 @@ import OSLog
 /// 다른 기기를 탐색하고 연결하여 스트림 데이터(비디오/사진)를 전송
 final class Browser: NSObject {
     enum MirroringDeviceCommand: String {
-        case navigateToSelectMode
+        case navigateToSelectModeWithRemote
+        case navigateToSelectModeWithoutRemote
         case allPhotosStored // 사진 10장 모두 저장 완료
         case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
         case heartBeat
+    }
+
+    enum RemoteDeviceCommand: String {
         case navigateToRemoteCapture
+        case navigateToRemoteComplete
     }
 
     enum SessionType: String {
@@ -142,6 +147,12 @@ final class Browser: NSObject {
         logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
     }
 
+    /// 카메라 캡쳐 액션을 실행합니다.
+    func capturePhoto() {
+        self.onCaptureCommand?()
+        self.sendCommand(.onUpdateCaptureCount)
+    }
+
     /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.
     func sendStreamData(_ data: Data) {
         guard let mirroringSession else { return }
@@ -218,7 +229,7 @@ final class Browser: NSObject {
     }
 
     /// 리모트 기기에게 명령을 전송합니다.
-    func sendRemoteCommand(_ command: MirroringDeviceCommand) {
+    func sendRemoteCommand(_ command: RemoteDeviceCommand) {
         guard let data = command.rawValue.data(using: .utf8) else { return }
 
         guard let connectedPeers = remoteSession?.connectedPeers,
@@ -394,11 +405,12 @@ extension Browser: MCSessionDelegate {
             switch type {
             case .capturePhoto:
                 DispatchQueue.main.async {
-                    self.onCaptureCommand?()
+                    self.capturePhoto()
                 }
             case .startTransfer:
                 DispatchQueue.main.async {
                     self.onStartTransferCommand.send()
+                    self.sendRemoteCommand(.navigateToRemoteComplete)
                 }
             case .setRemoteMode:
                 DispatchQueue.main.async {
@@ -474,13 +486,5 @@ extension Browser: MCNearbyServiceBrowserDelegate {
         DispatchQueue.main.async {
             self.onDeviceLost?(device)
         }
-    }
-}
-
-// MARK: - WatchConnectionManager
-extension Browser {
-    func capturePhoto() {
-        self.onCaptureCommand?()
-        self.sendCommand(.onUpdateCaptureCount)
     }
 }

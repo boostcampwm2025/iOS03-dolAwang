@@ -24,7 +24,7 @@ struct ConfirmationAlert: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.7)
+            Color.black.opacity(0.3)
                 .ignoresSafeArea()
                 .onTapGesture {
                     onCancel?()
@@ -34,7 +34,8 @@ struct ConfirmationAlert: View {
                 VStack(spacing: 12) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.system(size: 48))
-                        .foregroundStyle(.yellow)
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(.black, .yellow)
 
                     Text("주의")
                         .font(.title2.bold())
@@ -54,7 +55,7 @@ struct ConfirmationAlert: View {
                             Text("계속하기")
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 14)
-                                .background(.gray.opacity(0.3))
+                                .background(.gray.opacity(0.4))
                                 .foregroundStyle(.white)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
@@ -75,7 +76,7 @@ struct ConfirmationAlert: View {
             .padding(32)
             .background {
                 RoundedRectangle(cornerRadius: 24)
-                    .fill(Color(.systemGray6).opacity(0.8))
+                    .fill(Color(.systemGray6).opacity(0.9))
             }
             .frame(maxWidth: 500)
             .padding(.horizontal, 40)

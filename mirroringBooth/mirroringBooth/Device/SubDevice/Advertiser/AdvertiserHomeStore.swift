@@ -14,6 +14,7 @@ final class AdvertiserHomeStore: StoreProtocol {
         var isAdvertising: Bool = false
         var hasConnectionStarted: Bool = false
         var deviceUseType: DeviceUseType?
+        var isRemoteSelected: Bool = false
     }
 
     enum Intent {
@@ -25,6 +26,7 @@ final class AdvertiserHomeStore: StoreProtocol {
     enum Result {
         case setIsAdvertising(Bool)
         case setIsConnecting(Bool, type: DeviceUseType?)
+        case setIsRemoteSelected(Bool)
     }
 
     var state: State = .init()
@@ -33,7 +35,8 @@ final class AdvertiserHomeStore: StoreProtocol {
     init(_ advertiser: Advertiser) {
         self.advertiser = advertiser
 
-        advertiser.navigateToSelectModeCommandCallBack = { [weak self] in
+        advertiser.navigateToSelectModeCommandCallBack = { [weak self] isRemoteEnable in
+            self?.reduce(.setIsRemoteSelected(isRemoteEnable))
             self?.reduce(.setIsConnecting(true, type: .mirroring))
         }
 
@@ -71,6 +74,9 @@ final class AdvertiserHomeStore: StoreProtocol {
         case .setIsConnecting(let status, let useType):
             state.hasConnectionStarted = status
             state.deviceUseType = useType
+
+        case .setIsRemoteSelected(let isRemoteSelected):
+            state.isRemoteSelected = isRemoteSelected
         }
 
         self.state = state
