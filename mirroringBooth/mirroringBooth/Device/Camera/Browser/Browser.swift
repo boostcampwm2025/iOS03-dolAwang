@@ -261,6 +261,7 @@ final class Browser: NSObject {
         remoteSession = nil
         targetMirroringDeviceID = nil
         targetRemoteDeviceID = nil
+        heartBeater.stop()
         logger.info("모든 연결 해제")
     }
 

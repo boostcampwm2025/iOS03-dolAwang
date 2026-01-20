@@ -110,6 +110,7 @@ final class Advertiser: NSObject {
         commandSession?.disconnect()
         session = nil
         commandSession = nil
+        heartBeater.stop()
         logger.info("연결 해제: \(self.peerID.displayName)")
     }
 

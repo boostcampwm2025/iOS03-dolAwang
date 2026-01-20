@@ -9,6 +9,7 @@ import SwiftUI
 
 struct StreamingView: View {
     @Environment(Router.self) var router: Router
+    @Environment(RootStore.self) private var rootStore
     @State private var store: StreamingStore
     @State private var showHomeAlert: Bool = false
     let advertiser: Advertiser
@@ -91,6 +92,7 @@ struct StreamingView: View {
             message: "촬영된 사진이 모두 사라집니다.\n연결을 종료하시겠습니까?"
         ) {
             router.reset()
+            rootStore.send(.disconnect)
         }
     }
 

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ResultView: View {
     @Environment(Router.self) var router: Router
+    @Environment(RootStore.self) private var rootStore
     @State private var showHomeAlert: Bool = false
 
     @State private var scale: CGFloat = 1.0
@@ -89,6 +90,7 @@ struct ResultView: View {
             message: "사진을 저장하셨나요?\n홈으로 돌아가시겠습니까?"
         ) {
             router.reset()
+            rootStore.send(.disconnect)
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
