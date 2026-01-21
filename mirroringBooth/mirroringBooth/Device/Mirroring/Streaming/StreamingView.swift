@@ -126,21 +126,17 @@ struct StreamingView: View {
             ZStack {
                 VStack {
                     HStack(alignment: .top) {
-                        VStack(alignment: .leading) {
-                            badgeGroup(isCompact: isCompact)
-
-                            // 연결 끊기 버튼
-                            DisconnectButtonView(
-                                textFont: isCompact ? .caption : .callout,
-                                backgroundColor: .black.opacity(0.5)
-                            ) {
-                                showHomeAlert = true
-                            }
-                            .padding(.horizontal, -20)
-                            .padding(.vertical, -15)
+                        // 연결 끊기 버튼
+                        DisconnectButtonView(
+                            textFont: isCompact ? .caption : .callout,
+                            backgroundColor: .black.opacity(0.5)
+                        ) {
+                            showHomeAlert = true
                         }
+                        .padding(.horizontal, -20)
+                        .padding(.vertical, -15)
 
-                        Spacer() // medium, compact는 Spacer로 우측 정렬
+                        Spacer() // compact는 Spacer로 우측 정렬
 
                         VStack(alignment: .trailing, spacing: 0) {
                             CaptureCountBadge(
@@ -149,21 +145,16 @@ struct StreamingView: View {
                                 isCompact: isCompact
                             )
 
-                            if (layoutType == .medium || isCompact) && isShooting {
-                                if layoutType == .compact {
-                                    ProgressIndicator(countdown: store.state.shootingCountdown)
-                                        .padding(.top, 16)
-                                } else {
-                                    ShootingProgressBadge(countdown: store.state.shootingCountdown)
-                                        .padding(.top, 16)
-                                }
+                            if isCompact && isShooting {
+                                ProgressIndicator(countdown: store.state.shootingCountdown)
+                                    .padding(.top, 16)
                             }
                         }
                     }
                     Spacer()
                 }
 
-                if layoutType == .large && isShooting {
+                if (layoutType == .large || layoutType == .medium) && isShooting {
                     VStack {
                         ShootingProgressBadge(countdown: store.state.shootingCountdown)
                         Spacer()
@@ -173,33 +164,5 @@ struct StreamingView: View {
             }
             .padding(16)
         }
-    }
-
-    @ViewBuilder
-    private func badgeGroup(isCompact: Bool) -> some View {
-        if isCompact {
-            VStack(alignment: .leading, spacing: 8) {
-                badgeContents(isCompact: isCompact)
-            }
-        } else {
-            HStack(spacing: 8) {
-                badgeContents(isCompact: isCompact)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func badgeContents(isCompact: Bool) -> some View {
-        DeviceStatusBadge(
-            deviceName: "몽이의 iPhone",
-            batteryLevel: 82,
-            isConnected: false,
-            isCompact: isCompact
-        )
-
-        CaptureStatusBadge(
-            isTimerMode: isTimerMode,
-            isCompact: isCompact
-        )
     }
 }
