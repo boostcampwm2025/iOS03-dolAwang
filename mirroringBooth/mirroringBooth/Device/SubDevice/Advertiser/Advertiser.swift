@@ -53,6 +53,9 @@ final class Advertiser: NSObject {
         case stopHeartBeat // heartbeat 종료
     }
 
+    /// 리모트 기기 연결 끊겼을 때 모드 선택 화면 교체 콜백
+    var switchModeSelectionView: (() -> Void)?
+
     /// 사진 수신 완료 콜백 (1장마다 호출)
     var onPhotoReceived: (() -> Void)?
 
@@ -175,6 +178,10 @@ final class Advertiser: NSObject {
             DispatchQueue.main.async {
                 navigateToSelectModeCommandCallBack(false)
             }
+        case .switchSelectModeView:
+            DispatchQueue.main.async {
+                self.switchModeSelectionView?()
+            }
         case .allPhotosStored:
             DispatchQueue.main.async {
                 self.onAllPhotosStored?()
@@ -222,9 +229,6 @@ final class Advertiser: NSObject {
 extension Advertiser: MCSessionDelegate {
 
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-        if case .notConnected = state {
-            disconnect()
-        }
         if session === self.session, state == .connected {
             heartBeater.start()
         }

@@ -15,6 +15,7 @@ final class Browser: NSObject {
     enum MirroringDeviceCommand: String {
         case navigateToSelectModeWithRemote
         case navigateToSelectModeWithoutRemote
+        case switchSelectModeView
         case allPhotosStored // 사진 10장 모두 저장 완료
         case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
         case heartBeat
@@ -288,11 +289,13 @@ final class Browser: NSObject {
             mirroringSession = nil
             mirroringCommandSession = nil
             targetMirroringDeviceID = nil
+            heartBeater.stop()
             logger.info("미러링 연결 해제")
         case .remote:
             remoteSession?.disconnect()
             remoteSession = nil
             targetRemoteDeviceID = nil
+            remoteHeartBeater?.stop()
             logger.info("리모트 연결 해제")
         }
     }

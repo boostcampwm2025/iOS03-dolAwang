@@ -15,6 +15,7 @@ struct CameraPreview: View {
     @Environment(RootStore.self) private var rootStore
     @State var store: CameraPreviewStore
     @State private var showHomeAlert: Bool = false
+    @State private var isMirroringDisconnected: Bool = false
 
     let onDismissByCaptureCompletion: (() -> Void)?
 
@@ -56,6 +57,13 @@ struct CameraPreview: View {
             }
             store.send(.startSession)
             store.send(.updateAngle(rawValue: UIDevice.current.orientation.rawValue))
+            rootStore.browser?.onHeartbeatTimeout = {
+                isMirroringDisconnected = true
+                rootStore.browser?.disconnect(useType: .remote)
+            }
+            rootStore.browser?.onRemoteHeartbeatTimeout = {
+                rootStore.browser?.sendCommand(.switchSelectModeView)
+            }
         }
         .onChange(of: UIDevice.current.orientation.rawValue) { _, value in
             withAnimation(.easeInOut(duration: 0.3)) {
@@ -77,15 +85,12 @@ struct CameraPreview: View {
             dismiss()
         }
         .homeAlert(
-            isPresented: Binding(
-                get: { rootStore.state.showTimeoutAlert },
-                set: { rootStore.send(.showTimeoutAlert($0)) }
-            ),
+            isPresented: $isMirroringDisconnected,
             message: "기기 연결이 끊겼습니다.",
             cancellable: false
         ) {
+            dismiss()
             router.reset()
-            rootStore.send(.showTimeoutAlert(false))
         }
     }
 
