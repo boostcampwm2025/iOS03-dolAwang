@@ -341,7 +341,6 @@ extension Browser: MCSessionDelegate {
         }
 
         DispatchQueue.main.async {
-            self.onDeviceFound?(device)
             self.handleConnectionStateChange(newState, device: device, session: session, peerID: peerID)
         }
     }
