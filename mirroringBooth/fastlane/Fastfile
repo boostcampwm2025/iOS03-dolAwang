@@ -8,7 +8,7 @@ default_platform(:ios)
 
 platform :ios do
   desc "Development IPA build & AppBox internal distribution"
-  lane :dev_ipa do |options|
+  lane :appbox do |options|
     # env에서 이메일 가져오기 (파라미터 -> 환경 변수 -> 기본값 순서입니다.)
     emails = options[:emails] || ENV["APPBOX_EMAILS"] || "kayuaao96@gmail.com"
     
