@@ -38,7 +38,7 @@ final class H264Decoder {
 
     func decode(_ data: Data) {
         decoderQueue.async { [weak self] in
-            if 6 <= data.count {
+            if 5 <= data.count {
                 let startIndex = data.startIndex
                 let isAnnexBAtStart =
                     data[startIndex] == 0x00 &&
@@ -47,22 +47,21 @@ final class H264Decoder {
                     data[startIndex + 3] == 0x01
 
                 if !isAnnexBAtStart {
-                    let angleBytesRange = data.startIndex..<(data.startIndex + 2)
-                    let angleBytes = data.subdata(in: angleBytesRange)
+                    let orientationCase = data[startIndex]
 
-                    let angleValue = angleBytes.withUnsafeBytes { rawBufferPointer -> Int16? in
-                        guard MemoryLayout<Int16>.size <= rawBufferPointer.count else { return nil }
-                        return rawBufferPointer.loadUnaligned(as: Int16.self).littleEndian
+                    let mappedAngle: Int16
+                    switch orientationCase {
+                    case 1: mappedAngle = 90
+                    case 2: mappedAngle = -90
+                    default: mappedAngle = 0
                     }
 
-                    if let angleValue = angleValue {
-                        self?.rotationAngle = angleValue
+                    self?.rotationAngle = mappedAngle
 
-                        let trimmedDataRange = (data.startIndex + 2)..<data.endIndex
-                        let trimmedData = data.subdata(in: trimmedDataRange)
-                        self?.processNALUnits(trimmedData)
-                        return
-                    }
+                    let trimmedDataRange = (startIndex + 1)..<data.endIndex
+                    let trimmedData = data.subdata(in: trimmedDataRange)
+                    self?.processNALUnits(trimmedData)
+                    return
                 }
             }
 
