@@ -24,6 +24,7 @@ struct StandbyView: View {
                 Text("아래의 이름을 iPhone에서 찾아주세요!")
                     .foregroundStyle(.primary.opacity(0.4))
                 Text(displayName)
+                    .multilineTextAlignment(.center)
                     .padding(.vertical, 5)
                     .padding(.horizontal, 10)
                     .foregroundStyle(.primary.opacity(0.6))
@@ -31,6 +32,7 @@ struct StandbyView: View {
                         RoundedRectangle(cornerRadius: 20)
                             .fill(.primary.opacity(0.3))
                     }
+                    .padding(15)
             }
             .font(.headline)
         }
