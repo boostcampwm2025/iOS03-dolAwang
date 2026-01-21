@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PhotoCompositionView: View {
+    @Environment(\.colorScheme) var colorScheme
     @State var store: PhotoCompositionStore
     @Environment(Router.self) var router: Router
 
@@ -127,13 +128,16 @@ private extension PhotoCompositionView {
                 .font(.headline.bold())
                 .padding(.vertical, 15)
                 .padding(.horizontal, 30)
+                .foregroundStyle(Color.white)
                 .disabled(store.state.isCompletedButtonDisabled)
                 .background {
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.main.opacity(0.3))
+                        .fill(Color.main)
                         .strokeBorder(Color.borderLine, lineWidth: 2)
                         .frame(minHeight: 44)
+                        .opacity(colorScheme == .dark ? 1 : 0.3)
                 }
+                .opacity(colorScheme == .dark ? 0.3 : 1)
         }
         .padding(5)
     }
