@@ -54,7 +54,10 @@ struct StreamingView: View {
 
             // 비디오 스트리밍 표시
             if let sampleBuffer = store.state.currentSampleBuffer {
-                VideoPlayerView(sampleBuffer: sampleBuffer)
+                VideoPlayerView(
+                    sampleBuffer: sampleBuffer,
+                    rotationAngle: store.state.rotationAngle
+                )
                     .ignoresSafeArea()
             } else {
                 streamingPlaceholder
