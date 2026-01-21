@@ -8,7 +8,7 @@ default_platform(:ios)
 
 platform :ios do
   desc "Development IPA build & AppBox internal distribution"
-  lane :appbox do |options|
+  lane :dev_appbox do |options|
     # env에서 이메일 가져오기 (파라미터 -> 환경 변수 -> 기본값 순서입니다.)
     emails = options[:emails] || ENV["APPBOX_EMAILS"] || "kayuaao96@gmail.com"
     
@@ -31,7 +31,7 @@ platform :ios do
   end
 
   desc "TestFlight build & upload"
-  lane :testflight do |options|
+  lane :dev_testflight do |options|
     
     build_app(
       scheme: "mirroringBooth",
