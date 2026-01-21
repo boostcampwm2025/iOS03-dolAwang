@@ -5,7 +5,7 @@
 //  Created by 이상유 on 2026-01-07.
 //
 
-enum DeviceUseType {
+enum DeviceUseType: CaseIterable {
     case mirroring
     case remote
 
