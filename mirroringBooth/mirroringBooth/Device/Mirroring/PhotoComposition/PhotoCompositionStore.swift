@@ -15,6 +15,9 @@ final class PhotoCompositionStore: StoreProtocol {
         var currentSelectionCount: Int = 0
         var selectedLayout: LayoutAsset = .oneByOne
         var selectedFrame: FrameAsset = .black
+        var isCompletedButtonDisabled: Bool {
+            return selectedPhotos.isEmpty
+        }
     }
 
     enum Intent {
