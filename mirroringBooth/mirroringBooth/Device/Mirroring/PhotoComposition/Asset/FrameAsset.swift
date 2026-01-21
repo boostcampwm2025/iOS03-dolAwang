@@ -30,4 +30,13 @@ enum FrameAsset: String, Identifiable, CaseIterable {
             return UIImage(named: "skyblue")
         }
     }
+
+    var isDateNeedsBackground: Bool {
+        switch self {
+        case .black, .white:
+            return false
+        default:
+            return true
+        }
+    }
 }
