@@ -16,7 +16,7 @@ struct RootView: View {
             NavigationStack(path: $router.path) {
                 Group {
                     if UIDevice.current.userInterfaceIdiom == .phone {
-                        CameraHomeView()
+                        HomeView()
                     } else {
                         AdvertiserHomeView()
                     }

@@ -1,5 +1,5 @@
 //
-//  CameraHomeView.swift
+//  HomeView.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2026-01-06.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CameraHomeView: View {
+struct HomeView: View {
 
     @Environment(Router.self) var router: Router
 
@@ -46,7 +46,7 @@ struct CameraHomeView: View {
     }
 }
 
-extension CameraHomeView {
+extension HomeView {
     @ViewBuilder
     private func selectionBox(
         icons: [String],
