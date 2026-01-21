@@ -11,7 +11,7 @@ struct ConnectionCheckView: View {
     @Environment(Router.self) var router: Router
     private let cameraDevice: String
     private let mirroringDevice: String
-    private let remoteDevice: String?
+    @State private var remoteDevice: String?
     private let browser: Browser
     private let cameraManager = CameraManager()
 
@@ -119,6 +119,7 @@ struct ConnectionCheckView: View {
             }
             browser.onRemoteHeartbeatTimeout = {
                 showRemoteDisconnectedAlert = true
+                remoteDevice = nil
             }
         }
         .onChange(of: onMirroringDisconnected) {
