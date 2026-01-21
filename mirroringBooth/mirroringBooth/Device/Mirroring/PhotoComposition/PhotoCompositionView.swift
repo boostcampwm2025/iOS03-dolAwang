@@ -135,9 +135,12 @@ private extension PhotoCompositionView {
                         .fill(Color.main)
                         .strokeBorder(Color.borderLine, lineWidth: 2)
                         .frame(minHeight: 44)
-                        .opacity(colorScheme == .dark ? 1 : 0.3)
+                        .opacity(store.state.isCompletedButtonDisabled ? 0.3 : 1)
                 }
-                .opacity(colorScheme == .dark ? 0.3 : 1)
+                .opacity(
+                    colorScheme == .dark &&
+                    store.state.isCompletedButtonDisabled ? 0.3 : 1
+                )
         }
         .padding(5)
     }
