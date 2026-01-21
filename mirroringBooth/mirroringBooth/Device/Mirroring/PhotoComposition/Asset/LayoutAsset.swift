@@ -16,6 +16,7 @@ enum LayoutAsset: CaseIterable, Identifiable {
     struct Spec {
         let size: CGSize   // 레이아웃 비율의 기준
         let slotFrame: [CGRect] // 슬롯 픽셀 rect
+        let dateOrigin: CGPoint // 날짜 출력 시작 위치
         var aspect: CGFloat { size.width / max(size.height, 1) }
     }
 
@@ -57,7 +58,8 @@ enum LayoutAsset: CaseIterable, Identifiable {
                     CGRect(x: 96, y: 13, width: 80, height: 110),
                     CGRect(x: 10, y: 129, width: 80, height: 110),
                     CGRect(x: 96, y: 129, width: 80, height: 110)
-                ]
+                ],
+                dateOrigin: CGPoint(x: 10, y: 249)
             )
 
         case .oneByOne:
@@ -65,7 +67,8 @@ enum LayoutAsset: CaseIterable, Identifiable {
                 size: CGSize(width: 96, height: 134),
                 slotFrame: [
                     CGRect(x: 8, y: 8, width: 80, height: 100)
-                ]
+                ],
+                dateOrigin: CGPoint(x: 8, y: 120)
             )
 
         case .twoByOne:
@@ -74,7 +77,8 @@ enum LayoutAsset: CaseIterable, Identifiable {
                 slotFrame: [
                     CGRect(x: 8, y: 8, width: 80, height: 100),
                     CGRect(x: 8, y: 115, width: 80, height: 100)
-                ]
+                ],
+                dateOrigin: CGPoint(x: 8, y: 222)
             )
 
         case .fourByOne:
@@ -85,7 +89,8 @@ enum LayoutAsset: CaseIterable, Identifiable {
                     CGRect(x: 8, y: 80, width: 80, height: 65),
                     CGRect(x: 8, y: 151, width: 80, height: 65),
                     CGRect(x: 8, y: 222, width: 80, height: 65)
-                ]
+                ],
+                dateOrigin: CGPoint(x: 8, y: 296)
             )
 
         case .threeByTwo:
@@ -98,7 +103,8 @@ enum LayoutAsset: CaseIterable, Identifiable {
                     CGRect(x: 8, y: 80, width: 80, height: 65),
                     CGRect(x: 94, y: 80, width: 80, height: 65),
                     CGRect(x: 180, y: 80, width: 80, height: 65)
-                ]
+                ],
+                dateOrigin: CGPoint(x: 8, y: 152)
             )
         }
     }
@@ -117,6 +123,18 @@ enum LayoutAsset: CaseIterable, Identifiable {
                 height: rect.height / height
             )
         }
+    }
+
+    /// 정규화된 날짜 시작 위치(0~1)
+    func dateOrigin() -> CGPoint {
+        let width = spec.size.width
+        let height = spec.size.height
+        guard width > 0, height > 0 else { return .zero }
+
+        return CGPoint(
+            x: spec.dateOrigin.x / width,
+            y: spec.dateOrigin.y / height
+        )
     }
 
     /// 프리뷰 컨테이너 비율은 "가상 프레임 비율"
