@@ -31,6 +31,15 @@ enum FrameAsset: String, Identifiable, CaseIterable {
         }
     }
 
+    var textColor: Color {
+        switch self {
+        case .black:
+            return .white
+        default:
+            return .black
+        }
+    }
+
     var isDateNeedsBackground: Bool {
         switch self {
         case .black, .white:
