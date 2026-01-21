@@ -26,9 +26,20 @@ final class Advertiser: NSObject {
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
 
+    /// 촬영 선택 모드 이동 콜백 (미러링 기기)
     var navigateToSelectModeCommandCallBack: ((_ isRemoteEnable: Bool) -> Void)?
+
+    /// 촬영 대기 화면 이동 콜백 (리모트 기기)
+    var navigateToRemoteConnectedCallBack: (() -> Void)?
+
+    /// 촬영 화면 이동 콜백 (리모트 기기)
     var navigateToRemoteCaptureCallBack: (() -> Void)?
+
+    /// 촬영 완료 이동 콜백 (리모트 기기)
     var navigateToRemoteCompleteCallBack: (() -> Void)?
+
+    /// 홈 화면으로 이동 (리모트 기기)
+    var navigateToHomeCallback: (() -> Void)?
 
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
@@ -177,6 +188,11 @@ final class Advertiser: NSObject {
 
     private func handleRemoteDeviceCommand(_ remoteDeviceCommand: Browser.RemoteDeviceCommand) {
         switch remoteDeviceCommand {
+        case .navigateToRemoteConnected:
+            guard let navigateToRemoteConnectedCallBack else { return }
+            DispatchQueue.main.async {
+                navigateToRemoteConnectedCallBack()
+            }
         case .navigateToRemoteCapture:
             guard let navigateToRemoteCaptureCallBack else { return }
             DispatchQueue.main.async {
@@ -185,6 +201,11 @@ final class Advertiser: NSObject {
         case .navigateToRemoteComplete:
             DispatchQueue.main.async {
                 self.navigateToRemoteCompleteCallBack?()
+            }
+        case .navigateToHome:
+            guard let navigateToHomeCallback else { return }
+            DispatchQueue.main.async {
+                navigateToHomeCallback()
             }
         }
     }

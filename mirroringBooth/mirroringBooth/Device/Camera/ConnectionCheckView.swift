@@ -75,7 +75,7 @@ struct ConnectionCheckView: View {
                         ? .navigateToSelectModeWithoutRemote
                         : .navigateToSelectModeWithRemote
                     )
-                    browser.sendRemoteCommand(.navigateToRemoteCapture)
+                    browser.sendRemoteCommand(.navigateToRemoteConnected)
                     shouldNavigateToCompletion = false
                 } label: {
                     Text("촬영 준비하기")
