@@ -45,6 +45,23 @@ struct PhotoFramePreview: View {
                         }
                     }
                 }
+
+                // 3. 날짜
+                let (resolvedText, textSize) = calculateDateViewSize(parentSize: size, with: context)
+                let (backgroundRect, textRect) = dateRects(
+                    parentSize: size,
+                    resolvedText: resolvedText,
+                    textSize: textSize
+                )
+
+                if information.frame.isDateNeedsBackground {
+                    context.fill(
+                        Path(roundedRect: backgroundRect, cornerRadius: 6),
+                        with: .color(.white)
+                    )
+                }
+
+                context.draw(resolvedText, in: textRect)
             }
         }
         .aspectRatio(information.layout.previewAspect, contentMode: .fit)
