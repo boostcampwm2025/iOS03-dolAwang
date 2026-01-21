@@ -69,7 +69,7 @@ struct AdvertiserHomeView: View {
                         )
                     )
                 case .remote:
-                    router.push(to: RemoteRoute.connection(store.advertiser))
+                    router.push(to: RemoteRoute.connected(store.advertiser))
                 }
             }
         }

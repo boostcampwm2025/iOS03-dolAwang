@@ -23,7 +23,7 @@ final class Browser: NSObject {
     enum RemoteDeviceCommand: String {
         case navigateToRemoteCapture
         case navigateToRemoteComplete
-        case navigateToRemoteConnection
+        case navigateToRemoteConnected
         case navigateToHome
     }
 
