@@ -99,4 +99,37 @@ struct PhotoFramePreview: View {
 
         return (resolvedText, textSize)
     }
+
+    /// 날짜 배경 슬롯과 날짜 텍스트 슬롯 생성
+    private func dateRects(
+        parentSize: CGSize,
+        resolvedText: GraphicsContext.ResolvedText,
+        textSize: CGSize
+    ) -> (CGRect, CGRect) {
+        // 1. 날짜 입력 시작할 포인트 계산
+        let normalizedOrigin = information.layout.dateOrigin()
+        let dateOrigin = CGPoint(
+            x: normalizedOrigin.x * parentSize.width,
+            y: normalizedOrigin.y * parentSize.height
+        )
+
+        // 2. 배경 슬롯
+        let padding: CGFloat = 4
+        let backgroundRect = CGRect(
+            x: dateOrigin.x,
+            y: dateOrigin.y,
+            width: textSize.width + padding * 2,
+            height: textSize.height + padding
+        )
+
+        // 3. 텍스트 슬롯
+        let textRect = CGRect(
+            x: dateOrigin.x + padding,
+            y: dateOrigin.y + padding / 2,
+            width: textSize.width,
+            height: textSize.height
+        )
+
+        return (backgroundRect, textRect)
+    }
 }
