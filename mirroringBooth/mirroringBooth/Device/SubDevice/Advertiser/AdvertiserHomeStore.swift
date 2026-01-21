@@ -40,7 +40,7 @@ final class AdvertiserHomeStore: StoreProtocol {
             self?.reduce(.setIsConnecting(true, type: .mirroring))
         }
 
-        advertiser.navigateToRemoteConnectionCallBack = { [weak self] in
+        advertiser.navigateToRemoteConnectedCallBack = { [weak self] in
             self?.reduce(.setIsConnecting(true, type: .remote))
         }
 

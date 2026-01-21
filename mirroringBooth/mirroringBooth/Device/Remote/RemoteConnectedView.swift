@@ -1,5 +1,5 @@
 //
-//  RemoteConnectionView.swift
+//  RemoteConnectedView.swift
 //  mirroringBooth
 //
 //  Created by 윤대현 on 1/20/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct RemoteConnectionView: View {
+struct RemoteConnectedView: View {
     @Environment(Router.self) var router: Router
     let advertiser: Advertiser
 

@@ -30,7 +30,7 @@ final class Advertiser: NSObject {
     var navigateToSelectModeCommandCallBack: ((_ isRemoteEnable: Bool) -> Void)?
 
     /// 촬영 대기 화면 이동 콜백 (리모트 기기)
-    var navigateToRemoteConnectionCallBack: (() -> Void)?
+    var navigateToRemoteConnectedCallBack: (() -> Void)?
 
     /// 촬영 화면 이동 콜백 (리모트 기기)
     var navigateToRemoteCaptureCallBack: (() -> Void)?
@@ -188,10 +188,10 @@ final class Advertiser: NSObject {
 
     private func handleRemoteDeviceCommand(_ remoteDeviceCommand: Browser.RemoteDeviceCommand) {
         switch remoteDeviceCommand {
-        case .navigateToRemoteConnection:
-            guard let navigateToRemoteConnectionCallBack else { return }
+        case .navigateToRemoteConnected:
+            guard let navigateToRemoteConnectedCallBack else { return }
             DispatchQueue.main.async {
-                navigateToRemoteConnectionCallBack()
+                navigateToRemoteConnectedCallBack()
             }
         case .navigateToRemoteCapture:
             guard let navigateToRemoteCaptureCallBack else { return }
