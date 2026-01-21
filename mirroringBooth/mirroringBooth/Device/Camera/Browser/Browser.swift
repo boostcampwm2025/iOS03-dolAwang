@@ -105,6 +105,7 @@ final class Browser: NSObject {
     }
 
     func startSearching() {
+        browser.stopBrowsingForPeers()
         browser.startBrowsingForPeers()
         logger.info("주변 기기를 검색합니다.")
     }
