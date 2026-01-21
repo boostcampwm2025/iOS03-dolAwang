@@ -218,9 +218,9 @@ extension StreamingStore {
                 capturePhoto()
 
                 // 10장 촬영 완료 시
-                let nextCaptureCount = state.capturePhotoCount + 1
+                let currentCaptureCount = state.capturePhotoCount + 1
 
-                if nextCaptureCount >= state.totalCaptureCount {
+                if currentCaptureCount >= state.totalCaptureCount {
                     stopTimer()
                 } else {
                     results.append(.shootingCountdownUpdated(8))
