@@ -123,6 +123,7 @@ struct ConnectionCheckView: View {
             }
         }
         .onChange(of: onMirroringDisconnected) {
+            browser.disconnect(useType: .mirroring)
             router.pop()
         }
         .homeAlert(
