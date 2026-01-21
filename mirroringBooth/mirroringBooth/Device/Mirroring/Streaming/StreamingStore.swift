@@ -58,7 +58,7 @@ final class StreamingStore: StoreProtocol {
         // 스트리밍
         case streamingStarted
         case streamingStopped
-        case videoFrameDecoded(CMSampleBuffer)
+        case videoFrameDecoded(CMSampleBuffer, Int16)
 
         // 타이머
         case phaseChanged(OverlayPhase)
@@ -85,9 +85,9 @@ final class StreamingStore: StoreProtocol {
         self.decoder = decoder
         self.state = State(overlayPhase: initialPhase)
 
-        decoder.onDecodedSampleBuffer = { [weak self] sampleBuffer in
+        decoder.onDecodedSampleBuffer = { [weak self] sampleBuffer, rotationAngle in
             Task { @MainActor in
-                self?.reduce(.videoFrameDecoded(sampleBuffer))
+                self?.reduce(.videoFrameDecoded(sampleBuffer, rotationAngle))
             }
         }
 
@@ -163,8 +163,9 @@ final class StreamingStore: StoreProtocol {
             state.isStreaming = false
             state.currentSampleBuffer = nil
 
-        case .videoFrameDecoded(let sampleBuffer):
+        case .videoFrameDecoded(let sampleBuffer, let rotationAngle):
             state.currentSampleBuffer = sampleBuffer
+            state.rotationAngle = rotationAngle
             // MARK: - 타이머
         case .phaseChanged(let phase):
             state.overlayPhase = phase
