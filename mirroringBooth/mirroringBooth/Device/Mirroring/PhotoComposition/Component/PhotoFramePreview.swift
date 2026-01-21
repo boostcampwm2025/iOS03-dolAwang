@@ -71,4 +71,32 @@ struct PhotoFramePreview: View {
             return CGRect(x: slot.minX, y: posY, width: width, height: height)
         }
     }
+
+    /// 날짜 텍스트 뷰 생성 및 크기 계산
+    private func calculateDateViewSize(
+        parentSize: CGSize,
+        with context: GraphicsContext
+    ) -> (GraphicsContext.ResolvedText, CGSize) {
+        // 1. 현재 날짜 계산 및 형식 정리
+        let today = Date().formatted(
+            .dateTime.year(.defaultDigits)
+            .month(.twoDigits)
+            .day(.twoDigits)
+        ).replacingOccurrences(of: "-", with: ".")
+
+        // 2. 텍스트 크기 계산 및 스타일 설정
+        let fontSize = max(parentSize.width, parentSize.height) * 0.03
+        let dateText = Text(today)
+            .foregroundStyle(information.frame == .black ? .white : .black)
+            .font(.system(size: fontSize).bold())
+
+        // 3. 텍스트 뷰 크기 계산
+        let resolvedText = context.resolve(dateText)
+        let textSize = resolvedText.measure(in: CGSize(
+            width: CGFloat.greatestFiniteMagnitude,
+            height: CGFloat.greatestFiniteMagnitude
+        ))
+
+        return (resolvedText, textSize)
+    }
 }
