@@ -128,7 +128,7 @@ private extension CameraPreviewStore {
     func getAngleByRawValue(_ value: Int) -> Double {
         switch value {
         case 3: return 90   // landscapeLeft
-        case 4: return 90  // landscapeRight
+        case 4: return -90  // landscapeRight
         case 5: return state.angle    // flat
         default: return 0
         }
