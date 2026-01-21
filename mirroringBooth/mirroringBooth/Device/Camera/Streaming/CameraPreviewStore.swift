@@ -98,9 +98,16 @@ final class CameraPreviewStore: StoreProtocol {
 private extension CameraPreviewStore {
     func setupSubscriptions() {
         // 비디오 스트림 콜백
-        cameraManager.onEncodedData = { data in
-            guard !self.state.isTransferring else { return }
-            self.browser.sendStreamData(data)
+        cameraManager.onEncodedData = { [weak self] data in
+            guard let self = self, !self.state.isTransferring else { return }
+
+            var angleValue = Int16(-self.state.angle.rounded()).littleEndian
+
+            var framedData: Data = Data()
+            framedData.append(Data(bytes: &angleValue, count: MemoryLayout<Int16>.size))
+            framedData.append(data)
+
+            self.browser.sendStreamData(framedData)
         }
         // 촬영 명령 수신
         browser.onCaptureCommand = {
