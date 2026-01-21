@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeView: View {
 
     @Environment(Router.self) var router: Router
+    let isiPhone: Bool
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -44,22 +45,17 @@ struct HomeView: View {
             router.push(to: CameraRoute.browsing)
         } label: {
             selectionBox(
-                icons: ["camera"],
-                title: "촬영 기기로 시작하기",
-                description: "카메라를 통해 순간을 기록해보세요.",
-                colors: [Color.main],
+                forCamera: true,
                 isPortrait: isPortrait
             )
         }
+        .disabled(!isiPhone)
 
         Button {
-            router.push(to: CameraRoute.advertising)
+            router.push(to: isiPhone ? CameraRoute.advertising : MirroringRoute.advertising)
         } label: {
             selectionBox(
-                icons: ["display", "target"],
-                title: "미러링/리모트 기기로 시작하기",
-                description: "Apple 기기로 순간을 공유해보세요.",
-                colors: [Color.mirroring, Color.remote],
+                forCamera: false,
                 isPortrait: isPortrait
             )
         }
@@ -69,36 +65,56 @@ struct HomeView: View {
 extension HomeView {
     @ViewBuilder
     private func selectionBox(
-        icons: [String],
-        title: String,
-        description: String,
-        colors: [Color],
+        forCamera: Bool,
         isPortrait: Bool
     ) -> some View {
-        VStack {
-            HStack {
-                ForEach(icons.indices, id: \.self) { index in
-                    Image(systemName: icons[index])
-                        .padding(10)
-                        .font(.title.bold())
-                        .foregroundStyle(colors[index])
-                        .background(colors[index].opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 15))
+        let icons: [String] = forCamera ? ["camera"] : DeviceUseType.allCases.map { $0.icon }
+        let title: String = forCamera ? "촬영 기기로 시작하기" : "미러링/리모트 기기로 시작하기"
+        let description: String = forCamera ? "카메라를 통해 순간을 기록해보세요." : "Apple 기기로 순간을 공유해보세요."
+        let colors: [Color] = forCamera ? [Color.main] : [Color.mirroring, Color.remote]
+        let disable = !isiPhone && forCamera
+
+        VStack(spacing: 20) {
+            VStack {
+                HStack {
+                    ForEach(icons.indices, id: \.self) { index in
+                        Image(systemName: icons[index])
+                            .padding(10)
+                            .font(.title.bold())
+                            .foregroundStyle(colors[index])
+                            .background(colors[index].opacity(0.1))
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                    }
                 }
+
+                Text(title)
+                    .font(.title3.bold())
+                    .foregroundStyle(Color(.label))
+                    .padding(.top)
+
+                Text(description)
+                    .font(.footnote)
+                    .foregroundStyle(Color(.secondaryLabel))
             }
+            .opacity(disable ? 0.5 : 1)
 
-            Text(title)
-                .font(.title3.bold())
-                .foregroundStyle(Color(.label))
-                .padding(.top)
-
-            Text(description)
-                .font(.footnote)
-                .foregroundStyle(Color(.secondaryLabel))
+            if disable {
+                Label {
+                    Text("촬영은 iPhone에서만 가능합니다!")
+                } icon: {
+                    Image(systemName: "exclamationmark.bubble")
+                }
+                .padding(.vertical, 5)
+                .padding(.horizontal, 10)
+                .foregroundStyle(.primary)
+                .background(.gray.opacity(0.5))
+                .font(.headline)
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .aspectRatio(isPortrait ? 4/3 : 3/4, contentMode: .fit)
-        .background(Color(.secondarySystemBackground).opacity(0.5))
+        .background(.gray.opacity(0.02))
         .clipShape(RoundedRectangle(cornerRadius: 15))
         .overlay {
             RoundedRectangle(cornerRadius: 15)
