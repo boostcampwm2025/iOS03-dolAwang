@@ -29,9 +29,9 @@ final class StreamingStore: StoreProtocol {
         var overlayPhase: OverlayPhase
 
         // 타이머
-        var countdownValue: Int = 8     // 첫 촬영 전 카운트 다운 (8, 7, 6, 5, 4, 3, 2, 1)
-        var shootingCountdown: Int = 8  // 촬영 간격 카운트 다운 (8초마다)
-        var capturePhotoCount: Int = 0       // 현재 촬영 횟수
+        var countdownValue: Int = 8     // 첫 촬영 전 카운트 다운
+        var shootingCountdown: Int = 7  // 촬영 간격 카운트 다운
+        var capturePhotoCount: Int = 0  // 현재 촬영 횟수
         var totalCaptureCount: Int = 10 // 총 촬영 횟수
 
         // 이미지 전송 프로그래스
@@ -207,23 +207,21 @@ extension StreamingStore {
                 results.append(.countdownUpdated(state.countdownValue - 1))
             } else {
                 results.append(.phaseChanged(.shooting))
-                results.append(.shootingCountdownUpdated(8))
-
-                capturePhoto()
+                results.append(.shootingCountdownUpdated(7))
+                capturePhoto() // 첫 촬영
             }
         case .shooting:
-            if state.shootingCountdown > 1 {
+            if state.shootingCountdown > 0 { // 7, 6, 5, 4, 3, 2, 1, 0
                 results.append(.shootingCountdownUpdated(state.shootingCountdown - 1))
             } else {
-                capturePhoto()
-
+                capturePhoto() // 0 일때 촬영하고 리셋
                 // 10장 촬영 완료 시
                 let currentCaptureCount = state.capturePhotoCount + 1
 
                 if currentCaptureCount >= state.totalCaptureCount {
                     stopTimer()
                 } else {
-                    results.append(.shootingCountdownUpdated(8))
+                    results.append(.shootingCountdownUpdated(7))
                 }
             }
         default:

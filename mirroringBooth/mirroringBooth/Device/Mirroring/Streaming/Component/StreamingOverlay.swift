@@ -130,7 +130,7 @@ struct ProgressIndicator: View {
                 .frame(width: 60, height: 60)
 
             Circle()
-                .trim(from: 0, to: CGFloat(countdown) / 8.0)
+                .trim(from: 0, to: CGFloat(countdown) / 7.0)
                 .stroke(
                     Color.blue,
                     style: StrokeStyle(lineWidth: 6, lineCap: .round)
