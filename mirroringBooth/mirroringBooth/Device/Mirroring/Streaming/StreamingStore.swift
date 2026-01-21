@@ -24,6 +24,7 @@ final class StreamingStore: StoreProtocol {
         // 스트리밍
         var isStreaming: Bool = false
         var currentSampleBuffer: CMSampleBuffer?
+        var rotationAngle: Int16 = Int16.zero
 
         // 오버레이
         var overlayPhase: OverlayPhase
