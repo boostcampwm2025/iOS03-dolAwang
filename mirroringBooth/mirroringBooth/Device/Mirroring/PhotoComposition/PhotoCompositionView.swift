@@ -127,7 +127,7 @@ private extension PhotoCompositionView {
                 .font(.headline.bold())
                 .padding(.vertical, 15)
                 .padding(.horizontal, 30)
-                .foregroundStyle(Color(.label))
+                .disabled(store.state.isCompletedButtonDisabled)
                 .background {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color.main.opacity(0.3))
