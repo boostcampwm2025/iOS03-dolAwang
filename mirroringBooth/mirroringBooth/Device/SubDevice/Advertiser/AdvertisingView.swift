@@ -1,5 +1,5 @@
 //
-//  AdvertiserHomeView.swift
+//  AdvertisingView.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2026-01-07.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct AdvertiserHomeView: View {
+struct AdvertisingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) var rootStore: RootStore
-    @State private var store = AdvertiserHomeStore(
+    @State private var store = AdvertisingStore(
         Advertiser(
             photoCacheManager: PhotoCacheManager.shared
         )

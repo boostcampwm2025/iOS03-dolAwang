@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AdvertiserReconnectionView: View {
-    let store: AdvertiserHomeStore
+    let store: AdvertisingStore
 
     @State private var isRotating = false
 

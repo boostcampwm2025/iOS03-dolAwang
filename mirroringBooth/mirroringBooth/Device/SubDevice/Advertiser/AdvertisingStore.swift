@@ -1,5 +1,5 @@
 //
-//  AdvertiserHomeStore.swift
+//  AdvertisingStore.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2026-01-08.
@@ -8,7 +8,7 @@
 import Foundation
 
 @Observable
-final class AdvertiserHomeStore: StoreProtocol {
+final class AdvertisingStore: StoreProtocol {
 
     struct State {
         var isAdvertising: Bool = false
