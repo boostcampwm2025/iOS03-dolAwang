@@ -42,7 +42,8 @@ struct AdvertisingView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 15))
                 }
             }
-            .frame(maxWidth: 500, maxHeight: 800)
+            .frame(maxWidth: 500, maxHeight: 700)
+            .aspectRatio(5/7, contentMode: .fit)
             .background {
                 RoundedRectangle(cornerRadius: 24)
                     .fill(.background.opacity(0.6))
