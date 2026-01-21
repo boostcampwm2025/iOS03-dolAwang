@@ -87,7 +87,7 @@ struct ResultView: View {
         .backgroundStyle()
         .homeAlert(
             isPresented: $showHomeAlert,
-            message: "사진을 저장하셨나요?\n홈으로 돌아가시겠습니까?"
+            message: "홈으로 돌아가시겠습니까?"
         ) {
             router.reset()
             rootStore.send(.disconnect)
