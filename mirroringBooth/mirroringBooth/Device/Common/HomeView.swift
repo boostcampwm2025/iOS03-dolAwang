@@ -37,7 +37,7 @@ struct HomeView: View {
             Spacer()
         }
         .padding(.horizontal)
-        .alert(accessManager.accessTitle,isPresented: Binding(
+        .alert(accessManager.accessTitle, isPresented: Binding(
             get: { accessManager.showCameraSettingAlert || accessManager.showLocalNetworkSettingAlert },
             set: { _, _ in }
         )) {
