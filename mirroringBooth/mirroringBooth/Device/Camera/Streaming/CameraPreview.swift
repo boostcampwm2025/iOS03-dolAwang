@@ -65,6 +65,10 @@ struct CameraPreview: View {
                 rootStore.browser?.sendCommand(.switchSelectModeView)
             }
         }
+        .onDisappear {
+            rootStore.browser?.onHeartbeatTimeout = nil
+            rootStore.browser?.onRemoteHeartbeatTimeout = nil
+        }
         .onChange(of: UIDevice.current.orientation.rawValue) { _, value in
             withAnimation(.easeInOut(duration: 0.3)) {
                 store.send(.updateAngle(rawValue: value))
