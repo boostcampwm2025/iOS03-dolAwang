@@ -10,6 +10,17 @@ import SwiftUI
 struct DeviceRow: View {
     let device: NearbyDevice
     let selectedTarget: DeviceUseType?
+    let iconFrameWidth: CGFloat
+
+    init(
+        device: NearbyDevice,
+        selectedTarget: DeviceUseType?,
+        iconFrameWidth: CGFloat = 32
+    ) {
+        self.device = device
+        self.selectedTarget = selectedTarget
+        self.iconFrameWidth = iconFrameWidth
+    }
 
     // 좌측 기기 아이콘 색상
     private var iconColor: Color {
@@ -32,7 +43,7 @@ struct DeviceRow: View {
             Image(systemName: device.type.icon)
                 .font(.title)
                 .foregroundStyle(iconColor)
-                .frame(width: 32, alignment: .center)
+                .frame(width: iconFrameWidth, alignment: .center)
 
             VStack(alignment: .leading) {
                 Text(device.id)
@@ -48,7 +59,7 @@ struct DeviceRow: View {
                 Image(systemName: target.icon)
                     .font(.title2)
                     .foregroundStyle(Color(target.color))
-                    .frame(width: 32, alignment: .center)
+                    .frame(width: iconFrameWidth, alignment: .center)
             }
         }
         .padding()
