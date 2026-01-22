@@ -25,11 +25,11 @@ final class CameraPreviewStore: StoreProtocol {
     enum Intent {
         case startAnimation
         case startSession
-        case tapExitButton
+        case stopCameraSession
         case updateAngle(rawValue: Int)
         case captureCompleted
         case resetCaptureCompleted
-        case setShowHomeAlert
+        case exit
         case isMirroringDisconnected
     }
 
@@ -65,7 +65,7 @@ final class CameraPreviewStore: StoreProtocol {
         case .startSession:
             setupSubscriptions()
             return [.startSession]
-        case .tapExitButton:
+        case .stopCameraSession:
             cameraManager.stopSession()
         case .updateAngle(let rawValue):
             return [.updateAngle(rawValue)]
@@ -75,7 +75,7 @@ final class CameraPreviewStore: StoreProtocol {
             return [.captureCompleted]
         case .resetCaptureCompleted:
             return [.resetCaptureCompleted]
-        case .setShowHomeAlert:
+        case .exit:
             return [.setShowHomeAlert]
         case .isMirroringDisconnected:
             return [.isMirroringDisconnected]
