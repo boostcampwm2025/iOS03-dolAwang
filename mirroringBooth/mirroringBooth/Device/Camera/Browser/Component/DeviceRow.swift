@@ -11,10 +11,28 @@ struct DeviceRow: View {
     let device: NearbyDevice
     let selectedTarget: DeviceUseType?
 
+    // 좌측 기기 아이콘 색상
+    private var iconColor: Color {
+        if let target = selectedTarget {
+            return Color(target.color)
+        }
+        return Color(.label)
+    }
+
+    // 테두리 색상
+    private var borderColor: Color {
+        if let target = selectedTarget {
+            return Color(target.color)
+        }
+        return Color.clear
+    }
+
     var body: some View {
         HStack {
             Image(systemName: device.type.icon)
                 .font(.title)
+                .foregroundStyle(iconColor)
+                .frame(width: 32, alignment: .center)
 
             VStack(alignment: .leading) {
                 Text(device.id)
@@ -30,6 +48,7 @@ struct DeviceRow: View {
                 Image(systemName: target.icon)
                     .font(.title2)
                     .foregroundStyle(Color(target.color))
+                    .frame(width: 32, alignment: .center)
             }
         }
         .padding()
@@ -37,6 +56,9 @@ struct DeviceRow: View {
         .foregroundStyle(Color(.label))
         .background(Color(.secondarySystemBackground).opacity(0.6))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .opacity(selectedTarget != nil ? 0.5 : 1)
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(borderColor, lineWidth: 1)
+        }
     }
 }
