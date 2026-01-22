@@ -28,7 +28,7 @@ final class Advertiser: NSObject {
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
 
-    /// 연결 선공 콜백
+    /// 연결 성공 콜백
     var onConnected: (() -> Void)?
 
     /// 촬영 선택 모드 이동 콜백 (미러링 기기)
