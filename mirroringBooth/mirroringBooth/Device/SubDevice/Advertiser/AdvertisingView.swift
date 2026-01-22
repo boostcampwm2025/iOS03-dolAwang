@@ -79,7 +79,21 @@ struct AdvertisingView: View {
                         )
                     )
                 case .remote:
-                    router.push(to: RemoteRoute.connected(store.advertiser))
+                    // 리모트 모드 선택 시 촬영 뷰로 이동
+                    store.advertiser.navigateToRemoteCaptureCallBack = { [weak router] in
+                        guard let router else { return }
+                        DispatchQueue.main.async {
+                            router.push(to: RemoteRoute.remoteCapture(store.advertiser))
+                        }
+                    }
+
+                    // 타이머 모드 선택 시 처음 화면으로 이동
+                    store.advertiser.navigateToHomeCallback = { [weak router] in
+                        guard let router else { return }
+                        DispatchQueue.main.async {
+                            router.reset()
+                        }
+                    }
                 }
             }
         }
