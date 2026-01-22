@@ -37,7 +37,7 @@ struct PhotoCompositionView: View {
 private extension PhotoCompositionView {
     /// 세로 레이아웃
     func portraitLayout(with geometry: GeometryProxy) -> some View {
-        VStack {
+        VStack(spacing: 0) {
             photoGridView
 
             Divider()
@@ -56,7 +56,7 @@ private extension PhotoCompositionView {
 
     /// 가로 레이아웃
     func landscapeLayout(with geometry: GeometryProxy) -> some View {
-        HStack {
+        HStack(spacing: 0) {
             VStack {
                 photoGridView
                 completionButton
