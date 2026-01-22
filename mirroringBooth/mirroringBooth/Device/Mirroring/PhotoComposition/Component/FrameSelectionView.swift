@@ -26,7 +26,7 @@ struct FrameSelectionView: View {
         }
         .padding(.top, 5)
         .padding(.bottom)
-        .padding(.trailing, 10)
+        .padding(.horizontal, 10)
     }
 }
 
