@@ -42,7 +42,7 @@ struct VideoPlayerView: UIViewRepresentable {
 
         override init(frame: CGRect) {
             super.init(frame: frame)
-            backgroundColor = .black
+            backgroundColor = #colorLiteral(red: 0.1204712167, green: 0.160810262, blue: 0.2149580121, alpha: 1)
             // displayLayer.videoGravity = .resizeAspectFill
             displayLayer.videoGravity = .resizeAspect
         }
