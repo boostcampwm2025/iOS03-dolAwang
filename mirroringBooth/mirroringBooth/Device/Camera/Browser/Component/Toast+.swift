@@ -40,9 +40,6 @@ private struct ToastOverlayView: View {
             ToastCardView(message)
                 .offset(y: yOffset)
                 .opacity(opacityValue)
-                .onTapGesture {
-                    dismissAnimated()
-                }
                 .onAppear {
                     presentAnimated()
                     scheduleDismiss()
