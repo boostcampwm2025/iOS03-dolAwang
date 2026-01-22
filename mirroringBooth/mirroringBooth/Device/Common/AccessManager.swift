@@ -54,7 +54,9 @@ final class AccessManager {
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 if granted {
                     self.logger.info("카메라 권한 확인 완료")
-                    onGranted()
+                    DispatchQueue.main.async {
+                        onGranted()
+                    }
                 }
             }
 
