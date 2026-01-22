@@ -87,14 +87,3 @@ struct AdvertisingView: View {
         .backgroundStyle()
     }
 }
-
-#Preview {
-    // 1. 환경 객체로 넣어줄 인스턴스 생성 (더미 혹은 실제 객체)
-    let router = Router()
-    let rootStore = RootStore()
-
-    // 2. 뷰에 .environment로 주입
-    return AdvertisingView()
-        .environment(router)
-        .environment(rootStore)
-}
