@@ -14,13 +14,7 @@ struct RootView: View {
     var body: some View {
         ZStack {
             NavigationStack(path: $router.path) {
-                Group {
-                    if UIDevice.current.userInterfaceIdiom == .phone {
-                        CameraHomeView()
-                    } else {
-                        AdvertiserHomeView()
-                    }
-                }
+                HomeView()
                 .environment(router)
                 .navigationDestination(for: CameraRoute.self) { viewType in
                     switch viewType {
@@ -28,7 +22,7 @@ struct RootView: View {
                         BrowsingView()
                             .environment(router)
                     case .advertising:
-                        AdvertiserHomeView()
+                        AdvertisingView()
                             .environment(router)
                     case .connectionList(let list, let browser):
                         ConnectionCheckView(list, browser: browser)
@@ -40,6 +34,9 @@ struct RootView: View {
                 }
                 .navigationDestination(for: MirroringRoute.self) { viewType in
                     switch viewType {
+                    case .advertising:
+                        AdvertisingView()
+                            .environment(router)
                     case .modeSelection(let advertiser, let isRemoteEnable):
                         ModeSelectionView(
                             advertiser: advertiser,

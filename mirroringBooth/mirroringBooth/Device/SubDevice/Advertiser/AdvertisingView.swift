@@ -1,5 +1,5 @@
 //
-//  AdvertiserHomeView.swift
+//  AdvertisingView.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2026-01-07.
@@ -7,43 +7,49 @@
 
 import SwiftUI
 
-struct AdvertiserHomeView: View {
+struct AdvertisingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) var rootStore: RootStore
-    @State private var store = AdvertiserHomeStore(
+    @State private var store = AdvertisingStore(
         Advertiser(
             photoCacheManager: PhotoCacheManager.shared
         )
     )
 
     var body: some View {
-        VStack(spacing: 0) {
-            // 상단 헤더
-            MainHeaderView()
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            Spacer()
-
-            // 중앙 상태 뷰
-            if store.state.isAdvertising {
-                StandbyView(displayName: store.advertiser.myDeviceName, isAdvertising: store.state.isAdvertising)
-            } else {
-                IdleView(displayName: store.advertiser.myDeviceName)
-            }
-
-            Spacer()
-
-            // 하단 버튼
-            Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    store.send(.didTapAdvertiseButton)
+        ZStack {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    router.reset()
                 }
-            } label: {
-                AdvertisingButton(isAdvertising: store.state.isAdvertising)
+
+            VStack(spacing: 30) {
+                StandbyView(displayName: store.advertiser.myDeviceName)
+
+                Button {
+                    router.reset()
+                } label: {
+                    Label {
+                        Text("검색 허용 중단")
+                    } icon: {
+                        Image(systemName: "antenna.radiowaves.left.and.right.slash")
+                    }
+                    .padding(12)
+                    .font(.callout)
+                    .foregroundStyle(.red)
+                    .background(.gray.opacity(0.2))
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                }
             }
-            .padding(.bottom, 24)
+            .frame(maxWidth: 500, maxHeight: 700)
+            .aspectRatio(5/7, contentMode: .fit)
+            .background {
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(.background.opacity(0.6))
+            }
+            .padding(20)
         }
-        .padding(.horizontal)
         .onAppear {
             store.send(.onAppear)
             if rootStore.advertiser == nil {
@@ -73,6 +79,7 @@ struct AdvertiserHomeView: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden()
         .backgroundStyle()
     }
 }
