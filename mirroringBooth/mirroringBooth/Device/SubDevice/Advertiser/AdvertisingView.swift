@@ -50,7 +50,7 @@ struct AdvertisingView: View {
             .aspectRatio(5/7, contentMode: .fit)
             .background {
                 RoundedRectangle(cornerRadius: 24)
-                    .fill(.background.opacity(0.6))
+                    .fill(.background.opacity(store.state.isConnected ? 1.0 : 0.6))
             }
             .padding(20)
         }
