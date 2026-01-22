@@ -45,7 +45,7 @@ private extension PhotoCompositionView {
 
             VStack {
                 HStack(alignment: .top) {
-                    editingPanel(isPortrait: true)
+                    editingPanel(isPortrait: true, on: geometry)
                 }
                 completionButton
             }
@@ -66,7 +66,7 @@ private extension PhotoCompositionView {
                 .background(.main)
 
             VStack {
-                editingPanel(isPortrait: false)
+                editingPanel(isPortrait: false, on: geometry)
             }
             // 화면 표시 비율
             .frame(width: geometry.size.width * 0.33)
@@ -75,13 +75,17 @@ private extension PhotoCompositionView {
 
     /// 편집 패널 (결과 프리뷰 + 프레임/레이아웃 선택 뷰)
     @ViewBuilder
-    func editingPanel(isPortrait: Bool) -> some View {
+    func editingPanel(isPortrait: Bool, on geometry: GeometryProxy) -> some View {
         PhotoFramePreview(
             information: PhotoInformation(
                 layout: store.state.selectedLayout,
                 frame: store.state.selectedFrame,
                 photos: store.state.selectedPhotos
             )
+        )
+        .frame(
+            width: geometry.size.width / (isPortrait ? 2 : 4),
+            height: geometry.size.height / (isPortrait ? 3 : 2)
         )
         .padding(12)
         .padding(isPortrait ? .leading : .trailing, 7)
