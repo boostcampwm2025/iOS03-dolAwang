@@ -132,6 +132,7 @@ struct ConnectionCheckView: View {
             confirmButtonText: "확인",
             cancellable: false
         ) {
+            browser.disconnect(useType: .remote)
             showRemoteDisconnectedAlert = false
         }
     }
