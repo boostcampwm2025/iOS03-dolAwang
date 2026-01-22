@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeView: View {
 
     @Environment(Router.self) var router: Router
+    var accessManager = AccessManager()
     let isiPhone: Bool = UIDevice.current.userInterfaceIdiom == .phone
 
     var body: some View {
@@ -36,13 +37,29 @@ struct HomeView: View {
             Spacer()
         }
         .padding(.horizontal)
+        .alert("카메라 권한 필요", isPresented: Binding(
+            get: { accessManager.showSettingAlert },
+            set: { _, _ in }
+        )) {
+            Button("취소", role: .cancel) {
+                accessManager.showSettingAlert = false
+            }
+            Button("설정으로 이동") {
+                accessManager.showSettingAlert = false
+                accessManager.openSettings()
+            }
+        } message: {
+            Text("촬영을 위해 카메라 권한이 필요합니다.\n설정에서 권한을 허용해주세요.")
+        }
         .backgroundStyle()
     }
 
     @ViewBuilder
     private func startButtons(isPortrait: Bool) -> some View {
         Button {
-            router.push(to: CameraRoute.browsing)
+            accessManager.requestCameraAccess {
+                router.push(to: CameraRoute.browsing)
+            }
         } label: {
             selectionBox(
                 forCamera: true,
