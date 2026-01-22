@@ -16,7 +16,7 @@ extension Browser: HeartBeaterDelegate {
     }
 
     func onTimeout(_ sender: HeartBeater) {
-        if sender === heartBeater {
+        if sender === mirroringHeartBeater {
             DispatchQueue.main.async {
                 self.onHeartbeatTimeout?()
             }

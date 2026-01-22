@@ -45,7 +45,7 @@ final class Browser: NSObject {
     private var remoteSession: MCSession?
     var isRemoteSessionActive: Bool { remoteSession?.connectedPeers.count == 1 }
     private let browser: MCNearbyServiceBrowser
-    let heartBeater: HeartBeater
+    let mirroringHeartBeater: HeartBeater
     var remoteHeartBeater: HeartBeater?
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
@@ -92,11 +92,11 @@ final class Browser: NSObject {
         self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: false, with: UIDevice.current.deviceType)
         self.peerID = MCPeerID(displayName: myDeviceName)
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
-        self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
+        self.mirroringHeartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
 
         super.init()
         browser.delegate = self
-        heartBeater.delegate = self
+        mirroringHeartBeater.delegate = self
     }
 
     private func createRemoteHeartBeater() {
@@ -276,7 +276,7 @@ final class Browser: NSObject {
         remoteSession = nil
         targetMirroringDeviceID = nil
         targetRemoteDeviceID = nil
-        heartBeater.stop()
+        mirroringHeartBeater.stop()
         remoteHeartBeater?.stop()
         logger.info("모든 연결 해제")
     }
@@ -290,7 +290,7 @@ final class Browser: NSObject {
             mirroringSession = nil
             mirroringCommandSession = nil
             targetMirroringDeviceID = nil
-            heartBeater.stop()
+            mirroringHeartBeater.stop()
             logger.info("미러링 연결 해제")
         case .remote:
             remoteSession?.disconnect()
@@ -331,7 +331,7 @@ extension Browser: MCSessionDelegate {
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
 
         if session === mirroringSession, state == .connected {
-            heartBeater.start()
+            mirroringHeartBeater.start()
         } else if session === remoteSession, state == .connected {
             sendRemoteCommand(.noticeIsRemoteDevice)
             if remoteHeartBeater == nil {
@@ -446,11 +446,11 @@ extension Browser: MCSessionDelegate {
                     self.sendRemoteCommand(.navigateToHome)
                 }
             case .heartBeat:
-                heartBeater.beat()
+                mirroringHeartBeater.beat()
             case .remoteHeartBeat:
                 remoteHeartBeater?.beat()
             case .stopHeartBeat:
-                heartBeater.stop()
+                mirroringHeartBeater.stop()
                 remoteHeartBeater?.stop()
             }
         }
