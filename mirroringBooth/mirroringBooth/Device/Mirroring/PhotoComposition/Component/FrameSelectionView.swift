@@ -135,11 +135,12 @@ private extension FrameSelectionView {
             if isSmall {
                 Image(uiImage: icon)
                     .resizable()
-                    .frame(width: 30, height: 30)
                     .aspectRatio(1, contentMode: .fit)
+                    .frame(width: 30, height: 30)
             } else {
                 Image(uiImage: icon)
                     .resizable()
+                    .aspectRatio(1, contentMode: .fit)
                     .frame(maxWidth: 50, maxHeight: 50)
                     .padding(2)
                     .background {
