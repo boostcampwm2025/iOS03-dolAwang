@@ -60,6 +60,7 @@ final class AdvertisingStore: StoreProtocol {
             return [.setOnNavigate(false, type: nil)]
 
         case .connected:
+            advertiser.stopSearching(onlyRefuse: true)
             return [.setIsConnected(true)]
 
         case .exit:

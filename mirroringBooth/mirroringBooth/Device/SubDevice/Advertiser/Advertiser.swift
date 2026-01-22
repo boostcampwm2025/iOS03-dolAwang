@@ -21,6 +21,7 @@ final class Advertiser: NSObject {
     private let advertiser: MCNearbyServiceAdvertiser
     private let photoCacheManager: PhotoCacheManager
     private let heartBeater: HeartBeater
+    private var isBlocking: Bool = false
     var advertiserType: DeviceUseType = .mirroring // heartbeat 메시지 종류 구분을 위해 추가
     let myDeviceName: String
 
@@ -114,11 +115,16 @@ final class Advertiser: NSObject {
     }
 
     func startSearching() {
+        isBlocking = false
         advertiser.startAdvertisingPeer()
         logger.info("광고를 시작합니다.")
     }
 
-    func stopSearching() {
+    func stopSearching(onlyRefuse: Bool = false) {
+        if onlyRefuse {
+            isBlocking = true
+            return
+        }
         advertiser.stopAdvertisingPeer()
         logger.info("광고를 중단합니다.")
     }
@@ -313,6 +319,11 @@ extension Advertiser: MCNearbyServiceAdvertiserDelegate {
         guard let context,
               let type = String(data: context, encoding: .utf8) else {
             logger.warning("초대 수신 실패: context 파싱 불가 - \(peerID.displayName)")
+            invitationHandler(false, nil)
+            return
+        }
+        guard isBlocking == false
+                || (commandSession?.connectedPeers.contains(peerID) == true) else {
             invitationHandler(false, nil)
             return
         }
