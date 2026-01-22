@@ -85,9 +85,10 @@ struct CameraPreview: View {
             ),
             message: "촬영된 사진이 모두 사라집니다.\n계속하시겠습니까?"
         ) {
-            store.send(.tapExitButton)
+            store.send(.stopCameraSession)
             rootStore.send(.disconnect)
             dismiss()
+            router.reset()
         }
         .homeAlert(
             isPresented: Binding(
@@ -97,6 +98,7 @@ struct CameraPreview: View {
             message: "기기 연결이 끊겼습니다.",
             cancellable: false
         ) {
+            store.send(.stopCameraSession)
             dismiss()
             router.reset()
         }
@@ -119,7 +121,7 @@ struct CameraPreview: View {
 
     private var exitButton: some View {
         Button {
-            showHomeAlert = true
+            store.send(.exit)
         } label: {
             Image(systemName: "xmark")
                 .font(.footnote.bold())
