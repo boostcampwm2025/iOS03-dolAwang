@@ -77,7 +77,7 @@ struct CameraPreview: View {
         .homeAlert(
             isPresented: Binding(
                 get: { store.state.showHomeAlert },
-                set: { _ in }
+                set: { store.send(.setShowHomeAlert($0)) }
             ),
             message: "촬영된 사진이 모두 사라집니다.\n계속하시겠습니까?"
         ) {
@@ -117,7 +117,7 @@ struct CameraPreview: View {
 
     private var exitButton: some View {
         Button {
-            store.send(.exit)
+            store.send(.setShowHomeAlert(true))
         } label: {
             Image(systemName: "xmark")
                 .font(.footnote.bold())
