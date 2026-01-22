@@ -248,7 +248,7 @@ final class BrowsingStore: StoreProtocol {
         case .setMirroringDevice(let device):
             state.mirroringDevice = device
             if let id = device?.id {
-                state.toastMessage = "\(id) 기기가 미러링 기기로 연결되었습니다."
+                state.toastMessage = "\(id) 이/가 미러링 기기로 연결되었습니다."
                 state.showToast = true
             }
 
