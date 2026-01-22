@@ -37,23 +37,23 @@ struct HomeView: View {
             Spacer()
         }
         .padding(.horizontal)
-        .alert(accessManager.accessTitle, isPresented: Binding(
-            get: { accessManager.showCameraSettingAlert || accessManager.showLocalNetworkSettingAlert },
-            set: { _, _ in }
-        )) {
-            Button("취소", role: .cancel) {
-                accessManager.showCameraSettingAlert = false
-                accessManager.showLocalNetworkSettingAlert = false
-            }
-            Button("설정으로 이동") {
-                accessManager.showCameraSettingAlert = false
-                accessManager.showLocalNetworkSettingAlert = false
-                accessManager.openSettings()
-            }
-        } message: {
-            Text(accessManager.accessDescription)
-        }
-        .backgroundStyle()
+        .alert(accessManager.requiredAccess?.alertTitle ?? "",
+               isPresented: Binding(
+                get: { accessManager.requiredAccess != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        accessManager.requiredAccess = nil
+                    }
+                }
+               )) {
+                   Button("취소", role: .cancel) { }
+                   Button("설정으로 이동") {
+                       accessManager.openSettings()
+                   }
+               } message: {
+                   Text(accessManager.requiredAccess?.alertMessage ?? "")
+               }
+               .backgroundStyle()
     }
 
     @ViewBuilder

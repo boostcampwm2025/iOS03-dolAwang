@@ -14,26 +14,7 @@ import UIKit
 final class AccessManager {
     private let logger = Logger.accessManager
 
-    var showCameraSettingAlert: Bool = false
-    var showLocalNetworkSettingAlert: Bool = false
-
-    var accessTitle: String {
-        if showCameraSettingAlert {
-            return "카메라 권한 필요"
-        } else if showLocalNetworkSettingAlert {
-            return "로컬 네트워크 권한 필요"
-        }
-        return ""
-    }
-
-    var accessDescription: String {
-        if showCameraSettingAlert {
-            return "촬영을 위해 카메라 권한이 필요합니다.\n설정에서 권한을 허용해주세요."
-        } else if showLocalNetworkSettingAlert {
-            return "주변 기기를 검색하려면 로컬 네트워크 권한이 필요합니다.\n설정에서 권한을 허용해주세요."
-        }
-        return ""
-    }
+    var requiredAccess: AccessType?
 
     private var localNetworkBrowser: NWBrowser?
     private var successTimerItem: DispatchWorkItem?
@@ -62,7 +43,7 @@ final class AccessManager {
 
         case .denied, .restricted:
             logger.error("카메라 권한 확인 실패")
-            showCameraSettingAlert = true
+            requiredAccess = .camera
 
         @unknown default:
             break
@@ -92,7 +73,7 @@ final class AccessManager {
                 logger.error("로컬 네트워크 권한 확인 실패: (Policy Denied)")
                 self.successTimerItem?.cancel()
                 self.stopCheckingLocalNetwork()
-                self.showLocalNetworkSettingAlert = true
+                self.requiredAccess = .localNetwork
                 return
             }
         }
