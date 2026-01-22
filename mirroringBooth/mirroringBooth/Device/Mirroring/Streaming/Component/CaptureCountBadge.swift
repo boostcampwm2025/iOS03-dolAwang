@@ -14,22 +14,25 @@ struct CaptureCountBadge: View {
     let isCompact: Bool
 
     private var badgeSize: CGFloat {
-        isCompact ? 90 : 100
+        isCompact ? 110 : 120
     }
 
     var body: some View {
         VStack(spacing: 8) {
             Text("남은 촬영 횟수")
-                .font(isCompact ? .caption2 : .caption)
-                .opacity(0.8)
+                .font(isCompact ? .footnote : .subheadline)
             Text("\(total - current)")
-                .font(isCompact ? .title3 : .title)
+                .font(isCompact ? .title2 : .title)
         }
-        .foregroundStyle(.primary)
+        .foregroundStyle(.white)
         .frame(width: badgeSize, height: badgeSize)
+        .background {
+            Circle()
+                .fill(.thickMaterial)
+        }
         .overlay {
             Circle()
-                .strokeBorder(.white.opacity(0.3), lineWidth: 4)
+                .strokeBorder(.white, lineWidth: 3)
         }
     }
 }
