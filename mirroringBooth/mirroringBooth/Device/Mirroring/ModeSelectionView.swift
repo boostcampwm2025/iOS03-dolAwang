@@ -84,10 +84,6 @@ struct ModeSelectionView: View {
         .padding(.horizontal)
         .navigationBarBackButtonHidden()
         .backgroundStyle()
-        .homeAlert(isPresented: $showHomeAlert) {
-            router.reset()
-            rootStore.send(.disconnect)
-        }
     }
 }
 
