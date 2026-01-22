@@ -95,6 +95,7 @@ private struct ToastCardView: View {
     var body: some View {
         Text(message)
             .font(.caption)
+            .multilineTextAlignment(.center)
             .lineLimit(3)
             .padding(.vertical, 12)
             .padding(.horizontal, 14)
