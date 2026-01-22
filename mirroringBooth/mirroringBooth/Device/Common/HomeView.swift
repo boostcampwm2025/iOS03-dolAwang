@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeView: View {
 
     @Environment(Router.self) var router: Router
+    private var accessManager: AccessManager = .init()
     let isiPhone: Bool = UIDevice.current.userInterfaceIdiom == .phone
 
     var body: some View {
@@ -36,13 +37,36 @@ struct HomeView: View {
             Spacer()
         }
         .padding(.horizontal)
-        .backgroundStyle()
+        .onAppear {
+            accessManager.tryLocalNetwork()
+        }
+        .alert(accessManager.requiredAccess?.alertTitle ?? "",
+               isPresented: Binding(
+                get: { accessManager.requiredAccess != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        accessManager.requiredAccess = nil
+                    }
+                }
+               )) {
+                   Button("취소", role: .cancel) { }
+                   Button("설정으로 이동") {
+                       accessManager.openSettings()
+                   }
+               } message: {
+                   Text(accessManager.requiredAccess?.alertMessage ?? "")
+               }
+               .backgroundStyle()
     }
 
     @ViewBuilder
     private func startButtons(isPortrait: Bool) -> some View {
         Button {
-            router.push(to: CameraRoute.browsing)
+            accessManager.requestCameraAccess {
+                accessManager.requestLocalNetworkAccess {
+                    router.push(to: CameraRoute.browsing)
+                }
+            }
         } label: {
             selectionBox(
                 forCamera: true,
@@ -52,7 +76,9 @@ struct HomeView: View {
         .disabled(!isiPhone)
 
         Button {
-            router.push(to: isiPhone ? CameraRoute.advertising : MirroringRoute.advertising)
+            accessManager.requestLocalNetworkAccess {
+                router.push(to: isiPhone ? CameraRoute.advertising : MirroringRoute.advertising)
+            }
         } label: {
             selectionBox(
                 forCamera: false,
