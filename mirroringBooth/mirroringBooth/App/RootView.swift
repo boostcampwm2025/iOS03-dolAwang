@@ -54,10 +54,6 @@ struct RootView: View {
                                 )
                             }
                         }
-                        .onDisappear {
-                            store.advertiser?.onHeartBeatTimeout = nil
-                            store.advertiser?.switchModeSelectionView = nil
-                        }
                     case .streaming(let advertiser, let isTimerMode):
                         StreamingView(advertiser: advertiser, isTimerMode: isTimerMode)
                             .onAppear {
@@ -82,9 +78,6 @@ struct RootView: View {
                                 store.advertiser?.onHeartBeatTimeout = {
                                     store.send(.showTimeoutAlert(true))
                                 }
-                            }
-                            .onDisappear {
-                                store.advertiser?.onHeartBeatTimeout = nil
                             }
                     case .completion:
                         CompletionView {

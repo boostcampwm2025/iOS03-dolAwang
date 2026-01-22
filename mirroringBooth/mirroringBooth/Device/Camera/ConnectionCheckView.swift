@@ -122,10 +122,6 @@ struct ConnectionCheckView: View {
                 remoteDevice = nil
             }
         }
-        .onDisappear {
-            browser.onHeartbeatTimeout = nil
-            browser.onRemoteHeartbeatTimeout = nil
-        }
         .onChange(of: onMirroringDisconnected) {
             browser.disconnect(useType: .mirroring)
             router.pop()
