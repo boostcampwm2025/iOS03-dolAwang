@@ -11,7 +11,7 @@ import Foundation
 final class AdvertisingStore: StoreProtocol {
 
     struct State {
-        var hasConnectionStarted: Bool = false
+        var onNavigate: Bool = false
         var deviceUseType: DeviceUseType?
         var isRemoteSelected: Bool = false
     }
@@ -64,7 +64,7 @@ final class AdvertisingStore: StoreProtocol {
 
         switch result {
         case .setIsConnecting(let status, let useType):
-            state.hasConnectionStarted = status
+            state.onNavigate = status
             state.deviceUseType = useType
 
         case .setIsRemoteSelected(let isRemoteSelected):
