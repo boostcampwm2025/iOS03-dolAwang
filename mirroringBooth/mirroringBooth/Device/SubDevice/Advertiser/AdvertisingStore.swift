@@ -65,7 +65,6 @@ final class AdvertisingStore: StoreProtocol {
 
         case .exit:
             advertiser.stopSearching()
-            advertiser.disconnect()
         }
         return []
     }
