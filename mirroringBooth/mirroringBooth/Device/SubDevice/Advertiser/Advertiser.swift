@@ -27,6 +27,9 @@ final class Advertiser: NSObject {
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
 
+    /// 연결 선공 콜백
+    var onConnected: (() -> Void)?
+
     /// 촬영 선택 모드 이동 콜백 (미러링 기기)
     var navigateToSelectModeCommandCallBack: ((_ isRemoteEnable: Bool) -> Void)?
 
@@ -231,6 +234,13 @@ extension Advertiser: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         if session === self.session, state == .connected {
             heartBeater.start()
+        }
+        if session === self.commandSession {
+            if state == .connected {
+                DispatchQueue.main.async {
+                    self.onConnected?()
+                }
+            }
         }
     }
 

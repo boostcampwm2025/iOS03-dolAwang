@@ -11,6 +11,7 @@ import Foundation
 final class AdvertisingStore: StoreProtocol {
 
     struct State {
+        var isConnected: Bool = false
         var onNavigate: Bool = false
         var deviceUseType: DeviceUseType?
         var isRemoteSelected: Bool = false
@@ -18,11 +19,13 @@ final class AdvertisingStore: StoreProtocol {
 
     enum Intent {
         case onAppear
+        case connected
         case exit
     }
 
     enum Result {
-        case setIsConnecting(Bool, type: DeviceUseType?)
+        case setIsConnected(Bool)
+        case setOnNavigate(Bool, type: DeviceUseType?)
         case setIsRemoteSelected(Bool)
     }
 
@@ -32,17 +35,21 @@ final class AdvertisingStore: StoreProtocol {
     init(_ advertiser: Advertiser) {
         self.advertiser = advertiser
 
+        advertiser.onConnected = { [weak self] in
+            self?.send(.connected)
+        }
+
         advertiser.navigateToSelectModeCommandCallBack = { [weak self] isRemoteEnable in
             self?.reduce(.setIsRemoteSelected(isRemoteEnable))
-            self?.reduce(.setIsConnecting(true, type: .mirroring))
+            self?.reduce(.setOnNavigate(true, type: .mirroring))
         }
 
         advertiser.navigateToRemoteConnectedCallBack = { [weak self] in
-            self?.reduce(.setIsConnecting(true, type: .remote))
+            self?.reduce(.setOnNavigate(true, type: .remote))
         }
 
         advertiser.navigateToRemoteCaptureCallBack = { [weak self] in
-            self?.reduce(.setIsConnecting(true, type: .remote))
+            self?.reduce(.setOnNavigate(true, type: .remote))
         }
     }
 
@@ -50,7 +57,10 @@ final class AdvertisingStore: StoreProtocol {
         switch intent {
         case .onAppear:
             advertiser.startSearching()
-            return [.setIsConnecting(false, type: nil)]
+            return [.setOnNavigate(false, type: nil)]
+
+        case .connected:
+            return [.setIsConnected(true)]
 
         case .exit:
             advertiser.stopSearching()
@@ -63,7 +73,9 @@ final class AdvertisingStore: StoreProtocol {
         var state = self.state
 
         switch result {
-        case .setIsConnecting(let status, let useType):
+        case .setIsConnected(let bool):
+            state.isConnected = bool
+        case .setOnNavigate(let status, let useType):
             state.onNavigate = status
             state.deviceUseType = useType
 

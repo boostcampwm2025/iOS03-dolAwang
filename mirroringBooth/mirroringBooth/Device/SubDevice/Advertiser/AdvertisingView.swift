@@ -25,21 +25,25 @@ struct AdvertisingView: View {
                 }
 
             VStack(spacing: 30) {
-                StandbyView(displayName: store.advertiser.myDeviceName)
+                if store.state.isConnected {
+                    ConnectedView(description: "촬영 대기 중입니다.")
+                } else {
+                    StandbyView(displayName: store.advertiser.myDeviceName)
 
-                Button {
-                    router.reset()
-                } label: {
-                    Label {
-                        Text("검색 허용 중단")
-                    } icon: {
-                        Image(systemName: "antenna.radiowaves.left.and.right.slash")
+                    Button {
+                        router.reset()
+                    } label: {
+                        Label {
+                            Text("검색 허용 중단")
+                        } icon: {
+                            Image(systemName: "antenna.radiowaves.left.and.right.slash")
+                        }
+                        .padding(12)
+                        .font(.callout)
+                        .foregroundStyle(.red)
+                        .background(.gray.opacity(0.2))
+                        .clipShape(RoundedRectangle(cornerRadius: 15))
                     }
-                    .padding(12)
-                    .font(.callout)
-                    .foregroundStyle(.red)
-                    .background(.gray.opacity(0.2))
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
                 }
             }
             .frame(maxWidth: 500, maxHeight: 700)
