@@ -14,6 +14,7 @@ struct BrowsingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) var rootStore: RootStore
     @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
+    @State private var showToast = false
 
     var body: some View {
         ZStack {
@@ -141,6 +142,11 @@ struct BrowsingView: View {
             confirmButtonText: "확인",
             cancellable: false
         ) {}
+        .toast(
+            isPresented: Binding(
+                get: { store.state.showToast },
+                set: { store.send(.setShowToast($0)) }
+        ), message: store.state.toastMessage)
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {

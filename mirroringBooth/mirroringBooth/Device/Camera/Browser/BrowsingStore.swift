@@ -27,6 +27,8 @@ final class BrowsingStore: StoreProtocol {
         }
         var animationTrigger = false
         var showMirroringDisconnectedAlert = false
+        var showToast = false
+        var toastMessage = ""
     }
 
     enum Intent {
@@ -36,6 +38,7 @@ final class BrowsingStore: StoreProtocol {
         case cancel
         case didChangeAppState(UIApplication.State)
         case setShowMirroringDisconnectedAlert(Bool)
+        case setShowToast(Bool)
     }
 
     enum Result {
@@ -47,6 +50,7 @@ final class BrowsingStore: StoreProtocol {
         case setCurrentTarget(DeviceUseType)
         case startAnimation
         case setShowMirroringDisconnectedAlert(Bool)
+        case setShowToast(Bool)
     }
 
     var state: State = .init()
@@ -216,8 +220,11 @@ final class BrowsingStore: StoreProtocol {
         case .didChangeAppState(let state):
             watchConnectionManager.pushIOSAppState(state: state)
 
-        case let .setShowMirroringDisconnectedAlert(bool):
-            result.append(.setShowMirroringDisconnectedAlert(bool))
+        case .setShowMirroringDisconnectedAlert(let value):
+            result.append(.setShowMirroringDisconnectedAlert(value))
+
+        case .setShowToast(let value):
+            result.append(.setShowToast(value))
         }
 
         return result
@@ -240,6 +247,10 @@ final class BrowsingStore: StoreProtocol {
 
         case .setMirroringDevice(let device):
             state.mirroringDevice = device
+            if let id = device?.id {
+                state.toastMessage = "\(id) 기기가 미러링 기기로 연결되었습니다."
+                state.showToast = true
+            }
 
         case .setRemoteDevice(let device):
             state.remoteDevice = device
@@ -258,6 +269,9 @@ final class BrowsingStore: StoreProtocol {
 
         case let .setShowMirroringDisconnectedAlert(bool):
             state.showMirroringDisconnectedAlert = bool
+
+        case let .setShowToast(bool):
+            state.showToast = bool
         }
 
         self.state = state
