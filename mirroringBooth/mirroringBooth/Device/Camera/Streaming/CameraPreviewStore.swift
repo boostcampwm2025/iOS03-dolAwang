@@ -111,7 +111,9 @@ private extension CameraPreviewStore {
         }
         // 촬영 명령 수신
         browser.onCaptureCommand = {
-            self.cameraManager.capturePhoto()
+            self.cameraManager.capturePhoto(
+                self.getOrientationByAngle(self.state.angle)
+            )
         }
         // 일괄 전송 시작 명령 수신
         browser.onStartTransferCommand
