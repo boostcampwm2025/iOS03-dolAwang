@@ -7,7 +7,6 @@
 
 import CoreMedia
 import Foundation
-import ImageIO
 import OSLog
 import QuartzCore
 import VideoToolbox
