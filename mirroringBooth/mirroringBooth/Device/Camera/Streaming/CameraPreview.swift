@@ -59,8 +59,8 @@ struct CameraPreview: View {
                 store?.send(.isMirroringDisconnected)
                 rootStore?.browser?.disconnect(useType: .remote)
             }
-            rootStore.browser?.onRemoteHeartbeatTimeout = {
-                rootStore.browser?.sendCommand(.switchSelectModeView)
+            rootStore.browser?.onRemoteHeartbeatTimeout = { [weak rootStore] in
+                rootStore?.browser?.sendCommand(.switchSelectModeView)
             }
         }
         .onChange(of: UIDevice.current.orientation.rawValue) { _, value in
