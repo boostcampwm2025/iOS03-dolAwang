@@ -37,6 +37,9 @@ struct HomeView: View {
             Spacer()
         }
         .padding(.horizontal)
+        .onAppear {
+            accessManager.tryLocalNetwork()
+        }
         .alert(accessManager.requiredAccess?.alertTitle ?? "",
                isPresented: Binding(
                 get: { accessManager.requiredAccess != nil },

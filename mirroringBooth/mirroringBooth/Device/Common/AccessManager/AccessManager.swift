@@ -85,6 +85,13 @@ final class AccessManager {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: timerItem)
     }
 
+    /// 최초 실행 시 권한 요청을 하도록 네트워크 활동 트리거
+    func tryLocalNetwork() {
+        let browser = NWBrowser(for: .bonjour(type: "_mirroringbooth._tcp", domain: nil), using: .tcp)
+        browser.start(queue: .main)
+        browser.cancel()
+    }
+
 }
 
 // MARK: - Local Network private methods
