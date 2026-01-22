@@ -18,6 +18,8 @@ final class CameraPreviewStore: StoreProtocol {
         var isTransferring = false
         var angle: Double = 0
         var isCaptureCompleted = false
+        var showHomeAlert: Bool = false
+        var isMirroringDisconnected: Bool = false
     }
 
     enum Intent {
@@ -27,6 +29,8 @@ final class CameraPreviewStore: StoreProtocol {
         case updateAngle(rawValue: Int)
         case captureCompleted
         case resetCaptureCompleted
+        case setShowHomeAlert
+        case isMirroringDisconnected
     }
 
     enum Result {
@@ -35,6 +39,8 @@ final class CameraPreviewStore: StoreProtocol {
         case updateAngle(Int)
         case captureCompleted
         case resetCaptureCompleted
+        case setShowHomeAlert
+        case isMirroringDisconnected
     }
 
     private let browser: Browser
@@ -69,6 +75,10 @@ final class CameraPreviewStore: StoreProtocol {
             return [.captureCompleted]
         case .resetCaptureCompleted:
             return [.resetCaptureCompleted]
+        case .setShowHomeAlert:
+            return [.setShowHomeAlert]
+        case .isMirroringDisconnected:
+            return [.isMirroringDisconnected]
         }
         return []
     }
@@ -89,6 +99,10 @@ final class CameraPreviewStore: StoreProtocol {
             state.isCaptureCompleted = true
         case .resetCaptureCompleted:
             state.isCaptureCompleted = false
+        case .setShowHomeAlert:
+            state.showHomeAlert = true
+        case .isMirroringDisconnected:
+            state.isMirroringDisconnected = true
         }
 
         self.state = state
