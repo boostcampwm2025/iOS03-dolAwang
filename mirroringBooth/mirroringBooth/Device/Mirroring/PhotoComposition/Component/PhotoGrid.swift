@@ -32,6 +32,7 @@ struct PhotoGrid: View {
             }
             .padding(.vertical, 20)
         }
+        .scrollIndicators(.hidden)
     }
 
     private func calculateRows(width: CGFloat, height: CGFloat) -> Int {
