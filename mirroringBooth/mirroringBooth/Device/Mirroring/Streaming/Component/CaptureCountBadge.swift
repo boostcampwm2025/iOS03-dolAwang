@@ -29,7 +29,7 @@ struct CaptureCountBadge: View {
         .frame(width: badgeSize, height: badgeSize)
         .overlay {
             Circle()
-                .strokeBorder(.white.opacity(0.3), lineWidth: 2)
+                .strokeBorder(.white.opacity(0.3), lineWidth: 4)
         }
     }
 }
