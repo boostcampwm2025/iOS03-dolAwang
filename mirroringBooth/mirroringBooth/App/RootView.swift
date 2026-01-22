@@ -14,7 +14,7 @@ struct RootView: View {
     var body: some View {
         ZStack {
             NavigationStack(path: $router.path) {
-                HomeView(isiPhone: UIDevice.current.userInterfaceIdiom == .phone)
+                HomeView()
                 .environment(router)
                 .navigationDestination(for: CameraRoute.self) { viewType in
                     switch viewType {

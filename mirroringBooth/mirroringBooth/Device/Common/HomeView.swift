@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeView: View {
 
     @Environment(Router.self) var router: Router
-    let isiPhone: Bool
+    let isiPhone: Bool = UIDevice.current.userInterfaceIdiom == .phone
 
     var body: some View {
         VStack(alignment: .leading) {
