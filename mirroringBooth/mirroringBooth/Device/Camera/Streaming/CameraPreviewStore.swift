@@ -101,7 +101,7 @@ private extension CameraPreviewStore {
         cameraManager.onEncodedData = { [weak self] data in
             guard let self = self, !self.state.isTransferring else { return }
 
-            let orientationCase = self.getOrientationByAngle(self.state.angle)
+            let orientationCase = self.getOrientationByAngle(self.state.angle).rawValue
 
             var framedData = Data()
             framedData.append(orientationCase)
@@ -143,11 +143,11 @@ private extension CameraPreviewStore {
         }
     }
 
-    func getOrientationByAngle(_ angle: Double) -> UInt8 {
+    func getOrientationByAngle(_ angle: Double) -> CameraOrientation {
         switch angle {
-        case -90: return 1
-        case 90: return 2
-        default: return 0
+        case -90: return .landscapeLeft
+        case 90: return .landscapeRight
+        default: return .portrait
         }
     }
 }
