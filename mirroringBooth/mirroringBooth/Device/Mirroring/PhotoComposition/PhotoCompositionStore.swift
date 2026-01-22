@@ -121,11 +121,11 @@ final class PhotoCompositionStore: StoreProtocol {
                     }
                 }
 
-                let removeCount = copyState.selectedPhotos.count - newCapacity
-                if removeCount > 0 {
-                    copyState.selectedPhotos.removeLast(removeCount)
-                }
-                copyState.currentSelectionCount = newCapacity
+                copyState.selectedPhotos = copyState.photos
+                    .filter { $0.selectNumber != nil }
+                    .sorted { ($0.selectNumber ?? 0) < ($1.selectNumber ?? 0) }
+
+                copyState.currentSelectionCount = copyState.selectedPhotos.count
             }
             copyState.selectedLayout = layout
             state = copyState
