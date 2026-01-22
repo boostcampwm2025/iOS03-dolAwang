@@ -44,7 +44,7 @@ private extension PhotoCompositionView {
                 .background(.main)
 
             VStack {
-                HStack(alignment: .top) {
+                HStack {
                     editingPanel(isPortrait: true, on: geometry)
                 }
                 completionButton
@@ -85,9 +85,8 @@ private extension PhotoCompositionView {
         )
         .frame(
             width: geometry.size.width / (isPortrait ? 2 : 4),
-            height: geometry.size.height / (isPortrait ? 3 : 2)
+            height: geometry.size.height / (isPortrait ? 2.6 : 2)
         )
-        .padding(12)
         .padding(isPortrait ? .leading : .trailing, 7)
         Divider()
             .background(.main)
