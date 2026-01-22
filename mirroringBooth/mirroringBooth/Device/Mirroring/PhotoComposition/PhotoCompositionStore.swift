@@ -16,7 +16,7 @@ final class PhotoCompositionStore: StoreProtocol {
         var selectedLayout: LayoutAsset = .oneByOne
         var selectedFrame: FrameAsset = .black
         var isCompletedButtonDisabled: Bool {
-            return selectedPhotos.isEmpty
+            return currentSelectionCount < selectedLayout.capacity
         }
     }
 
