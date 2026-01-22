@@ -26,6 +26,7 @@ final class BrowsingStore: StoreProtocol {
             }
         }
         var animationTrigger = false
+        var showMirroringDisconnectedAlert = false
     }
 
     enum Intent {
@@ -34,6 +35,7 @@ final class BrowsingStore: StoreProtocol {
         case didSelect(NearbyDevice)
         case cancel
         case didChangeAppState(UIApplication.State)
+        case setShowMirroringDisconnectedAlert(Bool)
     }
 
     enum Result {
@@ -44,6 +46,7 @@ final class BrowsingStore: StoreProtocol {
         case setIsConnecting(Bool)
         case setCurrentTarget(DeviceUseType)
         case startAnimation
+        case setShowMirroringDisconnectedAlert(Bool)
     }
 
     var state: State = .init()
@@ -212,6 +215,9 @@ final class BrowsingStore: StoreProtocol {
 
         case .didChangeAppState(let state):
             watchConnectionManager.pushIOSAppState(state: state)
+
+        case let .setShowMirroringDisconnectedAlert(bool):
+            result.append(.setShowMirroringDisconnectedAlert(bool))
         }
 
         return result
@@ -243,8 +249,15 @@ final class BrowsingStore: StoreProtocol {
 
         case .setCurrentTarget(let target):
             state.currentTarget = target
+            if self.state.currentTarget == .remote, target == .mirroring {
+                state.showMirroringDisconnectedAlert = true
+            }
+
         case .startAnimation:
             state.animationTrigger = true
+
+        case let .setShowMirroringDisconnectedAlert(bool):
+            state.showMirroringDisconnectedAlert = bool
         }
 
         self.state = state
