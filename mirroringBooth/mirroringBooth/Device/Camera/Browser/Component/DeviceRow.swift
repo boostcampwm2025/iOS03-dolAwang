@@ -28,7 +28,7 @@ struct DeviceRow: View {
     }
 
     var body: some View {
-        HStack {
+        HStack(spacing: 16) {
             Image(systemName: device.type.icon)
                 .font(.title)
                 .foregroundStyle(iconColor)
