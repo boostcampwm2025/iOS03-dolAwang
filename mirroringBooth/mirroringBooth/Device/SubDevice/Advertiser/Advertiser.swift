@@ -21,7 +21,7 @@ final class Advertiser: NSObject {
     private let advertiser: MCNearbyServiceAdvertiser
     private let photoCacheManager: PhotoCacheManager
     private let heartBeater: HeartBeater
-    var isForRemote: Bool = false // heartbeat 메시지 종류 구분을 위해 추가
+    var advertiserType: DeviceUseType = .mirroring // heartbeat 메시지 종류 구분을 위해 추가
     let myDeviceName: String
 
     /// 수신된 스트림 데이터 콜백
@@ -217,7 +217,7 @@ final class Advertiser: NSObject {
                 navigateToHomeCallback()
             }
         case .noticeIsRemoteDevice:
-            isForRemote = true
+            advertiserType = .remote
             heartBeater.start()
         case .heartBeat:
             heartBeater.beat()

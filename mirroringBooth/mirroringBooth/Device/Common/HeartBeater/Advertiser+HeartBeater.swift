@@ -9,10 +9,11 @@ import Foundation
 
 extension Advertiser: HeartBeaterDelegate {
     func onHeartBeat(_ sender: HeartBeater) {
-        if isForRemote {
-            sendCommand(.remoteHeartBeat)
-        } else {
+        switch advertiserType {
+        case .mirroring:
             sendCommand(.heartBeat)
+        case .remote:
+            sendCommand(.remoteHeartBeat)
         }
     }
 
