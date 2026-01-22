@@ -32,7 +32,6 @@ struct RootView: View {
                     switch viewType {
                     case .advertising:
                         AdvertisingView()
-                            .environment(router)
                     case .modeSelection(let advertiser, let isRemoteEnable):
                         ModeSelectionView(
                             advertiser: advertiser,
@@ -77,7 +76,6 @@ struct RootView: View {
                     switch viewType {
                     case .connected(let advertiser):
                         RemoteConnectedView(advertiser: advertiser)
-                            .environment(router)
                     case .remoteCapture(let advertiser):
                         RemoteCaptureView(advertiser: advertiser)
                             .onAppear {
