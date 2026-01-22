@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeView: View {
 
     @Environment(Router.self) var router: Router
-    var accessManager = AccessManager()
+    private var accessManager: AccessManager = .init()
     let isiPhone: Bool = UIDevice.current.userInterfaceIdiom == .phone
 
     var body: some View {
@@ -37,19 +37,21 @@ struct HomeView: View {
             Spacer()
         }
         .padding(.horizontal)
-        .alert("카메라 권한 필요", isPresented: Binding(
-            get: { accessManager.showSettingAlert },
+        .alert(accessManager.accessTitle,isPresented: Binding(
+            get: { accessManager.showCameraSettingAlert || accessManager.showLocalNetworkSettingAlert },
             set: { _, _ in }
         )) {
             Button("취소", role: .cancel) {
-                accessManager.showSettingAlert = false
+                accessManager.showCameraSettingAlert = false
+                accessManager.showLocalNetworkSettingAlert = false
             }
             Button("설정으로 이동") {
-                accessManager.showSettingAlert = false
+                accessManager.showCameraSettingAlert = false
+                accessManager.showLocalNetworkSettingAlert = false
                 accessManager.openSettings()
             }
         } message: {
-            Text("촬영을 위해 카메라 권한이 필요합니다.\n설정에서 권한을 허용해주세요.")
+            Text(accessManager.accessDescription)
         }
         .backgroundStyle()
     }
@@ -58,7 +60,9 @@ struct HomeView: View {
     private func startButtons(isPortrait: Bool) -> some View {
         Button {
             accessManager.requestCameraAccess {
-                router.push(to: CameraRoute.browsing)
+                accessManager.requestLocalNetworkAccess {
+                    router.push(to: CameraRoute.browsing)
+                }
             }
         } label: {
             selectionBox(
@@ -69,7 +73,9 @@ struct HomeView: View {
         .disabled(!isiPhone)
 
         Button {
-            router.push(to: isiPhone ? CameraRoute.advertising : MirroringRoute.advertising)
+            accessManager.requestLocalNetworkAccess {
+                router.push(to: isiPhone ? CameraRoute.advertising : MirroringRoute.advertising)
+            }
         } label: {
             selectionBox(
                 forCamera: false,
