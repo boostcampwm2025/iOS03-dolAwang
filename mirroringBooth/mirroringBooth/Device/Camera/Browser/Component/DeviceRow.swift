@@ -47,6 +47,7 @@ struct DeviceRow: View {
 
             VStack(alignment: .leading) {
                 Text(device.id)
+                    .multilineTextAlignment(.leading)
                     .font(.headline.bold())
                 Text(device.type.rawValue)
                     .font(.footnote)
