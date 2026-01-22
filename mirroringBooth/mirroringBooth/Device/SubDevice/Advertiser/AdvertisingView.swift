@@ -61,6 +61,7 @@ struct AdvertisingView: View {
         }
         .onDisappear {
             store.send(.exit)
+            store.advertiser.onHeartBeatTimeout = nil
         }
         .onChange(of: store.state.hasConnectionStarted) { _, newValue in
             if newValue {
