@@ -76,7 +76,7 @@ final class CameraManager: NSObject {
     }
 
     /// 사진을 촬영합니다.
-    func capturePhoto(_ orientation: UInt8) {
+    func capturePhoto(_ orientation: CameraOrientation) {
         DispatchQueue.main.async {
             self.logger.info("capturePhoto() 호출됨 - 촬영 시작")
             // JPEG 포맷으로 사진 촬영
@@ -85,12 +85,7 @@ final class CameraManager: NSObject {
             )
 
             if let photoConnection = self.photoOutput.connection(with: .video) {
-                let rotationAngle: CGFloat
-                switch orientation {
-                case 1: rotationAngle = 180
-                case 2: rotationAngle = 0
-                default: rotationAngle = 90
-                }
+                let rotationAngle = orientation.rotationAngle
 
                 if photoConnection.isVideoRotationAngleSupported(rotationAngle) {
                     photoConnection.videoRotationAngle = rotationAngle
