@@ -19,4 +19,5 @@ extension Logger {
     static let watchConnectionManager = Logger(subsystem: subsystem, category: "WatchConnectionManager")
     nonisolated static let photoCacheManager = Logger(subsystem: subsystem, category: "PhotoCacheManager")
     static let heartBeater = Logger(subsystem: subsystem, category: "HeartBeater")
+    static let accessManager = Logger(subsystem: subsystem, category: "AccessManager")
 }

@@ -7,10 +7,13 @@
 
 import AVFoundation.AVCaptureDevice
 import Network
+import OSLog
 import UIKit
 
 @Observable
 final class AccessManager {
+    private let logger = Logger.accessManager
+
     var showCameraSettingAlert: Bool = false
     var showLocalNetworkSettingAlert: Bool = false
 
@@ -50,11 +53,13 @@ final class AccessManager {
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 if granted {
+                    self.logger.info("카메라 권한 확인 완료")
                     onGranted()
                 }
             }
 
         case .denied, .restricted:
+            logger.error("카메라 권한 확인 실패")
             showCameraSettingAlert = true
 
         @unknown default:
@@ -71,7 +76,7 @@ final class AccessManager {
         // 2. [성공 확정 타이머]
         // 지정된 시간 동안 거절 에러가 발생하지 않으면 성공으로 간주
         let timerItem = DispatchWorkItem { [weak self] in
-            print("결과: 거절 에러 없음 -> 권한 허용으로 간주")
+            self?.logger.info("로컬 네트워크 권한 확인 완료")
             self?.stopCheckingLocalNetwork()
             onGranted()
         }
@@ -82,7 +87,7 @@ final class AccessManager {
 
             if isPolicyDenied(state) {
                 // [확실한 실패] 사용자가 권한을 명시적으로 거부함
-                print("결과: 권한 거부됨 (Policy Denied)")
+                logger.error("로컬 네트워크 권한 확인 실패: (Policy Denied)")
                 self.successTimerItem?.cancel()
                 self.stopCheckingLocalNetwork()
                 self.showLocalNetworkSettingAlert = true
