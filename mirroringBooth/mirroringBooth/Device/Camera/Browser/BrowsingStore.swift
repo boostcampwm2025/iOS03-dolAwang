@@ -26,6 +26,9 @@ final class BrowsingStore: StoreProtocol {
             }
         }
         var animationTrigger = false
+        var showMirroringDisconnectedAlert = false
+        var showToast = false
+        var toastMessage = ""
     }
 
     enum Intent {
@@ -34,6 +37,8 @@ final class BrowsingStore: StoreProtocol {
         case didSelect(NearbyDevice)
         case cancel
         case didChangeAppState(UIApplication.State)
+        case setShowMirroringDisconnectedAlert(Bool)
+        case setShowToast(Bool)
     }
 
     enum Result {
@@ -44,6 +49,8 @@ final class BrowsingStore: StoreProtocol {
         case setIsConnecting(Bool)
         case setCurrentTarget(DeviceUseType)
         case startAnimation
+        case setShowMirroringDisconnectedAlert(Bool)
+        case setShowToast(Bool)
     }
 
     var state: State = .init()
@@ -66,6 +73,9 @@ final class BrowsingStore: StoreProtocol {
 
         browser.onDeviceLost = { [weak self] device in
             self?.reduce(.removeDiscoveredDevice(device))
+            if device == self?.state.mirroringDevice {
+                self?.reduce(.setCurrentTarget(.mirroring))
+            }
         }
 
         browser.onDeviceConnected = { [weak self] device in
@@ -103,6 +113,17 @@ final class BrowsingStore: StoreProtocol {
                 self?.watchConnectionManager.sendCaptureComplete()
             }
             .store(in: &cancellables)
+
+        // 미러링 기기 연결 끊긴 경우
+        browser.onHeartbeatTimeout = { [weak self] in
+            self?.reduce(.setMirroringDevice(nil))
+            self?.reduce(.setCurrentTarget(.mirroring))
+        }
+        // 리모트 기기 연결 끊긴 경우
+        browser.onRemoteHeartbeatTimeout = { [weak self] in
+            self?.reduce(.setRemoteDevice(nil))
+            self?.reduce(.setCurrentTarget(.remote))
+        }
     }
 
     private func setupWatchConnectionManager() {
@@ -143,7 +164,20 @@ final class BrowsingStore: StoreProtocol {
         case .entry:
             browser.startSearching()
             watchConnectionManager.start()
-            return [.startAnimation]
+            result.append(.startAnimation)
+            if !browser.isMirroringSessionActive {
+                if let mirroringDevice = state.mirroringDevice {
+                    result.append(.setMirroringDevice(nil))
+                    result.append(.removeDiscoveredDevice(mirroringDevice))
+                }
+                result.append(.setCurrentTarget(.mirroring))
+            } else if !browser.isRemoteSessionActive {
+                if let remoteDevice = state.remoteDevice {
+                    result.append(.setRemoteDevice(nil))
+                    result.append(.removeDiscoveredDevice(remoteDevice))
+                }
+                result.append(.setCurrentTarget(.remote))
+            }
         case .exit:
             browser.stopSearching()
             watchConnectionManager.stop()
@@ -185,6 +219,12 @@ final class BrowsingStore: StoreProtocol {
 
         case .didChangeAppState(let state):
             watchConnectionManager.pushIOSAppState(state: state)
+
+        case .setShowMirroringDisconnectedAlert(let value):
+            result.append(.setShowMirroringDisconnectedAlert(value))
+
+        case .setShowToast(let value):
+            result.append(.setShowToast(value))
         }
 
         return result
@@ -207,6 +247,10 @@ final class BrowsingStore: StoreProtocol {
 
         case .setMirroringDevice(let device):
             state.mirroringDevice = device
+            if let id = device?.id {
+                state.toastMessage = "\(id) 이/가 미러링 기기로 연결되었습니다."
+                state.showToast = true
+            }
 
         case .setRemoteDevice(let device):
             state.remoteDevice = device
@@ -216,8 +260,18 @@ final class BrowsingStore: StoreProtocol {
 
         case .setCurrentTarget(let target):
             state.currentTarget = target
+            if self.state.currentTarget == .remote, target == .mirroring {
+                state.showMirroringDisconnectedAlert = true
+            }
+
         case .startAnimation:
             state.animationTrigger = true
+
+        case let .setShowMirroringDisconnectedAlert(bool):
+            state.showMirroringDisconnectedAlert = bool
+
+        case let .setShowToast(bool):
+            state.showToast = bool
         }
 
         self.state = state

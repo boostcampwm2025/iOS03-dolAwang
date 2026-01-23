@@ -1,5 +1,5 @@
 //
-//  AdvertiserHomeStore.swift
+//  AdvertisingStore.swift
 //  mirroringBooth
 //
 //  Created by 이상유 on 2026-01-08.
@@ -8,24 +8,24 @@
 import Foundation
 
 @Observable
-final class AdvertiserHomeStore: StoreProtocol {
+final class AdvertisingStore: StoreProtocol {
 
     struct State {
-        var isAdvertising: Bool = false
-        var hasConnectionStarted: Bool = false
+        var isConnected: Bool = false
+        var onNavigate: Bool = false
         var deviceUseType: DeviceUseType?
         var isRemoteSelected: Bool = false
     }
 
     enum Intent {
         case onAppear
-        case didTapAdvertiseButton
+        case connected
         case exit
     }
 
     enum Result {
-        case setIsAdvertising(Bool)
-        case setIsConnecting(Bool, type: DeviceUseType?)
+        case setIsConnected(Bool)
+        case setOnNavigate(Bool, type: DeviceUseType?)
         case setIsRemoteSelected(Bool)
     }
 
@@ -35,32 +35,33 @@ final class AdvertiserHomeStore: StoreProtocol {
     init(_ advertiser: Advertiser) {
         self.advertiser = advertiser
 
+        advertiser.onConnected = { [weak self] in
+            self?.send(.connected)
+        }
+
         advertiser.navigateToSelectModeCommandCallBack = { [weak self] isRemoteEnable in
             self?.reduce(.setIsRemoteSelected(isRemoteEnable))
-            self?.reduce(.setIsConnecting(true, type: .mirroring))
+            self?.reduce(.setOnNavigate(true, type: .mirroring))
         }
 
         advertiser.navigateToRemoteConnectedCallBack = { [weak self] in
-            self?.reduce(.setIsConnecting(true, type: .remote))
+            self?.reduce(.setOnNavigate(true, type: .remote))
         }
 
         advertiser.navigateToRemoteCaptureCallBack = { [weak self] in
-            self?.reduce(.setIsConnecting(true, type: .remote))
+            self?.reduce(.setOnNavigate(true, type: .remote))
         }
     }
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
         case .onAppear:
-            return [.setIsAdvertising(false), .setIsConnecting(false, type: nil)]
-        case .didTapAdvertiseButton:
-            let newState = !state.isAdvertising
-            if newState {
-                advertiser.startSearching()
-            } else {
-                advertiser.stopSearching()
-            }
-            return [.setIsAdvertising(newState)]
+            advertiser.startSearching()
+            return [.setOnNavigate(false, type: nil)]
+
+        case .connected:
+            advertiser.stopSearching(onlyRefuse: true)
+            return [.setIsConnected(true)]
 
         case .exit:
             advertiser.stopSearching()
@@ -72,11 +73,10 @@ final class AdvertiserHomeStore: StoreProtocol {
         var state = self.state
 
         switch result {
-        case .setIsAdvertising(let status):
-            state.isAdvertising = status
-
-        case .setIsConnecting(let status, let useType):
-            state.hasConnectionStarted = status
+        case .setIsConnected(let bool):
+            state.isConnected = bool
+        case .setOnNavigate(let status, let useType):
+            state.onNavigate = status
             state.deviceUseType = useType
 
         case .setIsRemoteSelected(let isRemoteSelected):

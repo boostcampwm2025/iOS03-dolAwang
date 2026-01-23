@@ -8,13 +8,22 @@
 import Foundation
 
 extension Browser: HeartBeaterDelegate {
-    func onHeartBeat() {
+    func onHeartBeat(_ sender: HeartBeater) {
         sendCommand(.heartBeat)
+        if remoteHeartBeater != nil {
+            sendRemoteCommand(.heartBeat)
+        }
     }
 
-    func onTimeout() {
-        DispatchQueue.main.async {
-            self.onHeartbeatTimeout?()
+    func onTimeout(_ sender: HeartBeater) {
+        if sender === mirroringHeartBeater {
+            DispatchQueue.main.async {
+                self.onHeartbeatTimeout?()
+            }
+        } else if sender === remoteHeartBeater {
+            DispatchQueue.main.async {
+                self.onRemoteHeartbeatTimeout?()
+            }
         }
     }
 }

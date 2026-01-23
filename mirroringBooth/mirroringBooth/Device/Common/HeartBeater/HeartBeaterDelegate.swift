@@ -6,6 +6,6 @@
 //
 
 protocol HeartBeaterDelegate: AnyObject {
-    func onHeartBeat()
-    func onTimeout()
+    func onHeartBeat(_ sender: HeartBeater)
+    func onTimeout(_ sender: HeartBeater)
 }

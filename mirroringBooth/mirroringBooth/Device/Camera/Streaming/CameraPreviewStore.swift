@@ -18,15 +18,19 @@ final class CameraPreviewStore: StoreProtocol {
         var isTransferring = false
         var angle: Double = 0
         var isCaptureCompleted = false
+        var showHomeAlert: Bool = false
+        var isMirroringDisconnected: Bool = false
     }
 
     enum Intent {
         case startAnimation
         case startSession
-        case tapExitButton
+        case stopCameraSession
         case updateAngle(rawValue: Int)
         case captureCompleted
         case resetCaptureCompleted
+        case setShowHomeAlert(Bool)
+        case isMirroringDisconnected
     }
 
     enum Result {
@@ -35,6 +39,8 @@ final class CameraPreviewStore: StoreProtocol {
         case updateAngle(Int)
         case captureCompleted
         case resetCaptureCompleted
+        case setShowHomeAlert(Bool)
+        case isMirroringDisconnected
     }
 
     private let browser: Browser
@@ -59,7 +65,7 @@ final class CameraPreviewStore: StoreProtocol {
         case .startSession:
             setupSubscriptions()
             return [.startSession]
-        case .tapExitButton:
+        case .stopCameraSession:
             cameraManager.stopSession()
         case .updateAngle(let rawValue):
             return [.updateAngle(rawValue)]
@@ -69,6 +75,10 @@ final class CameraPreviewStore: StoreProtocol {
             return [.captureCompleted]
         case .resetCaptureCompleted:
             return [.resetCaptureCompleted]
+        case .setShowHomeAlert(let bool):
+            return [.setShowHomeAlert(bool)]
+        case .isMirroringDisconnected:
+            return [.isMirroringDisconnected]
         }
         return []
     }
@@ -89,6 +99,10 @@ final class CameraPreviewStore: StoreProtocol {
             state.isCaptureCompleted = true
         case .resetCaptureCompleted:
             state.isCaptureCompleted = false
+        case .setShowHomeAlert:
+            state.showHomeAlert = true
+        case .isMirroringDisconnected:
+            state.isMirroringDisconnected = true
         }
 
         self.state = state
@@ -98,13 +112,22 @@ final class CameraPreviewStore: StoreProtocol {
 private extension CameraPreviewStore {
     func setupSubscriptions() {
         // 비디오 스트림 콜백
-        cameraManager.onEncodedData = { data in
-            guard !self.state.isTransferring else { return }
-            self.browser.sendStreamData(data)
+        cameraManager.onEncodedData = { [weak self] data in
+            guard let self = self, !self.state.isTransferring else { return }
+
+            let orientationCase = self.getOrientationByAngle(self.state.angle).rawValue
+
+            var framedData = Data()
+            framedData.append(orientationCase)
+            framedData.append(data)
+
+            self.browser.sendStreamData(framedData)
         }
         // 촬영 명령 수신
         browser.onCaptureCommand = {
-            self.cameraManager.capturePhoto()
+            self.cameraManager.capturePhoto(
+                self.getOrientationByAngle(self.state.angle)
+            )
         }
         // 일괄 전송 시작 명령 수신
         browser.onStartTransferCommand
@@ -128,9 +151,17 @@ private extension CameraPreviewStore {
     func getAngleByRawValue(_ value: Int) -> Double {
         switch value {
         case 3: return 90   // landscapeLeft
-        case 4: return 90  // landscapeRight
+        case 4: return -90  // landscapeRight
         case 5: return state.angle    // flat
         default: return 0
+        }
+    }
+
+    func getOrientationByAngle(_ angle: Double) -> CameraOrientation {
+        switch angle {
+        case -90: return .landscapeLeft
+        case 90: return .landscapeRight
+        default: return .portrait
         }
     }
 }

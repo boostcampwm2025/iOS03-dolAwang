@@ -15,6 +15,7 @@ final class Browser: NSObject {
     enum MirroringDeviceCommand: String {
         case navigateToSelectModeWithRemote
         case navigateToSelectModeWithoutRemote
+        case switchSelectModeView
         case allPhotosStored // 사진 10장 모두 저장 완료
         case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
         case heartBeat
@@ -25,6 +26,8 @@ final class Browser: NSObject {
         case navigateToRemoteComplete
         case navigateToRemoteConnected
         case navigateToHome
+        case noticeIsRemoteDevice
+        case heartBeat
     }
 
     enum SessionType: String {
@@ -37,10 +40,13 @@ final class Browser: NSObject {
     private let serviceType: String
     private let peerID: MCPeerID
     private var mirroringSession: MCSession?
+    var isMirroringSessionActive: Bool { mirroringSession?.connectedPeers.count == 1 }
     private var mirroringCommandSession: MCSession?
     private var remoteSession: MCSession?
+    var isRemoteSessionActive: Bool { remoteSession?.connectedPeers.count == 1 }
     private let browser: MCNearbyServiceBrowser
-    private let heartBeater: HeartBeater
+    let mirroringHeartBeater: HeartBeater
+    var remoteHeartBeater: HeartBeater?
 
     private var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
 
@@ -74,6 +80,7 @@ final class Browser: NSObject {
 
     /// heartbeat 메시지 타임아웃
     var onHeartbeatTimeout: (() -> Void)?
+    var onRemoteHeartbeatTimeout: (() -> Void)?
 
     /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
     var isVideoSender: Bool {
@@ -85,14 +92,20 @@ final class Browser: NSObject {
         self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: false, with: UIDevice.current.deviceType)
         self.peerID = MCPeerID(displayName: myDeviceName)
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
-        self.heartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
+        self.mirroringHeartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
 
         super.init()
         browser.delegate = self
-        heartBeater.delegate = self
+        mirroringHeartBeater.delegate = self
+    }
+
+    private func createRemoteHeartBeater() {
+        self.remoteHeartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
+        remoteHeartBeater?.delegate = self
     }
 
     func startSearching() {
+        browser.stopBrowsingForPeers()
         browser.startBrowsingForPeers()
         logger.info("주변 기기를 검색합니다.")
     }
@@ -263,7 +276,8 @@ final class Browser: NSObject {
         remoteSession = nil
         targetMirroringDeviceID = nil
         targetRemoteDeviceID = nil
-        heartBeater.stop()
+        mirroringHeartBeater.stop()
+        remoteHeartBeater?.stop()
         logger.info("모든 연결 해제")
     }
 
@@ -276,11 +290,13 @@ final class Browser: NSObject {
             mirroringSession = nil
             mirroringCommandSession = nil
             targetMirroringDeviceID = nil
+            mirroringHeartBeater.stop()
             logger.info("미러링 연결 해제")
         case .remote:
             remoteSession?.disconnect()
             remoteSession = nil
             targetRemoteDeviceID = nil
+            remoteHeartBeater?.stop()
             logger.info("리모트 연결 해제")
         }
     }
@@ -314,13 +330,17 @@ extension Browser: MCSessionDelegate {
         discoveredPeers[peerID.displayName] = (peer: peerID, type: deviceType)
         let device = NearbyDevice(id: peerID.displayName, state: newState, type: deviceType)
 
-        if session === mirroringSession,
-           state == .connected {
-            heartBeater.start()
+        if session === mirroringSession, state == .connected {
+            mirroringHeartBeater.start()
+        } else if session === remoteSession, state == .connected {
+            sendRemoteCommand(.noticeIsRemoteDevice)
+            if remoteHeartBeater == nil {
+                createRemoteHeartBeater()
+            }
+            remoteHeartBeater?.start()
         }
 
         DispatchQueue.main.async {
-            self.onDeviceFound?(device)
             self.handleConnectionStateChange(newState, device: device, session: session, peerID: peerID)
         }
     }
@@ -426,9 +446,12 @@ extension Browser: MCSessionDelegate {
                     self.sendRemoteCommand(.navigateToHome)
                 }
             case .heartBeat:
-                heartBeater.beat()
+                mirroringHeartBeater.beat()
+            case .remoteHeartBeat:
+                remoteHeartBeater?.beat()
             case .stopHeartBeat:
-                heartBeater.stop()
+                mirroringHeartBeater.stop()
+                remoteHeartBeater?.stop()
             }
         }
     }

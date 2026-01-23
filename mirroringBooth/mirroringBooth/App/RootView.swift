@@ -14,41 +14,48 @@ struct RootView: View {
     var body: some View {
         ZStack {
             NavigationStack(path: $router.path) {
-                Group {
-                    if UIDevice.current.userInterfaceIdiom == .phone {
-                        CameraHomeView()
-                    } else {
-                        AdvertiserHomeView()
-                    }
-                }
-                .environment(router)
+                HomeView()
                 .navigationDestination(for: CameraRoute.self) { viewType in
                     switch viewType {
                     case .browsing:
                         BrowsingView()
-                            .environment(router)
                     case .advertising:
-                        AdvertiserHomeView()
-                            .environment(router)
+                        AdvertisingView()
+
                     case .connectionList(let list, let browser):
                         ConnectionCheckView(list, browser: browser)
-                            .environment(router)
                     case .completion:
                         StreamingCompletionView()
-                            .environment(router)
                     }
                 }
                 .navigationDestination(for: MirroringRoute.self) { viewType in
                     switch viewType {
+                    case .advertising:
+                        AdvertisingView()
                     case .modeSelection(let advertiser, let isRemoteEnable):
                         ModeSelectionView(
                             advertiser: advertiser,
                             isRemoteModeEnabled: isRemoteEnable
                         )
-                        .environment(router)
+                        .onAppear {
+                            store.advertiser?.onHeartBeatTimeout = {
+                                store.send(.showTimeoutAlert(true))
+                            }
+                            store.advertiser?.switchModeSelectionView = {
+                                guard let advertiser = self.store.advertiser else {
+                                    return
+                                }
+                                router.pop()
+                                router.push(
+                                    to: MirroringRoute.modeSelection(
+                                        advertiser,
+                                        isRemoteEnable: false
+                                    )
+                                )
+                            }
+                        }
                     case .streaming(let advertiser, let isTimerMode):
                         StreamingView(advertiser: advertiser, isTimerMode: isTimerMode)
-                            .environment(router)
                             .onAppear {
                                 AppDelegate.unlockOrientation()
                             }
@@ -57,20 +64,19 @@ struct RootView: View {
                             }
                     case .captureResult:
                         PhotoCompositionView()
-                            .environment(router)
                     case .result(let result):
                         ResultView(resultPhoto: result)
-                            .environment(router)
                     }
                 }
                 .navigationDestination(for: RemoteRoute.self) { viewType in
                     switch viewType {
-                    case .connected(let advertiser):
-                        RemoteConnectedView(advertiser: advertiser)
-                            .environment(router)
                     case .remoteCapture(let advertiser):
                         RemoteCaptureView(advertiser: advertiser)
-                            .environment(router)
+                            .onAppear {
+                                store.advertiser?.onHeartBeatTimeout = {
+                                    store.send(.showTimeoutAlert(true))
+                                }
+                            }
                     case .completion:
                         CompletionView {
                             router.reset()
@@ -79,6 +85,7 @@ struct RootView: View {
                 }
             }
             .environment(store)
+            .environment(router)
             .tint(Color(.label))
         }
         .homeAlert(

@@ -36,8 +36,9 @@ final class HeartBeater {
         timer = DispatchSource.makeTimerSource(queue: queue)
         timer?.schedule(deadline: .now(), repeating: repeatInterval)
         timer?.setEventHandler { [weak self] in
-            self?.checkAlive()
-            self?.delegate?.onHeartBeat()
+            guard let self else { return }
+            self.checkAlive()
+            self.delegate?.onHeartBeat(self)
         }
         timer?.resume()
         Logger.heartBeater.debug("Heartbeat timer started (interval:\(self.repeatInterval)s, timeout:\(self.timeout)s)")
@@ -65,7 +66,7 @@ final class HeartBeater {
         if Date().timeIntervalSince(lastHeartbeat) > self.timeout {
             Logger.heartBeater.warning("Heartbeat timed out")
             stop()
-            delegate?.onTimeout()
+            delegate?.onTimeout(self)
         }
     }
 }

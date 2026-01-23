@@ -13,7 +13,7 @@ struct StreamingCompletionView: View {
     @State private var showHomeAlert: Bool = false
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack {
             DisconnectButtonView {
                 showHomeAlert = true
             }
@@ -30,10 +30,6 @@ struct StreamingCompletionView: View {
                         .font(.subheadline.bold())
                         .opacity(0.7)
                 }
-                Text("편집이 완료된 사진을 이 디바이스에 저장하고 싶다면\n이 화면에서 대기해주세요.")
-                    .font(.footnote)
-                    .opacity(0.7)
-                    .multilineTextAlignment(.center)
             }
             Spacer()
         }
@@ -41,7 +37,7 @@ struct StreamingCompletionView: View {
         .backgroundStyle()
         .homeAlert(
             isPresented: $showHomeAlert,
-            message: "편집이 완료된 사진을 이 디바이스에 저장하고 싶다면\n이 화면에서 대기해주세요."
+            message: "연결을 종료하시겠습니까?"
         ) {
             router.reset()
             rootStore.send(.disconnect)

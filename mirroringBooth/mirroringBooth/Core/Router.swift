@@ -38,6 +38,7 @@ struct ConnectionList: Hashable {
 }
 
 enum MirroringRoute: Hashable {
+    case advertising
     case modeSelection(Advertiser, isRemoteEnable: Bool)
     case streaming(Advertiser, isTimerMode: Bool)
     case captureResult
@@ -45,7 +46,6 @@ enum MirroringRoute: Hashable {
 }
 
 enum RemoteRoute: Hashable {
-    case connected(Advertiser)
     case remoteCapture(Advertiser)
     case completion
 }

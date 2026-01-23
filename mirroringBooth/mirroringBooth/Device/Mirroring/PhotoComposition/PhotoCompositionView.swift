@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PhotoCompositionView: View {
+    @Environment(\.colorScheme) var colorScheme
     @State var store: PhotoCompositionStore
     @Environment(Router.self) var router: Router
 
@@ -36,15 +37,15 @@ struct PhotoCompositionView: View {
 private extension PhotoCompositionView {
     /// 세로 레이아웃
     func portraitLayout(with geometry: GeometryProxy) -> some View {
-        VStack {
+        VStack(spacing: 0) {
             photoGridView
 
             Divider()
                 .background(.main)
 
             VStack {
-                HStack(alignment: .top) {
-                    editingPanel(isPortrait: true)
+                HStack {
+                    editingPanel(isPortrait: true, on: geometry)
                 }
                 completionButton
             }
@@ -55,7 +56,7 @@ private extension PhotoCompositionView {
 
     /// 가로 레이아웃
     func landscapeLayout(with geometry: GeometryProxy) -> some View {
-        HStack {
+        HStack(spacing: 0) {
             VStack {
                 photoGridView
                 completionButton
@@ -65,7 +66,7 @@ private extension PhotoCompositionView {
                 .background(.main)
 
             VStack {
-                editingPanel(isPortrait: false)
+                editingPanel(isPortrait: false, on: geometry)
             }
             // 화면 표시 비율
             .frame(width: geometry.size.width * 0.33)
@@ -74,7 +75,7 @@ private extension PhotoCompositionView {
 
     /// 편집 패널 (결과 프리뷰 + 프레임/레이아웃 선택 뷰)
     @ViewBuilder
-    func editingPanel(isPortrait: Bool) -> some View {
+    func editingPanel(isPortrait: Bool, on geometry: GeometryProxy) -> some View {
         PhotoFramePreview(
             information: PhotoInformation(
                 layout: store.state.selectedLayout,
@@ -82,7 +83,10 @@ private extension PhotoCompositionView {
                 photos: store.state.selectedPhotos
             )
         )
-        .padding(12)
+        .frame(
+            width: geometry.size.width / (isPortrait ? 2 : 4),
+            height: geometry.size.height / (isPortrait ? 2.6 : 2)
+        )
         .padding(isPortrait ? .leading : .trailing, 7)
         Divider()
             .background(.main)
@@ -127,13 +131,19 @@ private extension PhotoCompositionView {
                 .font(.headline.bold())
                 .padding(.vertical, 15)
                 .padding(.horizontal, 30)
-                .foregroundStyle(Color(.label))
+                .foregroundStyle(Color.white)
+                .disabled(store.state.isCompletedButtonDisabled)
                 .background {
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.main.opacity(0.3))
+                        .fill(Color.main)
                         .strokeBorder(Color.borderLine, lineWidth: 2)
                         .frame(minHeight: 44)
+                        .opacity(store.state.isCompletedButtonDisabled ? 0.3 : 1)
                 }
+                .opacity(
+                    colorScheme == .dark &&
+                    store.state.isCompletedButtonDisabled ? 0.3 : 1
+                )
         }
         .padding(5)
     }

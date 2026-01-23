@@ -15,6 +15,9 @@ final class PhotoCompositionStore: StoreProtocol {
         var currentSelectionCount: Int = 0
         var selectedLayout: LayoutAsset = .oneByOne
         var selectedFrame: FrameAsset = .black
+        var isCompletedButtonDisabled: Bool {
+            return currentSelectionCount < selectedLayout.capacity
+        }
     }
 
     enum Intent {
@@ -101,17 +104,30 @@ final class PhotoCompositionStore: StoreProtocol {
 
         case .setLayout(let layout):
             var copyState = state
-            for index in 0 ..< copyState.photos.count {
-                copyState.photos[index] = Photo(
-                    id: copyState.photos[index].id,
-                    url: copyState.photos[index].url,
-                    selectNumber: nil
-                )
+            let newCapacity = layout.capacity
+            let oldCapacity = state.selectedLayout.capacity
+
+            // capacity가 줄어들고, 현재 선택된 이미지의 개수가 capacity를 초과하는 경우만 처리합니다.
+            if newCapacity < oldCapacity && copyState.currentSelectionCount > newCapacity {
+                // 초과된 사진 사진들의 selectNumber 제거
+                for index in 0 ..< copyState.photos.count {
+                    if let selectNumber = copyState.photos[index].selectNumber,
+                       selectNumber > newCapacity {
+                        copyState.photos[index] = Photo(
+                            id: copyState.photos[index].id,
+                            url: copyState.photos[index].url,
+                            selectNumber: nil
+                        )
+                    }
+                }
+
+                copyState.selectedPhotos = copyState.photos
+                    .filter { $0.selectNumber != nil }
+                    .sorted { ($0.selectNumber ?? 0) < ($1.selectNumber ?? 0) }
+
+                copyState.currentSelectionCount = copyState.selectedPhotos.count
             }
-            copyState.selectedPhotos = []
-            copyState.currentSelectionCount = 0
             copyState.selectedLayout = layout
-            copyState.selectedFrame = state.selectedFrame
             state = copyState
 
         case .setFrame(let frame):

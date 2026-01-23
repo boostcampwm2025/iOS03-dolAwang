@@ -9,21 +9,32 @@ import SwiftUI
 
 struct StandbyView: View {
     let displayName: String
-    let isAdvertising: Bool
 
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 20) {
             Group {
-                SpinningIndicatorView(isActive: isAdvertising)
+                SpinningIndicatorView(isActive: true)
 
                 Text("연결 대기 중...")
-                    .fontWeight(.heavy)
             }
-            .foregroundStyle(Color(.lightGray))
+            .font(.title.bold())
+            .foregroundStyle(.primary.opacity(0.8))
 
-            Text("\(displayName)으로 검색되는 중입니다.")
-                .font(.caption2.bold())
-                .foregroundStyle(Color(.darkGray))
+            VStack(spacing: 12) {
+                Text("아래의 이름을 iPhone에서 찾아주세요!")
+                    .foregroundStyle(.primary.opacity(0.4))
+                Text(displayName)
+                    .multilineTextAlignment(.center)
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 10)
+                    .foregroundStyle(.primary.opacity(0.6))
+                    .background {
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(.primary.opacity(0.3))
+                    }
+                    .padding(15)
+            }
+            .font(.headline)
         }
     }
 }

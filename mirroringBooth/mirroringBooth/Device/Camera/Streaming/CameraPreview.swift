@@ -14,7 +14,6 @@ struct CameraPreview: View {
     @Environment(Router.self) private var router
     @Environment(RootStore.self) private var rootStore
     @State var store: CameraPreviewStore
-    @State private var showHomeAlert: Bool = false
 
     let onDismissByCaptureCompletion: (() -> Void)?
 
@@ -56,6 +55,13 @@ struct CameraPreview: View {
             }
             store.send(.startSession)
             store.send(.updateAngle(rawValue: UIDevice.current.orientation.rawValue))
+            rootStore.browser?.onHeartbeatTimeout = { [weak store, weak rootStore] in
+                store?.send(.isMirroringDisconnected)
+                rootStore?.browser?.disconnect(useType: .remote)
+            }
+            rootStore.browser?.onRemoteHeartbeatTimeout = { [weak rootStore] in
+                rootStore?.browser?.sendCommand(.switchSelectModeView)
+            }
         }
         .onChange(of: UIDevice.current.orientation.rawValue) { _, value in
             withAnimation(.easeInOut(duration: 0.3)) {
@@ -69,23 +75,28 @@ struct CameraPreview: View {
             }
         }
         .homeAlert(
-            isPresented: $showHomeAlert,
+            isPresented: Binding(
+                get: { store.state.showHomeAlert },
+                set: { store.send(.setShowHomeAlert($0)) }
+            ),
             message: "촬영된 사진이 모두 사라집니다.\n계속하시겠습니까?"
         ) {
-            store.send(.tapExitButton)
+            store.send(.stopCameraSession)
             rootStore.send(.disconnect)
             dismiss()
+            router.reset()
         }
         .homeAlert(
             isPresented: Binding(
-                get: { rootStore.state.showTimeoutAlert },
-                set: { rootStore.send(.showTimeoutAlert($0)) }
+                get: { store.state.isMirroringDisconnected },
+                set: { _ in }
             ),
             message: "기기 연결이 끊겼습니다.",
             cancellable: false
         ) {
+            store.send(.stopCameraSession)
+            dismiss()
             router.reset()
-            rootStore.send(.showTimeoutAlert(false))
         }
     }
 
@@ -106,7 +117,7 @@ struct CameraPreview: View {
 
     private var exitButton: some View {
         Button {
-            showHomeAlert = true
+            store.send(.setShowHomeAlert(true))
         } label: {
             Image(systemName: "xmark")
                 .font(.footnote.bold())

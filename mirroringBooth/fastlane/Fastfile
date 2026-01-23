@@ -8,7 +8,7 @@ default_platform(:ios)
 
 platform :ios do
   desc "Development IPA build & AppBox internal distribution"
-  lane :dev_ipa do |options|
+  lane :dev_appbox do |options|
     # env에서 이메일 가져오기 (파라미터 -> 환경 변수 -> 기본값 순서입니다.)
     emails = options[:emails] || ENV["APPBOX_EMAILS"] || "kayuaao96@gmail.com"
     
@@ -28,5 +28,27 @@ platform :ios do
 
     UI.success("✅ 빌드 및 AppBox 업로드 완료")
     UI.message("📦 설치 링크: #{lane_context[SharedValues::APPBOX_SHARE_URL]}")
+  end
+
+  desc "TestFlight build & upload"
+  lane :dev_testflight do |options|
+    
+    build_app(
+      scheme: "mirroringBooth",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "mirroringBooth_appstore.ipa",
+      clean: true
+    )
+
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      apple_id: ENV["APPLE_ID"],
+      team_id: ENV["TEAM_ID"],
+      changelog: options[:changelog] || "버그 수정 및 성능 개선"
+    )
+
+    UI.success("✅ TestFlight 업로드 완료")
+    UI.message("🚀 App Store Connect에서 처리 중입니다")
   end
 end

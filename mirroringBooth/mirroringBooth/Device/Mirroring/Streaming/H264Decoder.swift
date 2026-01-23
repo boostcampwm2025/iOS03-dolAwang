@@ -18,11 +18,14 @@ final class H264Decoder {
     private var formatDescription: CMVideoFormatDescription?
 
     /// 디코딩된 샘플 버퍼를 받는 콜백
-    var onDecodedSampleBuffer: ((CMSampleBuffer) -> Void)?
+    var onDecodedSampleBuffer: ((CMSampleBuffer, Int16) -> Void)?
 
     // SPS/PPS 저장
     private var sps: Data?
     private var pps: Data?
+
+    // Browser에서 보낸 회전 각도
+    private var rotationAngle = Int16.zero
 
     func stop() {
         decoderQueue.async { [weak self] in
@@ -34,6 +37,33 @@ final class H264Decoder {
 
     func decode(_ data: Data) {
         decoderQueue.async { [weak self] in
+            if 5 <= data.count {
+                let startIndex = data.startIndex
+                let isAnnexBAtStart =
+                    data[startIndex] == 0x00 &&
+                    data[startIndex + 1] == 0x00 &&
+                    data[startIndex + 2] == 0x00 &&
+                    data[startIndex + 3] == 0x01
+
+                if !isAnnexBAtStart {
+                    let orientationCase = data[startIndex]
+
+                    let mappedAngle: Int16
+                    switch orientationCase {
+                    case 1: mappedAngle = 90
+                    case 2: mappedAngle = -90
+                    default: mappedAngle = 0
+                    }
+
+                    self?.rotationAngle = mappedAngle
+
+                    let trimmedDataRange = (startIndex + 1)..<data.endIndex
+                    let trimmedData = data.subdata(in: trimmedDataRange)
+                    self?.processNALUnits(trimmedData)
+                    return
+                }
+            }
+
             self?.processNALUnits(data)
         }
     }
@@ -198,7 +228,7 @@ extension H264Decoder {
         }
 
         if sampleStatus == noErr, let sample = sampleBuffer {
-            onDecodedSampleBuffer?(sample)
+            onDecodedSampleBuffer?(sample, self.rotationAngle)
         } else {
             logger.warning("SampleBuffer 생성 실패 (디코딩 출력): \(sampleStatus)")
         }

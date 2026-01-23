@@ -21,10 +21,15 @@ final class Advertiser: NSObject {
     private let advertiser: MCNearbyServiceAdvertiser
     private let photoCacheManager: PhotoCacheManager
     private let heartBeater: HeartBeater
+    private var isBlockingInvitation: Bool = false
+    var advertiserType: DeviceUseType = .mirroring // heartbeat 메시지 종류 구분을 위해 추가
     let myDeviceName: String
 
     /// 수신된 스트림 데이터 콜백
     var onReceivedStreamData: ((Data) -> Void)?
+
+    /// 연결 성공 콜백
+    var onConnected: (() -> Void)?
 
     /// 촬영 선택 모드 이동 콜백 (미러링 기기)
     var navigateToSelectModeCommandCallBack: ((_ isRemoteEnable: Bool) -> Void)?
@@ -48,8 +53,12 @@ final class Advertiser: NSObject {
         case setRemoteMode // 원격 촬영 모드 설정
         case selectedTimerMode // 타이머 모드 선택
         case heartBeat // 세션 생존 확인
+        case remoteHeartBeat // 리모트 세션 확인용
         case stopHeartBeat // heartbeat 종료
     }
+
+    /// 리모트 기기 연결 끊겼을 때 모드 선택 화면 교체 콜백
+    var switchModeSelectionView: (() -> Void)?
 
     /// 사진 수신 완료 콜백 (1장마다 호출)
     var onPhotoReceived: (() -> Void)?
@@ -106,11 +115,16 @@ final class Advertiser: NSObject {
     }
 
     func startSearching() {
+        isBlockingInvitation = false
         advertiser.startAdvertisingPeer()
         logger.info("광고를 시작합니다.")
     }
 
-    func stopSearching() {
+    func stopSearching(onlyRefuse: Bool = false) {
+        if onlyRefuse {
+            isBlockingInvitation = true
+            return
+        }
         advertiser.stopAdvertisingPeer()
         logger.info("광고를 중단합니다.")
     }
@@ -173,6 +187,10 @@ final class Advertiser: NSObject {
             DispatchQueue.main.async {
                 navigateToSelectModeCommandCallBack(false)
             }
+        case .switchSelectModeView:
+            DispatchQueue.main.async {
+                self.switchModeSelectionView?()
+            }
         case .allPhotosStored:
             DispatchQueue.main.async {
                 self.onAllPhotosStored?()
@@ -207,6 +225,11 @@ final class Advertiser: NSObject {
             DispatchQueue.main.async {
                 navigateToHomeCallback()
             }
+        case .noticeIsRemoteDevice:
+            advertiserType = .remote
+            heartBeater.start()
+        case .heartBeat:
+            heartBeater.beat()
         }
     }
 }
@@ -215,11 +238,15 @@ final class Advertiser: NSObject {
 extension Advertiser: MCSessionDelegate {
 
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
-        if case .notConnected = state {
-            disconnect()
-        }
         if session === self.session, state == .connected {
             heartBeater.start()
+        }
+        if session === self.commandSession {
+            if state == .connected {
+                DispatchQueue.main.async {
+                    self.onConnected?()
+                }
+            }
         }
     }
 
@@ -292,6 +319,11 @@ extension Advertiser: MCNearbyServiceAdvertiserDelegate {
         guard let context,
               let type = String(data: context, encoding: .utf8) else {
             logger.warning("초대 수신 실패: context 파싱 불가 - \(peerID.displayName)")
+            invitationHandler(false, nil)
+            return
+        }
+        guard isBlockingInvitation == false
+                || (commandSession?.connectedPeers.contains(peerID) == true) else {
             invitationHandler(false, nil)
             return
         }
