@@ -53,11 +53,15 @@ struct PhotoFramePreview: View {
                     textSize: textSize
                 )
 
-                if information.frame.isDateNeedsBackground {
-                    context.fill(
-                        Path(roundedRect: backgroundRect, cornerRadius: 6),
-                        with: .color(.white)
-                    )
+                if let backgroundName = information.frame.dateBackgroundName {
+                    if let image = UIImage(named: backgroundName) {
+                        let target = aspectFillRect(for: image.size, into: backgroundRect)
+                            .insetBy(
+                                dx: -(textSize.width * 0.35),
+                                dy: -(textSize.height * 0.2)
+                            )
+                        context.draw(Image(uiImage: image), in: target)
+                    }
                 }
 
                 context.draw(resolvedText, in: textRect)
