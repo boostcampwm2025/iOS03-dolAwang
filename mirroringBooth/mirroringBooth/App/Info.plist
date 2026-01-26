@@ -2,8 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>촬영 결과 저장을 위해 갤러리 저장 권한이 필요합니다.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>촬영 결과 저장을 위해 갤러리 권한이 필요합니다.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>주변 Apple 기기와의 연결 및 미러링 기능을 위해 로컬 네트워크를 사용합니다.</string>
 	<key>NSBonjourServices</key>

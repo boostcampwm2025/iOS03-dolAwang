@@ -75,7 +75,7 @@ struct ResultView: View {
                             let document = ImageDocument(image: renderedImage)
                             store.send(.showFileExporter(true, document: document))
                         } else {
-                            PhotoSaver().saveImage(image: renderedImage) { result, _ in
+                            PhotoSaver.saveImage(image: renderedImage) { result, _ in
                                 let toastMessage: String
                                 if result {
                                     toastMessage = "갤러리에 저장되었습니다."
