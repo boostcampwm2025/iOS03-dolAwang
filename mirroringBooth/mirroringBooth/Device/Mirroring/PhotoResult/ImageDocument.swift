@@ -23,7 +23,7 @@ struct ImageDocument: FileDocument {
     }
 
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        guard let data = image.jpegData(compressionQuality: 1.0) else {
+        guard let data = image.jpegData(compressionQuality: 0.9) else {
             throw CocoaError(.fileWriteUnknown)
         }
         return FileWrapper(regularFileWithContents: data)
