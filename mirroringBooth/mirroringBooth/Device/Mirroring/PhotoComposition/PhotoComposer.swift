@@ -25,6 +25,16 @@ struct PhotoComposer {
         let maxScale = min(maxDimension / targetWidth, maxDimension / targetHeight)
         renderer.scale = min(UIScreen.main.scale, maxScale)
 
-        return renderer.uiImage
+        guard let metalImage = renderer.uiImage else { return nil }
+
+        // 알파 채널 제거
+        let format = UIGraphicsImageRendererFormat()
+        format.opaque = true
+        format.scale = metalImage.scale
+
+        let imageRenderer = UIGraphicsImageRenderer(size: metalImage.size, format: format)
+        return imageRenderer.image { _ in
+            metalImage.draw(at: .zero)
+        }
     }
 }
