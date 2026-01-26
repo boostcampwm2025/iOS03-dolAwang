@@ -49,7 +49,7 @@ final class ResultStore: StoreProtocol {
         switch intent {
         case .showHomeAlert(let bool):
             return [.setShowHomeAlert(bool)]
-            
+
         case .showSavedToast(let bool, let message):
             return [.setShowSavedToast(bool, message: message)]
 
