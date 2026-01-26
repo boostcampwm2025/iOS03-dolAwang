@@ -29,7 +29,6 @@ final class CameraPreviewStore: StoreProtocol {
         case updateAngle(rawValue: Int)
         case captureCompleted
         case resetCaptureCompleted
-        case setShowHomeAlert(Bool)
         case isMirroringDisconnected
     }
 
@@ -39,7 +38,6 @@ final class CameraPreviewStore: StoreProtocol {
         case updateAngle(Int)
         case captureCompleted
         case resetCaptureCompleted
-        case setShowHomeAlert(Bool)
         case isMirroringDisconnected
     }
 
@@ -75,8 +73,6 @@ final class CameraPreviewStore: StoreProtocol {
             return [.captureCompleted]
         case .resetCaptureCompleted:
             return [.resetCaptureCompleted]
-        case .setShowHomeAlert(let bool):
-            return [.setShowHomeAlert(bool)]
         case .isMirroringDisconnected:
             return [.isMirroringDisconnected]
         }
@@ -99,8 +95,6 @@ final class CameraPreviewStore: StoreProtocol {
             state.isCaptureCompleted = true
         case .resetCaptureCompleted:
             state.isCaptureCompleted = false
-        case .setShowHomeAlert:
-            state.showHomeAlert = true
         case .isMirroringDisconnected:
             state.isMirroringDisconnected = true
         }
