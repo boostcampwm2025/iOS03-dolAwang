@@ -117,6 +117,11 @@ final class StreamingStore: StoreProtocol {
         advertiser.onAllPhotosStored = { [weak self] in
             self?.send(.startTransfer)
         }
+
+        // 카메라 캡쳐 이펙트
+        advertiser.onCaptureEffect = { [weak self] in
+            self?.captureEffect()
+        }
     }
 
     func action(_ intent: Intent) -> [Result] {
