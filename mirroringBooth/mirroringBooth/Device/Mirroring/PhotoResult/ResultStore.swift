@@ -17,8 +17,6 @@ final class ResultStore: StoreProtocol {
         // toast
         var showSavedToast: Bool = false
         var toastMessage: String = ""
-        // setting alert
-        var showSettingAlert: Bool = false
         // fileExporter
         var showFileExporter: Bool = false
         var document: ImageDocument?
@@ -32,7 +30,6 @@ final class ResultStore: StoreProtocol {
     enum Intent {
         case showHomeAlert(Bool)
         case showSavedToast(Bool, message: String? = nil)
-        case showSettingAlert(Bool)
         case showFileExporter(Bool, document: ImageDocument? = nil)
         case setRenderedImage(image: UIImage)
         case setScale(scale: CGFloat)
@@ -42,7 +39,6 @@ final class ResultStore: StoreProtocol {
     enum Result {
         case setShowHomeAlert(Bool)
         case setShowSavedToast(Bool, message: String? = nil)
-        case showSettingAlert(Bool)
         case setShowFileExporter(Bool, document: ImageDocument? = nil)
         case setRenderedImage(UIImage)
         case setScale(CGFloat)
@@ -62,9 +58,6 @@ final class ResultStore: StoreProtocol {
 
         case .showSavedToast(let bool, let message):
             return [.setShowSavedToast(bool, message: message)]
-
-        case .showSettingAlert(let bool):
-            return [.showSettingAlert(bool)]
 
         case .showFileExporter(let bool, let document):
             return [.setShowFileExporter(bool, document: document)]
@@ -90,8 +83,6 @@ final class ResultStore: StoreProtocol {
             newState.toastMessage = message ?? ""
             newState.showSavedToast = bool
             self.state = newState
-        case .showSettingAlert(let bool):
-            self.state.showSettingAlert = bool
         case .setShowFileExporter(let bool, let document):
             var newState = self.state
             newState.document = document

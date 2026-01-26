@@ -80,7 +80,7 @@ struct ResultView: View {
                                 if result {
                                     store.send(.showSavedToast(true, message: "갤러리에 저장되었습니다."))
                                 } else {
-                                    store.send(.showSettingAlert(true))
+                                    store.send(.showSavedToast(true, message: "저장에 실패했습니다."))
                                 }
                             }
                         }
@@ -111,17 +111,6 @@ struct ResultView: View {
         ) {
             router.reset()
             rootStore.send(.disconnect)
-        }
-        .homeAlert(
-            isPresented: Binding(
-                get: { store.state.showSettingAlert },
-                set: { store.send(.showSettingAlert($0)) }
-            ),
-            message: "사진 저장을 위해 접근 권한을 허용해주세요. 설정으로 이동하시겠습니까? \n(Mirroring Booth -> 사진 접근 허용)",
-            cancleButtonText: "아니오",
-            confirmButtonText: "설정으로"
-        ) {
-            PhotoSaver.openSettings()
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
