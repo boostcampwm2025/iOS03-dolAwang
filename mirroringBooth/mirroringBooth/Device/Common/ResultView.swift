@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ResultView: View {
     @Environment(Router.self) var router: Router
@@ -13,6 +14,8 @@ struct ResultView: View {
     @State private var showHomeAlert: Bool = false
     @State private var showSavedToast: Bool = false
     @State private var toastMessage: String?
+    @State private var showFileExporter: Bool = false
+    @State private var document: ImageDocument?
 
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
@@ -71,13 +74,18 @@ struct ResultView: View {
                     isContrast: false
                 ) {
                     if let renderedImage {
-                        PhotoSaver().saveImage(image: renderedImage) { result, _ in
-                            if result {
-                                toastMessage = "갤러리에 저장되었습니다."
-                            } else {
-                                toastMessage = "저장에 실패했습니다. 갤러리 접근 권한을 확인해주세요."
+                        if UIDevice.current.deviceType == "Mac" {
+                            document = ImageDocument(image: renderedImage)
+                            showFileExporter = true
+                        } else {
+                            PhotoSaver().saveImage(image: renderedImage) { result, _ in
+                                if result {
+                                    toastMessage = "갤러리에 저장되었습니다."
+                                } else {
+                                    toastMessage = "저장에 실패했습니다. 갤러리 접근 권한을 확인해주세요."
+                                }
+                                showSavedToast = true
                             }
-                            showSavedToast = true
                         }
                     }
                 }
@@ -118,6 +126,21 @@ struct ResultView: View {
             isPresented: $showSavedToast,
             message: toastMessage ?? ""
         )
+        .fileExporter(
+            isPresented: $showFileExporter,
+            document: document,
+            contentType: .jpeg,
+            defaultFilename: "MirroringBoothPhoto"
+        ) { result in
+            switch result {
+            case .success:
+                toastMessage = "파일이 저장되었습니다."
+                showSavedToast = true
+            case .failure:
+                toastMessage = "저장에 실패했습니다."
+                showSavedToast = true
+            }
+        }
     }
 
     private func sharingButton(
