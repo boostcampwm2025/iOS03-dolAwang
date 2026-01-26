@@ -265,9 +265,9 @@ extension StreamingStore {
 // MARK: - 캡쳐 이펙트
 extension StreamingStore {
     func captureEffect() {
-        self.reduce(.setShowCaptureEffect(true))
+        self.send(.setShowCaptureEffect(true))
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-            self?.reduce(.setShowCaptureEffect(false))
+            self?.send(.setShowCaptureEffect(false))
         }
     }
 }
