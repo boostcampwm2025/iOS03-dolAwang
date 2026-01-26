@@ -11,17 +11,14 @@ import UniformTypeIdentifiers
 struct ResultView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) private var rootStore
-    @State private var showHomeAlert: Bool = false
-    @State private var showSavedToast: Bool = false
-    @State private var toastMessage: String?
-    @State private var showFileExporter: Bool = false
-    @State private var document: ImageDocument?
-
-    @State private var scale: CGFloat = 1.0
-    @State private var lastScale: CGFloat = 1.0
-    @State private var renderedImage: UIImage?
+    @State private var store: ResultStore
 
     let resultPhoto: PhotoInformation
+
+    init(resultPhoto: PhotoInformation, store: ResultStore = ResultStore()) {
+        self.resultPhoto = resultPhoto
+        self.store = store
+    }
 
     var body: some View {
         VStack(spacing: 30) {
@@ -39,27 +36,27 @@ struct ResultView: View {
             }
 
             /// 결과 이미지
-            if let result = renderedImage {
+            if let result = store.state.renderedImage {
                 Image(uiImage: result)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .scaleEffect(scale)
+                    .scaleEffect(store.state.scale)
                     .gesture(
                         MagnificationGesture()
                             .onChanged { value in
-                                scale = lastScale * value
+                                store.send(.setScale(scale: store.state.lastScale * value))
                             }
                             .onEnded { _ in
-                                lastScale = scale
-                                if scale < 1.0 {
+                                store.send(.setLastScale(scale: store.state.scale))
+                                if store.state.scale < 1.0 {
                                     withAnimation(.spring()) {
-                                        scale = 1.0
-                                        lastScale = 1.0
+                                        store.send(.setScale(scale: 1.0))
+                                        store.send(.setLastScale(scale: 1.0))
                                     }
-                                } else if scale > 3.0 {
+                                } else if store.state.scale > 3.0 {
                                     withAnimation(.spring()) {
-                                        scale = 3.0
-                                        lastScale = 3.0
+                                        store.send(.setScale(scale: 3.0))
+                                        store.send(.setLastScale(scale: 3.0))
                                     }
                                 }
                             }
@@ -73,18 +70,19 @@ struct ResultView: View {
                     title: "갤러리 저장",
                     isContrast: false
                 ) {
-                    if let renderedImage {
+                    if let renderedImage = store.state.renderedImage {
                         if UIDevice.current.deviceType == "Mac" {
-                            document = ImageDocument(image: renderedImage)
-                            showFileExporter = true
+                            let document = ImageDocument(image: renderedImage)
+                            store.send(.showFileExporter(true, document: document))
                         } else {
                             PhotoSaver().saveImage(image: renderedImage) { result, _ in
+                                let toastMessage: String
                                 if result {
                                     toastMessage = "갤러리에 저장되었습니다."
                                 } else {
                                     toastMessage = "저장에 실패했습니다. 갤러리 접근 권한을 확인해주세요."
                                 }
-                                showSavedToast = true
+                                store.send(.showSavedToast(true, message: toastMessage))
                             }
                         }
                     }
@@ -106,7 +104,10 @@ struct ResultView: View {
         .navigationBarBackButtonHidden()
         .backgroundStyle()
         .homeAlert(
-            isPresented: $showHomeAlert,
+            isPresented: Binding(
+                get: { store.state.showHomeAlert },
+                set: { store.send(.showHomeAlert($0)) }
+            ),
             message: "홈으로 돌아가시겠습니까?"
         ) {
             router.reset()
@@ -115,31 +116,41 @@ struct ResultView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 HomeButton(size: .headline) {
-                    showHomeAlert = true
+                    store.send(.showHomeAlert(true))
                 }
             }
         }
         .task {
-            renderedImage = PhotoComposer.render(with: resultPhoto)
+            store.send(
+                .setRenderedImage(
+                    image: PhotoComposer.render(with: resultPhoto) ?? UIImage()
+                )
+            )
         }
         .toast(
-            isPresented: $showSavedToast,
-            message: toastMessage ?? ""
+            isPresented: Binding(
+                get: { store.state.showSavedToast },
+                set: { store.send(.showSavedToast($0)) }
+            ),
+            message: store.state.toastMessage
         )
         .fileExporter(
-            isPresented: $showFileExporter,
-            document: document,
+            isPresented: Binding(
+                get: { store.state.showFileExporter },
+                set: { store.send(.showFileExporter($0)) }
+            ),
+            document: store.state.document ?? ImageDocument(image: UIImage()),
             contentType: .jpeg,
             defaultFilename: "MirroringBoothPhoto"
         ) { result in
+            let toastMessage: String
             switch result {
             case .success:
                 toastMessage = "파일이 저장되었습니다."
-                showSavedToast = true
             case .failure:
                 toastMessage = "저장에 실패했습니다."
-                showSavedToast = true
             }
+            store.send(.showSavedToast(true, message: toastMessage))
         }
     }
 
