@@ -13,17 +13,8 @@ struct PhotoSaver {
     static let albumName: String = "Mirroring Booth"
 
     static func saveImage(image: UIImage, completion: @escaping (Bool, Error?) -> Void) {
-        // 권한 확인
-        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-            guard status == .authorized || status == .limited else {
-                Logger.PhotoSaver.debug("[사진 저장] 사진 권한: \(status.rawValue)")
-                completion(false, nil)
-                return
-            }
-
-            getAlbum { album in
-                saveImageToAlbum(image: image, album: album, completion: completion)
-            }
+        getAlbum { album in
+            saveImageToAlbum(image: image, album: album, completion: completion)
         }
     }
 
