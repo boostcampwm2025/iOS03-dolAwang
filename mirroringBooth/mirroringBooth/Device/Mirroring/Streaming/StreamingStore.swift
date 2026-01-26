@@ -37,6 +37,9 @@ final class StreamingStore: StoreProtocol {
 
         // 이미지 전송 프로그래스
         var receivedPhotoCount: Int = 0
+
+        // 촬영효과
+        var showCapturEffect: Bool = false
     }
 
     enum Intent {
@@ -52,6 +55,9 @@ final class StreamingStore: StoreProtocol {
         case startTransfer // 전송 시작
         case photoReceived // 사진 1장 수신
         case capturePhotoCount  // 촬영 카운트 수신
+
+        // 캡쳐 효과
+        case setShowCaptureEffect(Bool)
     }
 
     enum Result {
@@ -68,6 +74,9 @@ final class StreamingStore: StoreProtocol {
 
         // 사진 전송
         case receivedPhotoCountUpdated(Int)
+
+        // 캡쳐 효과
+        case setShowCaptureEffect(Bool)
     }
 
     var state: State
@@ -146,6 +155,9 @@ final class StreamingStore: StoreProtocol {
         case .capturePhotoCount:
             let newCount = min(state.totalCaptureCount, state.capturePhotoCount + 1)
             result.append(.capturePhotoCountUpdated(newCount))
+
+        case .setShowCaptureEffect(let value):
+            result.append(.setShowCaptureEffect(value))
         }
 
         return result
@@ -181,6 +193,9 @@ final class StreamingStore: StoreProtocol {
 
         case .receivedPhotoCountUpdated(let count):
             state.receivedPhotoCount = count
+
+        case .setShowCaptureEffect(let value):
+            state.showCapturEffect = value
         }
 
         self.state = state
@@ -236,6 +251,17 @@ extension StreamingStore {
     private func capturePhoto() {
         Task { @MainActor [weak self] in
             self?.advertiser.sendCommand(.capturePhoto)
+            self?.captureEffect()
+        }
+    }
+}
+
+// MARK: - 캡쳐 이펙트
+extension StreamingStore {
+    func captureEffect() {
+        self.reduce(.setShowCaptureEffect(true))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            self?.reduce(.setShowCaptureEffect(false))
         }
     }
 }
