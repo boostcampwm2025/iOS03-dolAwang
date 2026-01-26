@@ -162,7 +162,9 @@ final class StreamingStore: StoreProtocol {
             result.append(.capturePhotoCountUpdated(newCount))
 
         case .setShowCaptureEffect(let value):
-            result.append(.setShowCaptureEffect(value))
+            if state.capturePhotoCount < state.totalCaptureCount {
+                result.append(.setShowCaptureEffect(value))
+            }
         }
 
         return result
