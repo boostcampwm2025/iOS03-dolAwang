@@ -6,9 +6,7 @@
 //
 
 struct PoseSuggestor {
-    private static let allPoses: [Pose: PoseMeta] = PoseRepository.poses
-
-    static func suggest(count: Int) -> [PoseMeta] {
-        return Pose.allCases.shuffled().prefix(count).compactMap { allPoses[$0] }
+    static func suggest(count: Int) -> [Pose] {
+        Array(PlistRepository.poses.shuffled().prefix(count))
     }
 }
