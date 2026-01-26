@@ -173,7 +173,7 @@ struct ResultView: View {
             .fontWeight(.heavy)
             .foregroundStyle(isContrast ? Color(.systemBackground) : Color(.label))
             .background(isContrast ? Color(.label) : Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 30))
+            .clipShape(.capsule)
         }
     }
 }
