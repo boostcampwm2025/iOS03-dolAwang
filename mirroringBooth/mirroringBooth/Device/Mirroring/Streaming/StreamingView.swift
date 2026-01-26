@@ -54,10 +54,19 @@ struct StreamingView: View {
 
             // 비디오 스트리밍 표시
             if let sampleBuffer = store.state.currentSampleBuffer {
-                VideoPlayerView(
-                    sampleBuffer: sampleBuffer,
-                    rotationAngle: store.state.rotationAngle
-                )
+                ZStack {
+                    VideoPlayerView(
+                        sampleBuffer: sampleBuffer,
+                        rotationAngle: store.state.rotationAngle
+                    )
+                    Color.white
+                        .aspectRatio(
+                            store.state.rotationAngle == 0 ? 9/16 : 16/9,
+                            contentMode: .fit
+                        )
+                        .opacity(store.state.showCapturEffect ? 1.0 : 0.0)
+                        .animation(.linear(duration: 0.2), value: store.state.showCapturEffect)
+                }
                     .ignoresSafeArea()
             } else {
                 streamingPlaceholder
