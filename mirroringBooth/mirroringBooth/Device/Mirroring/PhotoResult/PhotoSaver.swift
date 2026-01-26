@@ -25,6 +25,11 @@ struct PhotoSaver {
         }
     }
 
+    static func openSettings() {
+        guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(settingsURL)
+    }
+
     private static func getAlbum(completion: @escaping (PHAssetCollection?) -> Void) {
         let fetchOptions = PHFetchOptions()
         fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
