@@ -251,7 +251,6 @@ extension StreamingStore {
     private func capturePhoto() {
         Task { @MainActor [weak self] in
             self?.advertiser.sendCommand(.capturePhoto)
-            self?.captureEffect()
         }
     }
 }
