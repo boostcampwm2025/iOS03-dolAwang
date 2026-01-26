@@ -5,6 +5,7 @@
 //  Created by Liam on 1/26/26.
 //
 
+import OSLog
 import Photos
 import UIKit
 
@@ -15,6 +16,7 @@ struct PhotoSaver {
         // 권한 확인
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
             guard status == .authorized || status == .limited else {
+                Logger.PhotoSaver.debug("[사진 저장] 사진 권한: \(status.rawValue)")
                 completion(false, nil)
                 return
             }
@@ -40,21 +42,24 @@ struct PhotoSaver {
         )
 
         if let album = collection.firstObject {
+            Logger.PhotoSaver.debug("[사진 저장] 기존 앨범 발견")
             completion(album)
         } else {
             // 없으면 새로 생성
             PHPhotoLibrary.shared().performChanges {
                 PHAssetCollectionChangeRequest
                     .creationRequestForAssetCollection(withTitle: albumName)
-            } completionHandler: { success, _ in
+            } completionHandler: { success, error in
                 if success {
                     let collection = PHAssetCollection.fetchAssetCollections(
                         with: .album,
                         subtype: .any,
                         options: fetchOptions
                     )
+                    Logger.PhotoSaver.debug("[사진 저장] 신규 앨범 생성")
                     completion(collection.firstObject)
                 } else {
+                    Logger.PhotoSaver.error("[사진 저장] 앨범 생성 실패: \(error)")
                     completion(nil)
                 }
             }
@@ -76,6 +81,7 @@ struct PhotoSaver {
             }
         } completionHandler: { success, error in
             DispatchQueue.main.async {
+                Logger.PhotoSaver.debug("[사진 저장] 저장 \(success ? "성공" : "실패")")
                 completion(success, error)
             }
         }
