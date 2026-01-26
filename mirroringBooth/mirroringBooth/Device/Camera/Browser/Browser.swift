@@ -19,6 +19,7 @@ final class Browser: NSObject {
         case allPhotosStored // 사진 10장 모두 저장 완료
         case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
         case heartBeat
+        case captureEffect
     }
 
     enum RemoteDeviceCommand: String {
@@ -166,6 +167,7 @@ final class Browser: NSObject {
     func capturePhoto() {
         self.onCaptureCommand?()
         self.sendCommand(.onUpdateCaptureCount)
+        self.sendCommand(.captureEffect)
     }
 
     /// 미러링 세션에 연결된 피어에게 스트림 데이터를 전송합니다.

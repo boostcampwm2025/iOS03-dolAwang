@@ -72,6 +72,9 @@ final class Advertiser: NSObject {
     /// heartbeat 메시지 타임아웃
     var onHeartBeatTimeout: (() -> Void)?
 
+    /// captureEffect 명령 수신 콜백
+    var onCaptureEffect: (() -> Void)?
+
     init(serviceType: String = "mirroringbooth", photoCacheManager: PhotoCacheManager) {
         self.serviceType = serviceType
         self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: true, with: UIDevice.current.deviceType)
@@ -201,6 +204,10 @@ final class Advertiser: NSObject {
             }
         case .heartBeat:
             heartBeater.beat()
+        case .captureEffect:
+            DispatchQueue.main.async {
+                self.onCaptureEffect?()
+            }
         }
     }
 
