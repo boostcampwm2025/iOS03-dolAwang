@@ -72,18 +72,6 @@ struct CameraPreview: View {
         }
         .homeAlert(
             isPresented: Binding(
-                get: { store.state.showHomeAlert },
-                set: { store.send(.setShowHomeAlert($0)) }
-            ),
-            message: "촬영된 사진이 모두 사라집니다.\n계속하시겠습니까?"
-        ) {
-            store.send(.stopCameraSession)
-            rootStore.send(.disconnect)
-            dismiss()
-            router.reset()
-        }
-        .homeAlert(
-            isPresented: Binding(
                 get: { store.state.isMirroringDisconnected },
                 set: { _ in }
             ),
