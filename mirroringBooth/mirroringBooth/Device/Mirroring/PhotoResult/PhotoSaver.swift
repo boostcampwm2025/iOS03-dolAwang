@@ -61,7 +61,7 @@ struct PhotoSaver {
         album: PHAssetCollection?,
         completion: @escaping (Bool, Error?) -> Void
     ) {
-        PHPhotoLibrary.shared().performChanges({
+        PHPhotoLibrary.shared().performChanges {
             let assetRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
 
             if let album = album,
@@ -69,7 +69,7 @@ struct PhotoSaver {
                let albumRequest = PHAssetCollectionChangeRequest(for: album) {
                 albumRequest.addAssets([placeholder] as NSArray)
             }
-        }) { success, error in
+        } completionHandler: { success, error in
             DispatchQueue.main.async {
                 completion(success, error)
             }
