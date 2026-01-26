@@ -11,9 +11,12 @@ struct ResultView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) private var rootStore
     @State private var showHomeAlert: Bool = false
+    @State private var showSavedToast: Bool = false
+    @State private var toastMessage: String?
 
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
+    @State private var renderedImage: UIImage?
 
     let resultPhoto: PhotoInformation
 
@@ -33,7 +36,7 @@ struct ResultView: View {
             }
 
             /// 결과 이미지
-            if let result = PhotoComposer.render(with: resultPhoto) {
+            if let result = renderedImage {
                 Image(uiImage: result)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -67,7 +70,16 @@ struct ResultView: View {
                     title: "갤러리 저장",
                     isContrast: false
                 ) {
-                    // TODO: 갤러리 저장 액션
+                    if let renderedImage {
+                        PhotoSaver().saveImage(image: renderedImage) { result, _ in
+                            if result {
+                                toastMessage = "갤러리에 저장되었습니다."
+                            } else {
+                                toastMessage = "저장에 실패했습니다. 갤러리 접근 권한을 확인해주세요."
+                            }
+                            showSavedToast = true
+                        }
+                    }
                 }
 
                 sharingButton(
@@ -77,8 +89,8 @@ struct ResultView: View {
                 ) {
                     // TODO: Airdrop 액션
                 }
+                .hidden() // 공유 로직 추가 후 제거
             }
-            .hidden() // 저장 로직 추가 후 제거
 
             Spacer()
         }
@@ -99,6 +111,13 @@ struct ResultView: View {
                 }
             }
         }
+        .task {
+            renderedImage = PhotoComposer.render(with: resultPhoto)
+        }
+        .toast(
+            isPresented: $showSavedToast,
+            message: toastMessage ?? ""
+        )
     }
 
     private func sharingButton(
