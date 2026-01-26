@@ -44,10 +44,6 @@ struct CameraPreview: View {
                         .padding(.bottom, 10)
                 }
         }
-        .overlay(alignment: .topTrailing) {
-            exitButton
-                .padding(4)
-        }
         .onAppear {
             store.send(.resetCaptureCompleted)
             withAnimation(.linear(duration: 0.8).repeatForever(autoreverses: true)) {
@@ -113,21 +109,6 @@ struct CameraPreview: View {
             }
             .rotationEffect(Angle(degrees: store.state.angle))
             .padding(.top)
-    }
-
-    private var exitButton: some View {
-        Button {
-            store.send(.setShowHomeAlert(true))
-        } label: {
-            Image(systemName: "xmark")
-                .font(.footnote.bold())
-                .foregroundColor(.white)
-                .padding(10)
-                .background {
-                    Circle()
-                        .fill(Color.black.opacity(0.5))
-                }
-        }
     }
 }
 
