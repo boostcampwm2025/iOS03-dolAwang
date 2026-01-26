@@ -10,6 +10,8 @@ import UIKit
 @Observable
 final class ResultStore: StoreProtocol {
     struct State {
+        // Photo Information
+        var resultPhoto: PhotoInformation
         // home alert
         var showHomeAlert: Bool = false
         // toast
@@ -47,7 +49,11 @@ final class ResultStore: StoreProtocol {
         case setLastScale(CGFloat)
     }
 
-    private(set) var state: State = .init()
+    private(set) var state: State
+
+    init(resultPhoto: PhotoInformation) {
+        self.state = State(resultPhoto: resultPhoto)
+    }
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
