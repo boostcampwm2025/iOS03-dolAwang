@@ -8,6 +8,7 @@
 import AVFoundation.AVCaptureDevice
 import Network
 import OSLog
+import Photos
 import UIKit
 
 @Observable
@@ -83,6 +84,28 @@ final class AccessManager {
 
         // 0.5초 대기
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: timerItem)
+    }
+
+    func requestPhotoLibraryAccess(onGranted: @escaping () -> Void) {
+        switch PHPhotoLibrary.authorizationStatus() {
+        case .authorized, .limited:
+            self.logger.info("앨범 접근 권한 확인 완료")
+            DispatchQueue.main.async {
+                onGranted()
+            }
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization { status in
+                if status == .authorized || status == .limited {
+                    self.logger.info("앨범 접근 권한 확인 완료")
+                    DispatchQueue.main.async {
+                        onGranted()
+                    }
+                }
+            }
+        default:
+            self.logger.error("앨범 접근 권한 확인 실패")
+            requiredAccess = .album
+        }
     }
 
     /// 최초 실행 시 권한 요청을 하도록 네트워크 활동 트리거
