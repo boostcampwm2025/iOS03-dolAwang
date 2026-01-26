@@ -13,11 +13,12 @@ struct ResultView: View {
     @Environment(RootStore.self) private var rootStore
     @State private var store: ResultStore
 
-    let resultPhoto: PhotoInformation
-
-    init(resultPhoto: PhotoInformation, store: ResultStore = ResultStore()) {
-        self.resultPhoto = resultPhoto
-        self.store = store
+    init(resultPhoto: PhotoInformation, store: ResultStore? = nil) {
+        if store == nil {
+            self.store = .init(resultPhoto: resultPhoto)
+        } else {
+            self.store = store ?? .init(resultPhoto: resultPhoto)
+        }
     }
 
     var body: some View {
@@ -132,7 +133,7 @@ struct ResultView: View {
         .task {
             store.send(
                 .setRenderedImage(
-                    image: PhotoComposer.render(with: resultPhoto) ?? UIImage()
+                    image: PhotoComposer.render(with: store.state.resultPhoto) ?? UIImage()
                 )
             )
         }
