@@ -43,10 +43,10 @@ struct PhotoSaver {
             completion(album)
         } else {
             // 없으면 새로 생성
-            PHPhotoLibrary.shared().performChanges({
+            PHPhotoLibrary.shared().performChanges {
                 PHAssetCollectionChangeRequest
                     .creationRequestForAssetCollection(withTitle: albumName)
-            }, completionHandler: { success, _ in
+            } completionHandler: { success, _ in
                 if success {
                     let collection = PHAssetCollection.fetchAssetCollections(
                         with: .album,
@@ -57,7 +57,7 @@ struct PhotoSaver {
                 } else {
                     completion(nil)
                 }
-            })
+            }
         }
     }
 
