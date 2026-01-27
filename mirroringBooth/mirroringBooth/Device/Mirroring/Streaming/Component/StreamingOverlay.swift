@@ -15,6 +15,7 @@ struct StreamingOverlay: View {
     let receivedPhotoCount: Int
     let totalCaptureCount: Int
     let onReadyTapped: () -> Void
+    let poseSuggestion: [Pose]
 
     var body: some View {
         ForEach(phases) { phase in
@@ -29,10 +30,7 @@ struct StreamingOverlay: View {
                     totalCount: totalCaptureCount
                 )
             case .poseSuggestion:
-                PoseOverlay(poses: [
-                    Pose(emoji: "📸", text: "저장! 사진을 찍는 것처럼 손가락으로 사각형을 만들어주세요~"),
-                    Pose(emoji: "🍞", text: "볼빵빵 해볼까요?")
-                ])
+                PoseOverlay(poses: poseSuggestion)
             case .completed:
                 CaptureCompleteOverlay() // 임시
             default:

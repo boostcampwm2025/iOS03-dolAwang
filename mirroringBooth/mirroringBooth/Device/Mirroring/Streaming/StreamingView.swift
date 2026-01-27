@@ -86,13 +86,14 @@ struct StreamingView: View {
                 totalCaptureCount: store.state.totalCaptureCount,
                 onReadyTapped: {
                     store.send(.startCountdown)
-                }
+                },
+                poseSuggestion: store.state.currentSuggestedPoses
             )
         }
         .navigationBarBackButtonHidden()
         .onAppear {
-            store.send(.startStreaming)
             store.send(.setPoseList(poseList))
+            store.send(.startStreaming)
         }
         .onDisappear {
             store.send(.stopStreaming)

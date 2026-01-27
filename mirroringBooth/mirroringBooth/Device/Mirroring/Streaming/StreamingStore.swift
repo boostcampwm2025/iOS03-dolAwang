@@ -47,6 +47,9 @@ final class StreamingStore: StoreProtocol {
 
         // 추천할 포즈 목록
         var poseList: [Pose] = []
+        var currentSuggestedPoses: [Pose] {
+            Array(poseList.prefix(2))
+        }
     }
 
     enum Intent {
@@ -94,6 +97,7 @@ final class StreamingStore: StoreProtocol {
 
         // 포즈 기능
         case setPoseList([Pose])
+        case removePose
     }
 
     var state: State
@@ -153,6 +157,10 @@ final class StreamingStore: StoreProtocol {
             // MARK: - 스트리밍
         case .startStreaming:
             result.append(.streamingStarted)
+            if !state.poseList.isEmpty {
+                result.append(.phaseAppended(.poseSuggestion))
+            }
+
         case .stopStreaming:
             decoder.stop()
             advertiser?.onReceivedStreamData = nil
@@ -191,7 +199,6 @@ final class StreamingStore: StoreProtocol {
 
         case .setPoseList(let poses):
             result.append(.setPoseList(poses))
-            result.append(.phaseAppended(.poseSuggestion))
         }
 
         return result
@@ -240,6 +247,11 @@ final class StreamingStore: StoreProtocol {
 
         case .setPoseList(let poses):
             state.poseList = poses
+
+        case .removePose:
+            if !state.poseList.isEmpty {
+                state.poseList.removeFirst()
+            }
         }
 
         self.state = state
@@ -269,13 +281,13 @@ extension StreamingStore {
                 results.append(.phaseRemoved(.countdown))
                 results.append(.phaseAppended(.shooting))
                 results.append(.shootingCountdownUpdated(7))
-                capturePhoto() // 첫 촬영
+                results.append(capturePhoto()) // 첫 촬영
             }
         } else if state.overlayPhase.contains(.shooting) {
             if state.shootingCountdown > 0 { // 7, 6, 5, 4, 3, 2, 1, 0
                 results.append(.shootingCountdownUpdated(state.shootingCountdown - 1))
             } else {
-                capturePhoto() // 0 일때 촬영하고 리셋
+                results.append(capturePhoto()) // 0 일때 촬영하고 리셋
                 // 10장 촬영 완료 시
                 let currentCaptureCount = state.capturePhotoCount + 1
 
@@ -290,10 +302,9 @@ extension StreamingStore {
         return results
     }
 
-    private func capturePhoto() {
-        Task { @MainActor [weak self] in
-            self?.advertiser?.sendCommand(.capturePhoto)
-        }
+    private func capturePhoto() -> Result {
+        advertiser?.sendCommand(.capturePhoto)
+        return .removePose
     }
 }
 
