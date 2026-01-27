@@ -33,7 +33,7 @@ struct PhotoSaver {
         )
 
         if let album = collection.firstObject {
-            Logger.PhotoSaver.debug("[사진 저장] 기존 앨범 발견")
+            Logger.photoSaver.debug("[사진 저장] 기존 앨범 발견")
             completion(album)
         } else {
             // 없으면 새로 생성
@@ -47,10 +47,10 @@ struct PhotoSaver {
                         subtype: .any,
                         options: fetchOptions
                     )
-                    Logger.PhotoSaver.debug("[사진 저장] 신규 앨범 생성")
+                    Logger.photoSaver.debug("[사진 저장] 신규 앨범 생성")
                     completion(collection.firstObject)
                 } else {
-                    Logger.PhotoSaver.error("[사진 저장] 앨범 생성 실패: \(error)")
+                    Logger.photoSaver.error("[사진 저장] 앨범 생성 실패: \(error)")
                     completion(nil)
                 }
             }
@@ -72,7 +72,7 @@ struct PhotoSaver {
             }
         } completionHandler: { success, error in
             DispatchQueue.main.async {
-                Logger.PhotoSaver.debug("[사진 저장] 저장 \(success ? "성공" : "실패")")
+                Logger.photoSaver.debug("[사진 저장] 저장 \(success ? "성공" : "실패")")
                 completion(success, error)
             }
         }

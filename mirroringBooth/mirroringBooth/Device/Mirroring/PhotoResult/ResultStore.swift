@@ -5,6 +5,7 @@
 //  Created by Liam on 1/26/26.
 //
 
+import OSLog
 import UIKit
 
 @Observable
@@ -63,6 +64,7 @@ final class ResultStore: StoreProtocol {
             return [.setShowFileExporter(bool, document: document)]
 
         case .setRenderedImage(let image):
+            saveResultImage(image)
             return [.setRenderedImage(image)]
 
         case .setScale(let scale):
@@ -94,6 +96,16 @@ final class ResultStore: StoreProtocol {
             state.scale = scale
         case .setLastScale(let lastScale):
             state.lastScale = lastScale
+        }
+    }
+
+    private func saveResultImage(_ image: UIImage) {
+        Task {
+            do {
+                try await PhotoCacheManager.shared.saveResultImage(image)
+            } catch {
+                Logger.resultStore.error("Failed to cache result image: \(error)")
+            }
         }
     }
 }
