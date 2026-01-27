@@ -29,7 +29,7 @@ struct PoseOverlay: View {
                             in: nextSize,
                             isCurrent: false
                         )
-                        .offset(x: currentSize + 12)
+                        .offset(x: currentSize + 20)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -39,4 +39,3 @@ struct PoseOverlay: View {
         }
     }
 }
-
