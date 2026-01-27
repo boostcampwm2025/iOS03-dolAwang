@@ -131,7 +131,7 @@ extension CameraManager {
         session.beginConfiguration()
         defer { session.commitConfiguration() }
 
-        session.sessionPreset = .hd1920x1080 // high를 기본값으로 두었습니다.
+        session.sessionPreset = .inputPriority
 
         guard let videoDevice = AVCaptureDevice.default(
             .builtInWideAngleCamera,
@@ -142,6 +142,12 @@ extension CameraManager {
         }
 
         self.videoDevice = videoDevice
+
+        self.applyActiveFormat(
+            videoDevice: videoDevice,
+            targetWidth: 1920,
+            targetHeight: 1440
+        )
 
         // 입력 추가
         do {
@@ -183,6 +189,30 @@ extension CameraManager {
             self.photoOutput = photoOutput
         } else {
             logger.warning("사진 출력 추가에 실패했습니다.")
+        }
+    }
+
+    private func applyActiveFormat(
+        videoDevice: AVCaptureDevice,
+        targetWidth: Int32,
+        targetHeight: Int32
+    ) {
+        let formats: [AVCaptureDevice.Format] = videoDevice.formats
+        guard let bestFormat: AVCaptureDevice.Format = formats.first(where: { format in
+            let dimensions: CMVideoDimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+            return dimensions.width == targetWidth && dimensions.height == targetHeight
+        }) else {
+            logger.warning("요청한 해상도 포맷을 찾지 못했습니다. \(targetWidth)x\(targetHeight)")
+            return
+        }
+
+        do {
+            try videoDevice.lockForConfiguration()
+            videoDevice.activeFormat = bestFormat
+            videoDevice.unlockForConfiguration()
+            logger.info("카메라 포맷(\(targetWidth)x\(targetHeight))이 성공적으로 적용되었습니다.")
+        } catch {
+            logger.warning("카메라 포맷(\(targetWidth)x\(targetHeight)) 적용에 실패했습니다. \(error)")
         }
     }
 }
