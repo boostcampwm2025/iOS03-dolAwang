@@ -11,7 +11,7 @@ import SwiftUI
 // MARK: - 공유 시트 담당 ActivityViewController
 struct PhotoActivityViewController: UIViewControllerRepresentable {
     let image: UIImage
-    let applecationActivities: [UIActivity]?
+    let applicationActivities: [UIActivity]?
     let excludedActivityTypes: [UIActivity.ActivityType]?
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
@@ -22,7 +22,7 @@ struct PhotoActivityViewController: UIViewControllerRepresentable {
 
         let controller = UIActivityViewController(
             activityItems: [itemSource],
-            applicationActivities: applecationActivities
+            applicationActivities: applicationActivities
         )
 
         // Activity 제거 (파일에 저장)
