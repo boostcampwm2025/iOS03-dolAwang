@@ -58,7 +58,11 @@ struct RootView: View {
                         )
 
                     case .streaming(let isTimerMode, let isPoseModeOn):
-                        StreamingView(advertiser: store.advertiser, isTimerMode: isTimerMode)
+                        StreamingView(
+                            advertiser: store.advertiser,
+                            isTimerMode: isTimerMode,
+                            isPoseModeOn: isPoseModeOn
+                        )
                             .onAppear {
                                 AppDelegate.unlockOrientation()
                             }

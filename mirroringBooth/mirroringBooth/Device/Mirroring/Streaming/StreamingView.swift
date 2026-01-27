@@ -12,11 +12,12 @@ struct StreamingView: View {
     @Environment(RootStore.self) private var rootStore
     @State private var store: StreamingStore
     @State private var showHomeAlert: Bool = false
+
     let advertiser: Advertiser?
-
     private let isTimerMode: Bool
+    private let poseList: [Pose]
 
-    init(advertiser: Advertiser?, isTimerMode: Bool) {
+    init(advertiser: Advertiser?, isTimerMode: Bool, isPoseModeOn: Bool) {
         self.advertiser = advertiser
         self.isTimerMode = isTimerMode
         self._store = State(
@@ -26,6 +27,7 @@ struct StreamingView: View {
                 initialPhase: isTimerMode ? .guide : .none
             )
         )
+        self.poseList = isPoseModeOn ? PoseSuggestor.suggest(count: 10) : []
     }
 
     private enum StreamingLayoutType {
