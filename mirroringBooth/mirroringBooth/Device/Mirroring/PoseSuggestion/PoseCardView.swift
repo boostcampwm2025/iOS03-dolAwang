@@ -11,15 +11,18 @@ struct PoseCardView: View {
     private let isCurrent: Bool
     private let pose: Pose
     private let width: CGFloat
+    private let isCompact: Bool
 
     init(
         with pose: Pose,
         in width: CGFloat,
-        isCurrent: Bool
+        isCurrent: Bool,
+        isCompact: Bool
     ) {
         self.pose = pose
         self.width = width
         self.isCurrent = isCurrent
+        self.isCompact = isCompact
     }
 
     var body: some View {
@@ -44,13 +47,16 @@ struct PoseCardView: View {
             Text(pose.emoji)
                 .font(.system(size: emojiSize))
                 .frame(height: emojiSize + 8)
-            Text(pose.presentableText)
-                .font(.system(size: descriptionFont).bold())
-                .frame(height: descriptionFont * 5)
-                .lineLimit(4)
-                .minimumScaleFactor(0.8)
-                .foregroundStyle(.white)
-                .multilineTextAlignment(.center)
+
+            if !isCompact {
+                Text(pose.presentableText)
+                    .font(.system(size: descriptionFont).bold())
+                    .frame(height: descriptionFont * 5)
+                    .lineLimit(4)
+                    .minimumScaleFactor(0.8)
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+            }
         }
         .frame(maxWidth: isCurrent ? max(80, width) : width)
     }
