@@ -9,19 +9,16 @@ import SwiftUI
 
 struct PoseCardView: View {
     private let isCurrent: Bool
-    private let emoji: String
-    private let description: String
+    private let pose: Pose
 
     @State var width: CGFloat = .infinity
     @State var height: CGFloat = .infinity
 
     init(
-        with emoji: String,
-        _ description: String,
+        with pose: Pose,
         isCurrent: Bool
     ) {
-        self.emoji = emoji
-        self.description = description
+        self.pose = pose
         self.isCurrent = isCurrent
     }
 
@@ -51,10 +48,10 @@ struct PoseCardView: View {
         let descriptionFont: CGFloat = max(12, (width / 70))
 
         VStack(spacing: 10) {
-            Text(emoji)
+            Text(pose.emoji)
                 .font(.system(size: emojiSize))
                 .frame(height: emojiSize + 8)
-            Text(description)
+            Text(pose.presentableText)
                 .font(.system(size: descriptionFont).bold())
                 .frame(height: descriptionFont * 5)
                 .foregroundStyle(.white)
@@ -89,8 +86,10 @@ struct PoseCardView: View {
 
 #Preview {
     PoseCardView(
-        with: "📸",
-        "저장!\n사진을 찍는 것처럼 손가락으로 사각형을 만들어주세요~",
+        with: Pose(
+            emoji: "📸",
+            text: "저장! 사진을 찍는 것처럼 손가락으로 사각형을 만들어주세요~"
+        ),
         isCurrent: true
     )
 }
