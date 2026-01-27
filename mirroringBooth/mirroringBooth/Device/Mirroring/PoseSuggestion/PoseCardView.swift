@@ -37,12 +37,9 @@ struct PoseCardView: View {
         .frame(
             maxWidth: max(
                 130,
-                (isPortrait ? size.width / 6 : size.width / 3)
+                (isPortrait ? size.width / 6 : size.width / 7)
             ),
-            maxHeight: max(
-                160,
-                (isPortrait ? size.height / 6 : size.height / 3)
-            )
+            maxHeight: max(160, size.height / 6)
         )
     }
 
@@ -78,12 +75,12 @@ struct PoseCardView: View {
         Text("다음")
             .padding(.vertical, 8)
             .padding(.horizontal, 15)
-            .font(.system(size: max(25, (size.width / 40)), weight: .heavy))
+            .font(.system(size: max(25, (size.width / 45)), weight: .heavy))
             .foregroundStyle(.white)
             .background {
                 Capsule()
                     .fill(Color.mirroring)
             }
-            .opacity(0.8)
+            .opacity(0.7)
     }
 }
