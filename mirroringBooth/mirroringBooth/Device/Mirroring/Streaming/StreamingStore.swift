@@ -191,6 +191,7 @@ final class StreamingStore: StoreProtocol {
         case .capturePhotoCount:
             let newCount = min(state.totalCaptureCount, state.capturePhotoCount + 1)
             result.append(.capturePhotoCountUpdated(newCount))
+            result.append(.removePose)
 
         case .setShowCaptureEffect(let value):
             if state.capturePhotoCount < state.totalCaptureCount {
@@ -281,13 +282,13 @@ extension StreamingStore {
                 results.append(.phaseRemoved(.countdown))
                 results.append(.phaseAppended(.shooting))
                 results.append(.shootingCountdownUpdated(7))
-                results.append(capturePhoto()) // 첫 촬영
+                capturePhoto() // 첫 촬영
             }
         } else if state.overlayPhase.contains(.shooting) {
             if state.shootingCountdown > 0 { // 7, 6, 5, 4, 3, 2, 1, 0
                 results.append(.shootingCountdownUpdated(state.shootingCountdown - 1))
             } else {
-                results.append(capturePhoto()) // 0 일때 촬영하고 리셋
+                capturePhoto() // 0 일때 촬영하고 리셋
                 // 10장 촬영 완료 시
                 let currentCaptureCount = state.capturePhotoCount + 1
 
@@ -302,9 +303,8 @@ extension StreamingStore {
         return results
     }
 
-    private func capturePhoto() -> Result {
+    private func capturePhoto() {
         advertiser?.sendCommand(.capturePhoto)
-        return .removePose
     }
 }
 
