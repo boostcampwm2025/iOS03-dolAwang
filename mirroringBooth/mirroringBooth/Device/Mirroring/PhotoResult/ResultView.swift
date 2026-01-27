@@ -122,7 +122,6 @@ struct ResultView: View {
                     applicationActivities: nil,
                     excludedActivityTypes: [
                         .saveToCameraRoll,  // 사진에 저장 금지
-                        .copyToPasteboard,  // 클립보드 복사 금지
                         .assignToContact,   // 연락처 사진으로 지정 금지
                         .addToReadingList,  // 읽기 목록에 추가 금지
                         .openInIBooks,      // iBooks 추가 금지
