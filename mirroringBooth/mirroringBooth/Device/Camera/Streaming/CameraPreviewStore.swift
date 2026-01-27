@@ -20,7 +20,7 @@ final class CameraPreviewStore: StoreProtocol {
         var isCaptureCompleted = false
         var showHomeAlert: Bool = false
         var isMirroringDisconnected: Bool = false
-        var transfercount: Int = 0
+        var transfercount: Int = -1
     }
 
     enum Intent {
@@ -73,7 +73,7 @@ final class CameraPreviewStore: StoreProtocol {
         case .captureCompleted:
             cameraManager.stopSession()
             browser.sendCommand(.allPhotosStored)
-            return [.captureCompleted]
+            return [.captureCompleted, .setTransferCount(0)]
         case .resetCaptureCompleted:
             return [.resetCaptureCompleted]
         case .isMirroringDisconnected:
