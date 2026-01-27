@@ -21,7 +21,7 @@ enum VideoStreamSettings {
         case hd1080p          // 1920x1080 (가로)
         case hd4k             // 3840x2160 (가로)
         case portraitHD1080p  // 1080x1920 (세로)
-        case photo            // 1440x1080 (세로)
+        case photo            // 1440x1920 (세로)
 
         var width: Int32 {
             switch self {
