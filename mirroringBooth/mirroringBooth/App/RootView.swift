@@ -38,8 +38,7 @@ struct RootView: View {
                     case .timerOrRemoteSelection(let isRemoteEnable):
                         ModeSelectionView(
                             for: .timerOrRemote,
-                            flag: isRemoteEnable,
-                            advertiser: store.advertiser
+                            flag: isRemoteEnable
                         )
                         .onAppear {
                             store.advertiser?.onHeartBeatTimeout = {
@@ -54,7 +53,8 @@ struct RootView: View {
                     case .poseSuggestionSelection(let isTimerMode):
                         ModeSelectionView(
                             for: .poseSuggestion,
-                            flag: isTimerMode
+                            flag: isTimerMode,
+                            advertiser: store.advertiser
                         )
 
                     case .streaming(let isTimerMode, let isPoseModeOn):

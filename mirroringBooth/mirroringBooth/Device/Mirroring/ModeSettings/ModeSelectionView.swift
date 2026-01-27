@@ -29,8 +29,8 @@ struct ModeSelectionView: View {
 
         self.advertiser = advertiser
 
-        if type == .timerOrRemote && advertiser == nil {
-            Logger.modeSelectionView.error("촬영 모드 선택 상황이지만, advertiser가 없어 정상 동작하지 않습니다.")
+        if type == .poseSuggestion && advertiser == nil {
+            Logger.modeSelectionView.error("포즈 추천 여부 선택 상황이지만, advertiser가 없어 정상 동작하지 않습니다.")
         }
     }
 
@@ -88,8 +88,6 @@ struct ModeSelectionView: View {
                 title: "타이머 모드",
                 description: "80초 동안 8초 간격으로\n자동 촬영합니다."
             ) {
-                guard let advertiser else { return }
-                advertiser.sendCommand(.selectedTimerMode)
                 router.push(to: MirroringRoute.poseSuggestionSelection(isTimerMode: true))
             }
 
@@ -100,6 +98,7 @@ struct ModeSelectionView: View {
                 title: "포즈 추천 받을래요",
                 description: "포즈를 정하기 어려우신가요?\n이모지를 통해 포즈를 추천해 드릴게요!"
             ) {
+                noticeShootingMode()
                 router.push(to: MirroringRoute.streaming(isTimerMode: flag, isPoseSuggestionEnabled: true))
             }
         }
@@ -115,8 +114,6 @@ struct ModeSelectionView: View {
                 title: "리모콘 모드",
                 description: "나의 Apple Watch에서 \n직접 셔터를 누르세요."
             ) {
-                guard let advertiser else { return }
-                advertiser.sendCommand(.setRemoteMode)
                 router.push(to: MirroringRoute.poseSuggestionSelection(isTimerMode: false))
             }
             .disabled(!flag)
@@ -128,6 +125,7 @@ struct ModeSelectionView: View {
                 title: "추천은 괜찮아요",
                 description: "자유롭게 촬영을 진행해보세요!"
             ) {
+                noticeShootingMode()
                 router.push(to: MirroringRoute.streaming(isTimerMode: flag, isPoseSuggestionEnabled: false))
             }
         }
@@ -152,6 +150,15 @@ struct ModeSelectionView: View {
             Text("어떻게 촬영하시겠어요?")
                 .font(.callout)
                 .foregroundColor(.gray)
+        }
+    }
+
+    private func noticeShootingMode() {
+        guard let advertiser else { return }
+        if flag {
+            advertiser.sendCommand(.selectedTimerMode)
+        } else {
+            advertiser.sendCommand(.setRemoteMode)
         }
     }
 }
