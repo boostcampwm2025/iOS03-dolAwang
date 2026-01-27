@@ -12,6 +12,8 @@ struct HomeView: View {
     @Environment(Router.self) var router: Router
     private var accessManager: AccessManager = .init()
     let isiPhone: Bool = UIDevice.current.userInterfaceIdiom == .phone
+    @State private var showResumeAlert: Bool = false
+    @State private var cachedImage: UIImage?
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -39,6 +41,26 @@ struct HomeView: View {
         .padding(.horizontal)
         .onAppear {
             accessManager.tryLocalNetwork()
+        }
+        .task {
+            if let image = await checkResultCache() {
+                self.cachedImage = image
+                self.showResumeAlert = true
+            }
+        }
+        .alert("이전 작업 복구", isPresented: $showResumeAlert) {
+            Button("작업 삭제", role: .destructive) {
+                Task { await PhotoCacheManager.shared.clearCache() }
+            }
+            Button("이어하기") {
+                if let image = cachedImage {
+                    router.push(
+                        to: MirroringRoute.resultWithImage(image)
+                    )
+                }
+            }
+        } message: {
+            Text("저장되지 않은 결과물이 있습니다. 이어서 작업하시겠습니까?")
         }
         .alert(accessManager.requiredAccess?.alertTitle ?? "",
                isPresented: Binding(
@@ -85,6 +107,11 @@ struct HomeView: View {
                 isPortrait: isPortrait
             )
         }
+    }
+
+    private func checkResultCache() async -> UIImage? {
+        let manager = PhotoCacheManager.shared
+        return await manager.getResultImage()
     }
 }
 

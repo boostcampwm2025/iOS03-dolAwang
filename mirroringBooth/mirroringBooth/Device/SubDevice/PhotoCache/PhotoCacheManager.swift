@@ -63,6 +63,11 @@ actor PhotoCacheManager {
         }
     }
 
+    func getResultImage() -> UIImage? {
+        let fileURL = sessionDirectory.appendingPathComponent(CachePath.result.rawValue)
+        return UIImage(contentsOfFile: fileURL.path)
+    }
+
     nonisolated func getPhotoURL(index: Int) -> URL {
         sessionDirectory.appendingPathComponent("photo\(index).jpg")
     }

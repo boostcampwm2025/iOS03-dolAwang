@@ -12,7 +12,7 @@ import UIKit
 final class ResultStore: StoreProtocol {
     struct State {
         // Photo Information
-        var resultPhoto: PhotoInformation
+        var resultPhoto: PhotoInformation?
 
         // home alert
         var showHomeAlert: Bool = false
@@ -70,6 +70,10 @@ final class ResultStore: StoreProtocol {
 
     init(resultPhoto: PhotoInformation) {
         self.state = State(resultPhoto: resultPhoto)
+    }
+
+    init(image: UIImage) {
+        self.state = State(resultPhoto: nil, renderedImage: image)
     }
 
     func action(_ intent: Intent) -> [Result] {
