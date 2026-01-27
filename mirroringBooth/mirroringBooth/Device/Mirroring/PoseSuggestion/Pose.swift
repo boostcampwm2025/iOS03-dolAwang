@@ -15,7 +15,7 @@ struct Pose: Decodable, Hashable {
         let pattern =  #"(?<=[.!~])\s+"#
         return text.replacingOccurrences(
             of: pattern,
-            with: "$1\n",
+            with: "\n",
             options: .regularExpression
         )
     }
