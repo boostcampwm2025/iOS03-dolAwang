@@ -92,9 +92,8 @@ struct ResultView: View {
                     title: "공유하기",
                     isContrast: true
                 ) {
-                    if let image = store.state.renderedImage {
-                        store.send(.prepareShare(image))
-                    }
+                    // 공유 시트 열기
+                    store.send(.prepareShare)
                 }
             }
 
@@ -117,18 +116,20 @@ struct ResultView: View {
             get: { store.state.showShareSheet },
             set: { store.send(.showShareSheet($0)) }
         )) {
-            PhotoActivityViewController(
-                activityItems: store.state.shareItems,
-                applecationActivities: nil,
-                excludedActivityTypes: [
-                    .saveToCameraRoll,  // 사진에 저장 금지
-                    .copyToPasteboard,  // 클립보드 복사 금지
-                    .assignToContact,   // 연락처 사진으로 지정 금지
-                    .addToReadingList,  // 읽기 목록에 추가 금지
-                    .openInIBooks,      // iBooks 추가 금지
-                    .addToHomeScreen    // 홈 화면에 추가 금지
-                ]
-            )
+            if let renderedImage = store.state.renderedImage {
+                PhotoActivityViewController(
+                    image: renderedImage,
+                    applecationActivities: nil,
+                    excludedActivityTypes: [
+                        .saveToCameraRoll,  // 사진에 저장 금지
+                        .copyToPasteboard,  // 클립보드 복사 금지
+                        .assignToContact,   // 연락처 사진으로 지정 금지
+                        .addToReadingList,  // 읽기 목록에 추가 금지
+                        .openInIBooks,      // iBooks 추가 금지
+                        .addToHomeScreen    // 홈 화면에 추가 금지
+                    ]
+                )
+            }
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {

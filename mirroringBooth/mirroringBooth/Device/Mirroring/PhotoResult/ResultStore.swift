@@ -34,7 +34,6 @@ final class ResultStore: StoreProtocol {
 
         // share sheet
         var showShareSheet: Bool = false
-        var shareItems: [Any] = []
     }
 
     enum Intent {
@@ -46,7 +45,7 @@ final class ResultStore: StoreProtocol {
         case setLastScale(scale: CGFloat)
 
         case showShareSheet(Bool)
-        case prepareShare(UIImage)
+        case prepareShare
     }
 
     enum Result {
@@ -60,7 +59,6 @@ final class ResultStore: StoreProtocol {
         case setLastScale(CGFloat)
 
         case setShowShareSheet(Bool)
-        case setShareItems([Any])
     }
 
     private(set) var state: State
@@ -86,11 +84,8 @@ final class ResultStore: StoreProtocol {
             return [.setScale(scale)]
         case .setLastScale(let scale):
             return [.setLastScale(scale)]
-        case .prepareShare(let image):
-            return [
-                .setShareItems([image]),
-                .setShowShareSheet(true)
-            ]
+        case .prepareShare:
+            return [.setShowShareSheet(true)]
         }
     }
 
@@ -113,12 +108,6 @@ final class ResultStore: StoreProtocol {
             state.renderedImage = image
         case .setShowShareSheet(let bool):
             state.showShareSheet = bool
-            if !bool {
-                // 공유 시트가 닫힐 때 shareItems 비우기
-                state.shareItems = []
-            }
-        case .setShareItems(let items):
-            state.shareItems = items
         case .setScale(let scale):
             state.scale = scale
         case .setLastScale(let lastScale):
