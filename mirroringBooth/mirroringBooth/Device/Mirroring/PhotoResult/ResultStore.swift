@@ -79,13 +79,13 @@ final class ResultStore: StoreProtocol {
         case .showSavedToast(let bool, let message):
             return [.setShowSavedToast(bool, message: message)]
         case .showSettingAlert(let bool):
+            saveResultImage(state.renderedImage ?? UIImage())
             return [.showSettingAlert(bool)]
         case .showFileExporter(let bool, let document):
             return [.setShowFileExporter(bool, document: document)]
         case .showShareSheet(let bool):
             return [.setShowShareSheet(bool)]
         case .setRenderedImage(let image):
-            saveResultImage(image)
             return [.setRenderedImage(image)]
         case .setScale(let scale):
             return [.setScale(scale)]
