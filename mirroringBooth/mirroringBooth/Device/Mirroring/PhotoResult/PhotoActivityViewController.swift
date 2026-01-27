@@ -12,7 +12,6 @@ import SwiftUI
 struct PhotoActivityViewController: UIViewControllerRepresentable {
     let image: UIImage
     let applicationActivities: [UIActivity]?
-    let excludedActivityTypes: [UIActivity.ActivityType]?
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
         let appIcon = getAppIcon()
@@ -26,7 +25,13 @@ struct PhotoActivityViewController: UIViewControllerRepresentable {
         )
 
         // Activity 제거 (파일에 저장)
-        controller.excludedActivityTypes = excludedActivityTypes
+        controller.excludedActivityTypes = [
+            .saveToCameraRoll,  // 사진에 저장 금지
+            .assignToContact,   // 연락처 사진으로 지정 금지
+            .addToReadingList,  // 읽기 목록에 추가 금지
+            .openInIBooks,      // iBooks 추가 금지
+            .addToHomeScreen    // 홈 화면에 추가 금지
+        ]
 
         return controller
     }
