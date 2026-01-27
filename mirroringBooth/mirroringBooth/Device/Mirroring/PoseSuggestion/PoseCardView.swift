@@ -55,6 +55,8 @@ struct PoseCardView: View {
             Text(pose.presentableText)
                 .font(.system(size: descriptionFont).bold())
                 .frame(height: descriptionFont * 5)
+                .lineLimit(4)
+                .minimumScaleFactor(0.8)
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
         }
