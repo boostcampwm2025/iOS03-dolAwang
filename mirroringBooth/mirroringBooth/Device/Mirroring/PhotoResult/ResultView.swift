@@ -119,7 +119,7 @@ struct ResultView: View {
             if let renderedImage = store.state.renderedImage {
                 PhotoActivityViewController(
                     image: renderedImage,
-                    applecationActivities: nil,
+                    applicationActivities: nil,
                     excludedActivityTypes: [
                         .saveToCameraRoll,  // 사진에 저장 금지
                         .copyToPasteboard,  // 클립보드 복사 금지
