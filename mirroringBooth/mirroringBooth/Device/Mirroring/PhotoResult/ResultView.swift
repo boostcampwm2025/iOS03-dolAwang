@@ -149,9 +149,8 @@ struct ResultView: View {
         }
         .task {
             if let photoInformation = store.state.resultPhoto {
-                store.send(.setRenderedImage(
-                        image: PhotoComposer.render(with: photoInformation) ?? UIImage()
-                ))
+                guard let image = PhotoComposer.render(with: photoInformation) else { return }
+                store.send(.setRenderedImage(image: image))
             }
         }
         .toast(
