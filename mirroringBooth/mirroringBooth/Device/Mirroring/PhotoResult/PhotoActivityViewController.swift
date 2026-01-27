@@ -5,8 +5,8 @@
 //  Created by 윤대현 on 1/27/26.
 //
 
-import SwiftUI
 import LinkPresentation
+import SwiftUI
 
 // MARK: - 공유 시트 담당 ActivityViewController
 struct PhotoActivityViewController: UIViewControllerRepresentable {
@@ -15,7 +15,7 @@ struct PhotoActivityViewController: UIViewControllerRepresentable {
     let excludedActivityTypes: [UIActivity.ActivityType]?
 
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        let appIcon = UIImage(named: "AppIcon") ?? UIImage(systemName: "camera.fill")
+        let appIcon = getAppIcon()
 
         // ActivityItemSource 연결
         let itemSource = PhotoActivityItemSource(image: image, appIcon: appIcon)
@@ -32,6 +32,18 @@ struct PhotoActivityViewController: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) { }
+
+    private func getAppIcon() -> UIImage? {
+        if let icons = Bundle.main.object(forInfoDictionaryKey: "CFBundleIcons") as? [String: Any],
+           let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
+           let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
+           let lastIcon = iconFiles.last,
+           let icon = UIImage(named: lastIcon) {
+            return icon
+        }
+
+        return UIImage(systemName: "camera.fill")
+    }
 }
 
 // MARK: - ActivityItemSource (ActivityViewController에 연결되는 프리뷰 인스턴스)
@@ -49,7 +61,10 @@ class PhotoActivityItemSource: NSObject, UIActivityItemSource {
         return image
     }
 
-    func activityViewController(_ activityViewController: UIActivityViewController, itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
+    func activityViewController(
+        _ activityViewController: UIActivityViewController,
+        itemForActivityType activityType: UIActivity.ActivityType?
+    ) -> Any? {
         return image
     }
 
