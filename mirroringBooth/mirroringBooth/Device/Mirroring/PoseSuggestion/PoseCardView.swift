@@ -87,14 +87,3 @@ struct PoseCardView: View {
             .opacity(0.8)
     }
 }
-
-#Preview {
-    PoseCardView(
-        with: Pose(
-            emoji: "📸",
-            text: "저장! 사진을 찍는 것처럼 손가락으로 사각형을 만들어주세요~"
-        ),
-        in: CGSize(width: 375, height: 812),
-        isCurrent: true
-    )
-}
