@@ -31,14 +31,13 @@ struct CameraPreview: View {
                     VStack(spacing: 0) {
                         Rectangle()
                             .fill(.ultraThinMaterial)
-                            .aspectRatio(24/7, contentMode: .fit)
+                            .aspectRatio(48/12.5, contentMode: .fit)
 
                         Spacer()
-                            .aspectRatio(4/3, contentMode: .fit)
 
                         Rectangle()
                             .fill(.ultraThinMaterial)
-                            .aspectRatio(24/7, contentMode: .fit)
+                            .aspectRatio(48/12.5, contentMode: .fit)
                     }
                 }
                 .overlay(alignment: .top) {
