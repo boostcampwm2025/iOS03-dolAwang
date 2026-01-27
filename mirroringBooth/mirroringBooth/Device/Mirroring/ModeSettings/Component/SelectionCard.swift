@@ -1,111 +1,13 @@
 //
-//  ModeSelectionView.swift
+//  SelectionCard.swift
 //  mirroringBooth
 //
-//  Created by Liam on 1/6/26.
+//  Created by 이상유 on 2026-01-27.
 //
 
 import SwiftUI
 
-struct ModeSelectionView: View {
-    @Environment(Router.self) var router: Router
-    @Environment(RootStore.self) private var rootStore
-    private let advertiser: Advertiser
-    private let isRemoteModeEnabled: Bool
-
-    @State private var showHomeAlert: Bool = false
-
-    init(advertiser: Advertiser, isRemoteModeEnabled: Bool) {
-        self.advertiser = advertiser
-        self.isRemoteModeEnabled = isRemoteModeEnabled
-    }
-
-    var timerCard: some View {
-        SelectionCard(
-            iconName: "stopwatch",
-            iconColor: Color.main,
-            title: "타이머 모드",
-            description: "80초 동안 8초 간격으로\n자동 촬영합니다."
-        ) {
-            // 촬영 기기에게 타이머 모드 선택 알림
-            advertiser.sendCommand(.selectedTimerMode)
-            router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: true))
-        }
-    }
-
-    var remoteCard: some View {
-        SelectionCard(
-            iconName: "target", // SF Symbol
-            iconColor: Color.remote,
-            title: "리모콘 모드",
-            description: "나의 Apple Watch에서 \n직접 셔터를 누르세요."
-        ) {
-            advertiser.sendCommand(.setRemoteMode)
-            router.push(to: MirroringRoute.streaming(advertiser, isTimerMode: false))
-        }
-        .disabled(!isRemoteModeEnabled)
-    }
-
-    var body: some View {
-        VStack(spacing: 20) {
-            DisconnectButtonView {
-                showHomeAlert = true
-            }
-
-            TitleView()
-
-            GeometryReader { proxy in
-                if proxy.size.width > proxy.size.height {
-                    HStack(spacing: 40) {
-                        timerCard
-                        remoteCard
-                    }
-                    .frame(
-                        width: proxy.size.width,
-                        height: proxy.size.height
-                    )
-                } else {
-                    VStack(spacing: 20) {
-                        timerCard
-                        remoteCard
-
-                    }
-                    .frame(
-                        width: proxy.size.width,
-                        height: proxy.size.height
-                    )
-                }
-
-            }
-
-            Spacer()
-        }
-        .padding(.top, 20)
-        .padding(.horizontal)
-        .navigationBarBackButtonHidden()
-        .backgroundStyle()
-        .homeAlert(isPresented: $showHomeAlert) {
-            router.reset()
-            rootStore.send(.disconnect)
-        }
-    }
-}
-
-private struct TitleView: View {
-    var body: some View {
-        VStack(spacing: 12) {
-            Text("촬영 방식 선택")
-                .font(.title.bold())
-                .foregroundColor(.primary)
-
-            Text("어떻게 촬영하시겠어요?")
-                .font(.callout)
-                .foregroundColor(.gray)
-        }
-    }
-}
-
-private struct SelectionCard: View {
+struct SelectionCard: View {
     let iconName: String
     let iconColor: Color
     let title: String

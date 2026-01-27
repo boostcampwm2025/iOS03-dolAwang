@@ -34,6 +34,7 @@ struct RootView: View {
                         AdvertisingView()
                     case .modeSelection(let advertiser, let isRemoteEnable):
                         ModeSelectionView(
+                            for: .timerOrRemote,
                             advertiser: advertiser,
                             isRemoteModeEnabled: isRemoteEnable
                         )
