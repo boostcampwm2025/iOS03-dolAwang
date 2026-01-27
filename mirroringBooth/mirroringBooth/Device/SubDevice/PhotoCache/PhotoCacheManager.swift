@@ -9,17 +9,21 @@ import Foundation
 import OSLog
 import UIKit
 
-enum CachePath: String {
-    case result = "result.jpg"
-}
-
 actor PhotoCacheManager {
+    enum CachePath: String {
+        case result = "result.jpg"
+    }
+
     static let shared = PhotoCacheManager()
 
     private let sessionDirectory: URL
     private var cacheCount: Int = 0
     private var logger: Logger {
         Logger.photoCacheManager
+    }
+
+    var resultPhotoPath: URL {
+        sessionDirectory.appendingPathComponent(CachePath.result.rawValue)
     }
 
     private init() {
