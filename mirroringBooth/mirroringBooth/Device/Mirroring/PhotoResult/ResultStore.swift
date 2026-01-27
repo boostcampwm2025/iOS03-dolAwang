@@ -13,19 +13,28 @@ final class ResultStore: StoreProtocol {
     struct State {
         // Photo Information
         var resultPhoto: PhotoInformation
+
         // home alert
         var showHomeAlert: Bool = false
+
         // toast
         var showSavedToast: Bool = false
         var toastMessage: String = ""
+
         // fileExporter
         var showFileExporter: Bool = false
         var document: ImageDocument?
+
         // result image
         var renderedImage: UIImage?
+
         // scale
         var scale: CGFloat = 1
         var lastScale: CGFloat = 1
+
+        // share sheet
+        var showShareSheet: Bool = false
+        var shareItems: [Any] = []
     }
 
     enum Intent {
@@ -35,15 +44,23 @@ final class ResultStore: StoreProtocol {
         case setRenderedImage(image: UIImage)
         case setScale(scale: CGFloat)
         case setLastScale(scale: CGFloat)
+
+        case showShareSheet(Bool)
+        case prepareShare(UIImage)
     }
 
     enum Result {
         case setShowHomeAlert(Bool)
+
         case setShowSavedToast(Bool, message: String? = nil)
         case setShowFileExporter(Bool, document: ImageDocument? = nil)
         case setRenderedImage(UIImage)
+
         case setScale(CGFloat)
         case setLastScale(CGFloat)
+
+        case setShowShareSheet(Bool)
+        case setShareItems([Any])
     }
 
     private(set) var state: State
@@ -56,22 +73,24 @@ final class ResultStore: StoreProtocol {
         switch intent {
         case .showHomeAlert(let bool):
             return [.setShowHomeAlert(bool)]
-
         case .showSavedToast(let bool, let message):
             return [.setShowSavedToast(bool, message: message)]
-
         case .showFileExporter(let bool, let document):
             return [.setShowFileExporter(bool, document: document)]
-
+        case .showShareSheet(let bool):
+            return [.setShowShareSheet(bool)]
         case .setRenderedImage(let image):
             saveResultImage(image)
             return [.setRenderedImage(image)]
-
         case .setScale(let scale):
             return [.setScale(scale)]
-
         case .setLastScale(let scale):
             return [.setLastScale(scale)]
+        case .prepareShare(let image):
+            return [
+                .setShareItems([image]),
+                .setShowShareSheet(true)
+            ]
         }
     }
 
@@ -92,6 +111,14 @@ final class ResultStore: StoreProtocol {
             self.state = newState
         case .setRenderedImage(let image):
             state.renderedImage = image
+        case .setShowShareSheet(let bool):
+            state.showShareSheet = bool
+            if !bool {
+                // 공유 시트가 닫힐 때 shareItems 비우기
+                state.shareItems = []
+            }
+        case .setShareItems(let items):
+            state.shareItems = items
         case .setScale(let scale):
             state.scale = scale
         case .setLastScale(let lastScale):
