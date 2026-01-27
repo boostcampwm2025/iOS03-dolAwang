@@ -12,10 +12,13 @@ extension Logger {
 
     static let advertiser = Logger(subsystem: subsystem, category: "Advertiser")
     static let browser = Logger(subsystem: subsystem, category: "Browser")
+
     static let h264encoder = Logger(subsystem: subsystem, category: "H264Encoder")
     static let h264decoder = Logger(subsystem: subsystem, category: "H264Decoder")
     static let cameraManager = Logger(subsystem: subsystem, category: "CameraManager")
-    static let animalRepository = Logger(subsystem: subsystem, category: "AnimalRepository")
+
+    static let plistRepository = Logger(subsystem: subsystem, category: "PlistRepository")
+
     static let watchConnectionManager = Logger(subsystem: subsystem, category: "WatchConnectionManager")
     nonisolated static let photoCacheManager = Logger(subsystem: subsystem, category: "PhotoCacheManager")
     static let heartBeater = Logger(subsystem: subsystem, category: "HeartBeater")
