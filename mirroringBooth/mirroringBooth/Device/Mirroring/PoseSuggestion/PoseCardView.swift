@@ -10,42 +10,46 @@ import SwiftUI
 struct PoseCardView: View {
     private let isCurrent: Bool
     private let pose: Pose
+    private let size: CGSize
 
-    @State var width: CGFloat = .infinity
-    @State var height: CGFloat = .infinity
+    private var isPortrait: Bool {
+        size.width < size.height
+    }
 
     init(
         with pose: Pose,
+        in size: CGSize,
         isCurrent: Bool
     ) {
         self.pose = pose
+        self.size = size
         self.isCurrent = isCurrent
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                poseCard
-                    .onAppear {
-                        width = geometry.size.width
-                        height = geometry.size.height
-                    }
+        ZStack {
+            poseCard
 
-                if !isCurrent {
-                    nextBadge
-                }
+            if !isCurrent {
+                nextBadge
             }
         }
         .frame(
-            maxWidth: max(130, (width > height ? width / 3 : width / 6)),
-            maxHeight: max(160, (width > height ? height / 3 : height / 6))
+            maxWidth: max(
+                130,
+                (isPortrait ? size.width / 6 : size.width / 3)
+            ),
+            maxHeight: max(
+                160,
+                (isPortrait ? size.height / 6 : size.height / 3)
+            )
         )
     }
 
     @ViewBuilder
     private var poseCard: some View {
-        let emojiSize: CGFloat = max(40, (width / 16))
-        let descriptionFont: CGFloat = max(12, (width / 70))
+        let emojiSize: CGFloat = max(40, (size.width / 16))
+        let descriptionFont: CGFloat = max(12, (size.width / 70))
 
         VStack(spacing: 10) {
             Text(pose.emoji)
@@ -74,7 +78,7 @@ struct PoseCardView: View {
         Text("다음")
             .padding(.vertical, 8)
             .padding(.horizontal, 15)
-            .font(.system(size: max(25, (width / 40)), weight: .heavy))
+            .font(.system(size: max(25, (size.width / 40)), weight: .heavy))
             .foregroundStyle(.white)
             .background {
                 Capsule()
@@ -90,6 +94,7 @@ struct PoseCardView: View {
             emoji: "📸",
             text: "저장! 사진을 찍는 것처럼 손가락으로 사각형을 만들어주세요~"
         ),
+        in: CGSize(width: 375, height: 812),
         isCurrent: true
     )
 }
