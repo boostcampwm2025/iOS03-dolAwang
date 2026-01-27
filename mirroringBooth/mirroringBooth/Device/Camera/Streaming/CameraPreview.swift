@@ -23,10 +23,10 @@ struct CameraPreview: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack {
             Color.black.ignoresSafeArea()
             VideoDisplayLayer(buffer: store.state.buffer)
-                .aspectRatio(9/16, contentMode: .fit)
+                .aspectRatio(3/4, contentMode: .fit)
                 .overlay(alignment: .top) {
                     headerView
                 }
