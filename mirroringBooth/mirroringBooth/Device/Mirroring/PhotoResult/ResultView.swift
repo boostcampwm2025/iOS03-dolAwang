@@ -21,6 +21,10 @@ struct ResultView: View {
         }
     }
 
+    init(image: UIImage) {
+        store = .init(image: image)
+    }
+
     var body: some View {
         VStack(spacing: 30) {
 
@@ -144,11 +148,11 @@ struct ResultView: View {
             }
         }
         .task {
-            store.send(
-                .setRenderedImage(
-                    image: PhotoComposer.render(with: store.state.resultPhoto) ?? UIImage()
-                )
-            )
+            if let photoInformation = store.state.resultPhoto {
+                store.send(.setRenderedImage(
+                        image: PhotoComposer.render(with: photoInformation) ?? UIImage()
+                ))
+            }
         }
         .toast(
             isPresented: Binding(

@@ -43,6 +43,7 @@ enum MirroringRoute: Hashable {
     case streaming(Advertiser, isTimerMode: Bool)
     case captureResult
     case result(PhotoInformation)
+    case resultWithImage(UIImage)
 }
 
 enum RemoteRoute: Hashable {

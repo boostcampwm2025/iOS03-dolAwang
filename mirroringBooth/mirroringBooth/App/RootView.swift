@@ -67,6 +67,8 @@ struct RootView: View {
                         PhotoCompositionView()
                     case .result(let result):
                         ResultView(resultPhoto: result)
+                    case .resultWithImage(let image):
+                        ResultView(image: image)
                     }
                 }
                 .navigationDestination(for: RemoteRoute.self) { viewType in
