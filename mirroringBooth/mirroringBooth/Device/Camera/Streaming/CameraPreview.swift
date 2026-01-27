@@ -73,7 +73,6 @@ struct CameraPreview: View {
             }
         }
         .onChange(of: store.state.transfercount) { _, count in
-            print(count)
             if count >= 10 {
                 onDismissByCaptureCompletion?()
                 dismiss()
