@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
+	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>촬영 결과 저장을 위해 갤러리 권한이 필요합니다.</string>
 	<key>NSLocalNetworkUsageDescription</key>
