@@ -80,7 +80,7 @@ struct ResultView: View {
                                 if result {
                                     store.send(.showSavedToast(true, message: "갤러리에 저장되었습니다."))
                                 } else {
-                                    store.send(.showSavedToast(true, message: "저장에 실패했습니다."))
+                                    store.send(.showSettingAlert(true))
                                 }
                             }
                         }
@@ -123,6 +123,19 @@ struct ResultView: View {
                 )
             }
         }
+        .alert(
+            "사진 앱 접근 권한",
+            isPresented: Binding(
+                get: { store.state.showSettingAlert },
+                set: { store.send(.showSettingAlert($0)) },
+            )) {
+                Button("취소", role: .cancel) {}
+                Button("설정으로 이동") {
+                    PhotoSaver.openSettings()
+                }
+            } message: {
+                Text("저장을 위해 사진 앱 접근 권한이 필요합니다. 설정으로 이동하시겠습니까?")
+            }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 HomeButton(size: .headline) {
