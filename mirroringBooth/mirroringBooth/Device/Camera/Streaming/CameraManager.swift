@@ -136,7 +136,7 @@ extension CameraManager {
         guard let videoDevice = AVCaptureDevice.default(
             .builtInWideAngleCamera,
             for: .video,
-            position: .back // 추후 전면 카메라 적용도 진행해보기
+            position: .back
         ) else {
             return
         }
