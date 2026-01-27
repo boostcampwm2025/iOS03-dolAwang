@@ -67,7 +67,7 @@ struct StreamingView: View {
                         .opacity(store.state.showCapturEffect ? 1.0 : 0.0)
                         .animation(.linear(duration: 0.2), value: store.state.showCapturEffect)
                 }
-                    .ignoresSafeArea()
+                .ignoresSafeArea()
             } else {
                 streamingPlaceholder
                     .ignoresSafeArea()
@@ -159,6 +159,10 @@ struct StreamingView: View {
 
                             if isCompact && isShooting {
                                 ProgressIndicator(countdown: store.state.shootingCountdown)
+                                    .background {
+                                        Circle()
+                                            .fill(.ultraThinMaterial)
+                                    }
                                     .padding(.top, 16)
                             }
                         }

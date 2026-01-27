@@ -28,11 +28,12 @@ struct CaptureCountBadge: View {
         .frame(width: badgeSize, height: badgeSize)
         .background {
             Circle()
-                .fill(.thickMaterial)
+                .fill(.ultraThinMaterial)
         }
         .overlay {
             Circle()
                 .strokeBorder(.white, lineWidth: 3)
         }
+        .preferredColorScheme(.dark)
     }
 }
