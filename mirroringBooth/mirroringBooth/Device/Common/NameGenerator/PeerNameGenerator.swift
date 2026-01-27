@@ -7,7 +7,7 @@
 
 struct PeerNameGenerator {
 
-    private static let animals: [String] = AnimalRepository.animals
+    private static let animals: [String] = PlistRepository.animals
 
     static func randomCode(length: Int) -> String {
         let chars = Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")

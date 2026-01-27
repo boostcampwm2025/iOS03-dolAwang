@@ -10,6 +10,10 @@ import OSLog
 import UIKit
 
 actor PhotoCacheManager {
+    enum CachePath: String {
+        case result = "result.jpg"
+    }
+
     static let shared = PhotoCacheManager()
 
     private let sessionDirectory: URL
@@ -18,10 +22,15 @@ actor PhotoCacheManager {
         Logger.photoCacheManager
     }
 
+    var resultPhotoPath: URL {
+        sessionDirectory.appendingPathComponent(CachePath.result.rawValue)
+    }
+
     private init() {
-        // 앱 껐다 켰을 때 캐시를 원하는 것이 아니므로 Library/Caches보다 tmp 선택.
-        // 문제가 발생할 경우 변경 고려
-        let cahcheDirectory = FileManager.default.temporaryDirectory
+        let cahcheDirectory = FileManager.default.urls(
+            for: .cachesDirectory,
+            in: .userDomainMask
+        ).first!
         sessionDirectory = cahcheDirectory.appendingPathComponent("CurrentSession")
     }
 
@@ -44,6 +53,19 @@ actor PhotoCacheManager {
         try FileManager.default.moveItem(at: localURL, to: fileURL)
         logger.debug("[Cache] \(self.cacheCount)번 인덱스 사진 저장됨")
         cacheCount += 1
+    }
+
+    func saveResultImage(_ image: UIImage) throws {
+        let fileURL = sessionDirectory.appendingPathComponent(CachePath.result.rawValue)
+        if let data = image.jpegData(compressionQuality: 1.0) {
+            try data.write(to: fileURL)
+            logger.debug("[Cache] 결과 사진 저장됨")
+        }
+    }
+
+    func getResultImage() -> UIImage? {
+        let fileURL = sessionDirectory.appendingPathComponent(CachePath.result.rawValue)
+        return UIImage(contentsOfFile: fileURL.path)
     }
 
     nonisolated func getPhotoURL(index: Int) -> URL {

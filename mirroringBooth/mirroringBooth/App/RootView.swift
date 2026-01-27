@@ -34,6 +34,7 @@ struct RootView: View {
                         AdvertisingView()
                     case .modeSelection(let advertiser, let isRemoteEnable):
                         ModeSelectionView(
+                            for: .timerOrRemote,
                             advertiser: advertiser,
                             isRemoteModeEnabled: isRemoteEnable
                         )
@@ -66,6 +67,8 @@ struct RootView: View {
                         PhotoCompositionView()
                     case .result(let result):
                         ResultView(resultPhoto: result)
+                    case .resultWithImage(let image):
+                        ResultView(image: image)
                     }
                 }
                 .navigationDestination(for: RemoteRoute.self) { viewType in

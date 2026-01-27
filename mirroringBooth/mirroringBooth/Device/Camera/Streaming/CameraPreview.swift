@@ -43,10 +43,14 @@ struct CameraPreview: View {
                         }
                         .padding(.bottom, 10)
                 }
-        }
-        .overlay(alignment: .topTrailing) {
-            exitButton
-                .padding(4)
+
+            if store.state.transfercount >= 0 {
+                TransferringOverlay(
+                    receivedCount: store.state.transfercount,
+                    totalCount: 10,
+                    description: "사진 전송 중..."
+                )
+            }
         }
         .onAppear {
             store.send(.resetCaptureCompleted)
@@ -68,23 +72,11 @@ struct CameraPreview: View {
                 store.send(.updateAngle(rawValue: value))
             }
         }
-        .onChange(of: store.state.isCaptureCompleted) { _, isCompleted in
-            if isCompleted {
+        .onChange(of: store.state.transfercount) { _, count in
+            if count >= 10 {
                 onDismissByCaptureCompletion?()
                 dismiss()
             }
-        }
-        .homeAlert(
-            isPresented: Binding(
-                get: { store.state.showHomeAlert },
-                set: { store.send(.setShowHomeAlert($0)) }
-            ),
-            message: "촬영된 사진이 모두 사라집니다.\n계속하시겠습니까?"
-        ) {
-            store.send(.stopCameraSession)
-            rootStore.send(.disconnect)
-            dismiss()
-            router.reset()
         }
         .homeAlert(
             isPresented: Binding(
@@ -113,21 +105,6 @@ struct CameraPreview: View {
             }
             .rotationEffect(Angle(degrees: store.state.angle))
             .padding(.top)
-    }
-
-    private var exitButton: some View {
-        Button {
-            store.send(.setShowHomeAlert(true))
-        } label: {
-            Image(systemName: "xmark")
-                .font(.footnote.bold())
-                .foregroundColor(.white)
-                .padding(10)
-                .background {
-                    Circle()
-                        .fill(Color.black.opacity(0.5))
-                }
-        }
     }
 }
 

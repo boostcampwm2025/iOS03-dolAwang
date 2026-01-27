@@ -40,12 +40,12 @@ enum FrameAsset: String, Identifiable, CaseIterable {
         }
     }
 
-    var isDateNeedsBackground: Bool {
+    var dateBackgroundName: String? {
         switch self {
         case .black, .white:
-            return false
+            return nil
         default:
-            return true
+            return "orangeSigns"
         }
     }
 }

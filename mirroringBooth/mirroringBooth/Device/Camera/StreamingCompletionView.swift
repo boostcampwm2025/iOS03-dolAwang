@@ -14,10 +14,6 @@ struct StreamingCompletionView: View {
 
     var body: some View {
         VStack {
-            DisconnectButtonView {
-                showHomeAlert = true
-            }
-
             Spacer()
             VStack(spacing: 10) {
                 Image(systemName: "photo.badge.checkmark")
@@ -35,12 +31,12 @@ struct StreamingCompletionView: View {
         }
         .navigationBarBackButtonHidden()
         .backgroundStyle()
-        .homeAlert(
-            isPresented: $showHomeAlert,
-            message: "연결을 종료하시겠습니까?"
-        ) {
-            router.reset()
-            rootStore.send(.disconnect)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                HomeButton(size: .headline) {
+                    router.reset()
+                }
+            }
         }
     }
 }

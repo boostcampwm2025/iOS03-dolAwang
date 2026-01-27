@@ -97,7 +97,7 @@ struct ShootingProgressBadge: View {
 
     var body: some View {
         HStack(spacing: 16) {
-            ProgressIndicator(countdown: countdown, textColor: .white)
+            ProgressIndicator(countdown: countdown)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("NEXT SHOT")
@@ -121,7 +121,6 @@ struct ShootingProgressBadge: View {
 // 원형 프로그래스 인디케이터
 struct ProgressIndicator: View {
     let countdown: Int
-    var textColor: Color = .primary
 
     var body: some View {
         ZStack {
@@ -141,7 +140,7 @@ struct ProgressIndicator: View {
 
             Text("\(countdown)")
                 .font(.system(size: 24, weight: .bold))
-                .foregroundStyle(textColor)
+                .foregroundStyle(.white)
         }
     }
 }
@@ -150,6 +149,13 @@ struct ProgressIndicator: View {
 struct TransferringOverlay: View {
     let receivedCount: Int
     let totalCount: Int
+    let description: String
+
+    init(receivedCount: Int, totalCount: Int, description: String = "사진 수신 중...") {
+        self.receivedCount = receivedCount
+        self.totalCount = totalCount
+        self.description = description
+    }
 
     var body: some View {
         ZStack {
@@ -161,7 +167,7 @@ struct TransferringOverlay: View {
                     .scaleEffect(1.5)
                     .tint(.white)
 
-                Text("사진 수신 중...")
+                Text(description)
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(.white)

@@ -68,6 +68,13 @@ private extension FrameSelectionView {
                             store.send(.selectFrame(frame))
                         } label: {
                             frameIcon(with: frame, isSmall: false)
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .strokeBorder(
+                                            frame == store.state.selectedFrame ? Color.selectionBlue : .gray,
+                                            lineWidth: 2
+                                        )
+                                }
                         }
                     }
                 }
@@ -121,10 +128,12 @@ private extension FrameSelectionView {
                 Spacer()
             }
             .frame(maxWidth: .infinity)
-            .background {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(.label).opacity(0.02))
-                    .strokeBorder(Color.borderLine, lineWidth: 2)
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(
+                        frame == store.state.selectedFrame ? Color.selectionBlue : .gray,
+                        lineWidth: 2
+                    )
             }
         }
     }
@@ -132,23 +141,21 @@ private extension FrameSelectionView {
     @ViewBuilder
     func frameIcon(with frame: FrameAsset, isSmall: Bool) -> some View {
         if let icon = frame.image {
-            if isSmall {
-                Image(uiImage: icon)
-                    .resizable()
-                    .aspectRatio(1, contentMode: .fit)
-                    .frame(width: 30, height: 30)
-            } else {
-                Image(uiImage: icon)
-                    .resizable()
-                    .aspectRatio(1, contentMode: .fit)
-                    .frame(maxWidth: 50, maxHeight: 50)
-                    .padding(2)
-                    .background {
-                        RoundedRectangle(cornerRadius: 8)
-                            .strokeBorder(.primary, lineWidth: 2)
-                            .foregroundStyle(Color.secondary.opacity(0.6))
-                    }
+            Group {
+                if isSmall {
+                    Image(uiImage: icon)
+                        .resizable()
+                        .aspectRatio(1, contentMode: .fit)
+                        .frame(width: 30, height: 30)
+                } else {
+                    Image(uiImage: icon)
+                        .resizable()
+                        .aspectRatio(1, contentMode: .fit)
+                        .frame(maxWidth: 50, maxHeight: 50)
+                        .padding(2)
+                }
             }
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
 
@@ -160,16 +167,17 @@ private extension FrameSelectionView {
                 .resizable()
                 .renderingMode(.template)
                 .font(.footnote)
-                .foregroundStyle(Color.primary)
+                .foregroundStyle(iconString == store.state.selectedLayout.icon ? Color.selectionBlue : .gray)
                 .frame(maxWidth: 60, maxHeight: 60)
                 .padding(2)
                 .background {
                     RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(.primary, lineWidth: 2)
-                        .foregroundStyle(Color.secondary)
+                        .strokeBorder(
+                            iconString == store.state.selectedLayout.icon ? Color.selectionBlue : .gray,
+                            lineWidth: 2
+                        )
                 }
                 .aspectRatio(contentMode: .fit)
-                .opacity(0.6)
         }
     }
 }
