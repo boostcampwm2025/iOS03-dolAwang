@@ -10,43 +10,43 @@ import SwiftUI
 struct PoseCardView: View {
     private let isCurrent: Bool
     private let pose: Pose
-    private let size: CGSize
-
-    private var isPortrait: Bool {
-        size.width < size.height
-    }
+    private let width: CGFloat
 
     init(
         with pose: Pose,
-        in size: CGSize,
+        in width: CGFloat,
         isCurrent: Bool
     ) {
         self.pose = pose
-        self.size = size
+        self.width = width
         self.isCurrent = isCurrent
     }
 
     var body: some View {
         ZStack {
             poseCard
+            .padding()
+            .background {
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(.black)
+                    .opacity(isCurrent ? 0.3 : 0.8)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: 15)
+                    .stroke(.white, style: .init(lineWidth: 4, dash: isCurrent ? [1] : [15]))
+            }
+            .opacity(isCurrent ? 0.6 : 0.4)
 
             if !isCurrent {
                 nextBadge
             }
         }
-        .frame(
-            maxWidth: max(
-                130,
-                (isPortrait ? size.width / 6 : size.width / 7)
-            ),
-            maxHeight: max(160, size.height / 6)
-        )
     }
 
     @ViewBuilder
     private var poseCard: some View {
-        let emojiSize: CGFloat = max(40, (size.width / 16))
-        let descriptionFont: CGFloat = max(12, (size.width / 70))
+        let emojiSize: CGFloat = isCurrent ? max(40, (width / 2)) : width / 2
+        let descriptionFont: CGFloat = isCurrent ? max(12, (width / 8)) : width / 8
 
         VStack(spacing: 10) {
             Text(pose.emoji)
@@ -60,24 +60,14 @@ struct PoseCardView: View {
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
         }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background {
-            RoundedRectangle(cornerRadius: 15)
-                .fill(.gray)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 15)
-                .stroke(isCurrent ? .main : .white, lineWidth: 5)
-        }
-        .opacity(isCurrent ? 0.6 : 0.4)
+        .frame(maxWidth: isCurrent ? max(80, width) : width)
     }
 
     private var nextBadge: some View {
         Text("다음")
             .padding(.vertical, 8)
             .padding(.horizontal, 15)
-            .font(.system(size: max(25, (size.width / 45)), weight: .heavy))
+            .font(.system(size: 25, weight: .heavy))
             .foregroundStyle(.white)
             .background {
                 Capsule()

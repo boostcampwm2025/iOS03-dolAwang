@@ -29,19 +29,10 @@ struct StreamingOverlay: View {
                     totalCount: totalCaptureCount
                 )
             case .poseSuggestion:
-                GeometryReader { geometry in
-                    PoseCardView(
-                        with: Pose(
-                            emoji: "📸",
-                            text: "저장! 사진을 찍는 것처럼 손가락으로 사각형을 만들어주세요~"
-                        ),
-                        in: geometry.size,
-                        isCurrent: true
-                    )
-                    .frame(maxHeight: .infinity, alignment: .bottom)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.bottom, 20)
-                }
+                PoseOverlay(poses: [
+                    Pose(emoji: "📸", text: "저장! 사진을 찍는 것처럼 손가락으로 사각형을 만들어주세요~"),
+                    Pose(emoji: "🍞", text: "볼빵빵 해볼까요?")
+                ])
             case .completed:
                 CaptureCompleteOverlay() // 임시
             default:
