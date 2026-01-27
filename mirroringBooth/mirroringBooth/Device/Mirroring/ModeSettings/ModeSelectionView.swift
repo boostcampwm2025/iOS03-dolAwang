@@ -33,8 +33,8 @@ struct ModeSelectionView: View {
             GeometryReader { proxy in
                 if proxy.size.width > proxy.size.height {
                     HStack(spacing: 40) {
-                        timerCard
-                        remoteCard
+                        firstCard
+                        secondCard
                     }
                     .frame(
                         width: proxy.size.width,
@@ -42,8 +42,8 @@ struct ModeSelectionView: View {
                     )
                 } else {
                     VStack(spacing: 20) {
-                        timerCard
-                        remoteCard
+                        firstCard
+                        secondCard
 
                     }
                     .frame(
@@ -67,7 +67,7 @@ struct ModeSelectionView: View {
     }
 
     @ViewBuilder
-    private var timerCard: some View {
+    private var firstCard: some View {
         switch selectionType {
         case .timerOrRemote:
             SelectionCard(
@@ -91,7 +91,7 @@ struct ModeSelectionView: View {
     }
 
     @ViewBuilder
-    private var remoteCard: some View {
+    private var secondCard: some View {
         switch selectionType {
         case .timerOrRemote:
             SelectionCard(
