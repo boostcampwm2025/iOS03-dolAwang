@@ -41,6 +41,9 @@ final class StreamingStore: StoreProtocol {
 
         // 촬영효과
         var showCapturEffect: Bool = false
+
+        // 추천할 포즈 목록
+        var poseList: [Pose] = []
     }
 
     enum Intent {
@@ -59,6 +62,9 @@ final class StreamingStore: StoreProtocol {
 
         // 캡쳐 효과
         case setShowCaptureEffect(Bool)
+
+        // 포즈 기능
+        case setPoseList([Pose])
     }
 
     enum Result {
@@ -78,6 +84,9 @@ final class StreamingStore: StoreProtocol {
 
         // 캡쳐 효과
         case setShowCaptureEffect(Bool)
+
+        // 포즈 기능
+        case setPoseList([Pose])
     }
 
     var state: State
@@ -171,6 +180,9 @@ final class StreamingStore: StoreProtocol {
             if state.capturePhotoCount < state.totalCaptureCount {
                 result.append(.setShowCaptureEffect(value))
             }
+
+        case .setPoseList(let poses):
+            result.append(.setPoseList(poses))
         }
 
         return result
@@ -209,6 +221,9 @@ final class StreamingStore: StoreProtocol {
 
         case .setShowCaptureEffect(let value):
             state.showCapturEffect = value
+
+        case .setPoseList(let poses):
+            state.poseList = poses
         }
 
         self.state = state

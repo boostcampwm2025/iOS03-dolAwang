@@ -92,6 +92,7 @@ struct StreamingView: View {
         .navigationBarBackButtonHidden()
         .onAppear {
             store.send(.startStreaming)
+            store.send(.setPoseList(poseList))
         }
         .onDisappear {
             store.send(.stopStreaming)
