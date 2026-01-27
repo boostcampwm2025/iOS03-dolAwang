@@ -43,6 +43,14 @@ struct CameraPreview: View {
                         }
                         .padding(.bottom, 10)
                 }
+
+            if store.state.transfercount >= 0 {
+                TransferringOverlay(
+                    receivedCount: store.state.transfercount,
+                    totalCount: 10,
+                    description: "사진 전송 중..."
+                )
+            }
         }
         .onAppear {
             store.send(.resetCaptureCompleted)
@@ -65,6 +73,7 @@ struct CameraPreview: View {
             }
         }
         .onChange(of: store.state.transfercount) { _, count in
+            print(count)
             if count >= 10 {
                 onDismissByCaptureCompletion?()
                 dismiss()
