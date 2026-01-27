@@ -31,15 +31,7 @@ struct PoseCardView: View {
                     .fill(.black)
                     .opacity(isCurrent ? 0.3 : 0.8)
             }
-            .overlay {
-                RoundedRectangle(cornerRadius: 15)
-                    .stroke(.white, style: .init(lineWidth: 4, dash: isCurrent ? [1] : [15]))
-            }
-            .opacity(isCurrent ? 0.6 : 0.4)
-
-            if !isCurrent {
-                nextBadge
-            }
+            .opacity(isCurrent ? 0.6 : 0.3)
         }
     }
 
@@ -61,18 +53,5 @@ struct PoseCardView: View {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: isCurrent ? max(80, width) : width)
-    }
-
-    private var nextBadge: some View {
-        Text("다음")
-            .padding(.vertical, 8)
-            .padding(.horizontal, 15)
-            .font(.system(size: 25, weight: .heavy))
-            .foregroundStyle(.white)
-            .background {
-                Capsule()
-                    .fill(Color.mirroring)
-            }
-            .opacity(0.7)
     }
 }
