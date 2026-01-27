@@ -197,11 +197,21 @@ extension CameraManager {
         targetWidth: Int32,
         targetHeight: Int32
     ) {
-        let formats: [AVCaptureDevice.Format] = videoDevice.formats
-        guard let bestFormat: AVCaptureDevice.Format = formats.first(where: { format in
-            let dimensions: CMVideoDimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+        let formats = videoDevice.formats
+        let bestFormat = formats.first(where: { (format: AVCaptureDevice.Format) -> Bool in
+            // 해상도 + 420 포맷 체크
+            let dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+            guard dimensions.width == targetWidth && dimensions.height == targetHeight else { return false }
+
+            let mediaSubTypeValue = CMFormatDescriptionGetMediaSubType(format.formatDescription)
+            return mediaSubTypeValue == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+        }) ?? formats.first(where: { (format: AVCaptureDevice.Format) -> Bool in
+            // 해상도만 체크
+            let dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
             return dimensions.width == targetWidth && dimensions.height == targetHeight
-        }) else {
+        })
+
+        guard let bestFormat: AVCaptureDevice.Format = bestFormat else {
             logger.warning("요청한 해상도 포맷을 찾지 못했습니다. \(targetWidth)x\(targetHeight)")
             return
         }
