@@ -120,9 +120,10 @@ struct ResultView: View {
             }
         }
         .task {
+            let image = PhotoComposer.render(with: store.state.resultPhoto) ?? UIImage()
             store.send(
                 .setRenderedImage(
-                    image: PhotoComposer.render(with: store.state.resultPhoto) ?? UIImage()
+                    image: image
                 )
             )
         }
