@@ -27,6 +27,20 @@ struct CameraPreview: View {
             Color.black.ignoresSafeArea()
             VideoDisplayLayer(buffer: store.state.buffer)
                 .aspectRatio(3/4, contentMode: .fit)
+                .overlay {
+                    VStack(spacing: 0) {
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .aspectRatio(24/7, contentMode: .fit)
+
+                        Spacer()
+                            .aspectRatio(4/3, contentMode: .fit)
+
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .aspectRatio(24/7, contentMode: .fit)
+                    }
+                }
                 .overlay(alignment: .top) {
                     headerView
                 }
