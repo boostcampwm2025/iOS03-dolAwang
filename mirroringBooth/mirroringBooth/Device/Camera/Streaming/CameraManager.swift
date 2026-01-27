@@ -204,7 +204,7 @@ extension CameraManager {
             guard dimensions.width == targetWidth && dimensions.height == targetHeight else { return false }
 
             let mediaSubTypeValue = CMFormatDescriptionGetMediaSubType(format.formatDescription)
-            return mediaSubTypeValue == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+            return mediaSubTypeValue == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
         }) ?? formats.first(where: { (format: AVCaptureDevice.Format) -> Bool in
             // 해상도만 체크
             let dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
