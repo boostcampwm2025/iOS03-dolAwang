@@ -64,8 +64,8 @@ struct CameraPreview: View {
                 store.send(.updateAngle(rawValue: value))
             }
         }
-        .onChange(of: store.state.isCaptureCompleted) { _, isCompleted in
-            if isCompleted {
+        .onChange(of: store.state.transfercount) { _, count in
+            if count >= 10 {
                 onDismissByCaptureCompletion?()
                 dismiss()
             }
