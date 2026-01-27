@@ -32,6 +32,7 @@ struct PoseOverlay: View {
                         .offset(x: currentSize + 20)
                     }
                 }
+                .animation(.easeInOut(duration: 0.4), value: current.text)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding(.bottom, 20)
