@@ -7,6 +7,7 @@
 
 import AVFoundation
 import Foundation
+import OSLog
 
 @Observable
 final class StreamingStore: StoreProtocol {
@@ -81,12 +82,12 @@ final class StreamingStore: StoreProtocol {
 
     var state: State
 
-    private let advertiser: Advertiser
+    private let advertiser: Advertiser?
     private let decoder: H264Decoder
     private var timer: Timer?
 
     init(
-        _ advertiser: Advertiser,
+        _ advertiser: Advertiser?,
         decoder: H264Decoder,
         initialPhase: OverlayPhase
     ) {
@@ -98,6 +99,11 @@ final class StreamingStore: StoreProtocol {
             Task { @MainActor in
                 self?.reduce(.videoFrameDecoded(sampleBuffer, rotationAngle))
             }
+        }
+
+        guard let advertiser else {
+            Logger.streamingStore.error("advertiser가 없어 정상 동작하지 않습니다.")
+            return
         }
 
         advertiser.onReceivedStreamData = { [weak self] data in
@@ -133,7 +139,7 @@ final class StreamingStore: StoreProtocol {
             result.append(.streamingStarted)
         case .stopStreaming:
             decoder.stop()
-            advertiser.onReceivedStreamData = nil
+            advertiser?.onReceivedStreamData = nil
             result.append(.streamingStopped)
             // MARK: - 타이머
         case .startCountdown:
@@ -146,14 +152,14 @@ final class StreamingStore: StoreProtocol {
             // MARK: - 사진 전송
         case .startTransfer:
             result.append(.phaseChanged(.transferring))
-            advertiser.sendCommand(.startTransfer)
-            advertiser.setupCacheManager()
+            advertiser?.sendCommand(.startTransfer)
+            advertiser?.setupCacheManager()
 
         case .photoReceived:
             let newCount = state.receivedPhotoCount + 1
             result.append(.receivedPhotoCountUpdated(newCount))
             if newCount >= state.totalCaptureCount {
-                advertiser.stopHeartBeating()
+                advertiser?.stopHeartBeating()
                 result.append(.phaseChanged(.completed))
             }
 
@@ -257,7 +263,7 @@ extension StreamingStore {
 
     private func capturePhoto() {
         Task { @MainActor [weak self] in
-            self?.advertiser.sendCommand(.capturePhoto)
+            self?.advertiser?.sendCommand(.capturePhoto)
         }
     }
 }

@@ -12,11 +12,11 @@ struct StreamingView: View {
     @Environment(RootStore.self) private var rootStore
     @State private var store: StreamingStore
     @State private var showHomeAlert: Bool = false
-    let advertiser: Advertiser
+    let advertiser: Advertiser?
 
     private let isTimerMode: Bool
 
-    init(advertiser: Advertiser, isTimerMode: Bool) {
+    init(advertiser: Advertiser?, isTimerMode: Bool) {
         self.advertiser = advertiser
         self.isTimerMode = isTimerMode
         self._store = State(

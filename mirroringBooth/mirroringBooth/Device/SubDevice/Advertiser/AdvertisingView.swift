@@ -73,10 +73,7 @@ struct AdvertisingView: View {
                 switch deviceUseType {
                 case .mirroring:
                     router.push(
-                        to: MirroringRoute.modeSelection(
-                            store.advertiser,
-                            isRemoteEnable: store.state.isRemoteSelected
-                        )
+                        to: MirroringRoute.timerOrRemoteSelection(isRemoteEnable: store.state.isRemoteSelected)
                     )
                 case .remote:
                     // 리모트 모드 선택 시 촬영 뷰로 이동
