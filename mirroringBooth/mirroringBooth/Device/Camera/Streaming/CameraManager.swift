@@ -21,7 +21,7 @@ final class CameraManager: NSObject {
     private var videoOutput: AVCaptureVideoDataOutput?
     private var photoOutput = AVCapturePhotoOutput()
 
-    private let encoder = H264Encoder(resolution: .portraitHD1080p)
+    private let encoder = H264Encoder(resolution: .photo)
 
     /// 원시 데이터 콜백
     var rawData: ((CMSampleBuffer) -> Void)?
