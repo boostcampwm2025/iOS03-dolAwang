@@ -74,7 +74,7 @@ final class ResultStore: StoreProtocol {
 
     init(image: UIImage) {
         self.state = State(resultPhoto: nil, renderedImage: image)
-//        Task { await PhotoCacheManager.shared.clearCache() }
+        Task { await PhotoCacheManager.shared.clearCache() }
     }
 
     func action(_ intent: Intent) -> [Result] {
