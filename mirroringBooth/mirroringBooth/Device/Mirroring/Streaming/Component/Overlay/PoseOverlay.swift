@@ -12,29 +12,30 @@ struct PoseOverlay: View {
 
     var body: some View {
         GeometryReader { geometry in
-            withAnimation(.bouncy(duration: 0.5, extraBounce: 0.5)) {
-                HStack(alignment: .bottom, spacing: 12) {
-                    if let current = poses.first {
-                        PoseCardView(
-                            with: current,
-                            in: min(120, geometry.size.width / 8),
-                            isCurrent: true
-                        )
-                    }
+            let currentSize = min(120, geometry.size.width / 8)
+            let nextSize = min(80, geometry.size.width / 12)
 
+            if let current = poses.first {
+                PoseCardView(
+                    with: current,
+                    in: currentSize,
+                    isCurrent: true
+                )
+                .overlay(alignment: .bottomTrailing) {
                     if poses.count == 2,
                        let next = poses.last {
                         PoseCardView(
                             with: next,
-                            in: min(80, geometry.size.width / 12),
+                            in: nextSize,
                             isCurrent: false
                         )
+                        .offset(x: currentSize + 12)
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(maxHeight: .infinity, alignment: .bottom)
                 .padding(.bottom, 20)
             }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .frame(maxHeight: .infinity, alignment: .bottom)
         }
     }
 }
