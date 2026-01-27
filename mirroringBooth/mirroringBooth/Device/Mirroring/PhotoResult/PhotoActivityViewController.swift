@@ -77,9 +77,6 @@ class PhotoActivityItemSource: NSObject, UIActivityItemSource {
             metadata.iconProvider = NSItemProvider(object: appIcon)
         }
 
-        // 이미지 프리뷰 설정
-        metadata.imageProvider = NSItemProvider(object: image)
-
         return metadata
     }
 }
