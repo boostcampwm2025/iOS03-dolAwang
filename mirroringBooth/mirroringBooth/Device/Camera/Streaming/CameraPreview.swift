@@ -14,7 +14,7 @@ struct CameraPreview: View {
     @Environment(Router.self) private var router
     @Environment(RootStore.self) private var rootStore
     @State var store: CameraPreviewStore
-
+    private let backgroundColor = #colorLiteral(red: 0.1204712167, green: 0.160810262, blue: 0.2149580121, alpha: 1)
     let onDismissByCaptureCompletion: (() -> Void)?
 
     init(store: CameraPreviewStore, onDismissByCaptureCompletion: (() -> Void)? = nil) {
@@ -24,7 +24,7 @@ struct CameraPreview: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color(backgroundColor).ignoresSafeArea()
             VideoDisplayLayer(buffer: store.state.buffer)
                 .aspectRatio(3/4, contentMode: .fit)
                 .overlay {
