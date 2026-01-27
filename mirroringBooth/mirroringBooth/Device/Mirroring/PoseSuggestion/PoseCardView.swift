@@ -47,14 +47,16 @@ struct PoseCardView: View {
 
     @ViewBuilder
     private var poseCard: some View {
-        let emojiSize: CGFloat = max(40, (width / 15))
-        let descriptionFont: CGFloat = max(12, (width / 60))
+        let emojiSize: CGFloat = max(40, (width / 16))
+        let descriptionFont: CGFloat = max(12, (width / 70))
 
         VStack(spacing: 10) {
             Text(emoji)
                 .font(.system(size: emojiSize))
+                .frame(height: emojiSize + 8)
             Text(description)
                 .font(.system(size: descriptionFont).bold())
+                .frame(height: descriptionFont * 5)
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
         }
@@ -68,7 +70,7 @@ struct PoseCardView: View {
             RoundedRectangle(cornerRadius: 15)
                 .stroke(isCurrent ? .main : .white, lineWidth: 5)
         }
-        .opacity(isCurrent ? 0.8 : 0.4)
+        .opacity(isCurrent ? 0.6 : 0.4)
     }
 
     private var nextBadge: some View {
