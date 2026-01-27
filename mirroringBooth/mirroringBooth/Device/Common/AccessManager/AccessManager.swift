@@ -86,6 +86,20 @@ final class AccessManager {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: timerItem)
     }
 
+    /// 사진 앱 권한 확인
+    func requestPhotoLibraryAccess(onGranted: @escaping () -> Void) {
+        PHPhotoLibrary.requestAuthorization { status in
+            if status == .authorized || status == .limited {
+                self.logger.info("사진 앱 권한 확인 완료")
+            } else {
+                self.logger.info("사진 앱 권한 확인 실패")
+            }
+            DispatchQueue.main.async {
+                onGranted()
+            }
+        }
+    }
+
     /// 최초 실행 시 권한 요청을 하도록 네트워크 활동 트리거
     func tryLocalNetwork() {
         let browser = NWBrowser(for: .bonjour(type: "_mirroringbooth._tcp", domain: nil), using: .tcp)

@@ -77,7 +77,9 @@ struct HomeView: View {
 
         Button {
             accessManager.requestLocalNetworkAccess {
-                router.push(to: isiPhone ? CameraRoute.advertising : MirroringRoute.advertising)
+                accessManager.requestPhotoLibraryAccess {
+                    router.push(to: isiPhone ? CameraRoute.advertising : MirroringRoute.advertising)
+                }
             }
         } label: {
             selectionBox(
