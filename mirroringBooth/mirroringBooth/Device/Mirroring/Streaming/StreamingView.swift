@@ -79,7 +79,7 @@ struct StreamingView: View {
             streamingHUD
 
             StreamingOverlay(
-                phase: store.state.overlayPhase,
+                phases: store.state.overlayPhase,
                 countdownValue: store.state.countdownValue,
                 shootingCountdown: store.state.shootingCountdown,
                 receivedPhotoCount: store.state.receivedPhotoCount,
@@ -98,7 +98,7 @@ struct StreamingView: View {
             store.send(.stopStreaming)
         }
         .onChange(of: store.state.overlayPhase) { _, new in
-            if new == .completed {
+            if new.contains(.completed) {
                 router.push(to: MirroringRoute.captureResult)
             }
         }
@@ -135,7 +135,7 @@ struct StreamingView: View {
     private var streamingHUD: some View {
         GeometryReader { geometry in
             let layoutType = StreamingLayoutType(width: geometry.size.width)
-            let isShooting = isTimerMode && store.state.overlayPhase == .shooting
+            let isShooting = isTimerMode && store.state.overlayPhase.contains(.shooting)
             let isCompact = layoutType == .compact
 
             ZStack {

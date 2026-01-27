@@ -12,12 +12,15 @@ import OSLog
 @Observable
 final class StreamingStore: StoreProtocol {
     // 오버레이 상태
-    enum OverlayPhase {
+    enum OverlayPhase: Identifiable {
+        var id: Self { self }
+
         case none
         case guide // 가이드라인 오버레이
         case countdown // 8, 7, 6, 5, 4, 3, 2, 1 카운트다운
         case shooting // 촬영 중 (8초 간격)
         case transferring // 전송, 수신 중
+        case poseSuggestion
         case completed // 촬영 완료
     }
 
@@ -28,7 +31,7 @@ final class StreamingStore: StoreProtocol {
         var rotationAngle: Int16 = Int16.zero
 
         // 오버레이
-        var overlayPhase: OverlayPhase
+        var overlayPhase: [OverlayPhase]
 
         // 타이머
         var countdownValue: Int = 8     // 첫 촬영 전 카운트 다운
@@ -68,13 +71,17 @@ final class StreamingStore: StoreProtocol {
     }
 
     enum Result {
+        // 오버레이 페이즈 관리
+        case phaseChanged(OverlayPhase)
+        case phaseAppended(OverlayPhase)
+        case phaseRemoved(OverlayPhase)
+
         // 스트리밍
         case streamingStarted
         case streamingStopped
         case videoFrameDecoded(CMSampleBuffer, Int16)
 
         // 타이머
-        case phaseChanged(OverlayPhase)
         case countdownUpdated(Int)
         case shootingCountdownUpdated(Int)
         case capturePhotoCountUpdated(Int)
@@ -102,7 +109,7 @@ final class StreamingStore: StoreProtocol {
     ) {
         self.advertiser = advertiser
         self.decoder = decoder
-        self.state = State(overlayPhase: initialPhase)
+        self.state = State(overlayPhase: [initialPhase])
 
         decoder.onDecodedSampleBuffer = { [weak self] sampleBuffer, rotationAngle in
             Task { @MainActor in
@@ -152,7 +159,8 @@ final class StreamingStore: StoreProtocol {
             result.append(.streamingStopped)
             // MARK: - 타이머
         case .startCountdown:
-            result.append(.phaseChanged(.countdown))
+            result.append(.phaseRemoved(.guide))
+            result.append(.phaseAppended(.countdown))
             result.append(.countdownUpdated(8))
             startTimer()
 
@@ -183,6 +191,7 @@ final class StreamingStore: StoreProtocol {
 
         case .setPoseList(let poses):
             result.append(.setPoseList(poses))
+            result.append(.phaseAppended(.poseSuggestion))
         }
 
         return result
@@ -192,6 +201,16 @@ final class StreamingStore: StoreProtocol {
         var state = self.state
 
         switch result {
+        case .phaseChanged(let phase):
+            state.overlayPhase = [phase]
+
+        case .phaseAppended(let phase):
+            state.overlayPhase.append(phase)
+
+        case .phaseRemoved(let phase):
+            guard let index = state.overlayPhase.firstIndex(of: phase) else { return }
+            state.overlayPhase.remove(at: index)
+
             // MARK: - 스트리밍
         case .streamingStarted:
             state.isStreaming = true
@@ -204,9 +223,6 @@ final class StreamingStore: StoreProtocol {
             state.currentSampleBuffer = sampleBuffer
             state.rotationAngle = rotationAngle
             // MARK: - 타이머
-        case .phaseChanged(let phase):
-            state.overlayPhase = phase
-
         case .countdownUpdated(let value):
             state.countdownValue = value
 
@@ -246,16 +262,16 @@ extension StreamingStore {
     private func handleTick() -> [Result] {
         var results: [Result] = []
 
-        switch state.overlayPhase {
-        case .countdown:
+        if state.overlayPhase.contains(.countdown) {
             if state.countdownValue > 1 {
                 results.append(.countdownUpdated(state.countdownValue - 1))
             } else {
-                results.append(.phaseChanged(.shooting))
+                results.append(.phaseRemoved(.countdown))
+                results.append(.phaseAppended(.shooting))
                 results.append(.shootingCountdownUpdated(7))
                 capturePhoto() // 첫 촬영
             }
-        case .shooting:
+        } else if state.overlayPhase.contains(.shooting) {
             if state.shootingCountdown > 0 { // 7, 6, 5, 4, 3, 2, 1, 0
                 results.append(.shootingCountdownUpdated(state.shootingCountdown - 1))
             } else {
@@ -269,8 +285,6 @@ extension StreamingStore {
                     results.append(.shootingCountdownUpdated(7))
                 }
             }
-        default:
-            break
         }
 
         return results
