@@ -89,12 +89,13 @@ struct ResultView: View {
 
                 sharingButton(
                     icon: "paperplane",
-                    title: "Airdrop",
+                    title: "공유하기",
                     isContrast: true
                 ) {
-                    // TODO: Airdrop 액션
+                    if let image = store.state.renderedImage {
+                        store.send(.prepareShare(image))
+                    }
                 }
-                .hidden() // 공유 로직 추가 후 제거
             }
 
             Spacer()
@@ -111,6 +112,19 @@ struct ResultView: View {
         ) {
             router.reset()
             rootStore.send(.disconnect)
+        }
+        .sheet(isPresented: Binding(
+            get: { store.state.showShareSheet },
+            set: { store.send(.showShareSheet($0)) }
+        )) {
+            PhotoActivityViewController(
+                activityItems: store.state.shareItems,
+                applecationActivities: nil,
+                excludedActivityTypes: [
+                    .saveToCameraRoll,  // "사진에 저장" 제외
+                    .copyToPasteboard   // "복사" 제외
+                ]
+            )
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
