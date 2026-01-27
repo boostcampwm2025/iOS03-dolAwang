@@ -20,6 +20,7 @@ final class CameraPreviewStore: StoreProtocol {
         var isCaptureCompleted = false
         var showHomeAlert: Bool = false
         var isMirroringDisconnected: Bool = false
+        var transfercount: Int = 0
     }
 
     enum Intent {
@@ -30,6 +31,7 @@ final class CameraPreviewStore: StoreProtocol {
         case captureCompleted
         case resetCaptureCompleted
         case isMirroringDisconnected
+        case setTransferCount(Int)
     }
 
     enum Result {
@@ -39,6 +41,7 @@ final class CameraPreviewStore: StoreProtocol {
         case captureCompleted
         case resetCaptureCompleted
         case isMirroringDisconnected
+        case setTransferCount(Int)
     }
 
     private let browser: Browser
@@ -75,6 +78,8 @@ final class CameraPreviewStore: StoreProtocol {
             return [.resetCaptureCompleted]
         case .isMirroringDisconnected:
             return [.isMirroringDisconnected]
+        case .setTransferCount(let count):
+            return [.setTransferCount(count)]
         }
         return []
     }
@@ -97,6 +102,8 @@ final class CameraPreviewStore: StoreProtocol {
             state.isCaptureCompleted = false
         case .isMirroringDisconnected:
             state.isMirroringDisconnected = true
+        case .setTransferCount(let count):
+            state.transfercount = count
         }
 
         self.state = state
@@ -132,6 +139,12 @@ private extension CameraPreviewStore {
                 self.cameraManager.sendAllPhotos(using: self.browser)
             }
             .store(in: &cancellables)
+        // 장당 전송 완료
+        browser.onSendPhoto = { [weak self] in
+            guard let self else { return }
+            self.send(.setTransferCount(self.state.transfercount + 1))
+        }
+
         // 전송 완료
         cameraManager.onTransferCompleted = {
             self.state.isTransferring = false
