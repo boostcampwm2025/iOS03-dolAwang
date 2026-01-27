@@ -28,38 +28,30 @@ struct CameraPreview: View {
             VideoDisplayLayer(buffer: store.state.buffer)
                 .aspectRatio(3/4, contentMode: .fit)
                 .overlay {
-                    VStack(spacing: 0) {
-                        Rectangle()
-                            .fill(.ultraThinMaterial)
-                            .aspectRatio(
-                                store.state.angle == 0 ? 96/25 : 33/10,
-                                contentMode: .fit
-                            )
-
-                        Spacer()
-
-                        Rectangle()
-                            .fill(.ultraThinMaterial)
-                            .aspectRatio(
-                                store.state.angle == 0 ? 96/25 : 33/10,
-                                contentMode: .fit
-                            )
-                    }
+                    Rectangle()
+                        .fill(Color.clear)
+                        .border(Color.red.opacity(0.4), width: 2)
+                        .aspectRatio(store.state.angle == 0 ? 16 / 13 : 11 / 8, contentMode: .fit)
                 }
                 .overlay(alignment: .top) {
                     headerView
                 }
                 .overlay(alignment: .bottom) {
-                    Text("\(store.state.deviceName) 연결됨")
-                        .foregroundStyle(Color.remote)
-                        .font(.footnote.bold())
-                        .opacity(store.state.animationFlag ? 1 : 0.4)
-                        .padding(.vertical, 2)
-                        .padding(.horizontal, 10)
-                        .background {
-                            Capsule()
-                                .fill(Color.black.opacity(0.8))
-                        }
+                    VStack {
+                        Text("가이드라인 바깥은 촬영 후 보이지 않을 수 있습니다")
+                            .foregroundStyle(.gray)
+                            .font(.footnote.bold())
+                        Text("\(store.state.deviceName) 연결됨")
+                            .foregroundStyle(Color.remote)
+                            .font(.footnote.bold())
+                            .opacity(store.state.animationFlag ? 1 : 0.4)
+                            .padding(.vertical, 2)
+                            .padding(.horizontal, 10)
+                            .background {
+                                Capsule()
+                                    .fill(Color.black.opacity(0.8))
+                            }
+                    }
                         .padding(.bottom, 10)
                 }
 
