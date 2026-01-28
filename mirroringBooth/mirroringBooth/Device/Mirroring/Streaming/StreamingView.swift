@@ -12,7 +12,6 @@ struct StreamingView: View {
     @Environment(RootStore.self) private var rootStore
     @State private var store: StreamingStore
     let advertiser: Advertiser?
-    private let backgroundColor = #colorLiteral(red: 0.1204712167, green: 0.160810262, blue: 0.2149580121, alpha: 1)
     private let isTimerMode: Bool
     private let poseList: [Pose]
 
@@ -50,7 +49,7 @@ struct StreamingView: View {
     var body: some View {
         ZStack {
             // 스트리밍 영역 배경
-            Color(backgroundColor).ignoresSafeArea()
+            Color.background.ignoresSafeArea()
 
             // 비디오 스트리밍 표시
             if let sampleBuffer = store.state.currentSampleBuffer {
@@ -107,11 +106,16 @@ struct StreamingView: View {
             )
         }
         .navigationBarBackButtonHidden()
+        .preferredColorScheme(store.state.colorScheme)
         .onAppear {
+            AppDelegate.unlockOrientation()
+            store.send(.setColorScheme(.dark))
             store.send(.setPoseList(poseList))
             store.send(.startStreaming)
         }
         .onDisappear {
+            AppDelegate.lockOrientation()
+            store.send(.setColorScheme(nil))
             store.send(.stopStreaming)
         }
         .onChange(of: store.state.overlayPhase) { _, new in

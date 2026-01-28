@@ -9,7 +9,6 @@ import SwiftUI
 
 /// 촬영 진행 상황 표시
 struct CaptureCountBadge: View {
-    @State private var colorScheme: ColorScheme? = .dark
     let current: Int
     let total: Int
     let isCompact: Bool
@@ -34,10 +33,6 @@ struct CaptureCountBadge: View {
         .overlay {
             Circle()
                 .strokeBorder(.white, lineWidth: 3)
-        }
-        .preferredColorScheme(colorScheme)
-        .onDisappear {
-            colorScheme = nil
         }
     }
 }

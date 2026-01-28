@@ -63,12 +63,6 @@ struct RootView: View {
                             isTimerMode: isTimerMode,
                             isPoseModeOn: isPoseModeOn
                         )
-                            .onAppear {
-                                AppDelegate.unlockOrientation()
-                            }
-                            .onDisappear {
-                                AppDelegate.lockOrientation()
-                            }
 
                     case .captureResult:
                         PhotoCompositionView()
