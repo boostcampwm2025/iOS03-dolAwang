@@ -21,7 +21,7 @@ final class CameraManager: NSObject {
     private var videoOutput: AVCaptureVideoDataOutput?
     private var photoOutput = AVCapturePhotoOutput()
 
-    private let encoder = H264Encoder(resolution: .portraitHD1080p)
+    private let encoder = H264Encoder(resolution: .photo)
 
     /// 원시 데이터 콜백
     var rawData: ((CMSampleBuffer) -> Void)?
@@ -131,17 +131,23 @@ extension CameraManager {
         session.beginConfiguration()
         defer { session.commitConfiguration() }
 
-        session.sessionPreset = .hd1920x1080 // high를 기본값으로 두었습니다.
+        session.sessionPreset = .inputPriority
 
         guard let videoDevice = AVCaptureDevice.default(
             .builtInWideAngleCamera,
             for: .video,
-            position: .back // 추후 전면 카메라 적용도 진행해보기
+            position: .back
         ) else {
             return
         }
 
         self.videoDevice = videoDevice
+
+        self.applyActiveFormat(
+            videoDevice: videoDevice,
+            targetWidth: 1920,
+            targetHeight: 1440
+        )
 
         // 입력 추가
         do {
@@ -183,6 +189,40 @@ extension CameraManager {
             self.photoOutput = photoOutput
         } else {
             logger.warning("사진 출력 추가에 실패했습니다.")
+        }
+    }
+
+    private func applyActiveFormat(
+        videoDevice: AVCaptureDevice,
+        targetWidth: Int32,
+        targetHeight: Int32
+    ) {
+        let formats = videoDevice.formats
+        let bestFormat = formats.first(where: { (format: AVCaptureDevice.Format) -> Bool in
+            // 해상도 + 420 포맷 체크
+            let dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+            guard dimensions.width == targetWidth && dimensions.height == targetHeight else { return false }
+
+            let mediaSubTypeValue = CMFormatDescriptionGetMediaSubType(format.formatDescription)
+            return mediaSubTypeValue == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+        }) ?? formats.first(where: { (format: AVCaptureDevice.Format) -> Bool in
+            // 해상도만 체크
+            let dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+            return dimensions.width == targetWidth && dimensions.height == targetHeight
+        })
+
+        guard let bestFormat: AVCaptureDevice.Format = bestFormat else {
+            logger.warning("요청한 해상도 포맷을 찾지 못했습니다. \(targetWidth)x\(targetHeight)")
+            return
+        }
+
+        do {
+            try videoDevice.lockForConfiguration()
+            videoDevice.activeFormat = bestFormat
+            videoDevice.unlockForConfiguration()
+            logger.info("카메라 포맷(\(targetWidth)x\(targetHeight))이 성공적으로 적용되었습니다.")
+        } catch {
+            logger.warning("카메라 포맷(\(targetWidth)x\(targetHeight)) 적용에 실패했습니다. \(error)")
         }
     }
 }

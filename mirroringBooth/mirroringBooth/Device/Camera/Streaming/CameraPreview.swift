@@ -14,7 +14,7 @@ struct CameraPreview: View {
     @Environment(Router.self) private var router
     @Environment(RootStore.self) private var rootStore
     @State var store: CameraPreviewStore
-
+    private let backgroundColor = #colorLiteral(red: 0.1204712167, green: 0.160810262, blue: 0.2149580121, alpha: 1)
     let onDismissByCaptureCompletion: (() -> Void)?
 
     init(store: CameraPreviewStore, onDismissByCaptureCompletion: (() -> Void)? = nil) {
@@ -23,24 +23,35 @@ struct CameraPreview: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            Color.black.ignoresSafeArea()
+        ZStack {
+            Color(backgroundColor).ignoresSafeArea()
             VideoDisplayLayer(buffer: store.state.buffer)
-                .aspectRatio(9/16, contentMode: .fit)
+                .aspectRatio(3/4, contentMode: .fit)
+                .overlay {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .border(Color.red.opacity(0.4), width: 2)
+                        .aspectRatio(store.state.angle == 0 ? 16 / 13 : 11 / 8, contentMode: .fit)
+                }
                 .overlay(alignment: .top) {
                     headerView
                 }
                 .overlay(alignment: .bottom) {
-                    Text("\(store.state.deviceName) 연결됨")
-                        .foregroundStyle(Color.remote)
-                        .font(.footnote.bold())
-                        .opacity(store.state.animationFlag ? 1 : 0.4)
-                        .padding(.vertical, 2)
-                        .padding(.horizontal, 10)
-                        .background {
-                            Capsule()
-                                .fill(Color.black.opacity(0.8))
-                        }
+                    VStack {
+                        Text("가이드라인 바깥은 촬영 후 보이지 않을 수 있습니다")
+                            .foregroundStyle(.gray)
+                            .font(.footnote.bold())
+                        Text("\(store.state.deviceName) 연결됨")
+                            .foregroundStyle(Color.remote)
+                            .font(.footnote.bold())
+                            .opacity(store.state.animationFlag ? 1 : 0.4)
+                            .padding(.vertical, 2)
+                            .padding(.horizontal, 10)
+                            .background {
+                                Capsule()
+                                    .fill(Color.black.opacity(0.8))
+                            }
+                    }
                         .padding(.bottom, 10)
                 }
 
