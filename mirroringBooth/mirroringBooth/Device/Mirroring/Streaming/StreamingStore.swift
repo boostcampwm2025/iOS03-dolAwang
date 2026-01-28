@@ -40,6 +40,10 @@ final class StreamingStore: StoreProtocol {
 
         // 촬영효과
         var showCapturEffect: Bool = false
+
+        // 그 외
+        var showHomeAlert: Bool = false     //  얼럿
+        var videoViewSize: CGSize = .zero   // 비디오 뷰 크기
     }
 
     enum Intent {
@@ -58,6 +62,10 @@ final class StreamingStore: StoreProtocol {
 
         // 캡쳐 효과
         case setShowCaptureEffect(Bool)
+
+        // 그 외
+        case setHomeAlert(Bool)
+        case setVideoViewSize(CGSize)
     }
 
     enum Result {
@@ -77,6 +85,10 @@ final class StreamingStore: StoreProtocol {
 
         // 캡쳐 효과
         case setShowCaptureEffect(Bool)
+
+        // 그 외
+        case setHomeAlert(Bool)
+        case setVideoViewSize(CGSize)
     }
 
     var state: State
@@ -165,6 +177,12 @@ final class StreamingStore: StoreProtocol {
             if state.capturePhotoCount < state.totalCaptureCount {
                 result.append(.setShowCaptureEffect(value))
             }
+
+        case .setHomeAlert(let value):
+            result.append(.setHomeAlert(value))
+
+        case .setVideoViewSize(let value):
+            result.append(.setVideoViewSize(value))
         }
 
         return result
@@ -203,6 +221,12 @@ final class StreamingStore: StoreProtocol {
 
         case .setShowCaptureEffect(let value):
             state.showCapturEffect = value
+
+        case .setHomeAlert(let value):
+            state.showHomeAlert = value
+
+        case .setVideoViewSize(let size):
+            state.videoViewSize = size
         }
 
         self.state = state
