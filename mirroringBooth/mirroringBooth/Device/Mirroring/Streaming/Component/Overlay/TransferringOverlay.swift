@@ -11,6 +11,17 @@ import SwiftUI
 struct TransferringOverlay: View {
     let receivedCount: Int
     let totalCount: Int
+    let description: String
+
+    init(
+        receivedCount: Int,
+        totalCount: Int,
+        description: String = "사진 수신 중..."
+    ) {
+        self.receivedCount = receivedCount
+        self.totalCount = totalCount
+        self.description = description
+    }
 
     var body: some View {
         ZStack {
@@ -22,7 +33,7 @@ struct TransferringOverlay: View {
                     .scaleEffect(1.5)
                     .tint(.white)
 
-                Text("사진 수신 중...")
+                Text(description)
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
