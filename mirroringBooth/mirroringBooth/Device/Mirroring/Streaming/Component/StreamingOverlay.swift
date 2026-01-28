@@ -14,8 +14,8 @@ struct StreamingOverlay: View {
     let shootingCountdown: Int
     let receivedPhotoCount: Int
     let totalCaptureCount: Int
-    let onReadyTapped: () -> Void
     let poseSuggestion: [Pose]
+    let onReadyTapped: () -> Void
 
     var body: some View {
         ForEach(phases) { phase in

@@ -84,10 +84,10 @@ struct StreamingView: View {
                 shootingCountdown: store.state.shootingCountdown,
                 receivedPhotoCount: store.state.receivedPhotoCount,
                 totalCaptureCount: store.state.totalCaptureCount,
+                poseSuggestion: store.state.currentSuggestedPoses,
                 onReadyTapped: {
                     store.send(.startCountdown)
-                },
-                poseSuggestion: store.state.currentSuggestedPoses
+                }
             )
         }
         .navigationBarBackButtonHidden()
