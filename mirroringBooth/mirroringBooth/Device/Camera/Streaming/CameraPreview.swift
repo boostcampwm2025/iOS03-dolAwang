@@ -78,6 +78,9 @@ struct CameraPreview: View {
                 rootStore?.browser?.sendCommand(.switchSelectModeView)
             }
         }
+        .onDisappear {
+            store.send(.stopCameraSession)
+        }
         .onChange(of: UIDevice.current.orientation.rawValue) { _, value in
             withAnimation(.easeInOut(duration: 0.3)) {
                 store.send(.updateAngle(rawValue: value))
@@ -97,7 +100,6 @@ struct CameraPreview: View {
             message: "기기 연결이 끊겼습니다.",
             cancellable: false
         ) {
-            store.send(.stopCameraSession)
             dismiss()
             router.reset()
         }
