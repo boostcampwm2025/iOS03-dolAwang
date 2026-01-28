@@ -10,79 +10,54 @@ import SwiftUI
 struct PoseCardView: View {
     private let isCurrent: Bool
     private let pose: Pose
-    private let size: CGSize
-
-    private var isPortrait: Bool {
-        size.width < size.height
-    }
+    private let width: CGFloat
+    private let isCompact: Bool
 
     init(
         with pose: Pose,
-        in size: CGSize,
-        isCurrent: Bool
+        in width: CGFloat,
+        isCurrent: Bool,
+        isCompact: Bool
     ) {
         self.pose = pose
-        self.size = size
+        self.width = width
         self.isCurrent = isCurrent
+        self.isCompact = isCompact
     }
 
     var body: some View {
         ZStack {
             poseCard
-
-            if !isCurrent {
-                nextBadge
+            .padding()
+            .background {
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(.black)
+                    .opacity(isCurrent ? 0.3 : 0.8)
             }
+            .opacity(isCurrent ? 0.6 : 0.3)
         }
-        .frame(
-            maxWidth: max(
-                130,
-                (isPortrait ? size.width / 6 : size.width / 7)
-            ),
-            maxHeight: max(160, size.height / 6)
-        )
     }
 
     @ViewBuilder
     private var poseCard: some View {
-        let emojiSize: CGFloat = max(40, (size.width / 16))
-        let descriptionFont: CGFloat = max(12, (size.width / 70))
+        let emojiSize: CGFloat = isCurrent ? max(40, (width / 2)) : width / 2
+        let descriptionFont: CGFloat = isCurrent ? max(12, (width / 8)) : width / 8
 
         VStack(spacing: 10) {
             Text(pose.emoji)
                 .font(.system(size: emojiSize))
                 .frame(height: emojiSize + 8)
-            Text(pose.presentableText)
-                .font(.system(size: descriptionFont).bold())
-                .frame(height: descriptionFont * 5)
-                .lineLimit(4)
-                .minimumScaleFactor(0.8)
-                .foregroundStyle(.white)
-                .multilineTextAlignment(.center)
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background {
-            RoundedRectangle(cornerRadius: 15)
-                .fill(.gray)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 15)
-                .stroke(isCurrent ? .main : .white, lineWidth: 5)
-        }
-        .opacity(isCurrent ? 0.6 : 0.4)
-    }
 
-    private var nextBadge: some View {
-        Text("다음")
-            .padding(.vertical, 8)
-            .padding(.horizontal, 15)
-            .font(.system(size: max(25, (size.width / 45)), weight: .heavy))
-            .foregroundStyle(.white)
-            .background {
-                Capsule()
-                    .fill(Color.mirroring)
+            if !isCompact {
+                Text(pose.presentableText)
+                    .font(.system(size: descriptionFont).bold())
+                    .frame(height: descriptionFont * 5)
+                    .lineLimit(4)
+                    .minimumScaleFactor(0.8)
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
             }
-            .opacity(0.7)
+        }
+        .frame(maxWidth: isCurrent ? max(80, width) : width)
     }
 }

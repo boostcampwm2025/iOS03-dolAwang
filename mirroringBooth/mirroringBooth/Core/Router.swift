@@ -39,8 +39,9 @@ struct ConnectionList: Hashable {
 
 enum MirroringRoute: Hashable {
     case advertising
-    case modeSelection(Advertiser, isRemoteEnable: Bool)
-    case streaming(Advertiser, isTimerMode: Bool)
+    case timerOrRemoteSelection(isRemoteEnable: Bool)
+    case poseSuggestionSelection(isTimerMode: Bool)
+    case streaming(isTimerMode: Bool, isPoseSuggestionEnabled: Bool)
     case captureResult
     case result(PhotoInformation)
     case resultWithImage(UIImage)

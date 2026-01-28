@@ -10,6 +10,8 @@ import OSLog
 extension Logger {
     private static var subsystem = Bundle.main.bundleIdentifier ?? "kr.codesquad.boostcamp10.dolAwang.mirroringBooth"
 
+    static let modeSelectionView = Logger(subsystem: subsystem, category: "ModeSelectionView")
+
     static let advertiser = Logger(subsystem: subsystem, category: "Advertiser")
     static let browser = Logger(subsystem: subsystem, category: "Browser")
 
@@ -24,5 +26,7 @@ extension Logger {
     static let heartBeater = Logger(subsystem: subsystem, category: "HeartBeater")
     static let accessManager = Logger(subsystem: subsystem, category: "AccessManager")
     static let photoSaver = Logger(subsystem: subsystem, category: "PhotoSaver")
+
+    static let streamingStore = Logger(subsystem: subsystem, category: "StreamingStore")
     static let resultStore = Logger(subsystem: subsystem, category: "ResultStore")
 }

@@ -7,16 +7,20 @@
 
 import AVFoundation
 import Foundation
+import OSLog
 
 @Observable
 final class StreamingStore: StoreProtocol {
     // 오버레이 상태
-    enum OverlayPhase {
+    enum OverlayPhase: Identifiable {
+        var id: Self { self }
+
         case none
         case guide // 가이드라인 오버레이
         case countdown // 8, 7, 6, 5, 4, 3, 2, 1 카운트다운
         case shooting // 촬영 중 (8초 간격)
         case transferring // 전송, 수신 중
+        case poseSuggestion
         case completed // 촬영 완료
     }
 
@@ -27,7 +31,7 @@ final class StreamingStore: StoreProtocol {
         var rotationAngle: Int16 = Int16.zero
 
         // 오버레이
-        var overlayPhase: OverlayPhase
+        var overlayPhase: [OverlayPhase]
 
         // 타이머
         var countdownValue: Int = 8     // 첫 촬영 전 카운트 다운
@@ -40,6 +44,12 @@ final class StreamingStore: StoreProtocol {
 
         // 촬영효과
         var showCapturEffect: Bool = false
+
+        // 추천할 포즈 목록
+        var poseList: [Pose] = []
+        var currentSuggestedPoses: [Pose] {
+            Array(poseList.prefix(2))
+        }
     }
 
     enum Intent {
@@ -58,16 +68,23 @@ final class StreamingStore: StoreProtocol {
 
         // 캡쳐 효과
         case setShowCaptureEffect(Bool)
+
+        // 포즈 기능
+        case setPoseList([Pose])
     }
 
     enum Result {
+        // 오버레이 페이즈 관리
+        case phaseChanged(OverlayPhase)
+        case phaseAppended(OverlayPhase)
+        case phaseRemoved(OverlayPhase)
+
         // 스트리밍
         case streamingStarted
         case streamingStopped
         case videoFrameDecoded(CMSampleBuffer, Int16)
 
         // 타이머
-        case phaseChanged(OverlayPhase)
         case countdownUpdated(Int)
         case shootingCountdownUpdated(Int)
         case capturePhotoCountUpdated(Int)
@@ -77,27 +94,36 @@ final class StreamingStore: StoreProtocol {
 
         // 캡쳐 효과
         case setShowCaptureEffect(Bool)
+
+        // 포즈 기능
+        case setPoseList([Pose])
+        case removePose
     }
 
     var state: State
 
-    private let advertiser: Advertiser
+    private let advertiser: Advertiser?
     private let decoder: H264Decoder
     private var timer: Timer?
 
     init(
-        _ advertiser: Advertiser,
+        _ advertiser: Advertiser?,
         decoder: H264Decoder,
         initialPhase: OverlayPhase
     ) {
         self.advertiser = advertiser
         self.decoder = decoder
-        self.state = State(overlayPhase: initialPhase)
+        self.state = State(overlayPhase: [initialPhase])
 
         decoder.onDecodedSampleBuffer = { [weak self] sampleBuffer, rotationAngle in
             Task { @MainActor in
                 self?.reduce(.videoFrameDecoded(sampleBuffer, rotationAngle))
             }
+        }
+
+        guard let advertiser else {
+            Logger.streamingStore.error("advertiser가 없어 정상 동작하지 않습니다.")
+            return
         }
 
         advertiser.onReceivedStreamData = { [weak self] data in
@@ -131,13 +157,18 @@ final class StreamingStore: StoreProtocol {
             // MARK: - 스트리밍
         case .startStreaming:
             result.append(.streamingStarted)
+            if !state.poseList.isEmpty {
+                result.append(.phaseAppended(.poseSuggestion))
+            }
+
         case .stopStreaming:
             decoder.stop()
-            advertiser.onReceivedStreamData = nil
+            advertiser?.onReceivedStreamData = nil
             result.append(.streamingStopped)
             // MARK: - 타이머
         case .startCountdown:
-            result.append(.phaseChanged(.countdown))
+            result.append(.phaseRemoved(.guide))
+            result.append(.phaseAppended(.countdown))
             result.append(.countdownUpdated(8))
             startTimer()
 
@@ -146,25 +177,29 @@ final class StreamingStore: StoreProtocol {
             // MARK: - 사진 전송
         case .startTransfer:
             result.append(.phaseChanged(.transferring))
-            advertiser.sendCommand(.startTransfer)
-            advertiser.setupCacheManager()
+            advertiser?.sendCommand(.startTransfer)
+            advertiser?.setupCacheManager()
 
         case .photoReceived:
             let newCount = state.receivedPhotoCount + 1
             result.append(.receivedPhotoCountUpdated(newCount))
             if newCount >= state.totalCaptureCount {
-                advertiser.stopHeartBeating()
+                advertiser?.stopHeartBeating()
                 result.append(.phaseChanged(.completed))
             }
 
         case .capturePhotoCount:
             let newCount = min(state.totalCaptureCount, state.capturePhotoCount + 1)
             result.append(.capturePhotoCountUpdated(newCount))
+            result.append(.removePose)
 
         case .setShowCaptureEffect(let value):
             if state.capturePhotoCount < state.totalCaptureCount {
                 result.append(.setShowCaptureEffect(value))
             }
+
+        case .setPoseList(let poses):
+            result.append(.setPoseList(poses))
         }
 
         return result
@@ -174,6 +209,16 @@ final class StreamingStore: StoreProtocol {
         var state = self.state
 
         switch result {
+        case .phaseChanged(let phase):
+            state.overlayPhase = [phase]
+
+        case .phaseAppended(let phase):
+            state.overlayPhase.append(phase)
+
+        case .phaseRemoved(let phase):
+            guard let index = state.overlayPhase.firstIndex(of: phase) else { return }
+            state.overlayPhase.remove(at: index)
+
             // MARK: - 스트리밍
         case .streamingStarted:
             state.isStreaming = true
@@ -186,9 +231,6 @@ final class StreamingStore: StoreProtocol {
             state.currentSampleBuffer = sampleBuffer
             state.rotationAngle = rotationAngle
             // MARK: - 타이머
-        case .phaseChanged(let phase):
-            state.overlayPhase = phase
-
         case .countdownUpdated(let value):
             state.countdownValue = value
 
@@ -203,6 +245,14 @@ final class StreamingStore: StoreProtocol {
 
         case .setShowCaptureEffect(let value):
             state.showCapturEffect = value
+
+        case .setPoseList(let poses):
+            state.poseList = poses
+
+        case .removePose:
+            if !state.poseList.isEmpty {
+                state.poseList.removeFirst()
+            }
         }
 
         self.state = state
@@ -225,16 +275,16 @@ extension StreamingStore {
     private func handleTick() -> [Result] {
         var results: [Result] = []
 
-        switch state.overlayPhase {
-        case .countdown:
+        if state.overlayPhase.contains(.countdown) {
             if state.countdownValue > 1 {
                 results.append(.countdownUpdated(state.countdownValue - 1))
             } else {
-                results.append(.phaseChanged(.shooting))
+                results.append(.phaseRemoved(.countdown))
+                results.append(.phaseAppended(.shooting))
                 results.append(.shootingCountdownUpdated(7))
                 capturePhoto() // 첫 촬영
             }
-        case .shooting:
+        } else if state.overlayPhase.contains(.shooting) {
             if state.shootingCountdown > 0 { // 7, 6, 5, 4, 3, 2, 1, 0
                 results.append(.shootingCountdownUpdated(state.shootingCountdown - 1))
             } else {
@@ -248,17 +298,13 @@ extension StreamingStore {
                     results.append(.shootingCountdownUpdated(7))
                 }
             }
-        default:
-            break
         }
 
         return results
     }
 
     private func capturePhoto() {
-        Task { @MainActor [weak self] in
-            self?.advertiser.sendCommand(.capturePhoto)
-        }
+        advertiser?.sendCommand(.capturePhoto)
     }
 }
 

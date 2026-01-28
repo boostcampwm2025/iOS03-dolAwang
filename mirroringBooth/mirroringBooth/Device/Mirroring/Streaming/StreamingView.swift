@@ -12,11 +12,12 @@ struct StreamingView: View {
     @Environment(RootStore.self) private var rootStore
     @State private var store: StreamingStore
     @State private var showHomeAlert: Bool = false
-    let advertiser: Advertiser
 
+    let advertiser: Advertiser?
     private let isTimerMode: Bool
+    private let poseList: [Pose]
 
-    init(advertiser: Advertiser, isTimerMode: Bool) {
+    init(advertiser: Advertiser?, isTimerMode: Bool, isPoseModeOn: Bool) {
         self.advertiser = advertiser
         self.isTimerMode = isTimerMode
         self._store = State(
@@ -26,6 +27,7 @@ struct StreamingView: View {
                 initialPhase: isTimerMode ? .guide : .none
             )
         )
+        self.poseList = isPoseModeOn ? PoseSuggestor.suggest(count: 10) : []
     }
 
     private enum StreamingLayoutType {
@@ -77,11 +79,12 @@ struct StreamingView: View {
             streamingHUD
 
             StreamingOverlay(
-                phase: store.state.overlayPhase,
+                phases: store.state.overlayPhase,
                 countdownValue: store.state.countdownValue,
                 shootingCountdown: store.state.shootingCountdown,
                 receivedPhotoCount: store.state.receivedPhotoCount,
                 totalCaptureCount: store.state.totalCaptureCount,
+                poseSuggestion: store.state.currentSuggestedPoses,
                 onReadyTapped: {
                     store.send(.startCountdown)
                 }
@@ -89,13 +92,14 @@ struct StreamingView: View {
         }
         .navigationBarBackButtonHidden()
         .onAppear {
+            store.send(.setPoseList(poseList))
             store.send(.startStreaming)
         }
         .onDisappear {
             store.send(.stopStreaming)
         }
         .onChange(of: store.state.overlayPhase) { _, new in
-            if new == .completed {
+            if new.contains(.completed) {
                 router.push(to: MirroringRoute.captureResult)
             }
         }
@@ -132,7 +136,7 @@ struct StreamingView: View {
     private var streamingHUD: some View {
         GeometryReader { geometry in
             let layoutType = StreamingLayoutType(width: geometry.size.width)
-            let isShooting = isTimerMode && store.state.overlayPhase == .shooting
+            let isShooting = isTimerMode && store.state.overlayPhase.contains(.shooting)
             let isCompact = layoutType == .compact
 
             ZStack {

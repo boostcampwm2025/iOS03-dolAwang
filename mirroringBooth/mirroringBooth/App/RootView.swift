@@ -19,11 +19,13 @@ struct RootView: View {
                     switch viewType {
                     case .browsing:
                         BrowsingView()
+
                     case .advertising:
                         AdvertisingView()
 
                     case .connectionList(let list, let browser):
                         ConnectionCheckView(list, browser: browser)
+
                     case .completion:
                         StreamingCompletionView()
                     }
@@ -32,39 +34,45 @@ struct RootView: View {
                     switch viewType {
                     case .advertising:
                         AdvertisingView()
-                    case .modeSelection(let advertiser, let isRemoteEnable):
+
+                    case .timerOrRemoteSelection(let isRemoteEnable):
                         ModeSelectionView(
                             for: .timerOrRemote,
-                            advertiser: advertiser,
-                            isRemoteModeEnabled: isRemoteEnable
+                            flag: isRemoteEnable
                         )
                         .onAppear {
                             store.advertiser?.onHeartBeatTimeout = {
                                 store.send(.showTimeoutAlert(true))
                             }
                             store.advertiser?.switchModeSelectionView = {
-                                guard let advertiser = self.store.advertiser else {
-                                    return
-                                }
                                 router.pop()
-                                router.push(
-                                    to: MirroringRoute.modeSelection(
-                                        advertiser,
-                                        isRemoteEnable: false
-                                    )
-                                )
+                                router.push(to: MirroringRoute.timerOrRemoteSelection(isRemoteEnable: false))
                             }
                         }
-                    case .streaming(let advertiser, let isTimerMode):
-                        StreamingView(advertiser: advertiser, isTimerMode: isTimerMode)
+
+                    case .poseSuggestionSelection(let isTimerMode):
+                        ModeSelectionView(
+                            for: .poseSuggestion,
+                            flag: isTimerMode,
+                            advertiser: store.advertiser
+                        )
+
+                    case .streaming(let isTimerMode, let isPoseModeOn):
+                        StreamingView(
+                            advertiser: store.advertiser,
+                            isTimerMode: isTimerMode,
+                            isPoseModeOn: isPoseModeOn
+                        )
                             .onAppear {
                                 AppDelegate.unlockOrientation()
                             }
                             .onDisappear {
                                 AppDelegate.lockOrientation()
                             }
+
                     case .captureResult:
                         PhotoCompositionView()
+
                     case .result(let result):
                         ResultView(resultPhoto: result)
                     case .resultWithImage(let image):
@@ -80,6 +88,7 @@ struct RootView: View {
                                     store.send(.showTimeoutAlert(true))
                                 }
                             }
+
                     case .completion:
                         CompletionView {
                             router.reset()
