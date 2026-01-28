@@ -11,9 +11,8 @@ struct StreamingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) private var rootStore
     @State private var store: StreamingStore
-    @State private var showHomeAlert: Bool = false
-
     let advertiser: Advertiser?
+    private let backgroundColor = #colorLiteral(red: 0.1204712167, green: 0.160810262, blue: 0.2149580121, alpha: 1)
     private let isTimerMode: Bool
     private let poseList: [Pose]
 
@@ -51,8 +50,7 @@ struct StreamingView: View {
     var body: some View {
         ZStack {
             // 스트리밍 영역 배경
-            Color("background")
-                .ignoresSafeArea()
+            Color(backgroundColor).ignoresSafeArea()
 
             // 비디오 스트리밍 표시
             if let sampleBuffer = store.state.currentSampleBuffer {
@@ -61,11 +59,29 @@ struct StreamingView: View {
                         sampleBuffer: sampleBuffer,
                         rotationAngle: store.state.rotationAngle
                     )
-                    Color.white
-                        .aspectRatio(
-                            store.state.rotationAngle == 0 ? 9/16 : 16/9,
-                            contentMode: .fit
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .aspectRatio(store.state.rotationAngle == 0 ? 3 / 4 : 4 / 3, contentMode: .fit)
+                    .background {
+                        GeometryReader { geometry in
+                            Color.clear
+                                .onAppear { store.send(.setVideoViewSize(geometry.size)) }
+                                .onChange(of: geometry.size) { _, size in
+                                    store.send(.setVideoViewSize(size) )
+                                }
+                        }
+                    }
+
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(
+                            maxWidth: store.state.videoViewSize.width,
+                            maxHeight: store.state.videoViewSize.height
                         )
+                        .border(Color.red.opacity(0.4), width: 2)
+                        .aspectRatio(store.state.rotationAngle == 0 ? 16 / 13 : 8 / 11, contentMode: .fit)
+
+                    Color.white
+                        .aspectRatio(store.state.rotationAngle == 0 ? 3 / 4 : 4 / 3, contentMode: .fit)
                         .opacity(store.state.showCapturEffect ? 1.0 : 0.0)
                         .animation(.linear(duration: 0.2), value: store.state.showCapturEffect)
                 }
@@ -104,7 +120,10 @@ struct StreamingView: View {
             }
         }
         .homeAlert(
-            isPresented: $showHomeAlert,
+            isPresented: Binding(
+                get: { store.state.showHomeAlert },
+                set: { store.send(.setHomeAlert($0)) }
+            ),
             message: "촬영된 사진이 모두 사라집니다.\n연결을 종료하시겠습니까?"
         ) {
             router.reset()
@@ -147,7 +166,7 @@ struct StreamingView: View {
                             textFont: isCompact ? .caption : .callout,
                             backgroundColor: .black.opacity(0.5)
                         ) {
-                            showHomeAlert = true
+                            store.send(.setHomeAlert(true))
                         }
                         .padding(.horizontal, -20)
                         .padding(.vertical, -15)
