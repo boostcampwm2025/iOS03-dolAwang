@@ -6,7 +6,7 @@
 //
 
 import AVFoundation
-import Foundation
+import SwiftUI
 import OSLog
 
 @Observable
@@ -54,6 +54,7 @@ final class StreamingStore: StoreProtocol {
         // 그 외
         var showHomeAlert: Bool = false     //  얼럿
         var videoViewSize: CGSize = .zero   // 비디오 뷰 크기
+        var colorScheme: ColorScheme?
     }
 
     enum Intent {
@@ -79,6 +80,7 @@ final class StreamingStore: StoreProtocol {
         // 그 외
         case setHomeAlert(Bool)
         case setVideoViewSize(CGSize)
+        case setColorScheme(ColorScheme?)
     }
 
     enum Result {
@@ -110,6 +112,7 @@ final class StreamingStore: StoreProtocol {
         // 그 외
         case setHomeAlert(Bool)
         case setVideoViewSize(CGSize)
+        case setColorScheme(ColorScheme?)
     }
 
     var state: State
@@ -218,6 +221,9 @@ final class StreamingStore: StoreProtocol {
 
         case .setVideoViewSize(let value):
             result.append(.setVideoViewSize(value))
+
+        case .setColorScheme(let value):
+            result.append(.setColorScheme(value))
         }
 
         return result
@@ -277,6 +283,9 @@ final class StreamingStore: StoreProtocol {
 
         case .setVideoViewSize(let size):
             state.videoViewSize = size
+
+        case .setColorScheme(let scheme):
+            state.colorScheme = scheme
         }
 
         self.state = state
