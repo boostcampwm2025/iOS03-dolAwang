@@ -50,6 +50,10 @@ final class StreamingStore: StoreProtocol {
         var currentSuggestedPoses: [Pose] {
             Array(poseList.prefix(2))
         }
+
+        // 그 외
+        var showHomeAlert: Bool = false     //  얼럿
+        var videoViewSize: CGSize = .zero   // 비디오 뷰 크기
     }
 
     enum Intent {
@@ -71,6 +75,10 @@ final class StreamingStore: StoreProtocol {
 
         // 포즈 기능
         case setPoseList([Pose])
+
+        // 그 외
+        case setHomeAlert(Bool)
+        case setVideoViewSize(CGSize)
     }
 
     enum Result {
@@ -98,6 +106,10 @@ final class StreamingStore: StoreProtocol {
         // 포즈 기능
         case setPoseList([Pose])
         case removePose
+
+        // 그 외
+        case setHomeAlert(Bool)
+        case setVideoViewSize(CGSize)
     }
 
     var state: State
@@ -200,6 +212,12 @@ final class StreamingStore: StoreProtocol {
 
         case .setPoseList(let poses):
             result.append(.setPoseList(poses))
+
+        case .setHomeAlert(let value):
+            result.append(.setHomeAlert(value))
+
+        case .setVideoViewSize(let value):
+            result.append(.setVideoViewSize(value))
         }
 
         return result
@@ -253,6 +271,12 @@ final class StreamingStore: StoreProtocol {
             if !state.poseList.isEmpty {
                 state.poseList.removeFirst()
             }
+
+        case .setHomeAlert(let value):
+            state.showHomeAlert = value
+
+        case .setVideoViewSize(let size):
+            state.videoViewSize = size
         }
 
         self.state = state
