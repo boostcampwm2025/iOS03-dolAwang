@@ -9,11 +9,12 @@ import Foundation
 
 struct Pose: Decodable, Hashable {
     let emoji: String
-    let text: String
+    let description: String
+    let summary: String
 
     var presentableText: String {
         let pattern =  #"(?<=[.!~])\s+"#
-        return text.replacingOccurrences(
+        return description.replacingOccurrences(
             of: pattern,
             with: "\n",
             options: .regularExpression
