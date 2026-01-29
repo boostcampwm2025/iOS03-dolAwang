@@ -35,10 +35,12 @@ final class WatchConnectionStore: StoreProtocol {
     ) {
         self.connectionManager = connectionManager
 
+        // reachable이 false가 되면 연결 해제 처리
+        // reachable이 true가 되는 것만으로는 connected로 전환하지 않음
+        // (아이폰으로부터 연결 완료 메시지 수신 시에만 connected로 전환)
         self.connectionManager.onReachableChanged = { [weak self] reachable in
-            guard let self = self else { return }
-            let connectivity: ConnectionState = reachable ? .connected : .notConnected
-            self.reduce(.setConnectionState(connectivity))
+            guard let self, !reachable else { return }
+            self.reduce(.setConnectionState(.notConnected))
         }
 
         self.connectionManager.onReceiveConnectionCompleted = { [weak self] in

@@ -158,7 +158,9 @@ final class Advertiser: NSObject {
 
         do {
             try commandSession.send(commandData, toPeers: connectedPeers, with: .reliable)
-            logger.info("촬영 명령 전송: \(command.rawValue)")
+            if command != .heartBeat {
+                logger.info("촬영 명령 전송: \(command.rawValue)")
+            }
         } catch {
             logger.warning("명령 전송 실패: \(error.localizedDescription)")
         }

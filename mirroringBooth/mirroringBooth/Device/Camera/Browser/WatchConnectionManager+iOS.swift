@@ -18,6 +18,7 @@ final class WatchConnectionManager: NSObject {
         case connectAck
         case disconnect
         case captureComplete
+        case checkIfCaptureAvailable
     }
 
     private enum MessageKey: String {
@@ -34,6 +35,7 @@ final class WatchConnectionManager: NSObject {
 
     private let session: WCSession?
     private let logger = Logger.watchConnectionManager
+    private var shouldPrepareToCapture: Bool = false
 
     var onReachableChanged: ((Bool) -> Void)?
     var onReceiveCaptureRequest: (() -> Void)?
@@ -143,14 +145,17 @@ final class WatchConnectionManager: NSObject {
 
     // 촬영 기기와 미러링 기기에서 촬영을 시작할 때 워치에게도 알림
     func prepareWatchToCapture() {
+        shouldPrepareToCapture = true
         self.sendMessage(
             action: .prepare,
-            rejectedActionString: "촬영 준비 요청을 보낼 수 없습니다."
+            rejectedActionString: "촬영 준비 요청을 보낼 수 없습니다.",
+            successLog: "워치에 촬영 준비 요청 전송"
         )
     }
 
     // 워치에게 연결 해제를 알림
     func sendDisconnectionNotification() {
+        shouldPrepareToCapture = false
         self.sendMessage(
             action: .disconnect,
             rejectedActionString: "연결 해제 요청을 보낼 수 없습니다.",
@@ -158,38 +163,14 @@ final class WatchConnectionManager: NSObject {
         )
     }
 
-    // 워치에 연결 해제 요청을 전송
-    func sendDisconnectRequest() {
-        guard let session = self.session else {
-            self.logger.error("WCSession이 지원되지 않아 워치에 연결 해제를 알릴 수 없습니다.")
-            return
-        }
-
-        guard session.isReachable else {
-            self.logger.error("워치에 도달할 수 없어 연결 해제 요청을 보낼 수 없습니다.")
-            return
-        }
-
-        let message = [MessageKey.action.rawValue: ActionValue.disconnect.rawValue]
-        session.sendMessage(message, replyHandler: nil)
-        self.logger.info("워치에 연결 해제 요청 전송")
-    }
-
     /// 워치에 모든 촬영이 완료되었음을 알림
     func sendCaptureComplete() {
-        guard let session = self.session else {
-            self.logger.error("WCSession이 지원되지 않아 워치에 연결 해제를 알릴 수 없습니다.")
-            return
-        }
-
-        guard session.isReachable else {
-            self.logger.error("워치에 도달할 수 없어 연결 해제 요청을 보낼 수 없습니다.")
-            return
-        }
-
-        let message = [MessageKey.action.rawValue: ActionValue.captureComplete.rawValue]
-        session.sendMessage(message, replyHandler: nil)
-        self.logger.info("워치에 촬영 완료 알림 전송")
+        shouldPrepareToCapture = false
+        self.sendMessage(
+            action: .captureComplete,
+            rejectedActionString: "촬영이 완료되었음을 알릴 수 없습니다.",
+            successLog: "워치에 촬영 완료 알림 전송"
+        )
     }
 }
 
@@ -250,6 +231,13 @@ extension WatchConnectionManager: WCSessionDelegate {
             self.logger.info("워치 연결 응답 수신됨.")
             Task { @MainActor in
                 self.onReceiveConnectionAck?()
+            }
+        } else if actionValue == ActionValue.checkIfCaptureAvailable.rawValue {
+            self.logger.info("캡쳐 가능 여부 확인 요청 수신됨.")
+            Task { @MainActor in
+                if shouldPrepareToCapture {
+                    self.prepareWatchToCapture()
+                }
             }
         }
     }
