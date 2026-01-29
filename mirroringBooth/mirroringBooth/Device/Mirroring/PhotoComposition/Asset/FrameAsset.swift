@@ -15,6 +15,10 @@ enum FrameAsset: String, Identifiable, CaseIterable {
     case crowded = "Crowded persimmon"
     case orange = "Persimmons (Orange)"
     case skyblue = "Persimmons (Sky Blue)"
+    case burgundy = "Burgundy"
+    case darkGray = "Dark Gray"
+    case deepGreen = "Deep Green"
+    case navy = "Navy Blue"
 
     var image: UIImage? {
         switch self {
@@ -28,12 +32,20 @@ enum FrameAsset: String, Identifiable, CaseIterable {
             return UIImage(named: "orange")
         case .skyblue:
             return UIImage(named: "skyblue")
+        case .burgundy:
+            return UIImage(named: "burgundy")
+        case .darkGray:
+            return UIImage(named: "darkGray")
+        case .deepGreen:
+            return UIImage(named: "deepGreen")
+        case .navy:
+            return UIImage(named: "navy")
         }
     }
 
     var textColor: Color {
         switch self {
-        case .black:
+        case .black, .burgundy, .darkGray, .deepGreen, .navy:
             return .white
         default:
             return .black
@@ -42,10 +54,10 @@ enum FrameAsset: String, Identifiable, CaseIterable {
 
     var dateBackgroundName: String? {
         switch self {
-        case .black, .white:
-            return nil
-        default:
+        case .crowded, .orange, .skyblue:
             return "orangeSigns"
+        default:
+            return nil
         }
     }
 }
