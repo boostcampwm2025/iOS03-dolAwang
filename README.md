@@ -53,38 +53,64 @@ iPhone 후면 카메라를 **렌즈**로, iPad나 Mac의 넓은 화면을 **거�
 
 ## ✨ 주요 기능
 
+<div align="center">
+
 ### 다양한 기기 연결
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 1 - 다양한 기기 연결@3x" src="https://github.com/user-attachments/assets/031187b7-131a-4aeb-a49c-bab6b39b57e4" />
 
-iPhone, iPad, Mac, Apple Watch를 자유롭게 연결하여 촬영/미러링/리모트 역할을 분담할 수 있습니다.
+<br>
+
+<b>가지고 있는 기기를 자유롭게 연결하세요.</b>
+
+<br>
 
 ### 촬영 방식 선택
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 2 - 촬영 방식 선택@3x" src="https://github.com/user-attachments/assets/ae355ad9-842d-43c7-9cd6-63c39a66447c" />
 
-타이머 촬영 또는 리모트 촬영 중 원하는 방식을 선택할 수 있습니다.
-- **타이머 촬영**: 8초 카운트다운 후 8초 간격으로 10장 자동 촬영
-- **리모트 촬영**: 연결된 기기에서 직접 촬영 버튼을 눌러 원하는 순간 촬영
+<br>
+
+<b>원하는 촬영 방식을 선택하세요.</b>  
+<br>
+<b>**타이머 촬영**: 8초 카운트다운 후 8초 간격으로 10장 자동 촬영</b>  
+<b>**리모트 촬영**: 연결된 기기에서 직접 촬영 버튼을 눌러 원하는 순간 촬영</b>
+
+<br>
 
 ### 촬영 및 포즈
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 3 - 촬영 및 포즈 추천@3x" src="https://github.com/user-attachments/assets/e35eba87-4f2e-4bb2-a1d0-b48713b917c8" />
 
-iPhone 카메라 화면을 iPad, Mac 등에서 실시간으로 확인하며 촬영합니다.  
-포즈 가이드를 켜면 다양한 포즈를 추천받아 자연스러운 촬영이 가능합니다.
+<br>
+
+<b>iPhone 카메라 화면을 iPad, Mac 등에서 실시간으로 확인하세요.</b>  
+<br>
+<b>포즈 가이드로 다양한 포즈를 추천 받아보세요.</b>
+
+<br>
 
 ### 편집 화면
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 4 - 편집@3x" src="https://github.com/user-attachments/assets/52b8c48b-770f-438d-b57d-d15933222b74" />
 
-촬영한 사진 중 원하는 사진을 선택하고, 다양한 스타일의 프레임에 합성할 수 있습니다.
+<br>
+
+<b>촬영한 사진 중 원하는 사진을 선택하고, 다양한 스타일의 프레임에 합성하세요.</b>
+
+<br>
 
 ### 결과 및 공유
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 5 - 결과 및 공유@3x" src="https://github.com/user-attachments/assets/9d6275a8-f08b-4a17-b215-c3e32862ed9f" />
 
-완성된 사진을 저장하거나 공유할 수 있습니다.
+<br>
+
+<b>완성된 사진을 저장하거나 공유하세요.</b>
+
+<br>
+
+</div>
 
 ---
 
