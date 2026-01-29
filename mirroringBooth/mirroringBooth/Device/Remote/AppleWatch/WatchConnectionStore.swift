@@ -37,7 +37,8 @@ final class WatchConnectionStore: StoreProtocol {
 
         self.connectionManager.onReachableChanged = { [weak self] reachable in
             guard let self = self else { return }
-            let connectivity: ConnectionState = reachable ? .connected : .notConnected
+            let isConnected = reachable && state.connectionState == .connected
+            let connectivity: ConnectionState = isConnected ? .connected : .notConnected
             self.reduce(.setConnectionState(connectivity))
         }
 
