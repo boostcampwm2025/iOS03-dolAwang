@@ -37,12 +37,13 @@ struct TutorialView: View {
                         Image(imageNames[index])
                             .resizable()
                             .scaledToFit()
+                            .frame(maxWidth: 500)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
                             .tag(index)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .always))
                 .aspectRatio(300/390, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
 
                 Button {
                     dismiss()
