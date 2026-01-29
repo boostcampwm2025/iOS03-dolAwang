@@ -34,6 +34,7 @@ final class WatchConnectionManager: NSObject {
 
     private let session: WCSession?
     private let logger = Logger.watchConnectionManager
+    private var shouldPrepareToCapture: Bool = false
 
     var onReachableChanged: ((Bool) -> Void)?
     var onReceiveCaptureRequest: (() -> Void)?
@@ -143,6 +144,7 @@ final class WatchConnectionManager: NSObject {
 
     // 촬영 기기와 미러링 기기에서 촬영을 시작할 때 워치에게도 알림
     func prepareWatchToCapture() {
+        shouldPrepareToCapture = true
         self.sendMessage(
             action: .prepare,
             rejectedActionString: "촬영 준비 요청을 보낼 수 없습니다."
@@ -151,6 +153,7 @@ final class WatchConnectionManager: NSObject {
 
     // 워치에게 연결 해제를 알림
     func sendDisconnectionNotification() {
+        shouldPrepareToCapture = false
         self.sendMessage(
             action: .disconnect,
             rejectedActionString: "연결 해제 요청을 보낼 수 없습니다.",
@@ -160,6 +163,7 @@ final class WatchConnectionManager: NSObject {
 
     /// 워치에 모든 촬영이 완료되었음을 알림
     func sendCaptureComplete() {
+        shouldPrepareToCapture = false
         self.sendMessage(
             action: .captureComplete,
             rejectedActionString: "촬영이 완료되었음을 알릴 수 없습니다.",
