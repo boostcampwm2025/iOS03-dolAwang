@@ -101,22 +101,7 @@ iPhone 후면 카메라를 **렌즈**로, iPad나 Mac의 넓은 화면을 **거�
 
 프로젝트는 **MVI (Model-View-Intent)** 패턴을 사용합니다.
 
-```mermaid
-flowchart LR
-    subgraph View
-        V[SwiftUI View]
-    end
-    
-    subgraph Store
-        S[Store]
-        ST[State]
-    end
-    
-    V -->|"send(Intent)"| S
-    S -->|"action(Intent)"| R[Results]
-    R -->|"reduce(Result)"| ST
-    ST -->|"@Observable"| V
-```
+<img width="1276" height="408" alt="image" src="https://github.com/user-attachments/assets/15597ceb-b14b-4b9b-85be-d10e6a05450a" />
 
 | 구성 요소 | 역할 |
 |:---:|---|
@@ -143,36 +128,7 @@ flowchart LR
 
 ## 🏛 시스템 아키텍처
 
-```mermaid
-flowchart TB
-    subgraph Camera["Camera Device (iPhone)"]
-        CAM[Camera Capture]
-        ENC[H.264 Encoder]
-        SEND[Stream Sender]
-        CAM --> ENC --> SEND
-    end
-    
-    subgraph MPC["MultipeerConnectivity"]
-        CONN[P2P Connection]
-    end
-    
-    subgraph Mirroring["Mirroring Device (iPhone/iPad/Mac)"]
-        RECV[Stream Receiver]
-        DEC[H.264 Decoder]
-        DISP[Display View]
-        RECV --> DEC --> DISP
-    end
-    
-    subgraph Remote["Remote Device"]
-        WATCH[Apple Watch]
-        OTHER[iPhone/iPad/Mac]
-    end
-    
-    SEND <-->|"Video Stream"| CONN
-    CONN <-->|"Video Stream"| RECV
-    Remote <-->|"Capture Command"| CONN
-    CONN <-->|"Capture Command"| Camera
-```
+<img width="1650" height="883" alt="image" src="https://github.com/user-attachments/assets/44394c86-4d11-455c-964b-71750223e937" />
 
 **주요 컴포넌트**
 - **Camera Device**: iPhone 후면 카메라로 촬영, H.264 인코딩 후 스트리밍
