@@ -395,7 +395,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = mirroringBooth/App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_CFBundleDisplayName = "미러링부스";
 				INFOPLIST_KEY_NSCameraUsageDescription = "비디오 스트리밍을 위해 카메라 권한이 필요합니다.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "주변 Apple 기기와의 연결 및 미러링 기능을 위해 로컬 네트워크를 사용합니다.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -413,7 +413,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.1;
-				MARKETING_VERSION = 0.4.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.codesquad.boostcamp10.dolAwang.mirroringBooth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -446,7 +446,7 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = mirroringBooth/App/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_CFBundleDisplayName = "미러링부스";
 				INFOPLIST_KEY_NSCameraUsageDescription = "비디오 스트리밍을 위해 카메라 권한이 필요합니다.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "주변 Apple 기기와의 연결 및 미러링 기능을 위해 로컬 네트워크를 사용합니다.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -464,7 +464,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.1;
-				MARKETING_VERSION = 0.4.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.codesquad.boostcamp10.dolAwang.mirroringBooth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -495,14 +495,14 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_CFBundleDisplayName = "미러링부스";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = kr.codesquad.boostcamp10.dolAwang.mirroringBooth;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.2.2;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.codesquad.boostcamp10.dolAwang.mirroringBooth.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -531,14 +531,14 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Mirroring Booth";
+				INFOPLIST_KEY_CFBundleDisplayName = "미러링부스";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = kr.codesquad.boostcamp10.dolAwang.mirroringBooth;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.2.2;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.codesquad.boostcamp10.dolAwang.mirroringBooth.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
