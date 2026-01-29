@@ -158,38 +158,13 @@ final class WatchConnectionManager: NSObject {
         )
     }
 
-    // 워치에 연결 해제 요청을 전송
-    func sendDisconnectRequest() {
-        guard let session = self.session else {
-            self.logger.error("WCSession이 지원되지 않아 워치에 연결 해제를 알릴 수 없습니다.")
-            return
-        }
-
-        guard session.isReachable else {
-            self.logger.error("워치에 도달할 수 없어 연결 해제 요청을 보낼 수 없습니다.")
-            return
-        }
-
-        let message = [MessageKey.action.rawValue: ActionValue.disconnect.rawValue]
-        session.sendMessage(message, replyHandler: nil)
-        self.logger.info("워치에 연결 해제 요청 전송")
-    }
-
     /// 워치에 모든 촬영이 완료되었음을 알림
     func sendCaptureComplete() {
-        guard let session = self.session else {
-            self.logger.error("WCSession이 지원되지 않아 워치에 연결 해제를 알릴 수 없습니다.")
-            return
-        }
-
-        guard session.isReachable else {
-            self.logger.error("워치에 도달할 수 없어 연결 해제 요청을 보낼 수 없습니다.")
-            return
-        }
-
-        let message = [MessageKey.action.rawValue: ActionValue.captureComplete.rawValue]
-        session.sendMessage(message, replyHandler: nil)
-        self.logger.info("워치에 촬영 완료 알림 전송")
+        self.sendMessage(
+            action: .captureComplete,
+            rejectedActionString: "촬영이 완료되었음을 알릴 수 없습니다.",
+            successLog: "워치에 촬영 완료 알림 전송"
+        )
     }
 }
 

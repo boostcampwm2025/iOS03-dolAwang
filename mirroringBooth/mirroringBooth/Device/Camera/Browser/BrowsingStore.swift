@@ -206,7 +206,7 @@ final class BrowsingStore: StoreProtocol {
 
             // 워치가 연결되어 있다면 연결 해제 요청 전송
             if state.remoteDevice?.type == .watch {
-                watchConnectionManager.sendDisconnectRequest()
+                watchConnectionManager.sendDisconnectionNotification()
             }
 
             result.append(.setMirroringDevice(nil))
