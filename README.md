@@ -6,7 +6,7 @@
 
 **가장 선명하게, 우리다운 순간을 기록하다.**
 
-포토부스를 찾아갈 필요 없이, Apple 기기만 있으면 어디서나 시작되는 인생N컷
+포토부스를 찾아갈 필요 없이, Apple 기기만 있으면 어디서나 시작되는 나만의 포토부스
 
 <br>
 
@@ -14,7 +14,7 @@
 
 **[TestFlight로 설치 (권장)](https://testflight.apple.com/join/enKrknEr)** | [AppBox로 설치](https://appbox.me/xepf4oo8)
 
-TestFlight가 처음이라면 → [설치 가이드](https://drive.google.com/file/d/1VK9TpWCFxb7PFmxqdfirVWv-yiq-dWDM/view?usp=share_link)
+TestFlight가 처음이라면 → [설치 가이드](https://drive.google.com/file/d/1Dmga2k9LP1twziCmxFiiYCYUD5FdKfp4/view?usp=share_link)
 
 </div>
 
@@ -98,7 +98,7 @@ TestFlight가 처음이라면 → [설치 가이드](https://drive.google.com/fi
 
 ---
 
-### 🎨 편집 화면
+### 🎨 프레임과 레이아웃 선택
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 4 - 편집@3x" src="https://github.com/user-attachments/assets/52b8c48b-770f-438d-b57d-d15933222b74" />
 
@@ -110,7 +110,7 @@ TestFlight가 처음이라면 → [설치 가이드](https://drive.google.com/fi
 
 ---
 
-### 🎑 결과 및 공유
+### 🎑 결과 저장 및 공유
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 5 - 결과 및 공유@3x" src="https://github.com/user-attachments/assets/9d6275a8-f08b-4a17-b215-c3e32862ed9f" />
 
@@ -139,7 +139,7 @@ TestFlight가 처음이라면 → [설치 가이드](https://drive.google.com/fi
 - iPhone(카메라) + iPad(미러링)
 - iPhone(카메라) + Mac(미러링) + Watch(리모트)
 
-> 원활한 동작을 위해 **Bluetooth** 또는 **Wi-Fi**가 켜져 있어야 합니다.
+> 원활한 동작을 위해 **Bluetooth**와 **Wi-Fi**가 반드시 켜져 있어야 합니다.
 
 ---
 
@@ -155,32 +155,17 @@ TestFlight가 처음이라면 → [설치 가이드](https://drive.google.com/fi
 | **Tools** | <img src="https://img.shields.io/badge/Xcode-147EFB?style=flat-square&logo=xcode&logoColor=white"> <img src="https://img.shields.io/badge/SwiftLint-E74C3C?style=flat-square&logo=swift&logoColor=white"> |
 | **CI/CD** | <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white"> <img src="https://img.shields.io/badge/Fastlane-00F200?style=flat-square&logo=fastlane&logoColor=white"> <img src="https://img.shields.io/badge/n8n-EA4B71?style=flat-square&logo=n8n&logoColor=white"> |
 
-### 아키텍처 (MVI)
-
-프로젝트는 **MVI (Model-View-Intent)** 패턴을 사용합니다.
-
-<img width="1987" height="658" alt="스크린샷 2026-01-29 오후 6 03 32" src="https://github.com/user-attachments/assets/78e0ca53-a44a-46e0-ac41-75aba8bc4a74" />
-
-| 구성 요소 | 역할 |
-|:---:|---|
-| **State** | View가 표시할 현재 상태 |
-| **Intent** | 사용자 액션을 나타내는 이벤트 |
-| **Result** | Intent 처리 결과, State를 변경 |
-| **Store** | Intent를 받아 Result를 생성하고 State를 업데이트 |
-
 ---
 
 ## 💡 핵심 경험
 
-| 경험 | 설명 |
-|---|---|
-| **멀티 디바이스 통신** | MultipeerConnectivity로 Apple 기기 간 실시간 스트리밍을 구현한 경험을 소개합니다. |
-| **재연결 로직** | 디바이스 별 연결이 끊어졌을 때 어떻게 대응하는지 설명합니다. |
-| **CI/CD 자동화** | Fastlane + GitHub Actions로 빌드 자동화, 에셋 자동 병합 시스템 구축을 진행했습니다. |
-| **AI PR 자동 리뷰** | n8n을 활용한 AI PR 자동 리뷰 파이프라인 구축을 진행한 경험을 소개합니다. |
-| **사용자 테스트** | 실사용자 피드백 기반 UX 개선 (공유 시트, 토스트 컴포넌트 등)을 진행한 기록입니다. |
-
-[![Wiki](https://img.shields.io/badge/➜_기술_문서_보러가기-4F47E6?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki)
+| 경험 | 설명 | 링크 |
+|---|---|---|
+| **멀티 디바이스 통신** | MultipeerConnectivity로 Apple 기기 간 실시간 스트리밍을 구현한 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-2D9CDB?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-%ED%86%B5%EC%8B%A0-%EA%B3%BC%EC%A0%95) |
+| **재연결 로직** | 디바이스 별 연결이 끊어졌을 때 어떻게 대응하는지 설명합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-9B59B6?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%F0%9F%94%AA-%EC%97%B0%EA%B2%B0-%EB%81%8A%EA%B9%80-%EB%8C%80%EC%9D%91) |
+| **CI/CD 자동화** | GitHub Actions로 빌드 자동화, 에셋 자동 병합 시스템 구축을 진행했습니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-E74C3C?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/pull/68) |
+| **AI PR 자동 리뷰** | n8n을 활용한 AI PR 자동 리뷰 파이프라인 구축을 진행한 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-27AE60?style=flat-square)](https://daegom.notion.site/n8n-PR-2eb1833ac003807ba1f7ec97515ea243) |
+| **사용자 테스트** | 실사용자 피드백 기반 UX 개선 (공유 시트, 토스트 컴포넌트 등)을 진행한 기록입니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-FF9500?style=flat-square)](#) |
 
 ---
 
@@ -218,9 +203,9 @@ mirroringBooth/
 │   └── PlistRepository.swift     # Plist 데이터 관리
 │
 ├── Device/                       # 기기별 기능 모듈
-│   ├── Camera/                   # 촬영 기기 모드
-│   ├── Mirroring/                # 미러링 기기 모드
-│   ├── Remote/                   # 리모트 기기 모드
+│   ├── Camera/                   # 촬영 기기
+│   ├── Mirroring/                # 미러링 기기
+│   ├── Remote/                   # 리모트 기기
 │   └── Common/                   # 공통 컴포넌트
 │
 └── Resources/                    # 리소스 파일
