@@ -10,6 +10,7 @@ import SwiftUI
 struct AdvertisingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) var rootStore: RootStore
+    @State private var showTutorial = false
     @State private var store = AdvertisingStore(
         Advertiser(
             photoCacheManager: PhotoCacheManager.shared
@@ -96,5 +97,15 @@ struct AdvertisingView: View {
         }
         .navigationBarBackButtonHidden()
         .backgroundStyle()
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showTutorial = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+            }
+        }
+        .tutorialOverlay(isPresented: $showTutorial)
     }
 }
