@@ -12,107 +12,85 @@
 
 <br>
 
-📥 **[앱 다운로드](https://appbox.me/xepf4oo8)** &nbsp;&nbsp;|&nbsp;&nbsp; 📸 QR로 다운로드
+📥 **앱 다운로드**
 
-<img width="200" alt="QR Code" src="https://github.com/user-attachments/assets/f821b878-5d83-4936-9a12-e5d9c55ae437" />
+**[TestFlight로 설치 (권장)](https://testflight.apple.com/join/enKrknEr)** | [AppBox로 설치](https://appbox.me/xepf4oo8)
 
-<br>
-
-### 👥 왔다감
-
-<table>
-<thead>
-<tr>
-<th align="center">S022 윤대현</th>
-<th align="center">S024 이상유</th>
-<th align="center">S029 전귀로</th>
-<th align="center">S038 최윤진</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">
-<img width="170" alt="S022" src="https://github.com/user-attachments/assets/674f6f68-c659-49cc-b9ed-966345e6baf4" />
-</td>
-<td align="center">
-<img width="146" alt="S024" src="https://github.com/user-attachments/assets/c25cf5ee-b660-4910-a085-8fadbf6187ac" />
-</td>
-<td align="center">
-<img width="172" height="226" alt="S029" src="https://github.com/user-attachments/assets/8c70aeed-9469-4bf1-a87c-00349a9d2957" />
-</td>
-<td align="center">
-<img width="170" height="218" alt="S038" src="https://github.com/user-attachments/assets/f9ef5669-ab71-469e-9f6c-b59ca3f9c934" />
-</td>
-</tr>
-<tr>
-<td align="center">위키 리더</td>
-<td align="center">UI/UX 리더</td>
-<td align="center">팀 리더</td>
-<td align="center">테크 리더</td>
-</tr>
-</tbody>
-</table>
+TestFlight가 처음이라면 → [설치 가이드](https://drive.google.com/file/d/1VK9TpWCFxb7PFmxqdfirVWv-yiq-dWDM/view?usp=share_link)
 
 </div>
 
 ---
 
-## 📄 목차
+## 목차
 
-- [📜 프로젝트 개요](#-프로젝트-개요)
-- [✨ 주요 기능](#-주요-기능)
-- [📱 지원 기기](#-지원-기기)
-- [🛠 기술 스택](#-기술-스택)
-- [🏛️ 시스템 아키텍처](#️-시스템-아키텍처)
-- [📂 프로젝트 구조](#-프로젝트-구조)
-- [🔗 관련 문서](#-관련-문서)
-
----
-
-## 📜 프로젝트 개요
-
-후면 카메라는 화질이 좋지만 촬영 시 내 모습을 볼 수 없어, 결국 화질이 낮은 전면 카메라를 쓰거나 "찍고 확인하고 다시 찍는" 과정을 반복하게 됩니다.
-
-**미러링부스**는 iPhone 후면 카메라의 고화질을 유지하면서, iPad나 Mac의 넓은 화면에서 **실시간으로 구도를 확인**하며 촬영할 수 있는 멀티 디바이스 포토부스 앱입니다. 집, 카페, 여행지 등 Apple 기기가 있는 모든 곳이 나만의 스튜디오가 됩니다.
+- [프로젝트 개요](#프로젝트-개요)
+- [주요 기능](#주요-기능)
+- [지원 기기](#지원-기기)
+- [기술 스택](#기술-스택)
+- [핵심 경험](#핵심-경험)
+- [시스템 아키텍처](#시스템-아키텍처)
+- [프로젝트 구조](#프로젝트-구조)
+- [관련 문서](#관련-문서)
+- [팀 소개](#팀-소개)
 
 ---
 
-## ✨ 주요 기능
+## 프로젝트 개요
+
+> 📷 스마트폰 후면 카메라는 화질이 좋지만, 셀카를 찍을 때 **내 모습을 볼 수 없습니다.**  
+> 결국 화질이 낮은 전면 카메라를 쓰거나, "찍고 확인하고 다시 찍는" 과정을 반복하게 됩니다.
+
+**미러링부스**는 이 문제를 해결합니다.
+
+iPhone 후면 카메라를 **렌즈**로, iPad나 Mac의 넓은 화면을 **거울(뷰파인더)** 처럼 활용해서 촬영하면서 **실시간으로 내 모습을 확인**할 수 있습니다. 
+
+포즈와 구도를 잡은 뒤 원격으로 촬영하면 끝!
+
+- 📍 **어디서나 나만의 스튜디오** : 집, 카페, 여행지 등 Apple 기기만 있으면 나만의 포토부스
+- 📷 **후면 카메라 화질 유지** : 고화질로 촬영하면서 실시간 모니터링 가능
+- 🍎 **Apple 생태계 활용** : 보유한 기기들이 연동되어 동작하는 재미
+
+---
+
+## 주요 기능
 
 | 기능 | 설명 |
 |:---:|---|
-| 🔄 **실시간 미러링** | iPhone 카메라 화면을 다른 Apple 기기에 실시간으로 고화질 스트리밍 |
-| 🎮 **원격 촬영** | iPad, Mac, Apple Watch 등 모든 기기에서 촬영 버튼 조작 가능 |
-| ⏱️ **타이머 촬영** | 8초 카운트다운 후 8초 간격으로 10장 자동 촬영 |
-| 🖼️ **포토 프레임 합성** | 촬영한 사진을 인생네컷 스타일의 예쁜 프레임에 자동 합성 |
-| ⌚ **Apple Watch 지원** | 손목에서 바로 촬영 버튼을 눌러 가장 편리하게 촬영 |
+| **실시간 미러링** | iPhone 카메라 화면을 다른 Apple 기기에 실시간으로 고화질 스트리밍 |
+| **원격 촬영** | iPad, Mac, Apple Watch 등 모든 기기에서 촬영 버튼 조작 가능 |
+| **타이머 촬영** | 8초 카운트다운 후 8초 간격으로 10장 자동 촬영 |
+| **포토 프레임 합성** | 촬영한 사진을 인생네컷 스타일의 예쁜 프레임에 자동 합성 |
+| **Apple Watch 지원** | 손목에서 바로 촬영 버튼을 눌러 가장 편리하게 촬영 |
+
+
+실제 동작 gif 추가 예정...
 
 ---
 
-## 📱 지원 기기
+## 지원 기기
 
 보유한 Apple 기기를 자유롭게 조합하여 사용하세요!
 
 | 역할 | 기기 | 최소 버전 |
 |:---:|---|---|
-| 📷 **촬영** (카메라) | iPhone | iOS 17.0+ |
-| 🖥️ **미러링** (실시간 확인) | iPhone, iPad, Mac | iOS/iPadOS 17.0+, macOS 14.0+ |
-| 🎮 **리모트** (촬영 버튼) | iPhone, iPad, Mac, Apple Watch | iOS/iPadOS 17.0+, macOS 14.0+, watchOS 10.0+ |
+| **촬영** (카메라) | iPhone | <img src="https://img.shields.io/badge/iOS_17.0+-000000?style=flat-square&logo=apple&logoColor=white"> |
+| **미러링** (실시간 확인) | iPhone, iPad, Mac | <img src="https://img.shields.io/badge/iOS_17.0+-000000?style=flat-square&logo=apple&logoColor=white"> <img src="https://img.shields.io/badge/iPadOS_17.0+-000000?style=flat-square&logo=apple&logoColor=white"> <img src="https://img.shields.io/badge/macOS_14.0+-000000?style=flat-square&logo=apple&logoColor=white"> |
+| **리모트** (촬영 버튼) | iPhone, iPad, Mac, Apple Watch | <img src="https://img.shields.io/badge/iOS_17.0+-000000?style=flat-square&logo=apple&logoColor=white"> <img src="https://img.shields.io/badge/iPadOS_17.0+-000000?style=flat-square&logo=apple&logoColor=white"> <img src="https://img.shields.io/badge/macOS_14.0+-000000?style=flat-square&logo=apple&logoColor=white"> <img src="https://img.shields.io/badge/watchOS_10.0+-000000?style=flat-square&logo=apple&logoColor=white"> |
 
 **조합 예시**
-- 📱 iPhone(카메라) + 📱 iPhone(미러링)
-- 📱 iPhone(카메라) + 🖥️ iPad(미러링)
-- 📱 iPhone(카메라) + 💻 Mac(미러링) + ⌚ Watch(리모트)
+- iPhone(카메라) + iPhone(미러링)
+- iPhone(카메라) + iPad(미러링)
+- iPhone(카메라) + Mac(미러링) + Watch(리모트)
 
-> ⚠️ 원활한 동작을 위해 **Bluetooth** 또는 **Wi-Fi**가 켜져 있어야 합니다.
+> 원활한 동작을 위해 **Bluetooth** 또는 **Wi-Fi**가 켜져 있어야 합니다.
 
 ---
 
-## 🛠 기술 스택
+## 기술 스택
 
 | 구분 | 스택 |
 |---|---|
-| **Platform** | <img src="https://img.shields.io/badge/iOS_17.0+-000000?style=flat-square&logo=apple&logoColor=white"> <img src="https://img.shields.io/badge/macOS_14.0+-000000?style=flat-square&logo=apple&logoColor=white"> <img src="https://img.shields.io/badge/watchOS_10.0+-000000?style=flat-square&logo=apple&logoColor=white"> |
 | **Language** | <img src="https://img.shields.io/badge/Swift_5.0-F05138?style=flat-square&logo=swift&logoColor=white"> |
 | **UI** | <img src="https://img.shields.io/badge/SwiftUI-0D96F6?style=flat-square&logo=swift&logoColor=white"> <img src="https://img.shields.io/badge/@Observable-8E44AD?style=flat-square&logo=swift&logoColor=white"> |
 | **Connectivity** | <img src="https://img.shields.io/badge/MultipeerConnectivity-34C759?style=flat-square&logo=apple&logoColor=white"> <img src="https://img.shields.io/badge/WatchConnectivity-FF9500?style=flat-square&logo=apple&logoColor=white"> |
@@ -151,29 +129,43 @@ flowchart LR
 
 ---
 
-## 🏛️ 시스템 아키텍처
+## 핵심 경험
+
+| 경험 | 설명 |
+|---|---|
+| **멀티 디바이스 통신** | MultipeerConnectivity로 iPhone↔iPad↔Mac↔Watch 간 실시간 스트리밍 구현 |
+| **재연결 로직** | 연결 끊김 시 자동 재연결 및 상태 복구 처리 |
+| **CI/CD 자동화** | Fastlane + GitHub Actions로 빌드 자동화, 에셋 자동 병합 시스템 구축 |
+| **AI PR 자동 리뷰** | n8n을 활용한 AI PR 자동 리뷰 파이프라인 구축 |
+| **사용자 테스트** | 실사용자 피드백 기반 UX 개선 (공유 시트, 토스트 컴포넌트 등) |
+
+→ [더 자세한 기술 문서 보러가기 (Wiki)](#)
+
+---
+
+## 시스템 아키텍처
 
 ```mermaid
 flowchart TB
-    subgraph Camera["📷 Camera Device (iPhone)"]
+    subgraph Camera["Camera Device (iPhone)"]
         CAM[Camera Capture]
         ENC[H.264 Encoder]
         SEND[Stream Sender]
         CAM --> ENC --> SEND
     end
     
-    subgraph MPC["📡 MultipeerConnectivity"]
+    subgraph MPC["MultipeerConnectivity"]
         CONN[P2P Connection]
     end
     
-    subgraph Mirroring["🖥️ Mirroring Device (iPhone/iPad/Mac)"]
+    subgraph Mirroring["Mirroring Device (iPhone/iPad/Mac)"]
         RECV[Stream Receiver]
         DEC[H.264 Decoder]
         DISP[Display View]
         RECV --> DEC --> DISP
     end
     
-    subgraph Remote["🎮 Remote Device"]
+    subgraph Remote["Remote Device"]
         WATCH[Apple Watch]
         OTHER[iPhone/iPad/Mac]
     end
@@ -192,7 +184,7 @@ flowchart TB
 
 ---
 
-## 📂 프로젝트 구조
+## 프로젝트 구조
 
 ```
 mirroringBooth/
@@ -209,40 +201,66 @@ mirroringBooth/
 │   └── PlistRepository.swift     # Plist 데이터 관리
 │
 ├── Device/                       # 기기별 기능 모듈
-│   ├── Camera/                   # 📷 촬영 기기 모드
-│   │   ├── Browser/              # 연결 기기 탐색
-│   │   ├── Streaming/            # 영상 스트리밍
-│   │   └── Model/                # 카메라 모델
-│   │
-│   ├── Mirroring/                # 🖥️ 미러링 기기 모드
-│   │   ├── Streaming/            # 스트림 수신 및 표시
-│   │   ├── PhotoComposition/     # 프레임 합성
-│   │   ├── PhotoResult/          # 결과 저장 및 공유
-│   │   ├── PoseSuggestion/       # 포즈 가이드
-│   │   └── ModeSettings/         # 촬영 모드 설정
-│   │
-│   ├── Remote/                   # 🎮 리모트 기기 모드
-│   │   └── AppleWatch/           # 워치 연동
-│   │
+│   ├── Camera/                   # 촬영 기기 모드
+│   ├── Mirroring/                # 미러링 기기 모드
+│   ├── Remote/                   # 리모트 기기 모드
 │   └── Common/                   # 공통 컴포넌트
-│       ├── Component/            # 재사용 UI 컴포넌트
-│       ├── AccessManager/        # 권한 관리
-│       └── HeartBeater/          # 연결 상태 모니터링
 │
 └── Resources/                    # 리소스 파일
-    └── Assets.xcassets           # 이미지, 색상 등
 ```
 
 ---
 
-## 🔗 관련 문서
+## 관련 문서
 
 더 자세한 정보는 프로젝트 위키에서 확인할 수 있습니다.
 
 | 문서 | 링크 |
 |---|---|
-| 📋 그라운드 룰 | [Wiki 링크 추가](#) |
-| 📝 기획서 | [Wiki 링크 추가](#) |
-| 🏗️ 설계서 | [Wiki 링크 추가](#) |
-| 📊 프로덕트 백로그 | [Wiki 링크 추가](#) |
-| 🎬 유저 시나리오 | [Wiki 링크 추가](#) |
+| 그라운드 룰 | [Wiki 링크 추가](#) |
+| 기획서 | [Wiki 링크 추가](#) |
+| 설계서 | [Wiki 링크 추가](#) |
+| 프로덕트 백로그 | [Wiki 링크 추가](#) |
+
+---
+
+## 팀 소개
+
+<div align="center">
+
+### 왔다감
+
+<table>
+<thead>
+<tr>
+<th align="center">S022 윤대현</th>
+<th align="center">S024 이상유</th>
+<th align="center">S029 전귀로</th>
+<th align="center">S038 최윤진</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">
+<img width="170" alt="S022" src="https://github.com/user-attachments/assets/674f6f68-c659-49cc-b9ed-966345e6baf4" />
+</td>
+<td align="center">
+<img width="146" alt="S024" src="https://github.com/user-attachments/assets/c25cf5ee-b660-4910-a085-8fadbf6187ac" />
+</td>
+<td align="center">
+<img width="172" height="226" alt="S029" src="https://github.com/user-attachments/assets/8c70aeed-9469-4bf1-a87c-00349a9d2957" />
+</td>
+<td align="center">
+<img width="170" height="218" alt="S038" src="https://github.com/user-attachments/assets/f9ef5669-ab71-469e-9f6c-b59ca3f9c934" />
+</td>
+</tr>
+<tr>
+<td align="center">위키 리더</td>
+<td align="center">UI/UX 리더</td>
+<td align="center">팀 리더</td>
+<td align="center">테크 리더</td>
+</tr>
+</tbody>
+</table>
+
+</div>
