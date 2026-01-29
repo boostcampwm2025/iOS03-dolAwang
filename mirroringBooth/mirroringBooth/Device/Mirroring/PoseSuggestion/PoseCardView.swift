@@ -43,20 +43,25 @@ struct PoseCardView: View {
         let emojiSize: CGFloat = isCurrent ? max(40, (width / 2)) : width / 2
         let descriptionFont: CGFloat = isCurrent ? max(12, (width / 8)) : width / 8
 
-        VStack(spacing: 10) {
+        VStack(spacing: 0) {
             Text(pose.emoji)
                 .font(.system(size: emojiSize))
                 .frame(height: emojiSize + 8)
 
-            if !isCompact {
-                Text(pose.presentableText)
-                    .font(.system(size: descriptionFont).bold())
-                    .frame(height: descriptionFont * 5)
-                    .lineLimit(4)
-                    .minimumScaleFactor(0.8)
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.center)
+            Group {
+                if isCompact {
+                    Text(pose.summary)
+                } else {
+                    Text(pose.presentableText)
+                        .frame(height: descriptionFont * 5)
+                        .lineLimit(4)
+                        .padding(.top, 5)
+                }
             }
+            .font(.system(size: descriptionFont).bold())
+            .minimumScaleFactor(0.8)
+            .foregroundStyle(.white)
+            .multilineTextAlignment(.center)
         }
         .frame(maxWidth: isCurrent ? max(80, width) : width)
     }
