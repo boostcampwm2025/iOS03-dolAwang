@@ -2,137 +2,181 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <array>
-    <dict>
-        <key>emoji</key>
-        <string>😊</string>
-        <key>text</key>
-        <string>미소 지어주세요~</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>😜</string>
-        <key>text</key>
-        <string>가볍게 윙크~</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>😚</string>
-        <key>text</key>
-        <string>입술을 우~ 내밀어주세요.</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🤨</string>
-        <key>text</key>
-        <string>심각한 표정을 지어볼까요?</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>😏</string>
-        <key>text</key>
-        <string>장난스레 옆을 흘깃 봐주세요!</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>😢</string>
-        <key>text</key>
-        <string>엉엉 슬픈 표정을 지어볼까요?</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🫡</string>
-        <key>text</key>
-        <string>경례.</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🤔</string>
-        <key>text</key>
-        <string>고민하는 척 턱에 손을 대볼까요?</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>😐</string>
-        <key>text</key>
-        <string>무표정을 지어주세요.</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🤫</string>
-        <key>text</key>
-        <string>쉿! 입술 위에 검지를 대주세요.</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🥱</string>
-        <key>text</key>
-        <string>하품하는 척 해볼까요? 하암~</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>✌️</string>
-        <key>text</key>
-        <string>브이!</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🫶</string>
-        <key>text</key>
-        <string>손하트를 만들어주세요~</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>👍</string>
-        <key>text</key>
-        <string>너 최고~ 엄지 척!</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>👊</string>
-        <key>text</key>
-        <string>피스트 범프!</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🫰</string>
-        <key>text</key>
-        <string>손가락 하트를 만들어주세요~</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🐱</string>
-        <key>text</key>
-        <string>고양이 귀를 만들어주세요! 야옹</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🐯</string>
-        <key>text</key>
-        <string>사납게 어흥! 두 손을 얼굴 옆에</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🐷</string>
-        <key>text</key>
-        <string>돼지 코를 만들어볼까요?</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🌷</string>
-        <key>text</key>
-        <string>얼굴 아래 꽃받침!</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>🍞</string>
-        <key>text</key>
-        <string>볼빵빵 해볼까요?</string>
-    </dict>
-    <dict>
-        <key>emoji</key>
-        <string>📸</string>
-        <key>text</key>
-        <string>저장! 사진을 찍는 것처럼 손가락으로 사각형을 만들어주세요~</string>
-    </dict>
+	<dict>
+		<key>emoji</key>
+		<string>😊</string>
+		<key>description</key>
+		<string>미소 지어주세요~</string>
+		<key>summary</key>
+		<string>미소</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>😜</string>
+		<key>description</key>
+		<string>가볍게 윙크~</string>
+		<key>summary</key>
+		<string>윙크</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>😚</string>
+		<key>description</key>
+		<string>입술을 우~ 내밀어주세요.</string>
+		<key>summary</key>
+		<string>입술 우</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🤨</string>
+		<key>description</key>
+		<string>심각한 표정을 지어볼까요?</string>
+		<key>summary</key>
+		<string>심각한 표정</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>😏</string>
+		<key>description</key>
+		<string>장난스레 옆을 흘깃 봐주세요!</string>
+		<key>summary</key>
+		<string>장난스럽게</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>😢</string>
+		<key>description</key>
+		<string>엉엉 슬픈 표정을 지어볼까요?</string>
+		<key>summary</key>
+		<string>슬픈 표정</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🫡</string>
+		<key>description</key>
+		<string>경례.</string>
+		<key>summary</key>
+		<string>경례</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🤔</string>
+		<key>description</key>
+		<string>고민하는 척 턱에 손을 대볼까요?</string>
+		<key>summary</key>
+		<string>고민하는</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>😐</string>
+		<key>description</key>
+		<string>무표정을 지어주세요.</string>
+		<key>summary</key>
+		<string>무표정</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🤫</string>
+		<key>description</key>
+		<string>쉿! 입술 위에 검지를 대주세요.</string>
+		<key>summary</key>
+		<string>쉿</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🥱</string>
+		<key>description</key>
+		<string>하품하는 턱 해볼까요? 하암~</string>
+		<key>summary</key>
+		<string>하품</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>✌️</string>
+		<key>description</key>
+		<string>브이!</string>
+		<key>summary</key>
+		<string>브이</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🫶</string>
+		<key>description</key>
+		<string>손하트를 만들어주세요~</string>
+		<key>summary</key>
+		<string>손하트</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>👍</string>
+		<key>description</key>
+		<string>당신은 최고야!  엄지 척~</string>
+		<key>summary</key>
+		<string>엄지 척</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>👊</string>
+		<key>description</key>
+		<string>옆 사람이나 카메라를 향해 피스트 범프!</string>
+		<key>summary</key>
+		<string>피스트 범프</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🫰</string>
+		<key>description</key>
+		<string>손가락 하트를 만들어주세요~</string>
+		<key>summary</key>
+		<string>손가락 하트</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🐱</string>
+		<key>description</key>
+		<string>고양이 귀를 만들어주세요! 야옹</string>
+		<key>summary</key>
+		<string>고양이 귀</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🐯</string>
+		<key>description</key>
+		<string>사납게 어흥! 두 손을 오므려 얼굴 옆에 대볼까요?</string>
+		<key>summary</key>
+		<string>두 손 어흥</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🐷</string>
+		<key>description</key>
+		<string>돼지 코를 만들어볼까요?</string>
+		<key>summary</key>
+		<string>돼지 코</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🌷</string>
+		<key>description</key>
+		<string>얼굴 아래 꽃받침!</string>
+		<key>summary</key>
+		<string>꽃받침</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>🍞</string>
+		<key>description</key>
+		<string>볼빵빵 해볼까요?</string>
+		<key>summary</key>
+		<string>볼빵빵</string>
+	</dict>
+	<dict>
+		<key>emoji</key>
+		<string>📸</string>
+		<key>description</key>
+		<string>저장! 사진을 찍는 것처럼 손가락으로 사각형을 만들어주세요~</string>
+		<key>summary</key>
+		<string>손가락 사진</string>
+	</dict>
 </array>
 </plist>

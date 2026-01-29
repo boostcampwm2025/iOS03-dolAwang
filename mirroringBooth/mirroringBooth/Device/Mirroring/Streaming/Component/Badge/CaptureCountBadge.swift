@@ -34,6 +34,5 @@ struct CaptureCountBadge: View {
             Circle()
                 .strokeBorder(.white, lineWidth: 3)
         }
-        .preferredColorScheme(.dark)
     }
 }

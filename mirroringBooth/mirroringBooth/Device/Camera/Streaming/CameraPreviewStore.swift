@@ -7,7 +7,7 @@
 
 import AVFoundation
 import Combine
-import Foundation
+import SwiftUI
 
 @Observable
 final class CameraPreviewStore: StoreProtocol {
@@ -21,6 +21,7 @@ final class CameraPreviewStore: StoreProtocol {
         var showHomeAlert: Bool = false
         var isMirroringDisconnected: Bool = false
         var transfercount: Int = -1
+        var colorScheme: ColorScheme?
     }
 
     enum Intent {
@@ -32,6 +33,7 @@ final class CameraPreviewStore: StoreProtocol {
         case resetCaptureCompleted
         case isMirroringDisconnected
         case setTransferCount(Int)
+        case setColorScheme(ColorScheme?)
     }
 
     enum Result {
@@ -42,6 +44,7 @@ final class CameraPreviewStore: StoreProtocol {
         case resetCaptureCompleted
         case isMirroringDisconnected
         case setTransferCount(Int)
+        case setColorScheme(ColorScheme?)
     }
 
     private let browser: Browser
@@ -71,7 +74,6 @@ final class CameraPreviewStore: StoreProtocol {
         case .updateAngle(let rawValue):
             return [.updateAngle(rawValue)]
         case .captureCompleted:
-            cameraManager.stopSession()
             browser.sendCommand(.allPhotosStored)
             return [.captureCompleted, .setTransferCount(0)]
         case .resetCaptureCompleted:
@@ -80,6 +82,8 @@ final class CameraPreviewStore: StoreProtocol {
             return [.isMirroringDisconnected]
         case .setTransferCount(let count):
             return [.setTransferCount(count)]
+        case .setColorScheme(let scheme):
+            return [.setColorScheme(scheme) ]
         }
         return []
     }
@@ -104,6 +108,8 @@ final class CameraPreviewStore: StoreProtocol {
             state.isMirroringDisconnected = true
         case .setTransferCount(let count):
             state.transfercount = count
+        case .setColorScheme(let scheme):
+            state.colorScheme = scheme
         }
 
         self.state = state

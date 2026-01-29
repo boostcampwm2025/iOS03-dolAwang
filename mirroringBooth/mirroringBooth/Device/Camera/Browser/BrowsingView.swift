@@ -42,7 +42,10 @@ struct BrowsingView: View {
                     .font(.title2)
                     .bold()
 
-                Text(store.state.currentTarget.searchDescription)
+                Text(
+                    store.state.discoveredDevices.isEmpty ?
+                    "다른 기기에서 미러링/리모트 기기로 시작하기를 눌러주세요!" : store.state.currentTarget.searchDescription
+                )
                     .font(.footnote)
                     .foregroundStyle(Color(.secondaryLabel))
 

@@ -39,29 +39,28 @@ struct DeviceRow: View {
     }
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 0) {
             Image(systemName: device.type.icon)
                 .font(.title)
                 .foregroundStyle(iconColor)
                 .frame(width: iconFrameWidth, alignment: .center)
+                .padding(.trailing, 16)
 
             VStack(alignment: .leading) {
-                Text(device.id)
+                Text(device.id.replacingOccurrences(of: "(", with: "\n("))
                     .multilineTextAlignment(.leading)
                     .font(.headline.bold())
                 Text(device.type.rawValue)
                     .font(.footnote)
             }
 
-            Spacer()
+            Spacer(minLength: 8)
 
             // 선택된 기기인 경우 상징적인 아이콘 표시
-            if let target = selectedTarget {
-                Image(systemName: target.icon)
-                    .font(.title2)
-                    .foregroundStyle(Color(target.color))
-                    .frame(width: iconFrameWidth, alignment: .center)
-            }
+            Image(systemName: selectedTarget?.icon ?? "multiply")
+                .font(.title2)
+                .foregroundStyle(borderColor)
+                .frame(width: iconFrameWidth, alignment: .center)
         }
         .padding()
         .frame(maxWidth: .infinity)
