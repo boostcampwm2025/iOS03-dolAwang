@@ -1,7 +1,5 @@
 <div align="center">
 
-# 📹 미러링부스
-
 <img src="https://github.com/user-attachments/assets/9bb8b408-950b-4279-b2c2-b50d8679a635" alt="미러링부스 썸네일" width="100%" />
 
 ### 내 손 안의 포토부스
