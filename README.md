@@ -116,13 +116,13 @@ iPhone 후면 카메라를 **렌즈**로, iPad나 Mac의 넓은 화면을 **거�
 
 | 경험 | 설명 |
 |---|---|
-| **멀티 디바이스 통신** | MultipeerConnectivity로 iPhone↔iPad↔Mac↔Watch 간 실시간 스트리밍 구현 |
-| **재연결 로직** | 연결 끊김 시 자동 재연결 및 상태 복구 처리 |
-| **CI/CD 자동화** | Fastlane + GitHub Actions로 빌드 자동화, 에셋 자동 병합 시스템 구축 |
-| **AI PR 자동 리뷰** | n8n을 활용한 AI PR 자동 리뷰 파이프라인 구축 |
-| **사용자 테스트** | 실사용자 피드백 기반 UX 개선 (공유 시트, 토스트 컴포넌트 등) |
+| **멀티 디바이스 통신** | MultipeerConnectivity로 Apple 기기 간 실시간 스트리밍을 구현한 경험을 소개합니다. |
+| **재연결 로직** | 디바이스 별 연결이 끊어졌을 때 어떻게 대응하는지 설명합니다. |
+| **CI/CD 자동화** | Fastlane + GitHub Actions로 빌드 자동화, 에셋 자동 병합 시스템 구축을 진행했습니다. |
+| **AI PR 자동 리뷰** | n8n을 활용한 AI PR 자동 리뷰 파이프라인 구축을 진행한 경험을 소개합니다. |
+| **사용자 테스트** | 실사용자 피드백 기반 UX 개선 (공유 시트, 토스트 컴포넌트 등)을 진행한 기록입니다. |
 
-[![Wiki](https://img.shields.io/badge/➜_더_자세한_기술_문서_보러가기-4F47E6?style=flat-square)](#)
+[![Wiki](https://img.shields.io/badge/➜_기술_문서_보러가기-4F47E6?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki)
 
 ---
 
@@ -171,10 +171,10 @@ mirroringBooth/
 
 | 문서 | 링크 |
 |---|---|
-| 그라운드 룰 | [![Wiki](https://img.shields.io/badge/↗_그라운드룰-2D9CDB?style=flat-square)](#) |
-| 기획서 | [![Wiki](https://img.shields.io/badge/↗_프로젝트_기획서-9B59B6?style=flat-square)](#) |
-| 설계서 | [![Wiki](https://img.shields.io/badge/↗_프로젝트_설계서-E74C3C?style=flat-square)](#) |
-| 프로덕트 백로그 | [![Wiki](https://img.shields.io/badge/↗_프로덕트_백로그-27AE60?style=flat-square)](#) |
+| 그라운드 룰 | [![Wiki](https://img.shields.io/badge/↗_그라운드룰-2D9CDB?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%E2%9A%94%EF%B8%8F%C2%A0%EA%B7%B8%EB%9D%BC%EC%9A%B4%EB%93%9C-%EB%A3%B0) |
+| 기획서 | [![Wiki](https://img.shields.io/badge/↗_프로젝트_기획서-9B59B6?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EA%B8%B0%ED%9A%8D%EC%84%9C) |
+| 설계서 | [![Wiki](https://img.shields.io/badge/↗_프로젝트_설계서-E74C3C?style=flat-square)](https://www.figma.com/design/7JOGxTFogHn71WU3q8VOSZ/%EB%AF%B8%EB%9F%AC%EB%A7%81%EB%B6%80%EC%8A%A4-%ED%99%94%EB%A9%B4-%EC%84%A4%EA%B3%84%EC%95%88?node-id=0-1&t=GsglDcx1sHtk6ooq-1) |
+| 프로덕트 백로그 | [![Wiki](https://img.shields.io/badge/↗_프로덕트_백로그-27AE60?style=flat-square)](https://github.com/orgs/boostcampwm2025/projects/239/views/5) |
 
 ---
 
