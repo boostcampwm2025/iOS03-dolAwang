@@ -14,6 +14,7 @@ struct BrowsingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) var rootStore: RootStore
     @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
+    @State private var showTutorial = false
     @State private var showToast = false
 
     var body: some View {
@@ -136,6 +137,16 @@ struct BrowsingView: View {
             store.send(.didChangeAppState(state))
         }
         .backgroundStyle()
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showTutorial = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+            }
+        }
+        .tutorialOverlay(isPresented: $showTutorial)
         .homeAlert(
             isPresented: Binding(
                 get: { store.state.showMirroringDisconnectedAlert },
