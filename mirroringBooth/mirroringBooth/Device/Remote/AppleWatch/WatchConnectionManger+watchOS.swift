@@ -126,7 +126,7 @@ final class WatchConnectionManager: NSObject {
         }
 
         guard session.isReachable else {
-            self.logger.error("아이폰에 도달할 수 없어 \(rejectedActionString)")
+            self.logger.error("iPhone에 도달할 수 없어 \(rejectedActionString)")
             return
         }
 
