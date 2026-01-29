@@ -80,6 +80,15 @@ struct HomeView: View {
                    Text(accessManager.requiredAccess?.alertMessage ?? "")
                }
                .backgroundStyle()
+               .toolbar {
+                   ToolbarItem(placement: .topBarTrailing) {
+                       Button {
+                           showTutorial = true
+                       } label: {
+                           Image(systemName: "questionmark.circle")
+                       }
+                   }
+               }
                .tutorialOverlay(isPresented: $showTutorial)
     }
 
