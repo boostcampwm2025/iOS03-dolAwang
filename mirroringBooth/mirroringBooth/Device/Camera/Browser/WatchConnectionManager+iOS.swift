@@ -148,7 +148,8 @@ final class WatchConnectionManager: NSObject {
         shouldPrepareToCapture = true
         self.sendMessage(
             action: .prepare,
-            rejectedActionString: "촬영 준비 요청을 보낼 수 없습니다."
+            rejectedActionString: "촬영 준비 요청을 보낼 수 없습니다.",
+            successLog: "워치에 촬영 준비 요청 전송"
         )
     }
 
