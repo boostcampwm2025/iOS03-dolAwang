@@ -123,7 +123,7 @@ iPhone 카메라 화면을 iPad, Mac 등에서 실시간으로 확인하며 촬�
 
 프로젝트는 **MVI (Model-View-Intent)** 패턴을 사용합니다.
 
-<img width="1276" height="408" alt="image" src="https://github.com/user-attachments/assets/15597ceb-b14b-4b9b-85be-d10e6a05450a" />
+<img width="1987" height="658" alt="스크린샷 2026-01-29 오후 6 03 32" src="https://github.com/user-attachments/assets/78e0ca53-a44a-46e0-ac41-75aba8bc4a74" />
 
 | 구성 요소 | 역할 |
 |:---:|---|
@@ -150,13 +150,18 @@ iPhone 카메라 화면을 iPad, Mac 등에서 실시간으로 확인하며 촬�
 
 ## 🏛 시스템 아키텍처
 
-<img width="1650" height="883" alt="image" src="https://github.com/user-attachments/assets/44394c86-4d11-455c-964b-71750223e937" />
+<img width="1456" height="859" alt="image" src="https://github.com/user-attachments/assets/48031810-8f8c-4082-84ec-a3eee0cd8e13" />
 
 **주요 컴포넌트**
 - **Camera Device**: iPhone 후면 카메라로 촬영, H.264 인코딩 후 스트리밍
 - **Mirroring Device**: 스트림 수신 및 디코딩하여 실시간 미러링 화면 표시
-- **Remote Device**: 원격 촬영 명령 전송 (Apple Watch 포함)
-- **MultipeerConnectivity**: 모든 기기 간 P2P 통신 담당
+- **Remote Device**: 원격 촬영 명령 전송
+
+**통신 방식**
+- **MultipeerConnectivity**: iPhone ↔ iPad ↔ Mac 간 P2P 통신 (영상 스트리밍 + 촬영 명령)
+- **WatchConnectivity**: iPhone ↔ Apple Watch 간 1:1 통신 (촬영 명령 전용)
+
+> Apple Watch는 MultipeerConnectivity를 지원하지 않아 WatchConnectivity로 iPhone과 직접 연결됩니다.
 
 ---
 
