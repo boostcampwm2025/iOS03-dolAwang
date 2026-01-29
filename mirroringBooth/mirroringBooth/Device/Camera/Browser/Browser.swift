@@ -243,7 +243,9 @@ final class Browser: NSObject {
                 toPeers: connectedPeers,
                 with: .reliable
             )
-            logger.info("명령 전송 성공: \(command.rawValue)")
+            if command != .heartBeat {
+                logger.info("명령 전송 성공: \(command.rawValue)")
+            }
         } catch {
             logger.warning("명령 전송 실패: \(error.localizedDescription)")
         }
