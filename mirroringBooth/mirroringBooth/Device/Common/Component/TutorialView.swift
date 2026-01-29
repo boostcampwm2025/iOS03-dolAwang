@@ -15,7 +15,7 @@ struct TutorialView: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.3)
+            Color.black.opacity(0.45)
                 .ignoresSafeArea()
 
             VStack(spacing: 10) {
@@ -24,7 +24,11 @@ struct TutorialView: View {
                 } label: {
                     Text("건너뛰기")
                         .font(.subheadline.bold())
-                        .foregroundStyle(.white.opacity(0.8))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .foregroundStyle(.background.opacity(0.8))
+                        .background(.primary.opacity(0.8))
+                        .clipShape(RoundedRectangle(cornerRadius: 15))
                 }
                 .opacity(currentPage == imageNames.count - 1 ? 0 : 1)
 
