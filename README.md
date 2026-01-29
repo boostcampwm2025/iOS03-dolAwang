@@ -55,7 +55,7 @@ iPhone 후면 카메라를 **렌즈**로, iPad나 Mac의 넓은 화면을 **거�
 
 <div align="center">
 
-### 다양한 기기 연결
+### 💻 다양한 기기 연결
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 1 - 다양한 기기 연결@3x" src="https://github.com/user-attachments/assets/031187b7-131a-4aeb-a49c-bab6b39b57e4" />
 
@@ -65,7 +65,9 @@ iPhone 후면 카메라를 **렌즈**로, iPad나 Mac의 넓은 화면을 **거�
 
 <br>
 
-### 촬영 방식 선택
+---
+
+### 📷 촬영 방식 선택
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 2 - 촬영 방식 선택@3x" src="https://github.com/user-attachments/assets/ae355ad9-842d-43c7-9cd6-63c39a66447c" />
 
@@ -78,7 +80,9 @@ iPhone 후면 카메라를 **렌즈**로, iPad나 Mac의 넓은 화면을 **거�
 
 <br>
 
-### 촬영 및 포즈
+---
+
+### 🤳 촬영 및 포즈
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 3 - 촬영 및 포즈 추천@3x" src="https://github.com/user-attachments/assets/e35eba87-4f2e-4bb2-a1d0-b48713b917c8" />
 
@@ -90,7 +94,9 @@ iPhone 후면 카메라를 **렌즈**로, iPad나 Mac의 넓은 화면을 **거�
 
 <br>
 
-### 편집 화면
+---
+
+### 🎨 편집 화면
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 4 - 편집@3x" src="https://github.com/user-attachments/assets/52b8c48b-770f-438d-b57d-d15933222b74" />
 
@@ -100,7 +106,9 @@ iPhone 후면 카메라를 **렌즈**로, iPad나 Mac의 넓은 화면을 **거�
 
 <br>
 
-### 결과 및 공유
+---
+
+### 🎑 결과 및 공유
 
 <img width="5760" height="3240" alt="iOS03 스크린샷 5 - 결과 및 공유@3x" src="https://github.com/user-attachments/assets/9d6275a8-f08b-4a17-b215-c3e32862ed9f" />
 
