@@ -36,14 +36,14 @@ struct TutorialView: View {
                     ForEach(0..<imageNames.count, id: \.self) { index in
                         Image(imageNames[index])
                             .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: 500)
+                            .aspectRatio(300/390, contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .padding(.bottom, 40)
                             .tag(index)
                     }
                 }
+                .frame(maxWidth: 600)
                 .tabViewStyle(.page(indexDisplayMode: .always))
-                .aspectRatio(300/390, contentMode: .fit)
 
                 Button {
                     dismiss()
