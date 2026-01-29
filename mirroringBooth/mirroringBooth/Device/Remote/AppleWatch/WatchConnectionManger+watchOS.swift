@@ -36,7 +36,6 @@ final class WatchConnectionManager: NSObject {
     private let session: WCSession?
     private let logger = Logger.watchConnectionManager
     private var lastAppState: AppStateValue = .terminated
-    private var shouldPrepareToCapture: Bool = false
 
     var onReachableChanged: ((Bool) -> Void)?
 
@@ -202,9 +201,7 @@ extension WatchConnectionManager: WCSessionDelegate {
 
         Task { @MainActor in
             if self.lastAppState == .active {
-                if !shouldPrepareToCapture {
-                    sendCheckCaptureAvailabilityRequest()
-                }
+                sendCheckCaptureAvailabilityRequest()
                 self.onReachableChanged?(session.isReachable)
             }
         }
@@ -220,14 +217,12 @@ extension WatchConnectionManager: WCSessionDelegate {
         if actionValue == ActionValue.connect.rawValue {
             self.logger.info("연결 완료 알림 수신됨.")
             Task { @MainActor in
-                shouldPrepareToCapture = false
                 self.sendConnectionAck()
                 self.onReceiveConnectionCompleted?()
             }
         } else if actionValue == ActionValue.prepare.rawValue {
             self.logger.info("촬영 준비 요청 수신됨.")
             Task { @MainActor in
-                shouldPrepareToCapture = true
                 self.onReceiveConnectionCompleted?()
                 self.onReceiveRequestToPrepare?()
             }
