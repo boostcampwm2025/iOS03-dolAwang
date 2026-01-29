@@ -18,6 +18,7 @@ final class WatchConnectionManager: NSObject {
         case connectAck
         case disconnect
         case captureComplete
+        case checkIfCaptureAvailable
     }
 
     private enum MessageKey: String {
@@ -229,6 +230,13 @@ extension WatchConnectionManager: WCSessionDelegate {
             self.logger.info("워치 연결 응답 수신됨.")
             Task { @MainActor in
                 self.onReceiveConnectionAck?()
+            }
+        } else if actionValue == ActionValue.checkIfCaptureAvailable.rawValue {
+            self.logger.info("캡쳐 가능 여부 확인 요청 수신됨.")
+            Task { @MainActor in
+                if shouldPrepareToCapture {
+                    self.prepareWatchToCapture()
+                }
             }
         }
     }

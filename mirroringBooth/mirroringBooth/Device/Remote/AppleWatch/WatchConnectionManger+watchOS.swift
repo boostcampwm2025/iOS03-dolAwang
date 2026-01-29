@@ -18,6 +18,7 @@ final class WatchConnectionManager: NSObject {
         case connectAck
         case disconnect
         case captureComplete
+        case checkIfCaptureAvailable
     }
 
     private enum MessageKey: String {
@@ -35,6 +36,7 @@ final class WatchConnectionManager: NSObject {
     private let session: WCSession?
     private let logger = Logger.watchConnectionManager
     private var lastAppState: AppStateValue = .terminated
+    private var shouldPrepareToCapture: Bool = false
 
     var onReachableChanged: ((Bool) -> Void)?
 
@@ -133,7 +135,7 @@ final class WatchConnectionManager: NSObject {
         session.sendMessage(message, replyHandler: nil)
     }
 
-    /// 카메라 캡쳐 요청을 상대 기기로 전송합니다.
+    /// 카메라 캡쳐 요청을 iPhone로 전송합니다.
     func sendCaptureRequest() async {
         self.sendMessage(
             action: .capture,
@@ -146,6 +148,14 @@ final class WatchConnectionManager: NSObject {
         self.sendMessage(
             action: .connectAck,
             rejectedActionString: "연결 완료 응답을 보낼 수 없습니다."
+        )
+    }
+
+    /// 촬영 준비를 해야하는지 확인해줄 것을 iPhone으로 전송합니다.
+    private func sendCheckCaptureAvailabilityRequest() {
+        self.sendMessage(
+            action: .checkIfCaptureAvailable,
+            rejectedActionString: "촬영 준비 여부 확인 요청을 보낼 수 없습니다."
         )
     }
 
@@ -192,6 +202,9 @@ extension WatchConnectionManager: WCSessionDelegate {
 
         Task { @MainActor in
             if self.lastAppState == .active {
+                if !shouldPrepareToCapture {
+                    sendCheckCaptureAvailabilityRequest()
+                }
                 self.onReachableChanged?(session.isReachable)
             }
         }
@@ -206,13 +219,14 @@ extension WatchConnectionManager: WCSessionDelegate {
 
         if actionValue == ActionValue.connect.rawValue {
             self.logger.info("연결 완료 알림 수신됨.")
-            self.sendConnectionAck()
             Task { @MainActor in
+                self.sendConnectionAck()
                 self.onReceiveConnectionCompleted?()
             }
         } else if actionValue == ActionValue.prepare.rawValue {
             self.logger.info("촬영 준비 요청 수신됨.")
             Task { @MainActor in
+                shouldPrepareToCapture = true
                 self.onReceiveRequestToPrepare?()
             }
         } else if actionValue == ActionValue.disconnect.rawValue {
