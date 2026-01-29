@@ -276,16 +276,8 @@ final class Browser: NSObject {
     /// 모든 세션의 연결을 해제합니다.
     func disconnect() {
         // disconnect의 호출이 세션을 아예 nil로 변경.
-        mirroringSession?.disconnect()
-        mirroringCommandSession?.disconnect()
-        remoteSession?.disconnect()
-        mirroringSession = nil
-        mirroringCommandSession = nil
-        remoteSession = nil
-        targetMirroringDeviceID = nil
-        targetRemoteDeviceID = nil
-        mirroringHeartBeater.stop()
-        remoteHeartBeater?.stop()
+        disconnect(useType: .mirroring)
+        disconnect(useType: .remote)
         logger.info("모든 연결 해제")
     }
 
