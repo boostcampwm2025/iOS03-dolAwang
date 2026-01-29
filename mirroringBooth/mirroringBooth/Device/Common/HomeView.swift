@@ -13,6 +13,7 @@ struct HomeView: View {
     private var accessManager: AccessManager = .init()
     let isiPhone: Bool = UIDevice.current.userInterfaceIdiom == .phone
     @State private var showResumeAlert: Bool = false
+    @State private var showTutorial: Bool = !UserDefaults.standard.bool(forKey: "hasSeenTutorial")
     @State private var cachedImage: UIImage?
 
     var body: some View {
@@ -79,6 +80,7 @@ struct HomeView: View {
                    Text(accessManager.requiredAccess?.alertMessage ?? "")
                }
                .backgroundStyle()
+               .tutorialOverlay(isPresented: $showTutorial)
     }
 
     @ViewBuilder
