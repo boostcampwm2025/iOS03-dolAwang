@@ -76,14 +76,7 @@ final class WatchConnectionManager: NSObject {
 
             // 이미 활성화된 경우에도 현재 상태를 확인하여 콜백 호출
             let context: [String: Any] = session.receivedApplicationContext
-            let appStateRawValue: String? = context[MessageKey.appState.rawValue] as? String
-            let appStateValue: AppStateValue? = appStateRawValue.flatMap { AppStateValue(rawValue: $0) }
-            let reachable: Bool = (appStateValue == .active)
-
-            Task { @MainActor in
-                self.lastAppState = .active
-                self.onReachableChanged?(reachable)
-            }
+            handleAppStateUpdate(context)
             return
         }
 
@@ -107,23 +100,6 @@ final class WatchConnectionManager: NSObject {
         self.logger.info("WCSession 연결 대기 중지")
     }
 
-    /// 카메라 캡쳐 요청을 상대 기기로 전송합니다.
-    func sendCaptureRequest() async {
-        guard let session = self.session else {
-            self.logger.error("WCSession이 지원되지 않아 활성화할 수 없습니다.")
-            return
-        }
-
-        let message: [String: Any] = [MessageKey.action.rawValue: ActionValue.capture.rawValue]
-
-        guard session.isReachable else {
-            self.logger.error("WCSession이 도달할 수 없어 메시지를 보낼 수 없습니다.")
-            return
-        }
-
-        session.sendMessage(message, replyHandler: nil)
-    }
-
     /// iPhone에게 Watch 앱 상태를 전달합니다.
     private func pushWatchAppState(_ state: AppStateValue) {
         guard let session = self.session else {
@@ -139,33 +115,45 @@ final class WatchConnectionManager: NSObject {
         }
     }
 
-    /// 연결 요청에 대한 응답을 iPhone으로 전송합니다.
-    private func sendConnectionAck() {
+    private func sendMessage(
+        action: ActionValue,
+        rejectedActionString: String
+    ) {
         guard let session = self.session else {
-            self.logger.error("WCSession이 지원되지 않아 응답을 보낼 수 없습니다.")
+            self.logger.error("WCSession이 지원되지 않아 \(rejectedActionString)")
             return
         }
 
         guard session.isReachable else {
-            self.logger.error("iPhone에 도달할 수 없어 응답을 보낼 수 없습니다.")
+            self.logger.error("아이폰에 도달할 수 없어 \(rejectedActionString)")
             return
         }
 
-        let message = [MessageKey.action.rawValue: ActionValue.connectAck.rawValue]
+        let message = [MessageKey.action.rawValue: action.rawValue]
         session.sendMessage(message, replyHandler: nil)
+    }
+
+    /// 카메라 캡쳐 요청을 상대 기기로 전송합니다.
+    func sendCaptureRequest() async {
+        self.sendMessage(
+            action: .capture,
+            rejectedActionString: "카메라 캡처 요청을 보낼 수 없습니다."
+        )
+    }
+
+    /// 연결 요청에 대한 응답을 iPhone으로 전송합니다.
+    private func sendConnectionAck() {
+        self.sendMessage(
+            action: .connectAck,
+            rejectedActionString: "연결 완료 응답을 보낼 수 없습니다."
+        )
     }
 
     private nonisolated func handleAppStateUpdate(_ applicationContext: [String: Any]) {
         let appStateRawValue = applicationContext[MessageKey.appState.rawValue] as? String
         let appStateValue = appStateRawValue.flatMap { AppStateValue(rawValue: $0) }
 
-        let reachable: Bool
-        switch appStateValue {
-        case .active:
-            reachable = true
-        case .inactive, .background, .terminated, .none:
-            reachable = false
-        }
+        let reachable: Bool = (appStateValue == .active)
 
         Task { @MainActor in
             self.lastAppState = appStateValue ?? .terminated
@@ -196,15 +184,7 @@ extension WatchConnectionManager: WCSessionDelegate {
         }
 
         let context: [String: Any] = session.receivedApplicationContext
-        let appStateRawValue: String? = context[MessageKey.appState.rawValue] as? String
-        let appStateValue: AppStateValue? = appStateRawValue.flatMap { AppStateValue(rawValue: $0) }
-
-        let reachable: Bool = (appStateValue == .active)
-
-        Task { @MainActor in
-            self.lastAppState = appStateValue ?? .terminated
-            self.onReachableChanged?(reachable)
-        }
+        handleAppStateUpdate(context)
     }
 
     nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
