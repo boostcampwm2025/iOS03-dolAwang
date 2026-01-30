@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TutorialView: View {
+    @AppStorage("hasSeenTutorial") private var hasSeenTutorial: Bool = false
     @Binding var isPresented: Bool
     @State private var currentPage: Int = 0
 
@@ -64,7 +65,7 @@ struct TutorialView: View {
     }
 
     private func dismiss() {
-        UserDefaults.standard.set(true, forKey: "hasSeenTutorial")
+        hasSeenTutorial = true
         isPresented = false
     }
 }
