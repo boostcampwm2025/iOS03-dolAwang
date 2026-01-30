@@ -39,6 +39,7 @@ struct TutorialView: View {
                             .resizable()
                             .aspectRatio(300/390, contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .padding(.horizontal, 10)
                             .padding(.bottom, 40)
                             .tag(index)
                     }
