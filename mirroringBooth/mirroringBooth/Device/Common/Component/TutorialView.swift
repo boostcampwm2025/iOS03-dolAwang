@@ -32,6 +32,7 @@ struct TutorialView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 15))
                 }
                 .opacity(currentPage == imageNames.count - 1 ? 0 : 1)
+                .padding(.bottom, -30)
 
                 TabView(selection: $currentPage) {
                     ForEach(0..<imageNames.count, id: \.self) { index in
@@ -40,10 +41,10 @@ struct TutorialView: View {
                             .aspectRatio(300/390, contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 20))
                             .padding(.horizontal, 10)
-                            .padding(.bottom, 40)
                             .tag(index)
                     }
                 }
+                .aspectRatio(300/450, contentMode: .fit)
                 .frame(maxWidth: 600)
                 .tabViewStyle(.page(indexDisplayMode: .always))
 
