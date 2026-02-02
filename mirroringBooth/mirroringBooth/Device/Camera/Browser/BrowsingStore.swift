@@ -52,7 +52,7 @@ final class BrowsingStore: StoreProtocol {
         case setCurrentTarget(DeviceUseType)
         case startAnimation
         case setShowMirroringDisconnectedAlert(Bool)
-        case setShowToast(Bool)
+        case setShowToast(Bool, String = "")
         case setShowTutorial(Bool)
     }
 
@@ -196,7 +196,11 @@ final class BrowsingStore: StoreProtocol {
             // 2. 연결된 기기와 다른 기기를 선택했을 경우 연결 요청 전송
             if currentDevice != device {
                 if device.type == .watch {
-                    watchConnectionManager.sendConnectionRequest()
+                    if state.currentTarget == .mirroring {
+                        result.append(.setShowToast(true, "워치는 리모트 기기로만 연결이 가능합니다."))
+                    } else {
+                        watchConnectionManager.sendConnectionRequest()
+                    }
                 } else {
                     browser.connect(to: device.id, as: state.currentTarget)
                     result.append(.setIsConnecting(true))
@@ -273,11 +277,12 @@ final class BrowsingStore: StoreProtocol {
         case .startAnimation:
             state.animationTrigger = true
 
-        case let .setShowMirroringDisconnectedAlert(bool):
-            state.showMirroringDisconnectedAlert = bool
+        case.setShowMirroringDisconnectedAlert(let alert):
+            state.showMirroringDisconnectedAlert = alert
 
-        case let .setShowToast(bool):
-            state.showToast = bool
+        case .setShowToast(let value, let message):
+            state.toastMessage = message
+            state.showToast = value
 
         case let .setShowTutorial(bool):
             state.showTutorial = bool
