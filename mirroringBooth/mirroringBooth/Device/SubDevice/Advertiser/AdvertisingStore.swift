@@ -40,12 +40,6 @@ final class AdvertisingStore: StoreProtocol {
         self.advertiser = advertiser
         subscribeToStream()
 
-        advertiser.navigateToRemoteConnectedCallBack = { [weak self] in
-            Task { @MainActor in
-                self?.reduce(.setOnNavigate(true, type: .remote))
-            }
-        }
-
         advertiser.navigateToRemoteCaptureCallBack = { [weak self] in
             Task { @MainActor in
                 self?.reduce(.setOnNavigate(true, type: .remote))
@@ -109,6 +103,8 @@ extension AdvertisingStore {
                         self.reduce(.setIsRemoteSelected(isRemoteEnable))
                         self.reduce(.setOnNavigate(true, type: .mirroring))
                     }
+                case .navigateToRemoteConnectedCallBack:
+                    await MainActor.run { self.reduce(.setOnNavigate(true, type: .remote)) }
                 }
             }
         }

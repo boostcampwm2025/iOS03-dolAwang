@@ -31,9 +31,6 @@ final class Advertiser: NSObject {
     private let controlContinuation: AsyncStream<AdvertiserEvents>.Continuation
     let controlStream: AsyncStream<AdvertiserEvents>
 
-    /// 촬영 대기 화면 이동 콜백 (리모트 기기)
-    var navigateToRemoteConnectedCallBack: (() -> Void)?
-
     /// 촬영 화면 이동 콜백 (리모트 기기)
     var navigateToRemoteCaptureCallBack: (() -> Void)?
 
@@ -215,10 +212,7 @@ final class Advertiser: NSObject {
     private func handleRemoteDeviceCommand(_ remoteDeviceCommand: Browser.RemoteDeviceCommand) {
         switch remoteDeviceCommand {
         case .navigateToRemoteConnected:
-            guard let navigateToRemoteConnectedCallBack else { return }
-            DispatchQueue.main.async {
-                navigateToRemoteConnectedCallBack()
-            }
+            controlContinuation.yield(.navigateToRemoteConnectedCallBack)
         case .navigateToRemoteCapture:
             guard let navigateToRemoteCaptureCallBack else { return }
             DispatchQueue.main.async {
