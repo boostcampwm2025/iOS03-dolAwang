@@ -20,13 +20,13 @@ struct RemoteCaptureView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .backgroundStyle()
-        .onAppear {
-            advertiser.navigateToRemoteCompleteCallBack = { [weak router] in
-                router?.push(to: RemoteRoute.completion)
-            }
-        }
         .task {
-            
+            for await stream in advertiser.remoteCaptureViewStream {
+                switch stream {
+                case .navigateToRemoteComplete:
+                    router.push(to: RemoteRoute.completion)
+                }
+            }
         }
     }
 }

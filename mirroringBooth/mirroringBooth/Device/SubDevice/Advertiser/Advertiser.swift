@@ -37,9 +37,8 @@ final class Advertiser: NSObject {
     private let remoteConnectedViewContinuation: AsyncStream<RemoteConnectedViewEvents>.Continuation
     let remoteConnectedViewStream: AsyncStream<RemoteConnectedViewEvents>
 
-    /// 촬영 완료 이동 콜백 (리모트 기기)
-    var navigateToRemoteCompleteCallBack: (() -> Void)?
-
+    private let remoteCaptureViewContinuation: AsyncStream<RemoteCaptureViewEvents>.Continuation
+    let remoteCaptureViewStream: AsyncStream<RemoteCaptureViewEvents>
 
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
@@ -103,7 +102,12 @@ final class Advertiser: NSObject {
         )
         (advertisingStream, advertisingContinuation) = AsyncStream.makeStream(of: AdvertiserEvents.self)
         (modeSelectionStream, modeSelectionContinuation) = AsyncStream.makeStream(of: ModeSelectionEvents.self)
-        (remoteConnectedViewStream, remoteConnectedViewContinuation) = AsyncStream.makeStream(of: RemoteConnectedViewEvents.self)
+        (remoteConnectedViewStream, remoteConnectedViewContinuation) = AsyncStream.makeStream(
+            of: RemoteConnectedViewEvents.self
+        )
+        (remoteCaptureViewStream, remoteCaptureViewContinuation) = AsyncStream.makeStream(
+            of: RemoteCaptureViewEvents.self
+        )
 
         super.init()
         advertiser.delegate = self
@@ -211,9 +215,7 @@ final class Advertiser: NSObject {
         case .navigateToRemoteCapture:
             remoteConnectedViewContinuation.yield(.navigateToRemoteCapture)
         case .navigateToRemoteComplete:
-            DispatchQueue.main.async {
-                self.navigateToRemoteCompleteCallBack?()
-            }
+            remoteCaptureViewContinuation.yield(.navigateToRemoteComplete)
         case .navigateToHome:
             remoteConnectedViewContinuation.yield(.navigateToHome)
         case .noticeIsRemoteDevice:

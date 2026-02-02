@@ -29,6 +29,10 @@ enum RemoteConnectedViewEvents {
     case navigateToHome
 }
 
+enum RemoteCaptureViewEvents {
+    case navigateToRemoteComplete
+}
+
 enum FrameReceivingEvents {
     case streamDataReceived(Data)
 }
