@@ -139,66 +139,55 @@ final class StreamingStore: StoreProtocol {
     }
 
     func action(_ intent: Intent) -> [Result] {
-        var result: [Result] = []
-
         switch intent {
             // MARK: - 화면 접근
         case .entry(let poseList):
-            if !poseList.isEmpty {
-                result.append(.phaseAppended(.poseSuggestion))
-            }
-            result.append(.setColorScheme(.dark))
-            result.append(.streamingStarted)
-            result.append(.setPoseList(poseList))
+            return [.setColorScheme(.dark), .streamingStarted, .setPoseList(poseList)]
+            + (!poseList.isEmpty ? [.phaseAppended(.poseSuggestion)] : [])
 
         case .exit:
             decoder.stop()
-            result.append(.setColorScheme(nil))
             streamingTask?.cancel()
-            result.append(.streamingStopped)
-
+            return [.setColorScheme(nil), .streamingStopped]
             // MARK: - 타이머
         case .startCountdown:
-            result.append(.phaseRemoved(.guide))
-            result.append(.phaseAppended(.countdown))
-            result.append(.countdownUpdated(8))
             startTimer()
+            return [.phaseRemoved(.guide), .phaseAppended(.countdown), .countdownUpdated(8)]
 
         case .tick:
-            result.append(contentsOf: handleTick())
+            return handleTick()
 
             // MARK: - 사진 전송
         case .startTransfer:
-            result.append(.phaseChanged(.transferring))
             advertiser?.sendCommand(.startTransfer)
             advertiser?.setupCacheManager()
+            return [.phaseChanged(.transferring)]
 
         case .photoReceived:
             let newCount = state.receivedPhotoCount + 1
-            result.append(.receivedPhotoCountUpdated(newCount))
             if newCount >= state.totalCaptureCount {
                 advertiser?.stopHeartBeating()
-                result.append(.phaseChanged(.completed))
+                return [.receivedPhotoCountUpdated(newCount), .phaseChanged(.completed)]
             }
+            return [.receivedPhotoCountUpdated(newCount)]
 
         case .capturePhotoCount:
             let newCount = min(state.totalCaptureCount, state.capturePhotoCount + 1)
-            result.append(.capturePhotoCountUpdated(newCount))
-            result.append(.removePose)
+            return [.capturePhotoCountUpdated(newCount), .removePose]
 
         case .setShowCaptureEffect(let value):
             if state.capturePhotoCount < state.totalCaptureCount {
-                result.append(.setShowCaptureEffect(value))
+                return [.setShowCaptureEffect(value)]
             }
 
         case .setHomeAlert(let value):
-            result.append(.setHomeAlert(value))
+            return [.setHomeAlert(value)]
 
         case .setVideoViewSize(let value):
-            result.append(.setVideoViewSize(value))
+            return [.setVideoViewSize(value)]
         }
 
-        return result
+        return []
     }
 
     func reduce(_ result: Result) {

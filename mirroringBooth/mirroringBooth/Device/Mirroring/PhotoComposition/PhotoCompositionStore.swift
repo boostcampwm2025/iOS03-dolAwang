@@ -47,21 +47,19 @@ final class PhotoCompositionStore: StoreProtocol {
                 return Photo(id: UUID(), url: url, selectNumber: nil)
             }
             return [.setPhotos(photos)]
-        case let .selectPhoto(index):
+
+        case .selectPhoto(let index):
             if state.photos[index].selectNumber == nil {
                 guard state.currentSelectionCount < state.selectedLayout.capacity else {
                     return []
                 }
-                return [
-                    .selectPhoto(index),
-                    .setSelectionCount(state.currentSelectionCount + 1)
-                ]
+                return [.selectPhoto(index),
+                    .setSelectionCount(state.currentSelectionCount + 1)]
             } else {
-                return [
-                    .deselectPhoto(index),
-                    .setSelectionCount(state.currentSelectionCount - 1)
-                ]
+                return [.deselectPhoto(index),
+                    .setSelectionCount(state.currentSelectionCount - 1)]
             }
+
         case .selectLayout(let layout):
             return [.setLayout(layout)]
 
