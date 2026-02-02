@@ -181,6 +181,7 @@ struct BrowsingView: View {
         }
 
         if store.state.currentTarget == .remote {
+            if store.state.mirroringDevice == nil { return true }
             if store.state.mirroringDevice == device { return false }
             return store.state.remoteDevice == nil
         }
