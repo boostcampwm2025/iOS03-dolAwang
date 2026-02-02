@@ -91,12 +91,17 @@ final class Browser: NSObject {
         UIDevice.current.userInterfaceIdiom == .phone
     }
 
+    let eventStream: AsyncStream<BrowserEvents>
+    private let eventContinuation: AsyncStream<BrowserEvents>.Continuation
+
     init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
         self.myDeviceName = PeerNameGenerator.makeDisplayName(isRandom: false, with: UIDevice.current.deviceType)
         self.peerID = MCPeerID(displayName: myDeviceName)
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
         self.mirroringHeartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
+
+        (self.eventStream, self.eventContinuation) = AsyncStream.makeStream(of: BrowserEvents.self)
 
         super.init()
         browser.delegate = self
