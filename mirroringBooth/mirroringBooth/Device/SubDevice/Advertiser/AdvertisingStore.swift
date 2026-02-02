@@ -15,18 +15,21 @@ final class AdvertisingStore: StoreProtocol {
         var onNavigate: Bool = false
         var deviceUseType: DeviceUseType?
         var isRemoteSelected: Bool = false
+        var showTutorial: Bool = false
     }
 
     enum Intent {
         case onAppear
         case connected
         case exit
+        case setShowTutorial(Bool)
     }
 
     enum Result {
         case setIsConnected(Bool)
         case setOnNavigate(Bool, type: DeviceUseType?)
         case setIsRemoteSelected(Bool)
+        case setShowTutorial(Bool)
     }
 
     var state: State = .init()
@@ -65,8 +68,11 @@ final class AdvertisingStore: StoreProtocol {
 
         case .exit:
             advertiser.stopSearching()
+            return []
+
+        case .setShowTutorial(let value):
+            return [.setShowTutorial(value)]
         }
-        return []
     }
 
     func reduce(_ result: Result) {
@@ -81,6 +87,9 @@ final class AdvertisingStore: StoreProtocol {
 
         case .setIsRemoteSelected(let isRemoteSelected):
             state.isRemoteSelected = isRemoteSelected
+
+        case .setShowTutorial(let bool):
+            state.showTutorial = bool
         }
 
         self.state = state
