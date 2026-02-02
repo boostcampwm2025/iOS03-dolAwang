@@ -11,21 +11,17 @@ struct StreamingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) private var rootStore
     @State private var store: StreamingStore
-    let advertiser: Advertiser?
-    private let isTimerMode: Bool
-    private let poseList: [Pose]
+    private let isPoseModeOn: Bool
 
     init(advertiser: Advertiser?, isTimerMode: Bool, isPoseModeOn: Bool) {
-        self.advertiser = advertiser
-        self.isTimerMode = isTimerMode
         self._store = State(
             initialValue: StreamingStore(
                 advertiser,
                 decoder: H264Decoder(),
-                initialPhase: isTimerMode ? .guide : .none
+                isTimerMode: isTimerMode
             )
         )
-        self.poseList = isPoseModeOn ? PoseSuggestor.suggest(count: 10) : []
+        self.isPoseModeOn = isPoseModeOn
     }
 
     private enum StreamingLayoutType {
@@ -109,7 +105,7 @@ struct StreamingView: View {
         .preferredColorScheme(store.state.colorScheme)
         .onAppear {
             AppDelegate.unlockOrientation()
-            store.send(.entry(with: poseList))
+            store.send(.entry(with: isPoseModeOn ? PoseSuggestor.suggest(count: 10) : []))
         }
         .onDisappear {
             AppDelegate.lockOrientation()
@@ -156,7 +152,7 @@ struct StreamingView: View {
     private var streamingHUD: some View {
         GeometryReader { geometry in
             let layoutType = StreamingLayoutType(width: geometry.size.width)
-            let isShooting = isTimerMode && store.state.overlayPhase.contains(.shooting)
+            let isShooting = store.isTimerMode && store.state.overlayPhase.contains(.shooting)
             let isCompact = layoutType == .compact
 
             ZStack {

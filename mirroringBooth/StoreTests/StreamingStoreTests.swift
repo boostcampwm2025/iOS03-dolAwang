@@ -16,12 +16,12 @@ struct StreamingStoreTests {
     // MARK: - Helper
 
     private func makeSUT(
-        initialPhase: StreamingStore.OverlayPhase = .none
+        isTimerMode: Bool = false
     ) -> StreamingStore {
         StreamingStore(
             nil,
             decoder: H264Decoder(),
-            initialPhase: initialPhase
+            isTimerMode: isTimerMode
         )
     }
 
@@ -108,7 +108,7 @@ struct StreamingStoreTests {
     // MARK: - 카운트다운 시작 (startCountdown)
 
     @Test func 준비완료_버튼을_누르면_가이드_오버레이가_제거됨() {
-        let store = makeSUT(initialPhase: .guide)
+        let store = makeSUT(isTimerMode: true)
 
         store.send(.startCountdown)
 
@@ -116,7 +116,7 @@ struct StreamingStoreTests {
     }
 
     @Test func 준비완료_버튼을_누르면_카운트다운_오버레이가_추가됨() {
-        let store = makeSUT(initialPhase: .guide)
+        let store = makeSUT(isTimerMode: true)
 
         store.send(.startCountdown)
 
@@ -124,7 +124,7 @@ struct StreamingStoreTests {
     }
 
     @Test func 준비완료_버튼을_누르면_카운트다운이_8로_설정됨() {
-        let store = makeSUT(initialPhase: .guide)
+        let store = makeSUT(isTimerMode: true)
 
         store.send(.startCountdown)
 
@@ -134,7 +134,7 @@ struct StreamingStoreTests {
     // MARK: - 카운트다운 틱 (tick)
 
     @Test func 카운트다운_중_틱이_오면_값이_1_감소함() {
-        let store = makeSUT(initialPhase: .guide)
+        let store = makeSUT(isTimerMode: true)
         store.send(.startCountdown) // countdown = 8
 
         store.send(.tick) // countdown = 7
@@ -143,7 +143,7 @@ struct StreamingStoreTests {
     }
 
     @Test func 카운트다운이_1일때_틱이_오면_촬영_모드로_전환됨() {
-        let store = makeSUT(initialPhase: .guide)
+        let store = makeSUT(isTimerMode: true)
         store.send(.startCountdown)
         // 카운트다운을 1까지 내림
         for _ in 0..<7 { store.send(.tick) }
@@ -157,7 +157,7 @@ struct StreamingStoreTests {
     }
 
     @Test func 촬영_모드에서_틱이_오면_촬영간격_카운트다운이_감소함() {
-        let store = makeSUT(initialPhase: .guide)
+        let store = makeSUT(isTimerMode: true)
         store.send(.startCountdown)
         for _ in 0..<8 { store.send(.tick) } // 촬영 모드 진입, shootingCountdown = 7
 
@@ -167,7 +167,7 @@ struct StreamingStoreTests {
     }
 
     @Test func 촬영간격_카운트다운이_0이면_촬영후_7로_리셋됨() {
-        let store = makeSUT(initialPhase: .guide)
+        let store = makeSUT(isTimerMode: true)
         store.send(.startCountdown)
         for _ in 0..<8 { store.send(.tick) } // 촬영 모드 진입
         for _ in 0..<7 { store.send(.tick) } // shootingCountdown → 0
@@ -309,7 +309,7 @@ struct StreamingStoreTests {
     }
 
     @Test func 오버레이_페이즈가_변경되면_기존_페이즈가_교체됨() {
-        let store = makeSUT(initialPhase: .guide)
+        let store = makeSUT(isTimerMode: true)
 
         store.reduce(.phaseChanged(.countdown))
 
@@ -317,15 +317,14 @@ struct StreamingStoreTests {
     }
 
     @Test func 오버레이_페이즈가_추가되면_기존_페이즈에_더해짐() {
-        let store = makeSUT(initialPhase: .guide)
-
+        let store = makeSUT(isTimerMode: true)
         store.reduce(.phaseAppended(.poseSuggestion))
 
         #expect(store.state.overlayPhase == [.guide, .poseSuggestion])
     }
 
     @Test func 오버레이_페이즈가_제거되면_해당_페이즈만_사라짐() {
-        let store = makeSUT(initialPhase: .guide)
+        let store = makeSUT(isTimerMode: true)
         store.reduce(.phaseAppended(.poseSuggestion))
 
         store.reduce(.phaseRemoved(.guide))
