@@ -111,7 +111,7 @@ final class StreamingStore: StoreProtocol {
         case setColorScheme(ColorScheme?)
     }
 
-    var state: State
+    private(set) var state: State
 
     private let advertiser: Advertiser?
     private let decoder: H264Decoder
