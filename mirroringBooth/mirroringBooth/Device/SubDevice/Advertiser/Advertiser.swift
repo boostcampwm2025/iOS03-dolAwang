@@ -25,8 +25,10 @@ final class Advertiser: NSObject {
     var advertiserType: DeviceUseType = .mirroring // heartbeat 메시지 종류 구분을 위해 추가
     let myDeviceName: String
 
-    /// 수신된 스트림 데이터 콜백
-    var onReceivedStreamData: ((Data) -> Void)?
+    private var videoContinuation: AsyncStream<FrameReceivingEvents>.Continuation?
+    lazy var videoStream = AsyncStream<FrameReceivingEvents>(bufferingPolicy: .bufferingNewest(1)) {
+        self.videoContinuation = $0
+    }
 
     /// 연결 성공 콜백
     var onConnected: (() -> Void)?
@@ -262,7 +264,7 @@ extension Advertiser: MCSessionDelegate {
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         if session === self.session {
             // 스트림 세션에서 수신
-            onReceivedStreamData?(data)
+            videoContinuation?.yield(.streamDataReceived(data))
         } else if session === commandSession {
             // 명령 세션에서 수신
             executeCommand(data: data)
