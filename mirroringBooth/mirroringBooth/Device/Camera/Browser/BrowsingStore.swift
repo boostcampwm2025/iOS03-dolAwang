@@ -45,9 +45,9 @@ final class BrowsingStore: StoreProtocol {
         case didChangeAppState(UIApplication.State)
 
         // 기타
-        case setShowMirroringDisconnectedAlert(Bool)
-        case setShowToast(Bool, String = "")
-        case setShowTutorial(Bool)
+        case showMirroringDisconnectedAlert(Bool)
+        case showToast(Bool, String = "")
+        case showTutorial(Bool)
         case browserEvent(BrowsingEvents)
     }
 
@@ -238,13 +238,13 @@ final class BrowsingStore: StoreProtocol {
         case .didChangeAppState(let state):
             watchConnectionManager.pushIOSAppState(state: state)
 
-        case .setShowMirroringDisconnectedAlert(let value):
+        case .showMirroringDisconnectedAlert(let value):
             return [.setShowMirroringDisconnectedAlert(value)]
 
-        case .setShowToast(let value, let message):
+        case .showToast(let value, let message):
             return [.setShowToast(value, message)]
 
-        case .setShowTutorial(let value):
+        case .showTutorial(let value):
             return [.setShowTutorial(value)]
 
         case .browserEvent(let event):

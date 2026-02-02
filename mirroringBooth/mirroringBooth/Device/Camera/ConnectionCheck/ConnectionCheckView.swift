@@ -104,7 +104,7 @@ struct ConnectionCheckView: View {
         .homeAlert(
             isPresented: Binding(
                 get: { store.state.showRemoteDisconnectedAlert },
-                set: { store.send(.setShowRemoteDisconnectedAlert($0)) }
+                set: { store.send(.showRemoteDisconnectedAlert($0)) }
             ),
             message: "리모트 기기 연결이 끊겼습니다.",
             confirmButtonText: "확인",
