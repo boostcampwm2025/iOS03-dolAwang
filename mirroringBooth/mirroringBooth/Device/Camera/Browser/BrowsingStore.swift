@@ -13,31 +13,38 @@ import UIKit
 final class BrowsingStore: StoreProtocol {
 
     struct State {
-        var currentTarget: DeviceUseType = .mirroring
         var discoveredDevices: [NearbyDevice] = []
         var mirroringDevice: NearbyDevice?
         var remoteDevice: NearbyDevice?
 
         var isConnecting: Bool = false
+        var currentTarget: DeviceUseType = .mirroring
         var hasSelectedDevice: Bool {
             switch currentTarget {
             case .mirroring: return mirroringDevice != nil
             case .remote: return remoteDevice != nil
             }
         }
-        var animationTrigger = false
-        var showMirroringDisconnectedAlert = false
-        var showToast = false
-        var toastMessage = ""
-        var showTutorial = false
+        var animationTrigger: Bool = false
+        var showMirroringDisconnectedAlert: Bool = false
+        var showToast: Bool = false
+        var toastMessage: String = ""
+        var showTutorial: Bool = false
     }
 
     enum Intent {
+        // 화면 접근
         case entry
         case exit
+
+        // 기기 선택
         case didSelect(NearbyDevice)
         case cancel
+
+        // 앱 상태 변화
         case didChangeAppState(UIApplication.State)
+
+        // 기타
         case setShowMirroringDisconnectedAlert(Bool)
         case setShowToast(Bool, String = "")
         case setShowTutorial(Bool)
@@ -47,10 +54,13 @@ final class BrowsingStore: StoreProtocol {
     enum Result {
         case addDiscoveredDevice(NearbyDevice)
         case removeDiscoveredDevice(NearbyDevice)
+
         case setMirroringDevice(NearbyDevice?)
         case setRemoteDevice(NearbyDevice?)
+
         case setIsConnecting(Bool)
         case setCurrentTarget(DeviceUseType)
+
         case startAnimation
         case setShowMirroringDisconnectedAlert(Bool)
         case setShowToast(Bool, String)
@@ -58,9 +68,10 @@ final class BrowsingStore: StoreProtocol {
     }
 
     private(set) var state: State = .init()
+    private var cancellables = Set<AnyCancellable>()
+
     let browser: Browser
     let watchConnectionManager: WatchConnectionManager
-    private var cancellables = Set<AnyCancellable>()
 
     var eventStream: AsyncStream<BrowsingEvents> {
         browser.browsingEventStream

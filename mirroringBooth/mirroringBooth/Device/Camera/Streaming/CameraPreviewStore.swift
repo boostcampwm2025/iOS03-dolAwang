@@ -12,16 +12,16 @@ import SwiftUI
 @Observable
 final class CameraPreviewStore: StoreProtocol {
     struct State {
-        var animationFlag = false
         var buffer: CMSampleBuffer?
         var deviceName: String
-        var isTransferring = false
         var angle: Double = 0
-        var isCaptureCompleted = false
-        var showHomeAlert: Bool = false
-        var isMirroringDisconnected: Bool = false
         var transfercount: Int = -1
         var colorScheme: ColorScheme?
+
+        var animationFlag: Bool = false
+        var isTransferring: Bool = false
+        var isCaptureCompleted: Bool = false
+        var isMirroringDisconnected: Bool = false
     }
 
     enum Intent {
@@ -33,19 +33,20 @@ final class CameraPreviewStore: StoreProtocol {
     }
 
     enum Result {
-        case startAnimation
         case updateAngle(Int)
+        case setTransferCount(Int)
+        case setColorScheme(ColorScheme?)
+
+        case startAnimation
+        case setIsTransferring(Bool)
         case captureCompleted
         case resetCaptureCompleted
         case isMirroringDisconnected
-        case setTransferCount(Int)
-        case setIsTransferring(Bool)
-        case setColorScheme(ColorScheme?)
     }
 
+    private(set) var state: State
     private let browser: Browser
     private let cameraManager: CameraManageable
-    private(set) var state: State
     private var cancellables = Set<AnyCancellable>()
 
     var eventStream: AsyncStream<CameraStreamEvents> {
@@ -91,11 +92,20 @@ final class CameraPreviewStore: StoreProtocol {
     func reduce(_ result: Result) {
         var state = self.state
         switch result {
+        case .updateAngle(let rawValue):
+            state.angle = getAngleByRawValue(rawValue)
+
+        case .setTransferCount(let count):
+            state.transfercount = count
+
+        case .setColorScheme(let scheme):
+            state.colorScheme = scheme
+
         case .startAnimation:
             state.animationFlag = true
 
-        case .updateAngle(let rawValue):
-            state.angle = getAngleByRawValue(rawValue)
+        case .setIsTransferring(let isTransferring):
+            state.isTransferring = isTransferring
 
         case .captureCompleted:
             state.isCaptureCompleted = true
@@ -105,15 +115,6 @@ final class CameraPreviewStore: StoreProtocol {
 
         case .isMirroringDisconnected:
             state.isMirroringDisconnected = true
-
-        case .setTransferCount(let count):
-            state.transfercount = count
-
-        case .setIsTransferring(let isTransferring):
-            state.isTransferring = isTransferring
-
-        case .setColorScheme(let scheme):
-            state.colorScheme = scheme
         }
 
         self.state = state

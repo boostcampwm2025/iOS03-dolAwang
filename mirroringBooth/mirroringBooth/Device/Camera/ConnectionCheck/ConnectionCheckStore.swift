@@ -19,25 +19,25 @@ final class ConnectionCheckStore: StoreProtocol {
 
     enum Intent {
         case entry
-        case setShowPreview(Bool)
-        case setNavigationToCompletion(Bool)
-        case setShowRemoteDisconnectedAlert(Bool)
         case onReadyToCapture
+        case setNavigationToCompletion(Bool)
+        case setShowPreview(Bool)
+        case setShowRemoteDisconnectedAlert(Bool)
     }
 
     enum Result {
         case setRemoteDevice(String?)
-        case setShowPreview(Bool)
-        case setNavigationToCompletion(Bool)
         case setIsMirroringDisconnected(Bool)
+        case setNavigationToCompletion(Bool)
+        case setShowPreview(Bool)
         case setShowRemoteDisconnectedAlert(Bool)
     }
 
     private(set) var state: State = .init()
 
+    let browser: Browser
     let cameraDevice: String
     let mirroringDevice: String
-    let browser: Browser
 
     init(
         _ list: ConnectionList,
@@ -58,15 +58,6 @@ final class ConnectionCheckStore: StoreProtocol {
             setupBrowser()
             return []
 
-        case .setShowPreview(let flag):
-            return [.setShowPreview(flag)]
-
-        case .setNavigationToCompletion(let flag):
-            return [.setNavigationToCompletion(flag)]
-
-        case .setShowRemoteDisconnectedAlert(let flag):
-            return [.setShowRemoteDisconnectedAlert(flag)]
-
         case .onReadyToCapture:
             browser.sendCommand(
                 state.remoteDevice == nil
@@ -75,6 +66,15 @@ final class ConnectionCheckStore: StoreProtocol {
             )
             browser.sendRemoteCommand(.navigateToRemoteConnected)
             return [.setShowPreview(true), .setNavigationToCompletion(false)]
+
+        case .setNavigationToCompletion(let flag):
+            return [.setNavigationToCompletion(flag)]
+
+        case .setShowPreview(let flag):
+            return [.setShowPreview(flag)]
+
+        case .setShowRemoteDisconnectedAlert(let flag):
+            return [.setShowRemoteDisconnectedAlert(flag)]
         }
     }
 
@@ -85,14 +85,14 @@ final class ConnectionCheckStore: StoreProtocol {
         case .setRemoteDevice(let name):
             state.remoteDevice = name
 
-        case .setShowPreview(let flag):
-            state.showPreview = flag
+        case .setIsMirroringDisconnected(let flag):
+            state.isMirroringDisconnected = flag
 
         case .setNavigationToCompletion(let flag):
             state.shouldNavigateToCompletion = flag
 
-        case .setIsMirroringDisconnected(let flag):
-            state.isMirroringDisconnected = flag
+        case .setShowPreview(let flag):
+            state.showPreview = flag
 
         case .setShowRemoteDisconnectedAlert(let flag):
             state.showRemoteDisconnectedAlert = flag

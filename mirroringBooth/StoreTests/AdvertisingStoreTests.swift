@@ -23,7 +23,7 @@ struct AdvertisingStoreTests {
     @Test func 화면에_진입하면_네비게이션_상태가_초기화됨() {
         let store = makeSUT()
         
-        store.send(.onAppear)
+        store.send(.entry)
         
         #expect(store.state.onNavigate == false)
         #expect(store.state.deviceUseType == nil)

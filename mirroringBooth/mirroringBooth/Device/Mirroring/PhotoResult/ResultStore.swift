@@ -11,57 +11,42 @@ import UIKit
 @Observable
 final class ResultStore: StoreProtocol {
     struct State {
-        // Photo Information
         var resultPhoto: PhotoInformation?
-
-        // home alert
-        var showHomeAlert: Bool = false
-
-        // toast
-        var showSavedToast: Bool = false
-        var toastMessage: String = ""
-
-        // setting alert
-        var showSettingAlert: Bool = false
-
-        // fileExporter
-        var showFileExporter: Bool = false
-        var document: ImageDocument?
-
-        // result image
         var renderedImage: UIImage?
-
-        // scale
         var scale: CGFloat = 1
         var lastScale: CGFloat = 1
 
-        // share sheet
+        var showFileExporter: Bool = false
+        var document: ImageDocument?
+
+        var showHomeAlert: Bool = false
+        var showSettingAlert: Bool = false
+        var showSavedToast: Bool = false
+        var toastMessage: String = ""
         var showShareSheet: Bool = false
     }
 
     enum Intent {
-        case showHomeAlert(Bool)
-        case showSavedToast(Bool, message: String? = nil)
-        case showSettingAlert(Bool)
-        case showFileExporter(Bool, document: ImageDocument? = nil)
         case setRenderedImage(image: UIImage)
         case setScale(scale: CGFloat)
         case setLastScale(scale: CGFloat)
+        case showFileExporter(Bool, document: ImageDocument? = nil)
 
+        case showHomeAlert(Bool)
+        case showSettingAlert(Bool)
+        case showSavedToast(Bool, message: String? = nil)
         case showShareSheet(Bool)
     }
 
     enum Result {
-        case setShowHomeAlert(Bool)
-
-        case setShowSavedToast(Bool, message: String? = nil)
-        case showSettingAlert(Bool)
-        case setShowFileExporter(Bool, document: ImageDocument? = nil)
         case setRenderedImage(UIImage)
-
         case setScale(CGFloat)
         case setLastScale(CGFloat)
+        case setShowFileExporter(Bool, document: ImageDocument? = nil)
 
+        case setShowHomeAlert(Bool)
+        case showSettingAlert(Bool)
+        case setShowSavedToast(Bool, message: String? = nil)
         case setShowShareSheet(Bool)
     }
 
@@ -78,22 +63,6 @@ final class ResultStore: StoreProtocol {
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
-        case .showHomeAlert(let bool):
-            return [.setShowHomeAlert(bool)]
-
-        case .showSavedToast(let bool, let message):
-            return [.setShowSavedToast(bool, message: message)]
-
-        case .showSettingAlert(let bool):
-            saveResultImage(state.renderedImage ?? UIImage())
-            return [.showSettingAlert(bool)]
-
-        case .showFileExporter(let bool, let document):
-            return [.setShowFileExporter(bool, document: document)]
-
-        case .showShareSheet(let bool):
-            return [.setShowShareSheet(bool)]
-
         case .setRenderedImage(let image):
             return [.setRenderedImage(image)]
 
@@ -102,34 +71,50 @@ final class ResultStore: StoreProtocol {
 
         case .setLastScale(let scale):
             return [.setLastScale(scale)]
+
+        case .showFileExporter(let bool, let document):
+            return [.setShowFileExporter(bool, document: document)]
+
+        case .showHomeAlert(let bool):
+            return [.setShowHomeAlert(bool)]
+
+        case .showSettingAlert(let bool):
+            saveResultImage(state.renderedImage ?? UIImage())
+            return [.showSettingAlert(bool)]
+
+        case .showSavedToast(let bool, let message):
+            return [.setShowSavedToast(bool, message: message)]
+
+        case .showShareSheet(let bool):
+            return [.setShowShareSheet(bool)]
         }
     }
 
     @MainActor
     func reduce(_ result: Result) {
         switch result {
-        case .setShowHomeAlert(let bool):
-            state.showHomeAlert = bool
-        case .setShowSavedToast(let bool, let message):
-            var newState = self.state
-            newState.toastMessage = message ?? ""
-            newState.showSavedToast = bool
-            self.state = newState
-        case .showSettingAlert(let bool):
-                    self.state.showSettingAlert = bool
+        case .setRenderedImage(let image):
+            state.renderedImage = image
+        case .setScale(let scale):
+            state.scale = scale
+        case .setLastScale(let lastScale):
+            state.lastScale = lastScale
         case .setShowFileExporter(let bool, let document):
             var newState = self.state
             newState.document = document
             newState.showFileExporter = bool
             self.state = newState
-        case .setRenderedImage(let image):
-            state.renderedImage = image
+        case .setShowHomeAlert(let bool):
+            state.showHomeAlert = bool
+        case .showSettingAlert(let bool):
+            self.state.showSettingAlert = bool
+        case .setShowSavedToast(let bool, let message):
+            var newState = self.state
+            newState.toastMessage = message ?? ""
+            newState.showSavedToast = bool
+            self.state = newState
         case .setShowShareSheet(let bool):
             state.showShareSheet = bool
-        case .setScale(let scale):
-            state.scale = scale
-        case .setLastScale(let lastScale):
-            state.lastScale = lastScale
         }
     }
 
