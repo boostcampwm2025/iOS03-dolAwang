@@ -41,11 +41,10 @@ struct TutorialView: View {
                         .font(.headline)
                         .frame(maxWidth: 320)
                         .padding(.vertical, 14)
-                        .foregroundStyle(.black)
-                        .background(.white)
+                        .foregroundStyle(currentPage == imageNames.count - 1 ? .black : .white)
+                        .background(currentPage == imageNames.count - 1 ? .white : Color(.darkGray))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .opacity(currentPage == imageNames.count - 1 ? 1 : 0.5)
             }
             .padding(.horizontal, 30)
             .padding(.vertical, 40)
