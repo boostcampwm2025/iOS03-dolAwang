@@ -63,6 +63,7 @@ struct BrowsingView: View {
                                         selectedTarget: isDeviceSelected(device)
                                     )
                                 }
+                                .disabled(!isDeviceSelectable(device))
                             }
                         }
                     }
@@ -170,5 +171,20 @@ struct BrowsingView: View {
             return .remote
         }
         return nil
+    }
+
+    private func isDeviceSelectable(_ device: NearbyDevice) -> Bool {
+        if store.state.isConnecting { return false }
+
+        if store.state.currentTarget == .mirroring {
+            return store.state.mirroringDevice == nil
+        }
+
+        if store.state.currentTarget == .remote {
+            if store.state.mirroringDevice == device { return false }
+            return store.state.remoteDevice == nil
+        }
+
+        return true
     }
 }
