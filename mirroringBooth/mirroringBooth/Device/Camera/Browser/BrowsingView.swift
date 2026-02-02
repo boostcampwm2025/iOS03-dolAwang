@@ -180,16 +180,13 @@ struct BrowsingView: View {
     private func isDeviceSelectable(_ device: NearbyDevice) -> Bool {
         if store.state.isConnecting { return false }
 
-        if store.state.currentTarget == .mirroring {
+        switch store.state.currentTarget {
+        case .mirroring:
             return store.state.mirroringDevice == nil
-        }
-
-        if store.state.currentTarget == .remote {
+        case .remote:
             if store.state.mirroringDevice == nil { return true }
             if store.state.mirroringDevice == device { return false }
             return store.state.remoteDevice == nil
         }
-
-        return true
     }
 }
