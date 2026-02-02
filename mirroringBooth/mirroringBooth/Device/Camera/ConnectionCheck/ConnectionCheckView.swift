@@ -9,22 +9,10 @@ import SwiftUI
 
 struct ConnectionCheckView: View {
     @Environment(Router.self) var router: Router
-    private let cameraDevice: String
-    private let mirroringDevice: String
-    @State private var remoteDevice: String?
-    private let browser: Browser
-    private let cameraManager = CameraManager()
-
-    @State private var showPreview = false
-    @State private var shouldNavigateToCompletion = false
-    @State private var onMirroringDisconnected: Bool = false
-    @State private var showRemoteDisconnectedAlert: Bool = false
+    @State private var store: ConnectionCheckStore
 
     init(_ list: ConnectionList, browser: Browser) {
-        self.cameraDevice = list.cameraName
-        self.mirroringDevice = list.mirroringName
-        self.remoteDevice = list.remoteName
-        self.browser = browser
+        self.store = .init(list, browser)
     }
 
     var body: some View {
@@ -48,21 +36,21 @@ struct ConnectionCheckView: View {
                     deviceCard(
                         title: "카메라",
                         icon: "camera",
-                        name: cameraDevice,
+                        name: store.cameraDevice,
                         color: Color.main
                     )
 
                     deviceCard(
                         title: "미러링",
                         icon: "display",
-                        name: mirroringDevice,
+                        name: store.mirroringDevice,
                         color: Color.mirroring
                     )
 
                     deviceCard(
                         title: "리모콘",
                         icon: "target",
-                        name: remoteDevice,
+                        name: store.state.remoteDevice,
                         color: Color.remote
                     )
                 }
@@ -71,14 +59,7 @@ struct ConnectionCheckView: View {
 
                 // 3. 촬영 준비 버튼
                 Button {
-                    showPreview = true
-                    browser.sendCommand(
-                        remoteDevice == nil
-                        ? .navigateToSelectModeWithoutRemote
-                        : .navigateToSelectModeWithRemote
-                    )
-                    browser.sendRemoteCommand(.navigateToRemoteConnected)
-                    shouldNavigateToCompletion = false
+                    store.send(.onReadyToCapture)
                 } label: {
                     Text("촬영 준비하기")
                         .padding(14)
@@ -91,22 +72,22 @@ struct ConnectionCheckView: View {
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .fullScreenCover(
-                isPresented: $showPreview,
+                isPresented: Binding(
+                    get: { store.state.showPreview },
+                    set: { store.send(.setShowPreview($0)) }
+                ),
                 onDismiss: {
-                    if shouldNavigateToCompletion {
+                    if store.state.shouldNavigateToCompletion {
                         router.push(to: CameraRoute.completion)
-                        shouldNavigateToCompletion = false
+                        store.send(.setNavigationToCompletion(false))
                     }
                 },
                 content: {
                     CameraPreview(
-                        store: CameraPreviewStore(
-                            browser: browser,
-                            manager: cameraManager,
-                            deviceName: mirroringDevice
-                        ),
+                        store.browser,
+                        mirroringName: store.mirroringDevice,
                         onDismissByCaptureCompletion: {
-                            shouldNavigateToCompletion = true
+                            store.send(.setNavigationToCompletion(true))
                         }
                     )
                 }
@@ -114,26 +95,22 @@ struct ConnectionCheckView: View {
         }
         .backgroundStyle()
         .onAppear {
-            browser.onHeartbeatTimeout = {
-                onMirroringDisconnected = true
-            }
-            browser.onRemoteHeartbeatTimeout = {
-                showRemoteDisconnectedAlert = true
-                remoteDevice = nil
-            }
+            store.send(.onSetHeartbeat)
         }
-        .onChange(of: onMirroringDisconnected) {
-            browser.disconnect(useType: .mirroring)
+        .onChange(of: store.state.isMirroringDisconnected) {
+            store.browser.disconnect(useType: .mirroring)
             router.pop()
         }
         .homeAlert(
-            isPresented: $showRemoteDisconnectedAlert,
+            isPresented: Binding(
+                get: { store.state.showRemoteDisconnectedAlert },
+                set: { store.send(.setShowRemoteDisconnectedAlert($0)) }
+            ),
             message: "리모트 기기 연결이 끊겼습니다.",
             confirmButtonText: "확인",
             cancellable: false
         ) {
-            browser.disconnect(useType: .remote)
-            showRemoteDisconnectedAlert = false
+            store.browser.disconnect(useType: .remote)
         }
     }
 }

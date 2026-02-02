@@ -16,8 +16,12 @@ struct CameraPreview: View {
     @State var store: CameraPreviewStore
     let onDismissByCaptureCompletion: (() -> Void)?
 
-    init(store: CameraPreviewStore, onDismissByCaptureCompletion: (() -> Void)? = nil) {
-        _store = State(initialValue: store)
+    init(
+        _ browser: Browser,
+        mirroringName: String,
+        onDismissByCaptureCompletion: (() -> Void)? = nil
+    ) {
+        self.store = .init(browser: browser, manager: CameraManager(), deviceName: mirroringName)
         self.onDismissByCaptureCompletion = onDismissByCaptureCompletion
     }
 
