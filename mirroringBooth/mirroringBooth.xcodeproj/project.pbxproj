@@ -12,6 +12,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0C2009882F306ED700B6197B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C796EA22EF52FB200280FED /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8C796EA92EF52FB200280FED;
+			remoteInfo = mirroringBooth;
+		};
 		DF40C6B42F0E079500D116A3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8C796EA22EF52FB200280FED /* Project object */;
@@ -36,6 +43,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0C2009842F306ED700B6197B /* mirroringBoothTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mirroringBoothTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C796EAA2EF52FB200280FED /* mirroringBooth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mirroringBooth.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D771C9762F0BB448004285EA /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		DF40C6AC2F0E079400D116A3 /* mirroringBoothWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mirroringBoothWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -78,6 +86,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		0C2009852F306ED700B6197B /* mirroringBoothTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = mirroringBoothTests;
+			sourceTree = "<group>";
+		};
 		8C796EAC2EF52FB200280FED /* mirroringBooth */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -90,6 +103,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0C2009812F306ED700B6197B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8C796EA72EF52FB200280FED /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -112,6 +132,7 @@
 			children = (
 				D771C9762F0BB448004285EA /* .swiftlint.yml */,
 				8C796EAC2EF52FB200280FED /* mirroringBooth */,
+				0C2009852F306ED700B6197B /* mirroringBoothTests */,
 				8C796EAB2EF52FB200280FED /* Products */,
 			);
 			sourceTree = "<group>";
@@ -121,6 +142,7 @@
 			children = (
 				8C796EAA2EF52FB200280FED /* mirroringBooth.app */,
 				DF40C6AC2F0E079400D116A3 /* mirroringBoothWatch.app */,
+				0C2009842F306ED700B6197B /* mirroringBoothTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -128,6 +150,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0C2009832F306ED700B6197B /* mirroringBoothTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0C20098A2F306ED700B6197B /* Build configuration list for PBXNativeTarget "mirroringBoothTests" */;
+			buildPhases = (
+				0C2009802F306ED700B6197B /* Sources */,
+				0C2009812F306ED700B6197B /* Frameworks */,
+				0C2009822F306ED700B6197B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0C2009892F306ED700B6197B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				0C2009852F306ED700B6197B /* mirroringBoothTests */,
+			);
+			name = mirroringBoothTests;
+			packageProductDependencies = (
+			);
+			productName = mirroringBoothTests;
+			productReference = 0C2009842F306ED700B6197B /* mirroringBoothTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		8C796EA92EF52FB200280FED /* mirroringBooth */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8C796EB52EF52FB300280FED /* Build configuration list for PBXNativeTarget "mirroringBooth" */;
@@ -180,9 +225,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2620;
+				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					0C2009832F306ED700B6197B = {
+						CreatedOnToolsVersion = 26.1.1;
+						LastSwiftMigration = 2610;
+						TestTargetID = 8C796EA92EF52FB200280FED;
+					};
 					8C796EA92EF52FB200280FED = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
@@ -209,11 +259,19 @@
 			targets = (
 				8C796EA92EF52FB200280FED /* mirroringBooth */,
 				DF40C6AB2F0E079400D116A3 /* mirroringBoothWatch */,
+				0C2009832F306ED700B6197B /* mirroringBoothTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0C2009822F306ED700B6197B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8C796EA82EF52FB200280FED /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -232,6 +290,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0C2009802F306ED700B6197B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8C796EA62EF52FB200280FED /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -249,6 +314,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0C2009892F306ED700B6197B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
+			targetProxy = 0C2009882F306ED700B6197B /* PBXContainerItemProxy */;
+		};
 		D771CA782F0BBB26004285EA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = D771CA772F0BBB26004285EA /* SwiftLintBuildToolPlugin */;
@@ -265,6 +335,58 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		0C20098B2F306ED700B6197B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B3PWYBKFUK;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = JGR.mirroringBoothTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/mirroringBooth.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/mirroringBooth";
+			};
+			name = Debug;
+		};
+		0C20098C2F306ED700B6197B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B3PWYBKFUK;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = JGR.mirroringBoothTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/mirroringBooth.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/mirroringBooth";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		8C796EB32EF52FB300280FED /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -559,6 +681,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0C20098A2F306ED700B6197B /* Build configuration list for PBXNativeTarget "mirroringBoothTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C20098B2F306ED700B6197B /* Debug */,
+				0C20098C2F306ED700B6197B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		8C796EA52EF52FB200280FED /* Build configuration list for PBXProject "mirroringBooth" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
