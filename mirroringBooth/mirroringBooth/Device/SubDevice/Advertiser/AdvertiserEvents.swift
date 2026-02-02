@@ -43,6 +43,10 @@ enum StreamingStoreEvents {
     case onCaptureEffect
 }
 
+enum RootEvents {
+    case onHeartbeatTimeout
+}
+
 enum FrameReceivingEvents {
     case streamDataReceived(Data)
 }

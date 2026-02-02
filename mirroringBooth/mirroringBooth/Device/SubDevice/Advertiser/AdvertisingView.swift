@@ -56,12 +56,7 @@ struct AdvertisingView: View {
         }
         .onAppear {
             store.send(.onAppear)
-            if rootStore.advertiser == nil {
-                rootStore.advertiser = store.advertiser
-            }
-            store.advertiser.onHeartBeatTimeout = { [weak rootStore] in
-                rootStore?.send(.showTimeoutAlert(true))
-            }
+            rootStore.advertiser = store.advertiser
         }
         .onDisappear {
             store.send(.exit)

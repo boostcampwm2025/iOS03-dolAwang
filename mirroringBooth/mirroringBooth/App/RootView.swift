@@ -49,11 +49,6 @@ struct RootView: View {
                                 }
                             }
                         }
-                        .onAppear {
-                            store.advertiser?.onHeartBeatTimeout = {
-                                store.send(.showTimeoutAlert(true))
-                            }
-                        }
 
                     case .poseSuggestionSelection(let isTimerMode):
                         ModeSelectionView(
@@ -82,11 +77,6 @@ struct RootView: View {
                     switch viewType {
                     case .remoteCapture(let advertiser):
                         RemoteCaptureView(advertiser: advertiser)
-                            .onAppear {
-                                store.advertiser?.onHeartBeatTimeout = {
-                                    store.send(.showTimeoutAlert(true))
-                                }
-                            }
 
                     case .completion:
                         CompletionView {

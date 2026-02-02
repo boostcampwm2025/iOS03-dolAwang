@@ -43,6 +43,9 @@ final class Advertiser: NSObject {
     private let streamingStoreContinuation: AsyncStream<StreamingStoreEvents>.Continuation
     let streamingStoreStream: AsyncStream<StreamingStoreEvents>
 
+    let rootContinuation: AsyncStream<RootEvents>.Continuation
+    let rootStream: AsyncStream<RootEvents>
+
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
         case capturePhoto  // 사진 촬영
@@ -53,9 +56,6 @@ final class Advertiser: NSObject {
         case remoteHeartBeat // 리모트 세션 확인용
         case stopHeartBeat // heartbeat 종료
     }
-
-    /// heartbeat 메시지 타임아웃
-    var onHeartBeatTimeout: (() -> Void)?
 
     init(serviceType: String = "mirroringbooth", photoCacheManager: PhotoCacheManager) {
         self.serviceType = serviceType
@@ -100,6 +100,7 @@ final class Advertiser: NSObject {
             of: RemoteCaptureViewEvents.self
         )
         (streamingStoreStream, streamingStoreContinuation) = AsyncStream.makeStream(of: StreamingStoreEvents.self)
+        (rootStream, rootContinuation) = AsyncStream.makeStream(of: RootEvents.self)
 
         super.init()
         advertiser.delegate = self
