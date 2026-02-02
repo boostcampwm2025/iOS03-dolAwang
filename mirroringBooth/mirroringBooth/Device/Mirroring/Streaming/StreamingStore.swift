@@ -6,8 +6,8 @@
 //
 
 import AVFoundation
-import SwiftUI
 import OSLog
+import SwiftUI
 
 @Observable
 final class StreamingStore: StoreProtocol {
@@ -117,6 +117,7 @@ final class StreamingStore: StoreProtocol {
     private let decoder: H264Decoder
     private var timer: Timer?
     private var streamingTask: Task<Void, Never>?
+    private var commandTask: Task<Void, Never>?
 
     init(
         _ advertiser: Advertiser?,
@@ -136,19 +137,6 @@ final class StreamingStore: StoreProtocol {
         guard let advertiser else {
             Logger.streamingStore.error("advertiser가 없어 정상 동작하지 않습니다.")
             return
-        }
-
-        // 사진 수신 콜백
-        advertiser.onPhotoReceived = { [weak self] in
-            Task { @MainActor in
-                self?.send(.photoReceived)
-            }
-        }
-
-        advertiser.onUpdateCaptureCount = { [weak self] in
-            Task { @MainActor in
-                self?.send(.capturePhotoCount)
-            }
         }
 
         // 10장 사진 저장 시작
@@ -300,6 +288,16 @@ extension StreamingStore {
             for await stream in advertiser.videoStream {
                 if case .streamDataReceived(let data) = stream {
                     self?.decoder.decode(data)
+                }
+            }
+        }
+        commandTask = Task { [weak self] in
+            for await stream in advertiser.streamingStoreStream {
+                switch stream {
+                case .onPhotoReceived:
+                    self?.send(.photoReceived)
+                case .onUpdateCaptureCount:
+                    self?.send(.capturePhotoCount)
                 }
             }
         }

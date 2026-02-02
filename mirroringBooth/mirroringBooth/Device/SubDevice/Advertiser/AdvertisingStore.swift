@@ -34,7 +34,7 @@ final class AdvertisingStore: StoreProtocol {
 
     var state: State = .init()
     let advertiser: Advertiser
-    private var streamingTask: Task<Void, Never>?
+    private var commandTask: Task<Void, Never>?
 
     init(_ advertiser: Advertiser) {
         self.advertiser = advertiser
@@ -52,7 +52,7 @@ final class AdvertisingStore: StoreProtocol {
             return [.setIsConnected(true)]
 
         case .exit:
-            streamingTask?.cancel()
+            commandTask?.cancel()
             advertiser.stopSearching()
             return []
 
@@ -86,7 +86,7 @@ final class AdvertisingStore: StoreProtocol {
 // MARK: Stream 구독
 extension AdvertisingStore {
     private func subscribeToStream() {
-        streamingTask = Task { [weak self] in
+        commandTask = Task { [weak self] in
             guard let self else { return }
             for await stream in advertiser.advertisingStream {
                 switch stream {

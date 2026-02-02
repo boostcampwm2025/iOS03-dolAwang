@@ -33,6 +33,12 @@ enum RemoteCaptureViewEvents {
     case navigateToRemoteComplete
 }
 
+enum StreamingStoreEvents {
+    case onPhotoReceived
+    /// 캡쳐 요청 카운트 (촬영기기에서 전송)
+    case onUpdateCaptureCount
+}
+
 enum FrameReceivingEvents {
     case streamDataReceived(Data)
 }

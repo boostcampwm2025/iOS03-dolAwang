@@ -40,6 +40,9 @@ final class Advertiser: NSObject {
     private let remoteCaptureViewContinuation: AsyncStream<RemoteCaptureViewEvents>.Continuation
     let remoteCaptureViewStream: AsyncStream<RemoteCaptureViewEvents>
 
+    private let streamingStoreContinuation: AsyncStream<StreamingStoreEvents>.Continuation
+    let streamingStoreStream: AsyncStream<StreamingStoreEvents>
+
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
         case capturePhoto  // 사진 촬영
@@ -50,12 +53,6 @@ final class Advertiser: NSObject {
         case remoteHeartBeat // 리모트 세션 확인용
         case stopHeartBeat // heartbeat 종료
     }
-
-    /// 사진 수신 완료 콜백 (1장마다 호출)
-    var onPhotoReceived: (() -> Void)?
-
-    /// 캡쳐 요청 카운트 콜백 (촬영기기에서 전송)
-    var onUpdateCaptureCount: (() -> Void)?
 
     /// 10장 모두 저장 완료 콜백 (촬영기기에서 전송)
     var onAllPhotosStored: (() -> Void)?
@@ -108,6 +105,7 @@ final class Advertiser: NSObject {
         (remoteCaptureViewStream, remoteCaptureViewContinuation) = AsyncStream.makeStream(
             of: RemoteCaptureViewEvents.self
         )
+        (streamingStoreStream, streamingStoreContinuation) = AsyncStream.makeStream(of: StreamingStoreEvents.self)
 
         super.init()
         advertiser.delegate = self
@@ -196,9 +194,7 @@ final class Advertiser: NSObject {
                 self.onAllPhotosStored?()
             }
         case .onUpdateCaptureCount:
-            DispatchQueue.main.async {
-                self.onUpdateCaptureCount?()
-            }
+            streamingStoreContinuation.yield(.onUpdateCaptureCount)
         case .heartBeat:
             heartBeater.beat()
         case .captureEffect:
@@ -294,9 +290,7 @@ extension Advertiser: MCSessionDelegate {
             }
         }
         /// 사진 수신 완료
-        DispatchQueue.main.async {
-            self.onPhotoReceived?()
-        }
+        streamingStoreContinuation.yield(.onPhotoReceived)
     }
 }
 
