@@ -32,7 +32,7 @@ final class AdvertisingStore: StoreProtocol {
         case setShowTutorial(Bool)
     }
 
-    var state: State = .init()
+    private(set) var state: State = .init()
     let advertiser: Advertiser
     private var commandTask: Task<Void, Never>?
 
