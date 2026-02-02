@@ -9,6 +9,7 @@ import Foundation
 
 enum AdvertiserEvents {
     case onConnected
+    case navigateToSelectModeCommandCallBack(_ isRemoteEnable: Bool)
 }
 
 enum FrameReceivingEvents {

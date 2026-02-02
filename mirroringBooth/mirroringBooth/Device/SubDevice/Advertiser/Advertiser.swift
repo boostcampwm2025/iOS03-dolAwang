@@ -31,9 +31,6 @@ final class Advertiser: NSObject {
     private let controlContinuation: AsyncStream<AdvertiserEvents>.Continuation
     let controlStream: AsyncStream<AdvertiserEvents>
 
-    /// 촬영 선택 모드 이동 콜백 (미러링 기기)
-    var navigateToSelectModeCommandCallBack: ((_ isRemoteEnable: Bool) -> Void)?
-
     /// 촬영 대기 화면 이동 콜백 (리모트 기기)
     var navigateToRemoteConnectedCallBack: (() -> Void)?
 
@@ -191,15 +188,9 @@ final class Advertiser: NSObject {
     private func handleMirroringDeviceCommand(_ mirroringDeviceCommand: Browser.MirroringDeviceCommand) {
         switch mirroringDeviceCommand {
         case .navigateToSelectModeWithRemote:
-            guard let navigateToSelectModeCommandCallBack else { return }
-            DispatchQueue.main.async {
-                navigateToSelectModeCommandCallBack(true)
-            }
+            controlContinuation.yield(.navigateToSelectModeCommandCallBack(true))
         case .navigateToSelectModeWithoutRemote:
-            guard let navigateToSelectModeCommandCallBack else { return }
-            DispatchQueue.main.async {
-                navigateToSelectModeCommandCallBack(false)
-            }
+            controlContinuation.yield(.navigateToSelectModeCommandCallBack(false))
         case .switchSelectModeView:
             DispatchQueue.main.async {
                 self.switchModeSelectionView?()

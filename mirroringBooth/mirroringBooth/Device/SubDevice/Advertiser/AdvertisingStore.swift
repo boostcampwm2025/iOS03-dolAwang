@@ -39,13 +39,6 @@ final class AdvertisingStore: StoreProtocol {
     init(_ advertiser: Advertiser) {
         self.advertiser = advertiser
 
-        advertiser.navigateToSelectModeCommandCallBack = { [weak self] isRemoteEnable in
-            Task { @MainActor in
-                self?.reduce(.setIsRemoteSelected(isRemoteEnable))
-                self?.reduce(.setOnNavigate(true, type: .mirroring))
-            }
-        }
-
         advertiser.navigateToRemoteConnectedCallBack = { [weak self] in
             Task { @MainActor in
                 self?.reduce(.setOnNavigate(true, type: .remote))
@@ -106,9 +99,13 @@ extension AdvertisingStore {
         streamingTask = Task { [weak self] in
             guard let self else { return }
             for await stream in advertiser.controlStream {
-                if case .onConnected = stream {
+                switch stream {
+                case .onConnected:
+                    await MainActor.run { self.send(.connected) }
+                case .navigateToSelectModeCommandCallBack(let isRemoteEnable):
                     await MainActor.run {
-                        self.send(.connected)
+                        self.reduce(.setIsRemoteSelected(isRemoteEnable))
+                        self.reduce(.setOnNavigate(true, type: .mirroring))
                     }
                 }
             }
