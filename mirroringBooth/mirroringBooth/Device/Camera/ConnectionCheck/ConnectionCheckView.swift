@@ -94,9 +94,6 @@ struct ConnectionCheckView: View {
             )
         }
         .backgroundStyle()
-        .onAppear {
-            store.send(.onSetHeartbeat)
-        }
         .onChange(of: store.state.isMirroringDisconnected) {
             store.browser.disconnect(useType: .mirroring)
             router.pop()
