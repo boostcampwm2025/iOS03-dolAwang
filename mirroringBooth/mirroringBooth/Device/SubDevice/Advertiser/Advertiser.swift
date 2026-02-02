@@ -100,6 +100,7 @@ final class Advertiser: NSObject {
             of: RemoteCaptureViewEvents.self
         )
         (streamingStoreStream, streamingStoreContinuation) = AsyncStream.makeStream(of: StreamingStoreEvents.self)
+
         (rootStream, rootContinuation) = AsyncStream.makeStream(of: RootEvents.self)
 
         super.init()
