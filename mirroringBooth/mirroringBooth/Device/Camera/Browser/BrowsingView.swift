@@ -53,17 +53,21 @@ struct BrowsingView: View {
                     LazyVStack {
                         ForEach(store.state.discoveredDevices) { device in
                             if device.type != .unknown {
-                                Button {
-                                    if !store.state.isConnecting {
-                                        store.send(.didSelect(device))
+                                if store.state.currentTarget == .remote || (
+                                    store.state.currentTarget == .mirroring && device.type != .watch
+                                ) {
+                                    Button {
+                                        if !store.state.isConnecting {
+                                            store.send(.didSelect(device))
+                                        }
+                                    } label: {
+                                        DeviceRow(
+                                            device: device,
+                                            selectedTarget: isDeviceSelected(device)
+                                        )
                                     }
-                                } label: {
-                                    DeviceRow(
-                                        device: device,
-                                        selectedTarget: isDeviceSelected(device)
-                                    )
+                                    .disabled(!isDeviceSelectable(device))
                                 }
-                                .disabled(!isDeviceSelectable(device))
                             }
                         }
                     }
