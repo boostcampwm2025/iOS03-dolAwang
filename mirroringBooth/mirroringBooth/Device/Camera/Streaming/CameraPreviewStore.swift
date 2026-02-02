@@ -44,13 +44,13 @@ final class CameraPreviewStore: StoreProtocol {
     }
 
     private let browser: Browser
-    private let cameraManager: CameraManager
+    private let cameraManager: CameraManageable
     private(set) var state: State
     private var cancellables = Set<AnyCancellable>()
 
     init(
         browser: Browser,
-        manager: CameraManager,
+        manager: CameraManageable,
         deviceName: String,
     ) {
         self.browser = browser
