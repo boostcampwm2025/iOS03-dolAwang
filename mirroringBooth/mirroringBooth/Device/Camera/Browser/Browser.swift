@@ -73,9 +73,6 @@ final class Browser: NSObject {
     /// 일괄 전송 시작 명령 수신 콜백
     var onStartTransferCommand = PassthroughSubject<Void, Never>()
 
-    /// 사진 보내기 성공 콜백
-    var onSendPhoto: (() -> Void)?
-
     /// 원격 모드 설정 명령 수신 콜백
     var onRemoteModeCommand: (() -> Void)?
 
@@ -220,7 +217,7 @@ final class Browser: NSObject {
                 if let error {
                     self.logger.warning("사진 전송 실패 : \(error.localizedDescription)")
                 } else {
-                    self.onSendPhoto?()
+                    self.eventContinuation.yield(.sendPhoto)
                     self.logger.info("사진 전송 완료: \(fileName)")
                 }
 
