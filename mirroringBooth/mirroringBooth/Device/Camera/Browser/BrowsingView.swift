@@ -129,6 +129,11 @@ struct BrowsingView: View {
         .onDisappear {
             store.send(.exit)
         }
+        .task {
+            for await event in store.eventStream {
+                store.send(.browserEvent(event))
+            }
+        }
         .onChange(of: scenePhase) { _, newValue in
             let state: UIApplication.State
             switch newValue {
