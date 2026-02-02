@@ -41,7 +41,7 @@ final class BrowsingStore: StoreProtocol {
         case setShowMirroringDisconnectedAlert(Bool)
         case setShowToast(Bool)
         case setShowTutorial(Bool)
-        case browserEvent(BrowserEvents)
+        case browserEvent(BrowsingEvents)
     }
 
     enum Result {
@@ -62,8 +62,8 @@ final class BrowsingStore: StoreProtocol {
     let watchConnectionManager: WatchConnectionManager
     private var cancellables = Set<AnyCancellable>()
 
-    var eventStream: AsyncStream<BrowserEvents> {
-        browser.eventStream
+    var eventStream: AsyncStream<BrowsingEvents> {
+        browser.browsingEventStream
     }
 
     init(_ browser: Browser, _ watchConnectionManager: WatchConnectionManager) {
@@ -240,8 +240,8 @@ final class BrowsingStore: StoreProtocol {
         return result
     }
 
-    // View에서 전달받은 BrowserEvents를 처리하여 Result로 변환합니다.
-    private func handleBrowserEvent(_ event: BrowserEvents) -> [Result] {
+    // View에서 전달받은 BrowsingEvents를 처리하여 Result로 변환합니다.
+    private func handleBrowserEvent(_ event: BrowsingEvents) -> [Result] {
         switch event {
         case .deviceConnectionFailed:
             return [.setIsConnecting(false)]
