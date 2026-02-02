@@ -20,20 +20,6 @@ struct TutorialView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 10) {
-                Button {
-                    dismiss()
-                } label: {
-                    Text("건너뛰기")
-                        .font(.subheadline.bold())
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 5)
-                        .foregroundStyle(.background.opacity(0.8))
-                        .background(.primary.opacity(0.8))
-                        .clipShape(RoundedRectangle(cornerRadius: 15))
-                }
-                .opacity(currentPage == imageNames.count - 1 ? 0 : 1)
-                .padding(.bottom, -30)
-
                 TabView(selection: $currentPage) {
                     ForEach(0..<imageNames.count, id: \.self) { index in
                         Image(imageNames[index])
@@ -51,7 +37,7 @@ struct TutorialView: View {
                 Button {
                     dismiss()
                 } label: {
-                    Text("준비 됐어요!")
+                    Text(currentPage == imageNames.count - 1 ? "준비 됐어요!" : "건너뛰기")
                         .font(.headline)
                         .frame(maxWidth: 320)
                         .padding(.vertical, 14)
@@ -59,7 +45,7 @@ struct TutorialView: View {
                         .background(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .opacity(currentPage == imageNames.count - 1 ? 1 : 0)
+                .opacity(currentPage == imageNames.count - 1 ? 1 : 0.5)
             }
             .padding(.horizontal, 30)
             .padding(.vertical, 40)
