@@ -52,10 +52,14 @@ final class RootStore: StoreProtocol {
     }
 
     func reduce(_ result: Result) {
+        var state = self.state
+
         switch result {
         case .showTimeoutAlert(let bool):
             state.showTimeoutAlert = bool
         }
+
+        self.state = state
     }
 }
 

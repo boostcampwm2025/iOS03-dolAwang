@@ -67,6 +67,7 @@ final class AdvertisingStore: StoreProtocol {
         switch result {
         case .setIsConnected(let bool):
             state.isConnected = bool
+
         case .setOnNavigate(let status, let useType):
             state.onNavigate = status
             state.deviceUseType = useType
