@@ -109,14 +109,11 @@ struct StreamingView: View {
         .preferredColorScheme(store.state.colorScheme)
         .onAppear {
             AppDelegate.unlockOrientation()
-            store.send(.setColorScheme(.dark))
-            store.send(.setPoseList(poseList))
-            store.send(.startStreaming)
+            store.send(.entry(with: poseList))
         }
         .onDisappear {
             AppDelegate.lockOrientation()
-            store.send(.setColorScheme(nil))
-            store.send(.stopStreaming)
+            store.send(.exit)
         }
         .onChange(of: store.state.overlayPhase) { _, new in
             if new.contains(.completed) {
