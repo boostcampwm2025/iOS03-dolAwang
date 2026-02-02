@@ -13,6 +13,7 @@ protocol StoreProtocol: AnyObject {
     var state: State { get }
 
     func action(_ intent: Intent) -> [Result]
+    @MainActor
     func reduce(_ result: Result)
 }
 
