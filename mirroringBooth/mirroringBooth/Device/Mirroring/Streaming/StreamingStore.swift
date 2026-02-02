@@ -133,18 +133,6 @@ final class StreamingStore: StoreProtocol {
                 self?.reduce(.videoFrameDecoded(sampleBuffer, rotationAngle))
             }
         }
-
-        guard let advertiser else {
-            Logger.streamingStore.error("advertiser가 없어 정상 동작하지 않습니다.")
-            return
-        }
-
-        // 카메라 캡쳐 이펙트
-        advertiser.onCaptureEffect = { [weak self] in
-            Task { @MainActor in
-                self?.captureEffect()
-            }
-        }
     }
 
     func action(_ intent: Intent) -> [Result] {
@@ -293,6 +281,8 @@ extension StreamingStore {
                     self?.send(.capturePhotoCount)
                 case .onAllPhotosStored:
                     self?.send(.startTransfer)
+                case .onCaptureEffect:
+                    self?.captureEffect()
                 }
             }
         }
