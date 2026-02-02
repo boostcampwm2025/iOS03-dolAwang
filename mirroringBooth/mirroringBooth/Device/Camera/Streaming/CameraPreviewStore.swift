@@ -125,6 +125,7 @@ final class CameraPreviewStore: StoreProtocol {
         case .isMirroringDisconnected:
             state.isMirroringDisconnected = true
         }
+
         self.state = state
     }
 }
