@@ -75,7 +75,7 @@ final class StreamingStore: StoreProtocol {
         case setShowCaptureEffect(Bool)
 
         // 그 외
-        case setHomeAlert(Bool)
+        case showHomeAlert(Bool)
         case setVideoViewSize(CGSize)
     }
 
@@ -106,7 +106,7 @@ final class StreamingStore: StoreProtocol {
         case removePose
 
         // 그 외
-        case setHomeAlert(Bool)
+        case setShowHomeAlert(Bool)
         case setVideoViewSize(CGSize)
         case setColorScheme(ColorScheme?)
     }
@@ -180,8 +180,8 @@ final class StreamingStore: StoreProtocol {
                 return [.setShowCaptureEffect(value)]
             }
 
-        case .setHomeAlert(let value):
-            return [.setHomeAlert(value)]
+        case .showHomeAlert(let value):
+            return [.setShowHomeAlert(value)]
 
         case .setVideoViewSize(let value):
             return [.setVideoViewSize(value)]
@@ -238,7 +238,7 @@ final class StreamingStore: StoreProtocol {
                 state.poseList.removeFirst()
             }
 
-        case .setHomeAlert(let value):
+        case .setShowHomeAlert(let value):
             state.showHomeAlert = value
 
         case .setVideoViewSize(let size):

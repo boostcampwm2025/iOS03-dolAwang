@@ -22,7 +22,7 @@ final class ConnectionCheckStore: StoreProtocol {
         case onReadyToCapture
         case setNavigationToCompletion(Bool)
         case setShowPreview(Bool)
-        case setShowRemoteDisconnectedAlert(Bool)
+        case showRemoteDisconnectedAlert(Bool)
     }
 
     enum Result {
@@ -73,7 +73,7 @@ final class ConnectionCheckStore: StoreProtocol {
         case .setShowPreview(let flag):
             return [.setShowPreview(flag)]
 
-        case .setShowRemoteDisconnectedAlert(let flag):
+        case .showRemoteDisconnectedAlert(let flag):
             return [.setShowRemoteDisconnectedAlert(flag)]
         }
     }

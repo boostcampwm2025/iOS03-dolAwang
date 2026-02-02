@@ -119,7 +119,7 @@ struct StreamingView: View {
         .homeAlert(
             isPresented: Binding(
                 get: { store.state.showHomeAlert },
-                set: { store.send(.setHomeAlert($0)) }
+                set: { store.send(.showHomeAlert($0)) }
             ),
             message: "촬영된 사진이 모두 사라집니다.\n연결을 종료하시겠습니까?"
         ) {
@@ -163,7 +163,7 @@ struct StreamingView: View {
                             textFont: isCompact ? .caption : .callout,
                             backgroundColor: .black.opacity(0.5)
                         ) {
-                            store.send(.setHomeAlert(true))
+                            store.send(.showHomeAlert(true))
                         }
                         .padding(.horizontal, -20)
                         .padding(.vertical, -15)

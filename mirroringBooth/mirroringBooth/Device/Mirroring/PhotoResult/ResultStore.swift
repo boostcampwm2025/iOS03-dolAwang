@@ -45,7 +45,7 @@ final class ResultStore: StoreProtocol {
         case setShowFileExporter(Bool, document: ImageDocument? = nil)
 
         case setShowHomeAlert(Bool)
-        case showSettingAlert(Bool)
+        case setShowSettingAlert(Bool)
         case setShowSavedToast(Bool, message: String? = nil)
         case setShowShareSheet(Bool)
     }
@@ -80,7 +80,7 @@ final class ResultStore: StoreProtocol {
 
         case .showSettingAlert(let bool):
             saveResultImage(state.renderedImage ?? UIImage())
-            return [.showSettingAlert(bool)]
+            return [.setShowSettingAlert(bool)]
 
         case .showSavedToast(let bool, let message):
             return [.setShowSavedToast(bool, message: message)]
@@ -111,7 +111,7 @@ final class ResultStore: StoreProtocol {
         case .setShowHomeAlert(let bool):
             state.showHomeAlert = bool
 
-        case .showSettingAlert(let bool):
+        case .setShowSettingAlert(let bool):
             state.showSettingAlert = bool
 
         case .setShowSavedToast(let bool, let message):

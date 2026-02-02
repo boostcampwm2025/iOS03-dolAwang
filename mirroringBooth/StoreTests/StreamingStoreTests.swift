@@ -278,7 +278,7 @@ struct StreamingStoreTests {
     @Test func 연결끊기_버튼을_누르면_홈_알림이_표시됨() {
         let store = makeSUT()
 
-        store.send(.setHomeAlert(true))
+        store.send(.showHomeAlert(true))
 
         #expect(store.state.showHomeAlert == true)
     }
