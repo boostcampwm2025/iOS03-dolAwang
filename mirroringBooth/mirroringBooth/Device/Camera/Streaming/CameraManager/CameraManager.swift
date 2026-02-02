@@ -235,7 +235,9 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         from connection: AVCaptureConnection
     ) {
         // 프레임 캡처 성공
-        rawData?(sampleBuffer)
+        DispatchQueue.main.async { [weak self] in
+            self?.rawData?(sampleBuffer)
+        }
         encoder.encode(sampleBuffer)
     }
 
