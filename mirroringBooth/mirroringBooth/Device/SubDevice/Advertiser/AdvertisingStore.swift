@@ -38,6 +38,7 @@ final class AdvertisingStore: StoreProtocol {
 
     init(_ advertiser: Advertiser) {
         self.advertiser = advertiser
+        subscribeToStream()
 
         advertiser.navigateToRemoteConnectedCallBack = { [weak self] in
             Task { @MainActor in
@@ -63,6 +64,7 @@ final class AdvertisingStore: StoreProtocol {
             return [.setIsConnected(true)]
 
         case .exit:
+            streamingTask?.cancel()
             advertiser.stopSearching()
             return []
 
