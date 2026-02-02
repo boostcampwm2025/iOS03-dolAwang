@@ -277,7 +277,7 @@ final class BrowsingStore: StoreProtocol {
         case .startAnimation:
             state.animationTrigger = true
 
-        case.setShowMirroringDisconnectedAlert(let alert):
+        case .setShowMirroringDisconnectedAlert(let alert):
             state.showMirroringDisconnectedAlert = alert
 
         case .setShowToast(let value, let message):
@@ -290,5 +290,4 @@ final class BrowsingStore: StoreProtocol {
 
         self.state = state
     }
-
 }
