@@ -41,8 +41,8 @@ struct TutorialView: View {
                         .font(.headline)
                         .frame(maxWidth: 320)
                         .padding(.vertical, 14)
-                        .foregroundStyle(.black)
-                        .background(currentPage == imageNames.count - 1 ? .white : Color(.lightGray))
+                        .foregroundStyle(currentPage == imageNames.count - 1 ? .black : .white)
+                        .background(currentPage == imageNames.count - 1 ? .white : Color(.darkGray))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }
