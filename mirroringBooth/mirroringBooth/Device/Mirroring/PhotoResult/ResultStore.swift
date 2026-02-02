@@ -92,30 +92,37 @@ final class ResultStore: StoreProtocol {
 
     @MainActor
     func reduce(_ result: Result) {
+        var state = self.state
+
         switch result {
         case .setRenderedImage(let image):
             state.renderedImage = image
+
         case .setScale(let scale):
             state.scale = scale
+
         case .setLastScale(let lastScale):
             state.lastScale = lastScale
+
         case .setShowFileExporter(let bool, let document):
-            var newState = self.state
-            newState.document = document
-            newState.showFileExporter = bool
-            self.state = newState
+            state.document = document
+            state.showFileExporter = bool
+
         case .setShowHomeAlert(let bool):
             state.showHomeAlert = bool
+
         case .showSettingAlert(let bool):
-            self.state.showSettingAlert = bool
+            state.showSettingAlert = bool
+
         case .setShowSavedToast(let bool, let message):
-            var newState = self.state
-            newState.toastMessage = message ?? ""
-            newState.showSavedToast = bool
-            self.state = newState
+            state.toastMessage = message ?? ""
+            state.showSavedToast = bool
+
         case .setShowShareSheet(let bool):
             state.showShareSheet = bool
         }
+
+        self.state = state
     }
 
     private func saveResultImage(_ image: UIImage) {
