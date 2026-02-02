@@ -92,6 +92,7 @@ final class CameraPreviewStore: StoreProtocol {
         case .browserEvent(let event):
             return handleBrowserEvent(event)
         }
+        return []
     }
 
     func reduce(_ result: Result) {
