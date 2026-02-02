@@ -65,9 +65,6 @@ final class Browser: NSObject {
 
     var onDeviceConnected: ((NearbyDevice) -> Void)?
 
-    /// 촬영 명령 수신 콜백
-    var onCaptureCommand: (() -> Void)?
-
     /// 일괄 전송 시작 명령 수신 콜백
     var onStartTransferCommand = PassthroughSubject<Void, Never>()
 
@@ -86,8 +83,13 @@ final class Browser: NSObject {
         UIDevice.current.userInterfaceIdiom == .phone
     }
 
-    let eventStream: AsyncStream<BrowserEvents>
-    private let eventContinuation: AsyncStream<BrowserEvents>.Continuation
+    /// 기기 검색 및 연결 전용 이벤트 스트림
+    let browsingEventStream: AsyncStream<BrowsingEvents>
+    private let browsingEventContinuation: AsyncStream<BrowsingEvents>.Continuation
+
+    /// 카메라 촬영 및 전송 전용 이벤트 스트림
+    let cameraStreamEventStream: AsyncStream<CameraStreamEvents>
+    private let cameraStreamEventContinuation: AsyncStream<CameraStreamEvents>.Continuation
 
     init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
@@ -96,7 +98,13 @@ final class Browser: NSObject {
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
         self.mirroringHeartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
 
-        (self.eventStream, self.eventContinuation) = AsyncStream.makeStream(of: BrowserEvents.self)
+        (self.browsingEventStream, self.browsingEventContinuation) = AsyncStream.makeStream(
+            of: BrowsingEvents.self
+        )
+
+        (self.cameraStreamEventStream, self.cameraStreamEventContinuation) = AsyncStream.makeStream(
+            of: CameraStreamEvents.self
+        )
 
         super.init()
         browser.delegate = self
@@ -168,7 +176,8 @@ final class Browser: NSObject {
 
     /// 카메라 캡쳐 액션을 실행합니다.
     func capturePhoto() {
-        self.onCaptureCommand?()
+        print("촬영 진행")
+        cameraStreamEventContinuation.yield(.captureCommand)
         self.sendCommand(.onUpdateCaptureCount)
         self.sendCommand(.captureEffect)
     }
@@ -215,7 +224,7 @@ final class Browser: NSObject {
                 if let error {
                     self.logger.warning("사진 전송 실패 : \(error.localizedDescription)")
                 } else {
-                    self.eventContinuation.yield(.sendPhoto)
+                    self.cameraStreamEventContinuation.yield(.sendPhoto)
                     self.logger.info("사진 전송 완료: \(fileName)")
                 }
 
@@ -386,7 +395,7 @@ extension Browser: MCSessionDelegate {
     ) {
         let isMirroringTarget = session === mirroringSession && peerID.displayName == targetMirroringDeviceID
         let isMirroringCommandTarget = (session === mirroringCommandSession)
-            && (peerID.displayName == targetMirroringDeviceID)
+        && (peerID.displayName == targetMirroringDeviceID)
         let isRemoteTarget = session === remoteSession && peerID.displayName == targetRemoteDeviceID
 
         guard isMirroringTarget || isMirroringCommandTarget || isRemoteTarget else { return }
@@ -396,7 +405,7 @@ extension Browser: MCSessionDelegate {
             onDeviceConnected?(device)
 
         case .notConnected:
-            eventContinuation.yield(.deviceConnectionFailed)
+            browsingEventContinuation.yield(.deviceConnectionFailed)
             if isMirroringTarget || isMirroringCommandTarget {
                 targetMirroringDeviceID = nil
             }

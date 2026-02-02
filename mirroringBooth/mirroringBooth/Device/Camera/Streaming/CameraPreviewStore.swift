@@ -34,7 +34,7 @@ final class CameraPreviewStore: StoreProtocol {
         case isMirroringDisconnected
         case setTransferCount(Int)
         case setColorScheme(ColorScheme?)
-        case browserEvent(BrowserEvents)
+        case browserEvent(CameraStreamEvents)
     }
 
     enum Result {
@@ -53,8 +53,8 @@ final class CameraPreviewStore: StoreProtocol {
     private(set) var state: State
     private var cancellables = Set<AnyCancellable>()
 
-    var eventStream: AsyncStream<BrowserEvents> {
-        browser.eventStream
+    var eventStream: AsyncStream<CameraStreamEvents> {
+        browser.cameraStreamEventStream
     }
 
     init(
@@ -122,11 +122,14 @@ final class CameraPreviewStore: StoreProtocol {
         self.state = state
     }
 
-    // View에서 전달받은 BrowserEvents를 처리하여 Result로 변환합니다.
-    private func handleBrowserEvent(_ event: BrowserEvents) -> [Result] {
+    // View에서 전달받은 CameraStreamEvents를 처리하여 Result로 변환합니다.
+    private func handleBrowserEvent(_ event: CameraStreamEvents) -> [Result] {
         switch event {
         case .sendPhoto:
             return [.setTransferCount(state.transfercount + 1)]
+        case .captureCommand:
+            cameraManager.capturePhoto(getOrientationByAngle(state.angle))
+            return []
         default:
             return []
         }
@@ -146,12 +149,6 @@ private extension CameraPreviewStore {
             framedData.append(data)
 
             self.browser.sendStreamData(framedData)
-        }
-        // 촬영 명령 수신
-        browser.onCaptureCommand = {
-            self.cameraManager.capturePhoto(
-                self.getOrientationByAngle(self.state.angle)
-            )
         }
         // 일괄 전송 시작 명령 수신
         browser.onStartTransferCommand
