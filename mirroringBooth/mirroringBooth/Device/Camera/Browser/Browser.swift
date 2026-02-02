@@ -176,7 +176,6 @@ final class Browser: NSObject {
 
     /// 카메라 캡쳐 액션을 실행합니다.
     func capturePhoto() {
-        print("촬영 진행")
         cameraStreamEventContinuation.yield(.captureCommand)
         self.sendCommand(.onUpdateCaptureCount)
         self.sendCommand(.captureEffect)
