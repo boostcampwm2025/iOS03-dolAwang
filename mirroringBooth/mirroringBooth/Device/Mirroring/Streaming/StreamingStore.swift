@@ -120,7 +120,6 @@ final class StreamingStore: StoreProtocol {
 
     let isTimerMode: Bool
 
-
     init(
         _ advertiser: Advertiser?,
         decoder: H264Decoder,
@@ -205,7 +204,6 @@ final class StreamingStore: StoreProtocol {
             guard let index = state.overlayPhase.firstIndex(of: phase) else { return }
             state.overlayPhase.remove(at: index)
 
-            // MARK: - 스트리밍
         case .streamingStarted:
             state.isStreaming = true
 
@@ -216,7 +214,7 @@ final class StreamingStore: StoreProtocol {
         case .videoFrameDecoded(let sampleBuffer, let rotationAngle):
             state.currentSampleBuffer = sampleBuffer
             state.rotationAngle = rotationAngle
-            // MARK: - 타이머
+
         case .countdownUpdated(let value):
             state.countdownValue = value
 

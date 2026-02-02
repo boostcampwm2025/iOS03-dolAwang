@@ -91,6 +91,7 @@ final class CameraPreviewStore: StoreProtocol {
 
     func reduce(_ result: Result) {
         var state = self.state
+
         switch result {
         case .updateAngle(let rawValue):
             state.angle = getAngleByRawValue(rawValue)
