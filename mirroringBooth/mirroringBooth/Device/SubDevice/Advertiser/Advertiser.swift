@@ -34,14 +34,12 @@ final class Advertiser: NSObject {
     private let modeSelectionContinuation: AsyncStream<ModeSelectionEvents>.Continuation
     let modeSelectionStream: AsyncStream<ModeSelectionEvents>
 
-    /// 촬영 화면 이동 콜백 (리모트 기기)
-    var navigateToRemoteCaptureCallBack: (() -> Void)?
+    private let remoteConnectedViewContinuation: AsyncStream<RemoteConnectedViewEvents>.Continuation
+    let remoteConnectedViewStream: AsyncStream<RemoteConnectedViewEvents>
 
     /// 촬영 완료 이동 콜백 (리모트 기기)
     var navigateToRemoteCompleteCallBack: (() -> Void)?
 
-    /// 홈 화면으로 이동 (리모트 기기)
-    var navigateToHomeCallback: (() -> Void)?
 
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
@@ -105,6 +103,7 @@ final class Advertiser: NSObject {
         )
         (advertisingStream, advertisingContinuation) = AsyncStream.makeStream(of: AdvertiserEvents.self)
         (modeSelectionStream, modeSelectionContinuation) = AsyncStream.makeStream(of: ModeSelectionEvents.self)
+        (remoteConnectedViewStream, remoteConnectedViewContinuation) = AsyncStream.makeStream(of: RemoteConnectedViewEvents.self)
 
         super.init()
         advertiser.delegate = self
@@ -210,19 +209,13 @@ final class Advertiser: NSObject {
         case .navigateToRemoteConnected:
             advertisingContinuation.yield(.navigateToRemoteConnected)
         case .navigateToRemoteCapture:
-            guard let navigateToRemoteCaptureCallBack else { return }
-            DispatchQueue.main.async {
-                navigateToRemoteCaptureCallBack()
-            }
+            remoteConnectedViewContinuation.yield(.navigateToRemoteCapture)
         case .navigateToRemoteComplete:
             DispatchQueue.main.async {
                 self.navigateToRemoteCompleteCallBack?()
             }
         case .navigateToHome:
-            guard let navigateToHomeCallback else { return }
-            DispatchQueue.main.async {
-                navigateToHomeCallback()
-            }
+            remoteConnectedViewContinuation.yield(.navigateToHome)
         case .noticeIsRemoteDevice:
             advertiserType = .remote
             heartBeater.start()

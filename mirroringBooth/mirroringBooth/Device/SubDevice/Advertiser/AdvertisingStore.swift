@@ -39,12 +39,6 @@ final class AdvertisingStore: StoreProtocol {
     init(_ advertiser: Advertiser) {
         self.advertiser = advertiser
         subscribeToStream()
-
-        advertiser.navigateToRemoteCaptureCallBack = { [weak self] in
-            Task { @MainActor in
-                self?.reduce(.setOnNavigate(true, type: .remote))
-            }
-        }
     }
 
     func action(_ intent: Intent) -> [Result] {
@@ -104,6 +98,8 @@ extension AdvertisingStore {
                         self.reduce(.setOnNavigate(true, type: .mirroring))
                     }
                 case .navigateToRemoteConnected:
+                    await MainActor.run { self.reduce(.setOnNavigate(true, type: .remote)) }
+                case .navigateToRemoteCapture:
                     await MainActor.run { self.reduce(.setOnNavigate(true, type: .remote)) }
                 }
             }

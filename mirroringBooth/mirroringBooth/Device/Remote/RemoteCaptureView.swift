@@ -25,5 +25,8 @@ struct RemoteCaptureView: View {
                 router?.push(to: RemoteRoute.completion)
             }
         }
+        .task {
+            
+        }
     }
 }
