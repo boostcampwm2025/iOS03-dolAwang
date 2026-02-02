@@ -94,16 +94,16 @@ extension AdvertisingStore {
     private func subscribeToStream() {
         streamingTask = Task { [weak self] in
             guard let self else { return }
-            for await stream in advertiser.controlStream {
+            for await stream in advertiser.advertisingStream {
                 switch stream {
                 case .onConnected:
                     await MainActor.run { self.send(.connected) }
-                case .navigateToSelectModeCommandCallBack(let isRemoteEnable):
+                case .navigateToSelectModeCommand(let isRemoteEnable):
                     await MainActor.run {
                         self.reduce(.setIsRemoteSelected(isRemoteEnable))
                         self.reduce(.setOnNavigate(true, type: .mirroring))
                     }
-                case .navigateToRemoteConnectedCallBack:
+                case .navigateToRemoteConnected:
                     await MainActor.run { self.reduce(.setOnNavigate(true, type: .remote)) }
                 }
             }

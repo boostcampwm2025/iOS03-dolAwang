@@ -11,9 +11,14 @@ enum AdvertiserEvents {
     /// 연결 성공
     case onConnected
     /// 미러링 화면 모드 선택으로 이동(리모트 기기 연결 여부)
-    case navigateToSelectModeCommandCallBack(_ isRemoteEnable: Bool)
+    case navigateToSelectModeCommand(_ isRemoteEnable: Bool)
     /// 촬영 대기 화면 이동 (리모트 기기)
-    case navigateToRemoteConnectedCallBack
+    case navigateToRemoteConnected
+}
+
+enum ModeSelectionEvents {
+    /// 리모트 기기 연결 끊겼을 때 모드 선택 화면 교체
+    case switchModeSelectionView
 }
 
 enum FrameReceivingEvents {

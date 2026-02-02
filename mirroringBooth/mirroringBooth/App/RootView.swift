@@ -40,13 +40,18 @@ struct RootView: View {
                             for: .timerOrRemote,
                             flag: isRemoteEnable
                         )
+                        .task {
+                            guard let advertiser = store.advertiser else { return }
+                            for await stream in advertiser.modeSelectionStream {
+                                if case .switchModeSelectionView = stream {
+                                    router.pop()
+                                    router.push(to: MirroringRoute.timerOrRemoteSelection(isRemoteEnable: false))
+                                }
+                            }
+                        }
                         .onAppear {
                             store.advertiser?.onHeartBeatTimeout = {
                                 store.send(.showTimeoutAlert(true))
-                            }
-                            store.advertiser?.switchModeSelectionView = {
-                                router.pop()
-                                router.push(to: MirroringRoute.timerOrRemoteSelection(isRemoteEnable: false))
                             }
                         }
 

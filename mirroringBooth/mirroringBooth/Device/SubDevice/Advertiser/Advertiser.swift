@@ -28,8 +28,11 @@ final class Advertiser: NSObject {
     private let videoContinuation: AsyncStream<FrameReceivingEvents>.Continuation
     let videoStream: AsyncStream<FrameReceivingEvents>
 
-    private let controlContinuation: AsyncStream<AdvertiserEvents>.Continuation
-    let controlStream: AsyncStream<AdvertiserEvents>
+    private let advertisingContinuation: AsyncStream<AdvertiserEvents>.Continuation
+    let advertisingStream: AsyncStream<AdvertiserEvents>
+
+    private let modeSelectionContinuation: AsyncStream<ModeSelectionEvents>.Continuation
+    let modeSelectionStream: AsyncStream<ModeSelectionEvents>
 
     /// 촬영 화면 이동 콜백 (리모트 기기)
     var navigateToRemoteCaptureCallBack: (() -> Void)?
@@ -50,9 +53,6 @@ final class Advertiser: NSObject {
         case remoteHeartBeat // 리모트 세션 확인용
         case stopHeartBeat // heartbeat 종료
     }
-
-    /// 리모트 기기 연결 끊겼을 때 모드 선택 화면 교체 콜백
-    var switchModeSelectionView: (() -> Void)?
 
     /// 사진 수신 완료 콜백 (1장마다 호출)
     var onPhotoReceived: (() -> Void)?
@@ -103,10 +103,8 @@ final class Advertiser: NSObject {
             of: FrameReceivingEvents.self,
             bufferingPolicy: .bufferingNewest(1)
         )
-        (controlStream, controlContinuation) = AsyncStream.makeStream(
-            of: AdvertiserEvents.self,
-            bufferingPolicy: .unbounded
-        )
+        (advertisingStream, advertisingContinuation) = AsyncStream.makeStream(of: AdvertiserEvents.self)
+        (modeSelectionStream, modeSelectionContinuation) = AsyncStream.makeStream(of: ModeSelectionEvents.self)
 
         super.init()
         advertiser.delegate = self
@@ -185,13 +183,11 @@ final class Advertiser: NSObject {
     private func handleMirroringDeviceCommand(_ mirroringDeviceCommand: Browser.MirroringDeviceCommand) {
         switch mirroringDeviceCommand {
         case .navigateToSelectModeWithRemote:
-            controlContinuation.yield(.navigateToSelectModeCommandCallBack(true))
+            advertisingContinuation.yield(.navigateToSelectModeCommand(true))
         case .navigateToSelectModeWithoutRemote:
-            controlContinuation.yield(.navigateToSelectModeCommandCallBack(false))
+            advertisingContinuation.yield(.navigateToSelectModeCommand(false))
         case .switchSelectModeView:
-            DispatchQueue.main.async {
-                self.switchModeSelectionView?()
-            }
+            modeSelectionContinuation.yield(.switchModeSelectionView)
         case .allPhotosStored:
             DispatchQueue.main.async {
                 self.onAllPhotosStored?()
@@ -212,7 +208,7 @@ final class Advertiser: NSObject {
     private func handleRemoteDeviceCommand(_ remoteDeviceCommand: Browser.RemoteDeviceCommand) {
         switch remoteDeviceCommand {
         case .navigateToRemoteConnected:
-            controlContinuation.yield(.navigateToRemoteConnectedCallBack)
+            advertisingContinuation.yield(.navigateToRemoteConnected)
         case .navigateToRemoteCapture:
             guard let navigateToRemoteCaptureCallBack else { return }
             DispatchQueue.main.async {
@@ -245,7 +241,7 @@ extension Advertiser: MCSessionDelegate {
         }
         if session === self.commandSession {
             if state == .connected {
-                controlContinuation.yield(.onConnected)
+                advertisingContinuation.yield(.onConnected)
             }
         }
     }
