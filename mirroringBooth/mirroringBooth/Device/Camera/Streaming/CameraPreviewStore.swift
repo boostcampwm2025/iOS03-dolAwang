@@ -25,15 +25,10 @@ final class CameraPreviewStore: StoreProtocol {
     }
 
     enum Intent {
-        case startAnimation
-        case startSession
-        case stopCameraSession
+        case entry(withAngle: Int)
+        case exit
         case updateAngle(rawValue: Int)
-        case captureCompleted
-        case resetCaptureCompleted
         case isMirroringDisconnected
-        case setTransferCount(Int)
-        case setColorScheme(ColorScheme?)
     }
 
     enum Result {
@@ -44,6 +39,7 @@ final class CameraPreviewStore: StoreProtocol {
         case resetCaptureCompleted
         case isMirroringDisconnected
         case setTransferCount(Int)
+        case setIsTransferring(Bool)
         case setColorScheme(ColorScheme?)
     }
 
@@ -64,28 +60,20 @@ final class CameraPreviewStore: StoreProtocol {
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
-        case .startAnimation:
-            return [.startAnimation]
-        case .startSession:
-            setupSubscriptions()
-            return [.startSession]
-        case .stopCameraSession:
+        case .entry(let angle):
+            return [.setColorScheme(.dark), .resetCaptureCompleted,
+                    .startAnimation, .startSession, .updateAngle(angle)]
+
+        case .exit:
             cameraManager.stopSession()
+            return [.setColorScheme(nil)]
+
         case .updateAngle(let rawValue):
             return [.updateAngle(rawValue)]
-        case .captureCompleted:
-            browser.sendCommand(.allPhotosStored)
-            return [.captureCompleted, .setTransferCount(0)]
-        case .resetCaptureCompleted:
-            return [.resetCaptureCompleted]
+
         case .isMirroringDisconnected:
             return [.isMirroringDisconnected]
-        case .setTransferCount(let count):
-            return [.setTransferCount(count)]
-        case .setColorScheme(let scheme):
-            return [.setColorScheme(scheme) ]
         }
-        return []
     }
 
     func reduce(_ result: Result) {
@@ -93,21 +81,31 @@ final class CameraPreviewStore: StoreProtocol {
         switch result {
         case .startAnimation:
             state.animationFlag = true
+
         case .startSession:
             cameraManager.startSession()
             cameraManager.rawData = { buffer in
                 self.state.buffer = buffer
             }
+
         case .updateAngle(let rawValue):
             state.angle = getAngleByRawValue(rawValue)
+
         case .captureCompleted:
             state.isCaptureCompleted = true
+
         case .resetCaptureCompleted:
             state.isCaptureCompleted = false
+
         case .isMirroringDisconnected:
             state.isMirroringDisconnected = true
+
         case .setTransferCount(let count):
             state.transfercount = count
+
+        case .setIsTransferring(let isTransferring):
+            state.isTransferring = isTransferring
+
         case .setColorScheme(let scheme):
             state.colorScheme = scheme
         }
@@ -141,23 +139,25 @@ private extension CameraPreviewStore {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self = self else { return }
-                self.state.isTransferring = true
+                self.reduce(.setIsTransferring(true))
                 self.cameraManager.sendAllPhotos(using: self.browser)
             }
             .store(in: &cancellables)
+
         // 장당 전송 완료
         browser.onSendPhoto = { [weak self] in
             guard let self else { return }
-            self.send(.setTransferCount(self.state.transfercount + 1))
+            self.reduce(.setTransferCount(self.state.transfercount + 1))
         }
 
         // 전송 완료
         cameraManager.onTransferCompleted = {
-            self.state.isTransferring = false
+            self.reduce(.setIsTransferring(false))
         }
+
         // 10장 모두 저장 완료 시 미러링기기에 알림 전송
         cameraManager.onAllPhotosStored = { _ in
-            self.send(.captureCompleted)
+            self.reduce(.captureCompleted)
         }
     }
 
