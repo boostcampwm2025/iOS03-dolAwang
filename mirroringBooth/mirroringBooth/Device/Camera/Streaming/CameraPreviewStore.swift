@@ -33,7 +33,6 @@ final class CameraPreviewStore: StoreProtocol {
 
     enum Result {
         case startAnimation
-        case startSession
         case updateAngle(Int)
         case captureCompleted
         case resetCaptureCompleted
@@ -61,8 +60,13 @@ final class CameraPreviewStore: StoreProtocol {
     func action(_ intent: Intent) -> [Result] {
         switch intent {
         case .entry(let angle):
+            setupSubscriptions()
+            cameraManager.startSession()
+            cameraManager.rawData = { buffer in
+                self.state.buffer = buffer
+            }
             return [.setColorScheme(.dark), .resetCaptureCompleted,
-                    .startAnimation, .startSession, .updateAngle(angle)]
+                    .startAnimation, .updateAngle(angle)]
 
         case .exit:
             cameraManager.stopSession()
@@ -81,12 +85,6 @@ final class CameraPreviewStore: StoreProtocol {
         switch result {
         case .startAnimation:
             state.animationFlag = true
-
-        case .startSession:
-            cameraManager.startSession()
-            cameraManager.rawData = { buffer in
-                self.state.buffer = buffer
-            }
 
         case .updateAngle(let rawValue):
             state.angle = getAngleByRawValue(rawValue)
