@@ -27,6 +27,7 @@ enum CameraStreamEvents {
     // 촬영
     case captureCommand // 마이그레이션 완료
     case sendPhoto // 마이그레이션 완료
+    case startTransfer // 마이그레이션 완료
 
     // Heartbeat
     case heartbeatTimeout

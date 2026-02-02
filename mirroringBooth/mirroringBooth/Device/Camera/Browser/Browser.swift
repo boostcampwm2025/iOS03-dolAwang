@@ -65,9 +65,6 @@ final class Browser: NSObject {
 
     var onDeviceConnected: ((NearbyDevice) -> Void)?
 
-    /// 일괄 전송 시작 명령 수신 콜백
-    var onStartTransferCommand = PassthroughSubject<Void, Never>()
-
     /// 원격 모드 설정 명령 수신 콜백
     var onRemoteModeCommand: (() -> Void)?
 
@@ -440,7 +437,7 @@ extension Browser: MCSessionDelegate {
                 }
             case .startTransfer:
                 DispatchQueue.main.async {
-                    self.onStartTransferCommand.send()
+                    self.cameraStreamEventContinuation.yield(.startTransfer)
                     self.sendRemoteCommand(.navigateToRemoteComplete)
                 }
             case .setRemoteMode:

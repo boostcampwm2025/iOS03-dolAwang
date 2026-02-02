@@ -118,7 +118,6 @@ final class CameraPreviewStore: StoreProtocol {
         case .isMirroringDisconnected:
             state.isMirroringDisconnected = true
         }
-
         self.state = state
     }
 
@@ -130,6 +129,9 @@ final class CameraPreviewStore: StoreProtocol {
         case .captureCommand:
             cameraManager.capturePhoto(getOrientationByAngle(state.angle))
             return []
+        case .startTransfer:
+            cameraManager.sendAllPhotos(using: browser)
+            return [.setIsTransferring(true)]
         default:
             return []
         }
@@ -149,19 +151,7 @@ private extension CameraPreviewStore {
             framedData.append(data)
 
             self.browser.sendStreamData(framedData)
-        }
-        
-        // 일괄 전송 시작 명령 수신
-        browser.onStartTransferCommand
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                guard let self = self else { return }
-                Task { @MainActor in
-                    self.reduce(.setIsTransferring(true))
-                }
-                self.cameraManager.sendAllPhotos(using: self.browser)
-            }
-            .store(in: &cancellables)
+        }   
 
         // 전송 완료
         cameraManager.onTransferCompleted = { [weak self] in
