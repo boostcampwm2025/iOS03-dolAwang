@@ -119,13 +119,6 @@ final class BrowsingStore: StoreProtocol {
             }
         }
 
-        browser.onStartTransferCommand
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.watchConnectionManager.sendCaptureComplete()
-            }
-            .store(in: &cancellables)
-
         // 미러링 기기 연결 끊긴 경우
         browser.onHeartbeatTimeout = { [weak self] in
             Task { @MainActor in
