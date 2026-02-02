@@ -102,7 +102,7 @@ final class ConnectionCheckStore: StoreProtocol {
 
 extension ConnectionCheckStore {
     private func setupBrowser() {
-        browser.onRemoteHeartbeatTimeout = { [weak self] in
+        browser.onHeartbeatTimeout = { [weak self] in
             self?.reduce(.setIsMirroringDisconnected(true))
         }
 
