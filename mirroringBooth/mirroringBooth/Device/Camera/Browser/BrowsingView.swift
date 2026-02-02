@@ -136,6 +136,19 @@ struct BrowsingView: View {
             store.send(.didChangeAppState(state))
         }
         .backgroundStyle()
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    store.send(.setShowTutorial(true))
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                }
+            }
+        }
+        .tutorialOverlay(isPresented: Binding(
+            get: { store.state.showTutorial },
+            set: { store.send(.setShowTutorial($0)) }
+        ))
         .homeAlert(
             isPresented: Binding(
                 get: { store.state.showMirroringDisconnectedAlert },
