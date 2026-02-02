@@ -28,8 +28,8 @@ final class Advertiser: NSObject {
     private let videoContinuation: AsyncStream<FrameReceivingEvents>.Continuation
     let videoStream: AsyncStream<FrameReceivingEvents>
 
-    /// 연결 성공 콜백
-    var onConnected: (() -> Void)?
+    private let controlContinuation: AsyncStream<AdvertiserEvents>.Continuation
+    let controlStream: AsyncStream<AdvertiserEvents>
 
     /// 촬영 선택 모드 이동 콜백 (미러링 기기)
     var navigateToSelectModeCommandCallBack: ((_ isRemoteEnable: Bool) -> Void)?
@@ -108,6 +108,10 @@ final class Advertiser: NSObject {
         (videoStream, videoContinuation) = AsyncStream.makeStream(
             of: FrameReceivingEvents.self,
             bufferingPolicy: .bufferingNewest(1)
+        )
+        (controlStream, controlContinuation) = AsyncStream.makeStream(
+            of: AdvertiserEvents.self,
+            bufferingPolicy: .unbounded
         )
 
         super.init()
@@ -256,9 +260,7 @@ extension Advertiser: MCSessionDelegate {
         }
         if session === self.commandSession {
             if state == .connected {
-                DispatchQueue.main.async {
-                    self.onConnected?()
-                }
+                controlContinuation.yield(.onConnected)
             }
         }
     }

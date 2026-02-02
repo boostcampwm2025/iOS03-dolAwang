@@ -34,15 +34,10 @@ final class AdvertisingStore: StoreProtocol {
 
     var state: State = .init()
     let advertiser: Advertiser
+    private var streamingTask: Task<Void, Never>?
 
     init(_ advertiser: Advertiser) {
         self.advertiser = advertiser
-
-        advertiser.onConnected = { [weak self] in
-            Task { @MainActor in
-                self?.send(.connected)
-            }
-        }
 
         advertiser.navigateToSelectModeCommandCallBack = { [weak self] isRemoteEnable in
             Task { @MainActor in
@@ -103,4 +98,20 @@ final class AdvertisingStore: StoreProtocol {
         self.state = state
     }
 
+}
+
+// MARK: Stream 구독
+extension AdvertisingStore {
+    private func subscribeToStream() {
+        streamingTask = Task { [weak self] in
+            guard let self else { return }
+            for await stream in advertiser.controlStream {
+                if case .onConnected = stream {
+                    await MainActor.run {
+                        self.send(.connected)
+                    }
+                }
+            }
+        }
+    }
 }

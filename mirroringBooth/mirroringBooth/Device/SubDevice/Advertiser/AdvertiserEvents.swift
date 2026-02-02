@@ -8,7 +8,7 @@
 import Foundation
 
 enum AdvertiserEvents {
-    // TODO: 흐름 제어 이벤트 추가 예정
+    case onConnected
 }
 
 enum FrameReceivingEvents {
