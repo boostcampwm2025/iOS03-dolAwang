@@ -14,7 +14,6 @@ struct BrowsingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) var rootStore: RootStore
     @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
-    @State private var showToast = false
 
     var body: some View {
         ZStack {
@@ -54,17 +53,21 @@ struct BrowsingView: View {
                     LazyVStack {
                         ForEach(store.state.discoveredDevices) { device in
                             if device.type != .unknown {
-                                Button {
-                                    if !store.state.isConnecting {
-                                        store.send(.didSelect(device))
+                                if store.state.currentTarget == .remote || (
+                                    store.state.currentTarget == .mirroring && device.type != .watch
+                                ) {
+                                    Button {
+                                        if !store.state.isConnecting {
+                                            store.send(.didSelect(device))
+                                        }
+                                    } label: {
+                                        DeviceRow(
+                                            device: device,
+                                            selectedTarget: isDeviceSelected(device)
+                                        )
                                     }
-                                } label: {
-                                    DeviceRow(
-                                        device: device,
-                                        selectedTarget: isDeviceSelected(device)
-                                    )
+                                    .disabled(!isDeviceSelectable(device))
                                 }
-                                .disabled(isDeviceDisabled(device))
                             }
                         }
                     }
@@ -174,8 +177,16 @@ struct BrowsingView: View {
         return nil
     }
 
-    private func isDeviceDisabled(_ device: NearbyDevice) -> Bool {
-        return isDeviceSelected(device) != nil ||
-        (store.state.currentTarget == .mirroring && device.type == .watch)
+    private func isDeviceSelectable(_ device: NearbyDevice) -> Bool {
+        if store.state.isConnecting { return false }
+
+        switch store.state.currentTarget {
+        case .mirroring:
+            return store.state.mirroringDevice == nil
+        case .remote:
+            if store.state.mirroringDevice == nil { return true }
+            if store.state.mirroringDevice == device { return false }
+            return store.state.remoteDevice == nil
+        }
     }
 }
