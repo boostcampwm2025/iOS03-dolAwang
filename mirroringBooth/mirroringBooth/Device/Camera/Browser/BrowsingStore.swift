@@ -290,15 +290,15 @@ final class BrowsingStore: StoreProtocol {
         case .startAnimation:
             state.animationTrigger = true
 
-        case .setShowMirroringDisconnectedAlert(let alert):
-            state.showMirroringDisconnectedAlert = alert
-
         case .setShowToast(let value, let message):
             state.toastMessage = message
             state.showToast = value
 
-        case let .setShowTutorial(bool):
+        case .setShowTutorial(let bool):
             state.showTutorial = bool
+
+        case .setShowMirroringDisconnectedAlert(let bool):
+            state.showMirroringDisconnectedAlert = bool
         }
 
         self.state = state

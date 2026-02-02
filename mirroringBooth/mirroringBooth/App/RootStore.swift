@@ -38,7 +38,7 @@ final class RootStore: StoreProtocol {
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
-        case let .showTimeoutAlert(bool):
+        case .showTimeoutAlert(let bool):
             return [.showTimeoutAlert(bool)]
 
         case .disconnect:
@@ -53,7 +53,7 @@ final class RootStore: StoreProtocol {
 
     func reduce(_ result: Result) {
         switch result {
-        case let .showTimeoutAlert(bool):
+        case .showTimeoutAlert(let bool):
             state.showTimeoutAlert = bool
         }
     }
