@@ -14,7 +14,6 @@ struct BrowsingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) var rootStore: RootStore
     @State private var store = BrowsingStore(Browser(), WatchConnectionManager())
-    @State private var showToast = false
 
     var body: some View {
         ZStack {
@@ -64,7 +63,6 @@ struct BrowsingView: View {
                                         selectedTarget: isDeviceSelected(device)
                                     )
                                 }
-                                .disabled(isDeviceDisabled(device))
                             }
                         }
                     }
@@ -172,10 +170,5 @@ struct BrowsingView: View {
             return .remote
         }
         return nil
-    }
-
-    private func isDeviceDisabled(_ device: NearbyDevice) -> Bool {
-        return isDeviceSelected(device) != nil ||
-        (store.state.currentTarget == .mirroring && device.type == .watch)
     }
 }
