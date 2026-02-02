@@ -139,13 +139,6 @@ final class StreamingStore: StoreProtocol {
             return
         }
 
-        // 10장 사진 저장 시작
-        advertiser.onAllPhotosStored = { [weak self] in
-            Task { @MainActor in
-                self?.send(.startTransfer)
-            }
-        }
-
         // 카메라 캡쳐 이펙트
         advertiser.onCaptureEffect = { [weak self] in
             Task { @MainActor in
@@ -298,6 +291,8 @@ extension StreamingStore {
                     self?.send(.photoReceived)
                 case .onUpdateCaptureCount:
                     self?.send(.capturePhotoCount)
+                case .onAllPhotosStored:
+                    self?.send(.startTransfer)
                 }
             }
         }

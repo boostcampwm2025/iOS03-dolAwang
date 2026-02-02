@@ -54,9 +54,6 @@ final class Advertiser: NSObject {
         case stopHeartBeat // heartbeat 종료
     }
 
-    /// 10장 모두 저장 완료 콜백 (촬영기기에서 전송)
-    var onAllPhotosStored: (() -> Void)?
-
     /// heartbeat 메시지 타임아웃
     var onHeartBeatTimeout: (() -> Void)?
 
@@ -190,9 +187,7 @@ final class Advertiser: NSObject {
         case .switchSelectModeView:
             modeSelectionContinuation.yield(.switchModeSelectionView)
         case .allPhotosStored:
-            DispatchQueue.main.async {
-                self.onAllPhotosStored?()
-            }
+            streamingStoreContinuation.yield(.onAllPhotosStored)
         case .onUpdateCaptureCount:
             streamingStoreContinuation.yield(.onUpdateCaptureCount)
         case .heartBeat:
