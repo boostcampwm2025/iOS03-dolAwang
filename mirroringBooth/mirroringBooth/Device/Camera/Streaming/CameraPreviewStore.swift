@@ -102,25 +102,25 @@ final class CameraPreviewStore: StoreProtocol {
         switch result {
         case .updateAngle(let rawValue):
             state.angle = getAngleByRawValue(rawValue)
-            
+
         case .setTransferCount(let count):
             state.transfercount = count
-            
+
         case .setColorScheme(let scheme):
             state.colorScheme = scheme
-            
+
         case .startAnimation:
             state.animationFlag = true
-            
+
         case .setIsTransferring(let isTransferring):
             state.isTransferring = isTransferring
-            
+
         case .captureCompleted:
             state.isCaptureCompleted = true
-            
+
         case .resetCaptureCompleted:
             state.isCaptureCompleted = false
-            
+
         case .isMirroringDisconnected:
             state.isMirroringDisconnected = true
         }

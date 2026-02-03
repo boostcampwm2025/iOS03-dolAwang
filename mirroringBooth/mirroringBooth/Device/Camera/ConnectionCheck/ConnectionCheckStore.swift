@@ -62,7 +62,7 @@ final class ConnectionCheckStore: StoreProtocol {
         switch intent {
         case .entry:
             setupHeartbeatListener()
-            
+
         case .onReadyToCapture:
             browser.sendCommand(
                 state.remoteDevice == nil
@@ -71,13 +71,13 @@ final class ConnectionCheckStore: StoreProtocol {
             )
             browser.sendRemoteCommand(.navigateToRemoteConnected)
             return [.setShowPreview(true), .setNavigationToCompletion(false)]
-            
+
         case .setNavigationToCompletion(let flag):
             return [.setNavigationToCompletion(flag)]
-            
+
         case .setShowRemoteDisconnectedAlert(let flag):
             return [.setShowRemoteDisconnectedAlert(flag)]
-            
+
         case .setShowPreview(let flag):
             return [.setShowPreview(flag)]
         }

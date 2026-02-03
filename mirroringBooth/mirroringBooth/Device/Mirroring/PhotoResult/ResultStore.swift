@@ -64,26 +64,26 @@ final class ResultStore: StoreProtocol {
         switch intent {
         case .setRenderedImage(let image):
             return [.setRenderedImage(image)]
-            
+
         case .setScale(let scale):
             return [.setScale(scale)]
-            
+
         case .setLastScale(let scale):
             return [.setLastScale(scale)]
-            
+
         case .showFileExporter(let bool, let document):
             return [.setShowFileExporter(bool, document: document)]
-            
+
         case .showHomeAlert(let bool):
             return [.setShowHomeAlert(bool)]
-            
+
         case .showSettingAlert(let bool):
             saveResultImage(state.renderedImage ?? UIImage())
             return [.showSettingAlert(bool)]
-            
+
         case .showSavedToast(let bool, let message):
             return [.setShowSavedToast(bool, message: message)]
-            
+
         case .showShareSheet(let bool):
             return [.setShowShareSheet(bool)]
         }

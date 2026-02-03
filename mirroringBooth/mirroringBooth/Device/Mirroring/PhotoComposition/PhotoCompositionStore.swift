@@ -64,7 +64,7 @@ final class PhotoCompositionStore: StoreProtocol {
             let newCapacity = layout.capacity
             let oldCapacity = state.selectedLayout.capacity
             var results: [Result] = []
-            
+
             // capacity가 줄어들고, 현재 선택된 이미지의 개수가 capacity를 초과하는 경우
             if newCapacity < oldCapacity && state.currentSelectionCount > newCapacity {
                 for (index, photo) in state.photos.enumerated() {
