@@ -207,27 +207,24 @@ final class BrowsingStore: StoreProtocol {
         return []
     }
 
-    @MainActor
-    private func handleBrowserEvent(_ event: BrowsingEvents) {
+    private func handleBrowserEvent(_ event: BrowsingEvents) -> [Result] {
         switch event {
         case .deviceConnectionFailed:
-            reduce(.setIsConnecting(false))
+            return [.setIsConnecting(false)]
         case .deviceFound(let device):
-            reduce(.addDiscoveredDevice(device))
+            return [.addDiscoveredDevice(device)]
         case .deviceLost(let device):
-            reduce(.removeDiscoveredDevice(device))
             if device == state.mirroringDevice {
-                reduce(.setCurrentTarget(.mirroring))
+                return [.removeDiscoveredDevice(device), .setCurrentTarget(.mirroring)]
             }
+            return [.removeDiscoveredDevice(device)]
         case .deviceConnected(let device):
             switch state.currentTarget {
             case .mirroring:
-                reduce(.setMirroringDevice(device))
-                reduce(.setCurrentTarget(.remote))
+                return [.setMirroringDevice(device), .setCurrentTarget(.remote), .setIsConnecting(false)]
             case .remote:
-                reduce(.setRemoteDevice(device))
+                return [.setRemoteDevice(device), .setIsConnecting(false)]
             }
-            reduce(.setIsConnecting(false))
         }
     }
 

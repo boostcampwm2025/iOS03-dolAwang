@@ -127,19 +127,6 @@ final class CameraPreviewStore: StoreProtocol {
         }
         self.state = state
     }
-
-    private func handleBrowserEvent(_ event: CameraStreamEvents) -> [Result] {
-        switch event {
-        case .sendPhoto:
-            return [.setTransferCount(state.transfercount + 1)]
-        case .captureCommand:
-            cameraManager.capturePhoto(getOrientationByAngle(state.angle))
-            return []
-        case .startTransfer:
-            cameraManager.sendAllPhotos(using: browser)
-            return [.setIsTransferring(true)]
-        }
-    }
 }
 
 private extension CameraPreviewStore {
@@ -207,6 +194,19 @@ extension CameraPreviewStore {
                     }
                 }
             }
+        }
+    }
+
+    private func handleBrowserEvent(_ event: CameraStreamEvents) -> [Result] {
+        switch event {
+        case .sendPhoto:
+            return [.setTransferCount(state.transfercount + 1)]
+        case .captureCommand:
+            cameraManager.capturePhoto(getOrientationByAngle(state.angle))
+            return []
+        case .startTransfer:
+            cameraManager.sendAllPhotos(using: browser)
+            return [.setIsTransferring(true)]
         }
     }
 }
