@@ -19,7 +19,7 @@
 			remoteGlobalIDString = 8C796EA92EF52FB200280FED;
 			remoteInfo = mirroringBooth;
 		};
-		8CC15B3B2F30748C00F1137E /* PBXContainerItemProxy */ = {
+		0C4E9AA82F331EE300384D23 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8C796EA22EF52FB200280FED /* Project object */;
 			proxyType = 1;
@@ -442,15 +442,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		8CC15B3C2F30748C00F1137E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
-    };
-			targetProxy = 8CC15B3B2F30748C00F1137E /* PBXContainerItemProxy */;
 		0C2009892F306ED700B6197B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
 			targetProxy = 0C2009882F306ED700B6197B /* PBXContainerItemProxy */;
+		};
+		8CC15B3C2F30748C00F1137E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8C796EA92EF52FB200280FED /* mirroringBooth */;
+			targetProxy = 0C4E9AA82F331EE300384D23 /* PBXContainerItemProxy */;
 		};
 		8CC15D892F30E17B00F1137E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

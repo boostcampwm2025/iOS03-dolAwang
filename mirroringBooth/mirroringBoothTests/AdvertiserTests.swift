@@ -320,7 +320,7 @@ final class AdvertiserTests: XCTestCase {
         )
 
         var capturedSession: MCSession?
-        advertiser.advertiser(
+        advertiser.connectionManager.advertiser(
             dummyAdvertiser,
             didReceiveInvitationFromPeer: peerID,
             withContext: context
@@ -344,7 +344,7 @@ final class AdvertiserTests: XCTestCase {
         )
 
         var capturedSession: MCSession?
-        advertiser.advertiser(
+        advertiser.connectionManager.advertiser(
             dummyAdvertiser,
             didReceiveInvitationFromPeer: peerID,
             withContext: context
