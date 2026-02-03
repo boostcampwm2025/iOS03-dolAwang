@@ -19,9 +19,9 @@ final class AdvertisingStore: StoreProtocol {
     }
 
     enum Intent {
-        case onAppear
-        case connected
+        case entry
         case exit
+        case connected
         case setShowTutorial(Bool)
     }
 
@@ -43,18 +43,18 @@ final class AdvertisingStore: StoreProtocol {
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
-        case .onAppear:
+        case .entry:
             advertiser.startSearching()
             return [.setOnNavigate(false, type: nil)]
-
-        case .connected:
-            advertiser.stopSearching(onlyRefuse: true)
-            return [.setIsConnected(true)]
 
         case .exit:
             commandTask?.cancel()
             advertiser.stopSearching()
             return []
+
+        case .connected:
+            advertiser.stopSearching(onlyRefuse: true)
+            return [.setIsConnected(true)]
 
         case .setShowTutorial(let value):
             return [.setShowTutorial(value)]

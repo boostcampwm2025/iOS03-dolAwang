@@ -17,10 +17,10 @@ final class StreamingStore: StoreProtocol {
 
         case none
         case guide // 가이드라인 오버레이
-        case countdown // 8, 7, 6, 5, 4, 3, 2, 1 카운트다운
-        case shooting // 촬영 중 (8초 간격)
+        case countdown // 촬영 시작 전 카운트다운
+        case shooting // 촬영 중 (8초 간격) 카운트다운
         case transferring // 전송, 수신 중
-        case poseSuggestion
+        case poseSuggestion // 포즈 추천
         case completed // 촬영 완료
     }
 
@@ -112,13 +112,13 @@ final class StreamingStore: StoreProtocol {
     }
 
     private(set) var state: State
-    let isTimerMode: Bool
-
     private let advertiser: Advertiser?
     private let decoder: H264Decoder
     private var timer: Timer?
     private var streamingTask: Task<Void, Never>?
     private var commandTask: Task<Void, Never>?
+
+    let isTimerMode: Bool
 
     init(
         _ advertiser: Advertiser?,

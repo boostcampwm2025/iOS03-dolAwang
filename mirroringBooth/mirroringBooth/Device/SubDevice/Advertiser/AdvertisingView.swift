@@ -55,7 +55,7 @@ struct AdvertisingView: View {
             .padding(20)
         }
         .onAppear {
-            store.send(.onAppear)
+            store.send(.entry)
             rootStore.advertiser = store.advertiser
         }
         .onDisappear {

@@ -30,8 +30,8 @@ final class WatchConnectionStore: StoreProtocol {
         case setIsWaiting(Bool)
     }
 
-    private let connectionManager: WatchConnectionManager
     private(set) var state: State = .init()
+    private let connectionManager: WatchConnectionManager
 
     init(
         connectionManager: WatchConnectionManager
@@ -74,16 +74,17 @@ final class WatchConnectionStore: StoreProtocol {
                 await self?.connectionManager.sendCaptureRequest()
             }
 
+        case .startConnecting:
+            self.connectionManager.start()
+
         case .disconnect:
             self.connectionManager.stop()
             return [.setConnectionState(.notConnected)]
 
-        case .startConnecting:
-            self.connectionManager.start()
-
         case .isWaitingChanged(let isWaiting):
             return [.setIsWaiting(isWaiting)]
         }
+
         return []
     }
 

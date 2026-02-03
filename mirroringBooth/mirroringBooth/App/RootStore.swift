@@ -23,6 +23,8 @@ final class RootStore: StoreProtocol {
     }
 
     private(set) var state: State = .init()
+    private var commandTask: Task<Void, Never>?
+
     var advertiser: Advertiser? {
         didSet {
             commandTask?.cancel()
@@ -30,7 +32,6 @@ final class RootStore: StoreProtocol {
         }
     }
     var browser: Browser?
-    private var commandTask: Task<Void, Never>?
 
     deinit {
         commandTask?.cancel()
