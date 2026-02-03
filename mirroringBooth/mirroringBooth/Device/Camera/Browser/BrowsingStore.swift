@@ -207,6 +207,7 @@ final class BrowsingStore: StoreProtocol {
         return []
     }
 
+    @MainActor
     private func handleBrowserEvent(_ event: BrowsingEvents) {
         switch event {
         case .deviceConnectionFailed:
