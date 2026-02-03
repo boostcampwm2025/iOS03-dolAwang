@@ -70,10 +70,6 @@ final class Browser: NSObject {
     /// 타이머 모드 선택 명령 수신 콜백
     var onSelectedTimerModeCommand: (() -> Void)?
 
-    /// heartbeat 메시지 타임아웃
-    var onHeartbeatTimeout: (() -> Void)?
-    var onRemoteHeartbeatTimeout: (() -> Void)?
-
     /// 기기 검색 및 연결 전용 이벤트 스트림
     let browsingEventStream: AsyncStream<BrowsingEvents>
     private let browsingEventContinuation: AsyncStream<BrowsingEvents>.Continuation
@@ -81,6 +77,18 @@ final class Browser: NSObject {
     /// 카메라 촬영 및 전송 전용 이벤트 스트림
     let cameraStreamEventStream: AsyncStream<CameraStreamEvents>
     private let cameraStreamEventContinuation: AsyncStream<CameraStreamEvents>.Continuation
+
+    /// BrowsingStore 전용 Heartbeat 스트림
+    let browsingHeartbeatStream: AsyncStream<HeartBeatEvents>
+    let browsingHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
+
+    /// ConnectionCheckStore 전용 Heartbeat 스트림
+    let connectionCheckHeartbeatStream: AsyncStream<HeartBeatEvents>
+    let connectionCheckHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
+
+    /// CameraPreviewStore 전용 Heartbeat 스트림
+    let cameraPreviewHeartbeatStream: AsyncStream<HeartBeatEvents>
+    let cameraPreviewHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
 
     init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
@@ -94,7 +102,23 @@ final class Browser: NSObject {
         )
 
         (self.cameraStreamEventStream, self.cameraStreamEventContinuation) = AsyncStream.makeStream(
-            of: CameraStreamEvents.self
+            of: CameraStreamEvents.self,
+            bufferingPolicy: .bufferingNewest(1)
+        )
+
+        (self.browsingHeartbeatStream, self.browsingHeartbeatContinuation) = AsyncStream.makeStream(
+            of: HeartBeatEvents.self,
+            bufferingPolicy: .bufferingNewest(1)
+        )
+
+        (self.connectionCheckHeartbeatStream, self.connectionCheckHeartbeatContinuation) = AsyncStream.makeStream(
+            of: HeartBeatEvents.self,
+            bufferingPolicy: .bufferingNewest(1)
+        )
+
+        (self.cameraPreviewHeartbeatStream, self.cameraPreviewHeartbeatContinuation) = AsyncStream.makeStream(
+            of: HeartBeatEvents.self,
+            bufferingPolicy: .bufferingNewest(1)
         )
 
         super.init()
