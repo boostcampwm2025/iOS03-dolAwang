@@ -121,7 +121,6 @@ final class CameraPreviewStore: StoreProtocol {
         self.state = state
     }
 
-    // View에서 전달받은 CameraStreamEvents를 처리하여 Result로 변환합니다.
     private func handleBrowserEvent(_ event: CameraStreamEvents) -> [Result] {
         switch event {
         case .sendPhoto:

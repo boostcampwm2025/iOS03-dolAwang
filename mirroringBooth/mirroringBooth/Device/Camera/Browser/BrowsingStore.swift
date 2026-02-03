@@ -249,7 +249,6 @@ final class BrowsingStore: StoreProtocol {
         return result
     }
 
-    // View에서 전달받은 BrowsingEvents를 처리하여 Result로 변환합니다.
     private func handleBrowserEvent(_ event: BrowsingEvents) -> [Result] {
         switch event {
         case .deviceConnectionFailed:
