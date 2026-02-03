@@ -185,7 +185,7 @@ final class Advertiser: NSObject {
         case .switchSelectModeView:
             modeSelectionContinuation.yield(.switchModeSelectionView)
         case .allPhotosStored:
-            streamingStoreContinuation.yield(.onAllPhotosStored)
+            streamingStoreContinuation.yield(.onStoreAllPhotos)
         case .onUpdateCaptureCount:
             streamingStoreContinuation.yield(.onUpdateCaptureCount)
         case .heartBeat:

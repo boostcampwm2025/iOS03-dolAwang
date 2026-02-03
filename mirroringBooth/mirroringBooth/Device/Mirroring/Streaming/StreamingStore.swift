@@ -280,7 +280,7 @@ extension StreamingStore {
                     self?.send(.photoReceived)
                 case .onUpdateCaptureCount:
                     self?.send(.capturePhotoCount)
-                case .onAllPhotosStored:
+                case .onStoreAllPhotos:
                     self?.send(.startTransfer)
                 case .onCaptureEffect:
                     self?.captureEffect()

@@ -26,7 +26,7 @@ final class RootStore: StoreProtocol {
     var advertiser: Advertiser? {
         didSet {
             commandTask?.cancel()
-            setListner()
+            setListener()
         }
     }
     var browser: Browser?
@@ -58,7 +58,7 @@ final class RootStore: StoreProtocol {
 }
 
 extension RootStore {
-    private func setListner() {
+    private func setListener() {
         guard let advertiser else { return }
         commandTask = Task { [weak self] in
             for await stream in advertiser.rootStream {
