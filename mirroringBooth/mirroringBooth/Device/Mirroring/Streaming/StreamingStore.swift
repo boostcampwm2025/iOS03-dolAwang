@@ -181,7 +181,6 @@ final class StreamingStore: StoreProtocol {
 
         case .exit:
             decoder.stop()
-            advertiser?.onReceivedStreamData = nil
             result.append(.setColorScheme(nil))
             streamingTask?.cancel()
             result.append(.streamingStopped)
