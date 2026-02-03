@@ -13,6 +13,7 @@ extension Logger {
     static let modeSelectionView = Logger(subsystem: subsystem, category: "ModeSelectionView")
 
     static let advertiser = Logger(subsystem: subsystem, category: "Advertiser")
+    static let advertisingManager = Logger(subsystem: subsystem, category: "AdvertisingManager")
     static let browser = Logger(subsystem: subsystem, category: "Browser")
 
     static let h264encoder = Logger(subsystem: subsystem, category: "H264Encoder")
