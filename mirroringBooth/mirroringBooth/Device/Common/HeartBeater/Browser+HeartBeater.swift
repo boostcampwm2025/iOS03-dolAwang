@@ -17,13 +17,13 @@ extension Browser: HeartBeaterDelegate {
 
     func onTimeout(_ sender: HeartBeater) {
         if sender === mirroringHeartBeater {
-            DispatchQueue.main.async {
-                self.onHeartbeatTimeout?()
-            }
+            browsingHeartbeatContinuation.yield(.heartbeatTimeout)
+            connectionCheckHeartbeatContinuation.yield(.heartbeatTimeout)
+            cameraPreviewHeartbeatContinuation.yield(.heartbeatTimeout)
         } else if sender === remoteHeartBeater {
-            DispatchQueue.main.async {
-                self.onRemoteHeartbeatTimeout?()
-            }
+            browsingHeartbeatContinuation.yield(.remoteHeartbeatTimeout)
+            connectionCheckHeartbeatContinuation.yield(.remoteHeartbeatTimeout)
+            cameraPreviewHeartbeatContinuation.yield(.remoteHeartbeatTimeout)
         }
     }
 }
