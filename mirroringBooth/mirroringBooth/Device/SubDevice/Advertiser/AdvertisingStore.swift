@@ -86,21 +86,19 @@ final class AdvertisingStore: StoreProtocol {
 // MARK: Stream 구독
 extension AdvertisingStore {
     private func subscribeToStream() {
-        commandTask = Task { [weak self] in
+        commandTask = Task { @MainActor [weak self] in
             guard let self else { return }
             for await stream in advertiser.advertisingStream {
                 switch stream {
                 case .onConnected:
-                    await MainActor.run { self.send(.connected) }
+                    self.send(.connected)
                 case .navigateToSelectModeCommand(let isRemoteEnable):
-                    await MainActor.run {
-                        self.reduce(.setIsRemoteSelected(isRemoteEnable))
-                        self.reduce(.setOnNavigate(true, type: .mirroring))
-                    }
+                    self.reduce(.setIsRemoteSelected(isRemoteEnable))
+                    self.reduce(.setOnNavigate(true, type: .mirroring))
                 case .navigateToRemoteConnected:
-                    await MainActor.run { self.reduce(.setOnNavigate(true, type: .remote)) }
+                    self.reduce(.setOnNavigate(true, type: .remote))
                 case .navigateToRemoteCapture:
-                    await MainActor.run { self.reduce(.setOnNavigate(true, type: .remote)) }
+                    self.reduce(.setOnNavigate(true, type: .remote))
                 }
             }
         }
