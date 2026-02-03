@@ -75,7 +75,8 @@ final class CameraPreviewStore: StoreProtocol {
         case .entry(let angle):
             setupSubscriptions()
             cameraManager.startSession()
-            cameraManager.rawData = { buffer in
+            cameraManager.rawData = { [weak self] buffer in
+                guard let self = self else { return }
                 self.state.buffer = buffer
             }
             return [.setColorScheme(.dark), .resetCaptureCompleted,
