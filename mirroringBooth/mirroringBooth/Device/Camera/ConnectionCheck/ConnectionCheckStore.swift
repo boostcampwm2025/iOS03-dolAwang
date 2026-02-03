@@ -39,6 +39,8 @@ final class ConnectionCheckStore: StoreProtocol {
     let cameraDevice: String
     let mirroringDevice: String
 
+    private var heartbeatTask: Task<Void, Never>?
+
     init(
         _ list: ConnectionList,
         _ browser: Browser
@@ -52,10 +54,14 @@ final class ConnectionCheckStore: StoreProtocol {
         }
     }
 
+    deinit {
+        heartbeatTask?.cancel()
+    }
+
     func action(_ intent: Intent) -> [Result] {
         switch intent {
         case .entry:
-            setupBrowser()
+            setupHeartbeatListener()
             return []
 
         case .onReadyToCapture:
@@ -103,17 +109,19 @@ final class ConnectionCheckStore: StoreProtocol {
 }
 
 extension ConnectionCheckStore {
-    private func setupBrowser() {
-        browser.onHeartbeatTimeout = { [weak self] in
-            Task { @MainActor in
-                self?.reduce(.setIsMirroringDisconnected(true))
-            }
-        }
-
-        browser.onRemoteHeartbeatTimeout = { [weak self] in
-            Task { @MainActor in
-                self?.reduce(.setShowRemoteDisconnectedAlert(true))
-                self?.reduce(.setRemoteDevice(nil))
+    private func setupHeartbeatListener() {
+        heartbeatTask = Task { [weak self] in
+            guard let self else { return }
+            for await event in browser.connectionCheckHeartbeatStream {
+                await MainActor.run {
+                    switch event {
+                    case .heartbeatTimeout:
+                        self.reduce(.setIsMirroringDisconnected(true))
+                    case .remoteHeartbeatTimeout:
+                        self.reduce(.setShowRemoteDisconnectedAlert(true))
+                        self.reduce(.setRemoteDevice(nil))
+                    }
+                }
             }
         }
     }
