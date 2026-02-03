@@ -57,7 +57,7 @@ final class BrowsingStore: StoreProtocol {
         case setShowTutorial(Bool)
     }
 
-    var state: State = .init()
+    private(set) var state: State = .init()
     let browser: Browser
     let watchConnectionManager: WatchConnectionManager
     private var cancellables = Set<AnyCancellable>()

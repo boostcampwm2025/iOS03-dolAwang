@@ -36,7 +36,7 @@ final class PhotoCompositionStore: StoreProtocol {
         case setFrame(FrameAsset)
     }
 
-    var state: State = .init()
+    private(set) var state: State = .init()
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
