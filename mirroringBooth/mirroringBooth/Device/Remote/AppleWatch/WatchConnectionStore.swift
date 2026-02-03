@@ -20,7 +20,7 @@ final class WatchConnectionStore: StoreProtocol {
         case tapRequestCapture
         case startConnecting
         case disconnect
-        case setIsWaiting(Bool)
+        case isWaiting(Bool)
     }
 
     enum Result {
@@ -81,7 +81,7 @@ final class WatchConnectionStore: StoreProtocol {
             self.connectionManager.stop()
             return [.setConnectionState(.notConnected)]
 
-        case .setIsWaiting(let isWaiting):
+        case .isWaiting(let isWaiting):
             return [.setIsWaiting(isWaiting)]
         }
 

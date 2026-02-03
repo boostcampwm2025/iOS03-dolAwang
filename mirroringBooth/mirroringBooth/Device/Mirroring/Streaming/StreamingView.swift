@@ -11,17 +11,16 @@ struct StreamingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) private var rootStore
     @State private var store: StreamingStore
-    private let isPoseModeOn: Bool
 
     init(advertiser: Advertiser?, isTimerMode: Bool, isPoseModeOn: Bool) {
         self._store = State(
             initialValue: StreamingStore(
                 advertiser,
                 decoder: H264Decoder(),
-                isTimerMode: isTimerMode
+                isTimerMode: isTimerMode,
+                isPoseMode: isPoseModeOn
             )
         )
-        self.isPoseModeOn = isPoseModeOn
     }
 
     private enum StreamingLayoutType {
@@ -105,7 +104,7 @@ struct StreamingView: View {
         .preferredColorScheme(store.state.colorScheme)
         .onAppear {
             AppDelegate.unlockOrientation()
-            store.send(.entry(with: isPoseModeOn ? PoseSuggestor.suggest(count: 10) : []))
+            store.send(.entry)
         }
         .onDisappear {
             AppDelegate.lockOrientation()

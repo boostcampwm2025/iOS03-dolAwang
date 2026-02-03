@@ -59,7 +59,7 @@ final class StreamingStore: StoreProtocol {
 
     enum Intent {
         // 화면 접근
-        case entry(with: [Pose])
+        case entry
         case exit
 
         // 타이머 모드
@@ -119,15 +119,18 @@ final class StreamingStore: StoreProtocol {
     private var commandTask: Task<Void, Never>?
 
     let isTimerMode: Bool
+    let isPoseMode: Bool
 
     init(
         _ advertiser: Advertiser?,
         decoder: H264Decoder,
-        isTimerMode: Bool
+        isTimerMode: Bool,
+        isPoseMode: Bool
     ) {
-        self.isTimerMode = isTimerMode
         self.advertiser = advertiser
         self.decoder = decoder
+        self.isTimerMode = isTimerMode
+        self.isPoseMode = isPoseMode
         self.state = State(overlayPhase: [isTimerMode ? .guide : .none])
 
         decoder.onDecodedSampleBuffer = { [weak self] sampleBuffer, rotationAngle in
@@ -141,7 +144,8 @@ final class StreamingStore: StoreProtocol {
     func action(_ intent: Intent) -> [Result] {
         switch intent {
             // MARK: - 화면 접근
-        case .entry(let poseList):
+        case .entry:
+            let poseList: [Pose] = isPoseMode ? PoseSuggestor.suggest(count: 10) : []
             return [.setColorScheme(.dark), .streamingStarted, .setPoseList(poseList)]
             + (!poseList.isEmpty ? [.phaseAppended(.poseSuggestion)] : [])
 

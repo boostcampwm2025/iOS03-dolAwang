@@ -74,12 +74,12 @@ struct ConnectionCheckView: View {
             .fullScreenCover(
                 isPresented: Binding(
                     get: { store.state.showPreview },
-                    set: { store.send(.setShowPreview($0)) }
+                    set: { store.send(.showPreview($0)) }
                 ),
                 onDismiss: {
                     if store.state.shouldNavigateToCompletion {
                         router.push(to: CameraRoute.completion)
-                        store.send(.setNavigationToCompletion(false))
+                        store.send(.navigateToCompletion(false))
                     }
                 },
                 content: {
@@ -87,7 +87,7 @@ struct ConnectionCheckView: View {
                         store.browser,
                         mirroringName: store.mirroringDevice,
                         onDismissByCaptureCompletion: {
-                            store.send(.setNavigationToCompletion(true))
+                            store.send(.navigateToCompletion(true))
                         }
                     )
                 }

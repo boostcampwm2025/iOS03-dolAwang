@@ -20,8 +20,8 @@ final class ConnectionCheckStore: StoreProtocol {
     enum Intent {
         case entry
         case onReadyToCapture
-        case setNavigationToCompletion(Bool)
-        case setShowPreview(Bool)
+        case navigateToCompletion(Bool)
+        case showPreview(Bool)
         case showRemoteDisconnectedAlert(Bool)
     }
 
@@ -67,10 +67,10 @@ final class ConnectionCheckStore: StoreProtocol {
             browser.sendRemoteCommand(.navigateToRemoteConnected)
             return [.setShowPreview(true), .setNavigationToCompletion(false)]
 
-        case .setNavigationToCompletion(let flag):
+        case .navigateToCompletion(let flag):
             return [.setNavigationToCompletion(flag)]
 
-        case .setShowPreview(let flag):
+        case .showPreview(let flag):
             return [.setShowPreview(flag)]
 
         case .showRemoteDisconnectedAlert(let flag):

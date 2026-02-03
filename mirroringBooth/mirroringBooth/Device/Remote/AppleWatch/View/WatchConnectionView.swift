@@ -62,10 +62,10 @@ struct WatchConnectionView: View {
                         value: store.state.isWaiting
                     )
                     .onAppear {
-                        store.send(.setIsWaiting(true))
+                        store.send(.isWaiting(true))
                     }
                     .onDisappear {
-                        store.send(.setIsWaiting(false))
+                        store.send(.isWaiting(false))
                     }
 
                 Text("연결 대기 중...")
