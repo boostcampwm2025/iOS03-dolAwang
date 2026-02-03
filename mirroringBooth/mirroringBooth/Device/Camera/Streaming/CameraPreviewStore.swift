@@ -152,7 +152,9 @@ private extension CameraPreviewStore {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self = self else { return }
-                self.reduce(.setIsTransferring(true))
+                Task { @MainActor in
+                    self.reduce(.setIsTransferring(true))
+                }
                 self.cameraManager.sendAllPhotos(using: self.browser)
             }
             .store(in: &cancellables)

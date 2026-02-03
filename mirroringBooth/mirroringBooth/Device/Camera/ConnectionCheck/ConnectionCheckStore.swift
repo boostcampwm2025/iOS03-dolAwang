@@ -47,7 +47,9 @@ final class ConnectionCheckStore: StoreProtocol {
         self.mirroringDevice = list.mirroringName
         self.browser = browser
 
-        reduce(.setRemoteDevice(list.remoteName))
+        Task { @MainActor in
+            reduce(.setRemoteDevice(list.remoteName))
+        }
     }
 
     func action(_ intent: Intent) -> [Result] {
