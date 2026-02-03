@@ -45,7 +45,7 @@ final class StreamingStore: StoreProtocol {
         // 촬영효과
         var showCapturEffect: Bool = false
 
-        // 추천할 포즈 목록
+        // 포즈 제안
         var poseList: [Pose] = []
         var currentSuggestedPoses: [Pose] {
             Array(poseList.prefix(2))
@@ -58,9 +58,9 @@ final class StreamingStore: StoreProtocol {
     }
 
     enum Intent {
-        // 스트리밍
-        case startStreaming
-        case stopStreaming
+        // 화면 접근
+        case entry(with: [Pose])
+        case exit
 
         // 타이머 모드
         case startCountdown // "준비 완료" 버튼 클릭 시
@@ -74,13 +74,9 @@ final class StreamingStore: StoreProtocol {
         // 캡쳐 효과
         case setShowCaptureEffect(Bool)
 
-        // 포즈 기능
-        case setPoseList([Pose])
-
         // 그 외
         case setHomeAlert(Bool)
         case setVideoViewSize(CGSize)
-        case setColorScheme(ColorScheme?)
     }
 
     enum Result {
@@ -174,18 +170,21 @@ final class StreamingStore: StoreProtocol {
         var result: [Result] = []
 
         switch intent {
-            // MARK: - 스트리밍
-        case .startStreaming:
-            startListening()
-            result.append(.streamingStarted)
-            if !state.poseList.isEmpty {
+            // MARK: - 화면 접근
+        case .entry(let poseList):
+            if !poseList.isEmpty {
                 result.append(.phaseAppended(.poseSuggestion))
             }
+            result.append(.setColorScheme(.dark))
+            result.append(.streamingStarted)
+            result.append(.setPoseList(poseList))
 
-        case .stopStreaming:
+        case .exit:
             decoder.stop()
+            result.append(.setColorScheme(nil))
             streamingTask?.cancel()
             result.append(.streamingStopped)
+
             // MARK: - 타이머
         case .startCountdown:
             result.append(.phaseRemoved(.guide))
@@ -195,6 +194,7 @@ final class StreamingStore: StoreProtocol {
 
         case .tick:
             result.append(contentsOf: handleTick())
+
             // MARK: - 사진 전송
         case .startTransfer:
             result.append(.phaseChanged(.transferring))
@@ -219,17 +219,11 @@ final class StreamingStore: StoreProtocol {
                 result.append(.setShowCaptureEffect(value))
             }
 
-        case .setPoseList(let poses):
-            result.append(.setPoseList(poses))
-
         case .setHomeAlert(let value):
             result.append(.setHomeAlert(value))
 
         case .setVideoViewSize(let value):
             result.append(.setVideoViewSize(value))
-
-        case .setColorScheme(let value):
-            result.append(.setColorScheme(value))
         }
 
         return result

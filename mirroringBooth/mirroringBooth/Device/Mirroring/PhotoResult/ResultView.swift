@@ -97,7 +97,7 @@ struct ResultView: View {
                     isContrast: true
                 ) {
                     // 공유 시트 열기
-                    store.send(.prepareShare)
+                    store.send(.showShareSheet(true))
                 }
             }
 
