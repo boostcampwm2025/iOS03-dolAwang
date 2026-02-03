@@ -13,6 +13,8 @@ struct HomeView: View {
     private var accessManager: AccessManager = .init()
     let isiPhone: Bool = UIDevice.current.userInterfaceIdiom == .phone
     @State private var showResumeAlert: Bool = false
+    @AppStorage("hasSeenTutorial") private var hasSeenTutorial: Bool = false
+    @State private var showTutorial: Bool = false
     @State private var cachedImage: UIImage?
 
     var body: some View {
@@ -41,6 +43,9 @@ struct HomeView: View {
         .padding(.horizontal)
         .onAppear {
             accessManager.tryLocalNetwork()
+            if !hasSeenTutorial {
+                showTutorial = true
+            }
         }
         .task {
             if let image = await checkResultCache() {
@@ -79,6 +84,16 @@ struct HomeView: View {
                    Text(accessManager.requiredAccess?.alertMessage ?? "")
                }
                .backgroundStyle()
+               .toolbar {
+                   ToolbarItem(placement: .topBarTrailing) {
+                       Button {
+                           showTutorial = true
+                       } label: {
+                           Image(systemName: "questionmark.circle")
+                       }
+                   }
+               }
+               .tutorialOverlay(isPresented: $showTutorial)
     }
 
     @ViewBuilder

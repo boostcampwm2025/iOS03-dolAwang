@@ -120,6 +120,7 @@ final class StreamingStore: StoreProtocol {
     private let advertiser: Advertiser?
     private let decoder: H264Decoder
     private var timer: Timer?
+    private var streamingTask: Task<Void, Never>?
 
     init(
         _ advertiser: Advertiser?,
@@ -139,10 +140,6 @@ final class StreamingStore: StoreProtocol {
         guard let advertiser else {
             Logger.streamingStore.error("advertiser가 없어 정상 동작하지 않습니다.")
             return
-        }
-
-        advertiser.onReceivedStreamData = { [weak self] data in
-            self?.decoder.decode(data)
         }
 
         // 사진 수신 콜백
@@ -171,6 +168,7 @@ final class StreamingStore: StoreProtocol {
         switch intent {
             // MARK: - 스트리밍
         case .startStreaming:
+            startListening()
             result.append(.streamingStarted)
             if !state.poseList.isEmpty {
                 result.append(.phaseAppended(.poseSuggestion))
@@ -178,7 +176,7 @@ final class StreamingStore: StoreProtocol {
 
         case .stopStreaming:
             decoder.stop()
-            advertiser?.onReceivedStreamData = nil
+            streamingTask?.cancel()
             result.append(.streamingStopped)
             // MARK: - 타이머
         case .startCountdown:
@@ -289,6 +287,20 @@ final class StreamingStore: StoreProtocol {
         }
 
         self.state = state
+    }
+}
+
+// MARK: Stream Listner
+extension StreamingStore {
+    private func startListening() {
+        guard let advertiser else { return }
+        streamingTask = Task { [weak self] in
+            for await stream in advertiser.videoStream {
+                if case .streamDataReceived(let data) = stream {
+                    self?.decoder.decode(data)
+                }
+            }
+        }
     }
 }
 

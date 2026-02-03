@@ -49,9 +49,9 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8CC15B362F30748C00F1137E"
-               BuildableName = "StoreTests.xctest"
-               BlueprintName = "StoreTests"
+               BlueprintIdentifier = "0C2009832F306ED700B6197B"
+               BuildableName = "mirroringBoothTests.xctest"
+               BlueprintName = "mirroringBoothTests"
                ReferencedContainer = "container:mirroringBooth.xcodeproj">
             </BuildableReference>
          </TestableReference>
