@@ -10,7 +10,6 @@ import SwiftUI
 struct WatchConnectionView: View {
     let onClose: () -> Void
     @State private var store = WatchConnectionStore(connectionManager: WatchConnectionManager())
-    @State private var spin = false
 
     var body: some View {
         Group {
@@ -57,16 +56,16 @@ struct WatchConnectionView: View {
                 Image(systemName: "arrow.2.circlepath")
                     .font(.title2)
                     .rotationEffect(.degrees(-45))
-                    .rotationEffect(.degrees(spin ? 360 : 0))
+                    .rotationEffect(.degrees(store.state.isWaiting ? 360 : 0))
                     .animation(
                         .linear(duration: 1).repeatForever(autoreverses: false),
-                        value: spin
+                        value: store.state.isWaiting
                     )
                     .onAppear {
-                        spin = true
+                        store.send(.isWaitingChanged(true))
                     }
                     .onDisappear {
-                        spin = false
+                        store.send(.isWaitingChanged(false))
                     }
 
                 Text("연결 대기 중...")

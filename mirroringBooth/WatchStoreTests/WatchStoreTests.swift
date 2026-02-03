@@ -96,6 +96,16 @@ struct WatchStoreTests {
         #expect(store.state.connectionState == .notConnected)
     }
 
+    // MARK: - 대기 애니메이션 (setIsWaiting)
+
+    @Test func 대기_화면이_나타나면_대기_상태가_켜짐() {
+        let store = makeSUT()
+
+        store.send(.isWaitingChanged(true))
+
+        #expect(store.state.isWaiting == true)
+    }
+
     // MARK: - View 흐름 시나리오
 
     @Test func 연결부터_촬영_준비까지_전체_흐름() {

@@ -112,6 +112,7 @@ final class StreamingStore: StoreProtocol {
     }
 
     private(set) var state: State
+    let isTimerMode: Bool
 
     private let advertiser: Advertiser?
     private let decoder: H264Decoder
@@ -122,11 +123,12 @@ final class StreamingStore: StoreProtocol {
     init(
         _ advertiser: Advertiser?,
         decoder: H264Decoder,
-        initialPhase: OverlayPhase
+        isTimerMode: Bool
     ) {
+        self.isTimerMode = isTimerMode
         self.advertiser = advertiser
         self.decoder = decoder
-        self.state = State(overlayPhase: [initialPhase])
+        self.state = State(overlayPhase: [isTimerMode ? .guide : .none])
 
         decoder.onDecodedSampleBuffer = { [weak self] sampleBuffer, rotationAngle in
             Task { @MainActor in

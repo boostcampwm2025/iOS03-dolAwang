@@ -13,18 +13,21 @@ final class WatchConnectionStore: StoreProtocol {
         var connectionState: ConnectionState = .notConnected
         var isReadyToCapture: Bool = false
         var isCaptureCompleted: Bool = false
+        var isWaiting: Bool = false
     }
 
     enum Intent {
         case tapRequestCapture
         case startConnecting
         case disconnect
+        case isWaitingChanged(Bool)
     }
 
     enum Result {
         case setConnectionState(ConnectionState)
         case setIsReadyToCapture(Bool)
         case setIsCaptureCompleted(Bool)
+        case setIsWaiting(Bool)
     }
 
     private let connectionManager: WatchConnectionManager
@@ -75,6 +78,8 @@ final class WatchConnectionStore: StoreProtocol {
             return [.setConnectionState(.notConnected)]
         case .startConnecting:
             self.connectionManager.start()
+        case .isWaitingChanged(let isWaiting):
+            return [.setIsWaiting(isWaiting)]
         }
         return []
     }
@@ -89,6 +94,8 @@ final class WatchConnectionStore: StoreProtocol {
             state.isReadyToCapture = value
         case .setIsCaptureCompleted(let value):
             state.isCaptureCompleted = value
+        case .setIsWaiting(let isWaiting):
+            state.isWaiting = isWaiting
         }
         self.state = state
     }
