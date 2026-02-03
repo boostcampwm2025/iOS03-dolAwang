@@ -41,6 +41,17 @@
                ReferencedContainer = "container:mirroringBooth.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8CC15B362F30748C00F1137E"
+               BuildableName = "StoreTests.xctest"
+               BlueprintName = "StoreTests"
+               ReferencedContainer = "container:mirroringBooth.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
