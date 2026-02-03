@@ -13,10 +13,12 @@ protocol StoreProtocol: AnyObject {
     var state: State { get }
 
     func action(_ intent: Intent) -> [Result]
+    @MainActor
     func reduce(_ result: Result)
 }
 
 extension StoreProtocol {
+    @MainActor
     func send(_ intent: Intent) {
         let results = action(intent)
         for result in results {

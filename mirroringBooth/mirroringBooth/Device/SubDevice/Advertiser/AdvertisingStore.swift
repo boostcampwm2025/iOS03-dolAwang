@@ -15,18 +15,21 @@ final class AdvertisingStore: StoreProtocol {
         var onNavigate: Bool = false
         var deviceUseType: DeviceUseType?
         var isRemoteSelected: Bool = false
+        var showTutorial: Bool = false
     }
 
     enum Intent {
         case onAppear
         case connected
         case exit
+        case setShowTutorial(Bool)
     }
 
     enum Result {
         case setIsConnected(Bool)
         case setOnNavigate(Bool, type: DeviceUseType?)
         case setIsRemoteSelected(Bool)
+        case setShowTutorial(Bool)
     }
 
     var state: State = .init()
@@ -36,20 +39,28 @@ final class AdvertisingStore: StoreProtocol {
         self.advertiser = advertiser
 
         advertiser.onConnected = { [weak self] in
-            self?.send(.connected)
+            Task { @MainActor in
+                self?.send(.connected)
+            }
         }
 
         advertiser.navigateToSelectModeCommandCallBack = { [weak self] isRemoteEnable in
-            self?.reduce(.setIsRemoteSelected(isRemoteEnable))
-            self?.reduce(.setOnNavigate(true, type: .mirroring))
+            Task { @MainActor in
+                self?.reduce(.setIsRemoteSelected(isRemoteEnable))
+                self?.reduce(.setOnNavigate(true, type: .mirroring))
+            }
         }
 
         advertiser.navigateToRemoteConnectedCallBack = { [weak self] in
-            self?.reduce(.setOnNavigate(true, type: .remote))
+            Task { @MainActor in
+                self?.reduce(.setOnNavigate(true, type: .remote))
+            }
         }
 
         advertiser.navigateToRemoteCaptureCallBack = { [weak self] in
-            self?.reduce(.setOnNavigate(true, type: .remote))
+            Task { @MainActor in
+                self?.reduce(.setOnNavigate(true, type: .remote))
+            }
         }
     }
 
@@ -65,8 +76,11 @@ final class AdvertisingStore: StoreProtocol {
 
         case .exit:
             advertiser.stopSearching()
+            return []
+
+        case .setShowTutorial(let value):
+            return [.setShowTutorial(value)]
         }
-        return []
     }
 
     func reduce(_ result: Result) {
@@ -81,6 +95,9 @@ final class AdvertisingStore: StoreProtocol {
 
         case .setIsRemoteSelected(let isRemoteSelected):
             state.isRemoteSelected = isRemoteSelected
+
+        case .setShowTutorial(let bool):
+            state.showTutorial = bool
         }
 
         self.state = state

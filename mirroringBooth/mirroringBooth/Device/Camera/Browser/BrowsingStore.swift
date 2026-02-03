@@ -29,6 +29,7 @@ final class BrowsingStore: StoreProtocol {
         var showMirroringDisconnectedAlert = false
         var showToast = false
         var toastMessage = ""
+        var showTutorial = false
     }
 
     enum Intent {
@@ -39,6 +40,8 @@ final class BrowsingStore: StoreProtocol {
         case didChangeAppState(UIApplication.State)
         case setShowMirroringDisconnectedAlert(Bool)
         case setShowToast(Bool)
+        case setShowTutorial(Bool)
+        case browserEvent(BrowsingEvents)
     }
 
     enum Result {
@@ -51,12 +54,17 @@ final class BrowsingStore: StoreProtocol {
         case startAnimation
         case setShowMirroringDisconnectedAlert(Bool)
         case setShowToast(Bool)
+        case setShowTutorial(Bool)
     }
 
     var state: State = .init()
     let browser: Browser
     let watchConnectionManager: WatchConnectionManager
     private var cancellables = Set<AnyCancellable>()
+
+    var eventStream: AsyncStream<BrowsingEvents> {
+        browser.browsingEventStream
+    }
 
     init(_ browser: Browser, _ watchConnectionManager: WatchConnectionManager) {
         self.browser = browser
@@ -68,31 +76,33 @@ final class BrowsingStore: StoreProtocol {
 
     private func setupBrowser() {
         browser.onDeviceFound = { [weak self] device in
-            self?.reduce(.addDiscoveredDevice(device))
+            Task { @MainActor in
+                self?.reduce(.addDiscoveredDevice(device))
+            }
         }
 
         browser.onDeviceLost = { [weak self] device in
-            self?.reduce(.removeDiscoveredDevice(device))
-            if device == self?.state.mirroringDevice {
-                self?.reduce(.setCurrentTarget(.mirroring))
+            Task { @MainActor in
+                self?.reduce(.removeDiscoveredDevice(device))
+                if device == self?.state.mirroringDevice {
+                    self?.reduce(.setCurrentTarget(.mirroring))
+                }
             }
         }
 
         browser.onDeviceConnected = { [weak self] device in
-            switch self?.state.currentTarget {
-            case .mirroring:
-                self?.reduce(.setMirroringDevice(device))
-                self?.reduce(.setCurrentTarget(.remote))
-            case .remote:
-                self?.reduce(.setRemoteDevice(device))
-            case .none:
-                break
+            Task { @MainActor in
+                switch self?.state.currentTarget {
+                case .mirroring:
+                    self?.reduce(.setMirroringDevice(device))
+                    self?.reduce(.setCurrentTarget(.remote))
+                case .remote:
+                    self?.reduce(.setRemoteDevice(device))
+                case .none:
+                    break
+                }
+                self?.reduce(.setIsConnecting(false))
             }
-            self?.reduce(.setIsConnecting(false))
-        }
-
-        browser.onDeviceConnectionFailed = { [weak self] in
-            self?.reduce(.setIsConnecting(false))
         }
 
         browser.onRemoteModeCommand = { [weak self] in
@@ -100,11 +110,13 @@ final class BrowsingStore: StoreProtocol {
         }
 
         browser.onSelectedTimerModeCommand = { [weak self] in
-            // 리모트 기기가 워치인 경우 워치에게 연결 해제 알림
-            if self?.state.remoteDevice?.type == .watch {
-                self?.watchConnectionManager.sendDisconnectionNotification()
+            Task { @MainActor in
+                // 리모트 기기가 워치인 경우 워치에게 연결 해제 알림
+                if self?.state.remoteDevice?.type == .watch {
+                    self?.watchConnectionManager.sendDisconnectionNotification()
+                }
+                self?.reduce(.setRemoteDevice(nil))
             }
-            self?.reduce(.setRemoteDevice(nil))
         }
 
         browser.onStartTransferCommand
@@ -116,29 +128,35 @@ final class BrowsingStore: StoreProtocol {
 
         // 미러링 기기 연결 끊긴 경우
         browser.onHeartbeatTimeout = { [weak self] in
-            self?.reduce(.setMirroringDevice(nil))
-            self?.reduce(.setCurrentTarget(.mirroring))
+            Task { @MainActor in
+                self?.reduce(.setMirroringDevice(nil))
+                self?.reduce(.setCurrentTarget(.mirroring))
+            }
         }
         // 리모트 기기 연결 끊긴 경우
         browser.onRemoteHeartbeatTimeout = { [weak self] in
-            self?.reduce(.setRemoteDevice(nil))
-            self?.reduce(.setCurrentTarget(.remote))
+            Task { @MainActor in
+                self?.reduce(.setRemoteDevice(nil))
+                self?.reduce(.setCurrentTarget(.remote))
+            }
         }
     }
 
     private func setupWatchConnectionManager() {
         watchConnectionManager.onReachableChanged = { [weak self] isReachable in
-            let watchDevice = NearbyDevice(
-                id: "나의 Apple Watch",
-                state: .notConnected,
-                type: .watch
-            )
-            if isReachable {
-                self?.reduce(.addDiscoveredDevice(watchDevice))
-            } else {
-                self?.reduce(.removeDiscoveredDevice(watchDevice))
-                if self?.state.remoteDevice?.type == .watch {
-                    self?.reduce(.setRemoteDevice(nil))
+            Task { @MainActor in
+                let watchDevice = NearbyDevice(
+                    id: "나의 Apple Watch",
+                    state: .notConnected,
+                    type: .watch
+                )
+                if isReachable {
+                    self?.reduce(.addDiscoveredDevice(watchDevice))
+                } else {
+                    self?.reduce(.removeDiscoveredDevice(watchDevice))
+                    if self?.state.remoteDevice?.type == .watch {
+                        self?.reduce(.setRemoteDevice(nil))
+                    }
                 }
             }
         }
@@ -148,12 +166,14 @@ final class BrowsingStore: StoreProtocol {
         }
 
         watchConnectionManager.onReceiveConnectionAck = { [weak self] in
-            let watchDevice = NearbyDevice(
-                id: "나의 Apple Watch",
-                state: .connected,
-                type: .watch
-            )
-            self?.reduce(.setRemoteDevice(watchDevice))
+            Task { @MainActor in
+                let watchDevice = NearbyDevice(
+                    id: "나의 Apple Watch",
+                    state: .connected,
+                    type: .watch
+                )
+                self?.reduce(.setRemoteDevice(watchDevice))
+            }
         }
     }
 
@@ -225,9 +245,25 @@ final class BrowsingStore: StoreProtocol {
 
         case .setShowToast(let value):
             result.append(.setShowToast(value))
+
+        case .setShowTutorial(let value):
+            result.append(.setShowTutorial(value))
+
+        case .browserEvent(let event):
+            result.append(contentsOf: handleBrowserEvent(event))
         }
 
         return result
+    }
+
+    // View에서 전달받은 BrowsingEvents를 처리하여 Result로 변환합니다.
+    private func handleBrowserEvent(_ event: BrowsingEvents) -> [Result] {
+        switch event {
+        case .deviceConnectionFailed:
+            return [.setIsConnecting(false)]
+        default:
+            return []
+        }
     }
 
     func reduce(_ result: Result) {
@@ -267,14 +303,16 @@ final class BrowsingStore: StoreProtocol {
         case .startAnimation:
             state.animationTrigger = true
 
-        case let .setShowMirroringDisconnectedAlert(bool):
-            state.showMirroringDisconnectedAlert = bool
+        case .setShowMirroringDisconnectedAlert(let alert):
+            state.showMirroringDisconnectedAlert = alert
 
-        case let .setShowToast(bool):
-            state.showToast = bool
+        case .setShowToast(let value):
+            state.showToast = value
+
+        case let .setShowTutorial(bool):
+            state.showTutorial = bool
         }
 
         self.state = state
     }
-
 }

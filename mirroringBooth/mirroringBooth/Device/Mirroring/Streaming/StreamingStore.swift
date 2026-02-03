@@ -116,6 +116,7 @@ final class StreamingStore: StoreProtocol {
     private let advertiser: Advertiser?
     private let decoder: H264Decoder
     private var timer: Timer?
+    private var streamingTask: Task<Void, Never>?
 
     init(
         _ advertiser: Advertiser?,
@@ -137,27 +138,31 @@ final class StreamingStore: StoreProtocol {
             return
         }
 
-        advertiser.onReceivedStreamData = { [weak self] data in
-            self?.decoder.decode(data)
-        }
-
         // 사진 수신 콜백
         advertiser.onPhotoReceived = { [weak self] in
-            self?.send(.photoReceived)
+            Task { @MainActor in
+                self?.send(.photoReceived)
+            }
         }
 
         advertiser.onUpdateCaptureCount = { [weak self] in
-            self?.send(.capturePhotoCount)
+            Task { @MainActor in
+                self?.send(.capturePhotoCount)
+            }
         }
 
         // 10장 사진 저장 시작
         advertiser.onAllPhotosStored = { [weak self] in
-            self?.send(.startTransfer)
+            Task { @MainActor in
+                self?.send(.startTransfer)
+            }
         }
 
         // 카메라 캡쳐 이펙트
         advertiser.onCaptureEffect = { [weak self] in
-            self?.captureEffect()
+            Task { @MainActor in
+                self?.captureEffect()
+            }
         }
     }
 
@@ -178,6 +183,7 @@ final class StreamingStore: StoreProtocol {
             decoder.stop()
             advertiser?.onReceivedStreamData = nil
             result.append(.setColorScheme(nil))
+            streamingTask?.cancel()
             result.append(.streamingStopped)
 
             // MARK: - 타이머
@@ -287,11 +293,27 @@ final class StreamingStore: StoreProtocol {
     }
 }
 
+// MARK: Stream Listner
+extension StreamingStore {
+    private func startListening() {
+        guard let advertiser else { return }
+        streamingTask = Task { [weak self] in
+            for await stream in advertiser.videoStream {
+                if case .streamDataReceived(let data) = stream {
+                    self?.decoder.decode(data)
+                }
+            }
+        }
+    }
+}
+
 // MARK: - 타이머 모드 로직
 extension StreamingStore {
     private func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.send(.tick)
+            Task { @MainActor [weak self] in
+                self?.send(.tick)
+            }
         }
     }
 
@@ -338,9 +360,11 @@ extension StreamingStore {
 
 // MARK: - 캡쳐 이펙트
 extension StreamingStore {
+    @MainActor
     func captureEffect() {
         self.send(.setShowCaptureEffect(true))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 200_000_000)
             self?.send(.setShowCaptureEffect(false))
         }
     }
