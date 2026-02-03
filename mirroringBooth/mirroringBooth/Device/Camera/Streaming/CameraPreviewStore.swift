@@ -41,7 +41,6 @@ final class CameraPreviewStore: StoreProtocol {
         case setTransferCount(Int)
         case setIsTransferring(Bool)
         case setColorScheme(ColorScheme?)
-        case setIsTransferring(Bool)
     }
 
     private let browser: Browser
@@ -122,8 +121,6 @@ final class CameraPreviewStore: StoreProtocol {
 
         case .setColorScheme(let scheme):
             state.colorScheme = scheme
-        case .setIsTransferring(let isTransferring):
-            state.isTransferring = isTransferring
         }
         self.state = state
     }

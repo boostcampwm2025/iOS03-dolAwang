@@ -71,7 +71,6 @@ struct CameraPreview: View {
             withAnimation(.linear(duration: 0.8).repeatForever(autoreverses: true)) {
                 store.send(.entry(withAngle: UIDevice.current.orientation.rawValue))
             }
-            store.send(.startSession)
             store.send(.updateAngle(rawValue: UIDevice.current.orientation.rawValue))
         }
         .onDisappear {
