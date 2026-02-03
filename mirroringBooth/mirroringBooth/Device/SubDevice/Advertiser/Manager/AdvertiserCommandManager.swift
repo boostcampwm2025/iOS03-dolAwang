@@ -53,7 +53,10 @@ final class AdvertiserCommandManager {
         }
     }
 
-    private func handleRemoteDeviceCommand(_ command: Browser.RemoteDeviceCommand, advertiserType: inout DeviceUseType) {
+    private func handleRemoteDeviceCommand(
+        _ command: Browser.RemoteDeviceCommand,
+        advertiserType: inout DeviceUseType
+    ) {
         switch command {
         case .navigateToRemoteConnected:
             streamManager?.yieldAdvertisingEvent(.navigateToRemoteConnected)
