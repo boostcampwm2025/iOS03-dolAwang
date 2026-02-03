@@ -97,7 +97,6 @@ struct CameraPreview: View {
                 set: { _ in }
             ),
             message: "기기 연결이 끊겼습니다.",
-            cancellable: false
         ) {
             dismiss()
             router.reset()
