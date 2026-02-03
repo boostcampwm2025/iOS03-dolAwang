@@ -94,22 +94,21 @@ extension View {
     func homeAlert(
         isPresented: Binding<Bool>,
         message: String = "진행 중인 작업이 사라질 수 있습니다.\n정말 나가시겠습니까?",
-        cancleButtonText: String = "계속하기",
+        cancelButtonText: String = "",
         confirmButtonText: String = "나가기",
-        cancellable: Bool = true,
-        onConfirm: @escaping () -> Void
+        onConfirm: @escaping () -> Void = {}
     ) -> some View {
         self.overlay {
             if isPresented.wrappedValue {
                 ConfirmationAlert(
                     message: message,
-                    cancelButtonText: cancleButtonText,
+                    cancelButtonText: cancelButtonText.isEmpty ? "계속하기" : cancelButtonText,
                     confirmButtonText: confirmButtonText,
                     onConfirm: {
                         isPresented.wrappedValue = false
                         onConfirm()
                     },
-                    onCancel: !cancellable ? nil : {
+                    onCancel: cancelButtonText.isEmpty ? nil : {
                         isPresented.wrappedValue = false
                     }
                 )
