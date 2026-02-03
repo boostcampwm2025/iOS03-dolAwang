@@ -18,12 +18,11 @@ protocol StoreProtocol: AnyObject {
 }
 
 extension StoreProtocol {
+    @MainActor
     func send(_ intent: Intent) {
         let results = action(intent)
-        Task { @MainActor in
-            for result in results {
-                reduce(result)
-            }
+        for result in results {
+            reduce(result)
         }
     }
 }

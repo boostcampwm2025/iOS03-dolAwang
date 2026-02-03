@@ -273,7 +273,7 @@ extension StreamingStore {
                 }
             }
         }
-        commandTask = Task { [weak self] in
+        commandTask = Task { @MainActor [weak self] in
             for await stream in advertiser.streamingStoreStream {
                 switch stream {
                 case .onPhotoReceived:
@@ -343,9 +343,10 @@ extension StreamingStore {
 
 // MARK: - 캡쳐 이펙트
 extension StreamingStore {
+    @MainActor
     func captureEffect() {
         self.send(.setShowCaptureEffect(true))
-        Task { [weak self] in
+        Task { @MainActor [weak self] in
             try? await Task.sleep(nanoseconds: 200_000_000)
             self?.send(.setShowCaptureEffect(false))
         }

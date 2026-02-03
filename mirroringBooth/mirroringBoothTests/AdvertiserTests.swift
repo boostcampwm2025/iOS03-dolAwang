@@ -242,7 +242,7 @@ final class AdvertiserTests: XCTestCase {
         let streamTask = Task {
             for await event in await advertiser.streamingStoreStream {
                 switch event {
-                case .onAllPhotosStored: expectationAllStored.fulfill()
+                case .onStoreAllPhotos: expectationAllStored.fulfill()
                 case .onUpdateCaptureCount: expectationUpdateCount.fulfill()
                 case .onCaptureEffect: expectationCaptureEffect.fulfill()
                 case .onPhotoReceived: expectationPhotoReceived.fulfill()
