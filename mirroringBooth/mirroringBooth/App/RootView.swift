@@ -94,8 +94,7 @@ struct RootView: View {
                 get: { store.state.showTimeoutAlert },
                 set: { store.send(.showTimeoutAlert($0)) }
             ),
-            message: "기기 연결이 끊겼습니다.",
-            cancellable: false
+            message: "기기 연결이 끊겼습니다."
         ) {
             router.reset()
             store.send(.showTimeoutAlert(false))

@@ -107,8 +107,7 @@ struct ConnectionCheckView: View {
                 set: { store.send(.showRemoteDisconnectedAlert($0)) }
             ),
             message: "리모트 기기 연결이 끊겼습니다.",
-            confirmButtonText: "확인",
-            cancellable: false
+            confirmButtonText: "확인"
         ) {
             store.browser.disconnect(useType: .remote)
         }
