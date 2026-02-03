@@ -170,6 +170,69 @@ struct BrowserTests {
         // THEN - 이 테스트는 리팩터링 후 활성화
         #expect(true, "리팩터링 후 BrowserCommandManager를 통해 테스트")
     }
+
+    // MARK: - 4. 명령 전송 (세션 없을 때 안전성)
+
+    @Test func 세션이_없을때_sendCommand는_실패해도_크래시하지_않는다() async {
+        // GIVEN
+        let browser = Browser()
+
+        // WHEN - mirroringCommandSession이 nil인 상태
+        browser.sendCommand(.heartBeat)
+
+        // THEN - 크래시하지 않으면 성공
+        #expect(true)
+    }
+
+    @Test func 세션이_없을때_sendRemoteCommand는_실패해도_크래시하지_않는다() async {
+        // GIVEN
+        let browser = Browser()
+
+        // WHEN - remoteSession이 nil인 상태
+        browser.sendRemoteCommand(.heartBeat)
+
+        // THEN - 크래시하지 않으면 성공
+        #expect(true)
+    }
+
+    @Test func 세션이_없을때_sendStreamData는_실패해도_크래시하지_않는다() async {
+        // GIVEN
+        let browser = Browser()
+        let testData = Data([0x01, 0x02, 0x03])
+
+        // WHEN - mirroringSession이 nil인 상태
+        browser.sendStreamData(testData)
+
+        // THEN - 크래시하지 않으면 성공
+        #expect(true)
+    }
+
+    // MARK: - 5. 검색 시작/중지 및 연결 해제
+
+    @Test func startSearching_호출시_크래시하지_않는다() async {
+        // GIVEN
+        let browser = Browser()
+
+        // WHEN
+        browser.startSearching()
+
+        // THEN
+        #expect(true)
+
+        // Cleanup
+        browser.stopSearching()
+    }
+
+    @Test func disconnect_호출시_크래시하지_않는다() async {
+        // GIVEN
+        let browser = Browser()
+
+        // WHEN
+        browser.disconnect()
+
+        // THEN
+        #expect(true)
+    }
 }
 
 // MARK: - Event Collector (Test Helper)
