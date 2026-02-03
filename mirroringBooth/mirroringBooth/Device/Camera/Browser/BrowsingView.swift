@@ -45,8 +45,8 @@ struct BrowsingView: View {
                     store.state.discoveredDevices.isEmpty ?
                     "다른 기기에서 미러링/리모트 기기로 시작하기를 눌러주세요!" : store.state.currentTarget.searchDescription
                 )
-                    .font(.footnote)
-                    .foregroundStyle(Color(.secondaryLabel))
+                .font(.footnote)
+                .foregroundStyle(Color(.secondaryLabel))
 
                 // 발견된 기기 목록 (버튼)
                 ScrollView {
@@ -122,9 +122,7 @@ struct BrowsingView: View {
         }
         .onAppear {
             store.send(.entry)
-            if rootStore.browser == nil {
-                rootStore.browser = store.browser
-            }
+            rootStore.browser = store.browser
         }
         .onDisappear {
             store.send(.exit)
@@ -166,11 +164,11 @@ struct BrowsingView: View {
             confirmButtonText: "확인",
             cancellable: false
         ) {}
-        .toast(
-            isPresented: Binding(
-                get: { store.state.showToast },
-                set: { store.send(.setShowToast($0)) }
-        ), message: store.state.toastMessage)
+            .toast(
+                isPresented: Binding(
+                    get: { store.state.showToast },
+                    set: { store.send(.setShowToast($0)) }
+                ), message: store.state.toastMessage)
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {
