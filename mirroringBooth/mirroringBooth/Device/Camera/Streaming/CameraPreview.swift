@@ -71,14 +71,8 @@ struct CameraPreview: View {
             withAnimation(.linear(duration: 0.8).repeatForever(autoreverses: true)) {
                 store.send(.entry(withAngle: UIDevice.current.orientation.rawValue))
             }
-
-            rootStore.browser?.onHeartbeatTimeout = { [weak store, weak rootStore] in
-                store?.send(.isMirroringDisconnected)
-                rootStore?.browser?.disconnect(useType: .remote)
-            }
-            rootStore.browser?.onRemoteHeartbeatTimeout = { [weak rootStore] in
-                rootStore?.browser?.sendCommand(.switchSelectModeView)
-            }
+            store.send(.startSession)
+            store.send(.updateAngle(rawValue: UIDevice.current.orientation.rawValue))
         }
         .onDisappear {
             store.send(.exit)
