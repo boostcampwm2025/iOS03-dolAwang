@@ -126,50 +126,10 @@ struct BrowserTests {
         }
     }
 
-    // MARK: - 3. 명령 수신 테스트 (executeCommand)
+    // TODO: executeCommand는 현재 private이므로 리팩터링 후 BrowserCommandManager를 통해 명령 수신 테스트 진행 예정
+    // TODO: MCSession 의존성 주입이 필요하므로 리팩터링 후 연결 상태 변경(deviceConnected, deviceConnectionFailed) 테스트 진행 예정
+    // TODO: sendPhotoResource 완료 이벤트(.sendPhoto)는 실제 MCSession.sendResource 콜백이 필요하므로 리팩터링 후 테스트 진행 예정
 
-    @Test func capturePhoto_명령을_수신하면_captureCommand_이벤트가_발생한다() async {
-        // GIVEN
-        let (browser, collector) = makeSUT()
-        await collector.startCollecting(streamType: .cameraStream)
-
-        // 명령 데이터 생성
-        let commandData = Advertiser.CameraDeviceCommand.capturePhoto.rawValue.data(using: .utf8)!
-
-        // 더미 세션 생성 (내부 mirroringCommandSession 또는 remoteSession 시뮬레이션 필요)
-        // Note: Browser의 executeCommand는 private이므로, didReceive를 통해 호출해야 함
-        // 하지만 session이 nil이면 처리되지 않음. 이 부분은 통합 테스트 또는 리팩터링 후 테스트 가능
-
-        // WHEN - 직접 capturePhoto 호출로 대체 (명령 수신 시 내부적으로 capturePhoto가 호출됨)
-        // 리팩터링 후에는 BrowserCommandManager를 통해 테스트 가능
-        await MainActor.run {
-            browser.capturePhoto()
-        }
-
-        // THEN
-        let events = await collector.collectCameraStreamEvents(count: 1, timeout: 0.5)
-        #expect(events.count >= 1)
-        #expect(events.contains { event in
-            if case .captureCommand = event { return true }
-            return false
-        })
-    }
-
-    @Test func startTransfer_명령을_수신하면_startTransfer_이벤트가_발생한다() async {
-        // GIVEN
-        let (browser, collector) = makeSUT()
-        await collector.startCollecting(streamType: .cameraStream)
-
-        // Note: executeCommand는 private이므로 직접 테스트 불가
-        // 리팩터링 후 BrowserCommandManager를 통해 public하게 테스트 가능
-        // 현재는 통합 시나리오로 검증
-
-        // 임시: cameraStreamEventContinuation에 직접 접근 불가하므로 스킵
-        // 리팩터링 시 yield 메서드를 통해 접근 가능하게 변경 필요
-
-        // THEN - 이 테스트는 리팩터링 후 활성화
-        #expect(true, "리팩터링 후 BrowserCommandManager를 통해 테스트")
-    }
 
     // MARK: - 4. 명령 전송 (세션 없을 때 안전성)
 
