@@ -50,7 +50,6 @@ final class AdvertisingStore: StoreProtocol {
         case .exit:
             commandTask?.cancel()
             advertiser.stopSearching()
-            return []
 
         case .connected:
             advertiser.stopSearching(onlyRefuse: true)
@@ -59,6 +58,8 @@ final class AdvertisingStore: StoreProtocol {
         case .setShowTutorial(let value):
             return [.setShowTutorial(value)]
         }
+
+        return []
     }
 
     func reduce(_ result: Result) {
@@ -67,6 +68,7 @@ final class AdvertisingStore: StoreProtocol {
         switch result {
         case .setIsConnected(let bool):
             state.isConnected = bool
+
         case .setOnNavigate(let status, let useType):
             state.onNavigate = status
             state.deviceUseType = useType

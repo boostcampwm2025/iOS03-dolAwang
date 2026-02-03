@@ -216,6 +216,7 @@ final class StreamingStore: StoreProtocol {
         case .videoFrameDecoded(let sampleBuffer, let rotationAngle):
             state.currentSampleBuffer = sampleBuffer
             state.rotationAngle = rotationAngle
+
             // MARK: - 타이머
         case .countdownUpdated(let value):
             state.countdownValue = value

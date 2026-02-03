@@ -90,17 +90,21 @@ final class WatchConnectionStore: StoreProtocol {
 
     func reduce(_ result: Result) {
         var state = self.state
+
         switch result {
         case .setConnectionState(let value):
             state.connectionState = value
 
         case .setIsReadyToCapture(let value):
             state.isReadyToCapture = value
+
         case .setIsCaptureCompleted(let value):
             state.isCaptureCompleted = value
+
         case .setIsWaiting(let isWaiting):
             state.isWaiting = isWaiting
         }
+
         self.state = state
     }
 }
