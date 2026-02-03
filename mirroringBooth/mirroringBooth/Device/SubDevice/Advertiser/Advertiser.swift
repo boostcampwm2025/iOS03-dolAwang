@@ -28,23 +28,23 @@ final class Advertiser: NSObject {
     private let videoContinuation: AsyncStream<FrameReceivingEvents>.Continuation
     let videoStream: AsyncStream<FrameReceivingEvents>
 
-    /// 연결 성공 콜백
-    var onConnected: (() -> Void)?
+    private let advertisingContinuation: AsyncStream<AdvertiserEvents>.Continuation
+    let advertisingStream: AsyncStream<AdvertiserEvents>
 
-    /// 촬영 선택 모드 이동 콜백 (미러링 기기)
-    var navigateToSelectModeCommandCallBack: ((_ isRemoteEnable: Bool) -> Void)?
+    private let modeSelectionContinuation: AsyncStream<ModeSelectionEvents>.Continuation
+    let modeSelectionStream: AsyncStream<ModeSelectionEvents>
 
-    /// 촬영 대기 화면 이동 콜백 (리모트 기기)
-    var navigateToRemoteConnectedCallBack: (() -> Void)?
+    private let remoteConnectedViewContinuation: AsyncStream<RemoteConnectedViewEvents>.Continuation
+    let remoteConnectedViewStream: AsyncStream<RemoteConnectedViewEvents>
 
-    /// 촬영 화면 이동 콜백 (리모트 기기)
-    var navigateToRemoteCaptureCallBack: (() -> Void)?
+    private let remoteCaptureViewContinuation: AsyncStream<RemoteCaptureViewEvents>.Continuation
+    let remoteCaptureViewStream: AsyncStream<RemoteCaptureViewEvents>
 
-    /// 촬영 완료 이동 콜백 (리모트 기기)
-    var navigateToRemoteCompleteCallBack: (() -> Void)?
+    private let streamingStoreContinuation: AsyncStream<StreamingStoreEvents>.Continuation
+    let streamingStoreStream: AsyncStream<StreamingStoreEvents>
 
-    /// 홈 화면으로 이동 (리모트 기기)
-    var navigateToHomeCallback: (() -> Void)?
+    let rootContinuation: AsyncStream<RootEvents>.Continuation
+    let rootStream: AsyncStream<RootEvents>
 
     /// 카메라 기기에게 보내는 명령
     enum CameraDeviceCommand: String {
@@ -56,24 +56,6 @@ final class Advertiser: NSObject {
         case remoteHeartBeat // 리모트 세션 확인용
         case stopHeartBeat // heartbeat 종료
     }
-
-    /// 리모트 기기 연결 끊겼을 때 모드 선택 화면 교체 콜백
-    var switchModeSelectionView: (() -> Void)?
-
-    /// 사진 수신 완료 콜백 (1장마다 호출)
-    var onPhotoReceived: (() -> Void)?
-
-    /// 캡쳐 요청 카운트 콜백 (촬영기기에서 전송)
-    var onUpdateCaptureCount: (() -> Void)?
-
-    /// 10장 모두 저장 완료 콜백 (촬영기기에서 전송)
-    var onAllPhotosStored: (() -> Void)?
-
-    /// heartbeat 메시지 타임아웃
-    var onHeartBeatTimeout: (() -> Void)?
-
-    /// captureEffect 명령 수신 콜백
-    var onCaptureEffect: (() -> Void)?
 
     init(serviceType: String = "mirroringbooth", photoCacheManager: PhotoCacheManager) {
         self.serviceType = serviceType
@@ -109,6 +91,16 @@ final class Advertiser: NSObject {
             of: FrameReceivingEvents.self,
             bufferingPolicy: .bufferingNewest(1)
         )
+        (advertisingStream, advertisingContinuation) = AsyncStream.makeStream(of: AdvertiserEvents.self)
+        (modeSelectionStream, modeSelectionContinuation) = AsyncStream.makeStream(of: ModeSelectionEvents.self)
+        (remoteConnectedViewStream, remoteConnectedViewContinuation) = AsyncStream.makeStream(
+            of: RemoteConnectedViewEvents.self
+        )
+        (remoteCaptureViewStream, remoteCaptureViewContinuation) = AsyncStream.makeStream(
+            of: RemoteCaptureViewEvents.self
+        )
+        (streamingStoreStream, streamingStoreContinuation) = AsyncStream.makeStream(of: StreamingStoreEvents.self)
+        (rootStream, rootContinuation) = AsyncStream.makeStream(of: RootEvents.self)
 
         super.init()
         advertiser.delegate = self
@@ -187,57 +179,32 @@ final class Advertiser: NSObject {
     private func handleMirroringDeviceCommand(_ mirroringDeviceCommand: Browser.MirroringDeviceCommand) {
         switch mirroringDeviceCommand {
         case .navigateToSelectModeWithRemote:
-            guard let navigateToSelectModeCommandCallBack else { return }
-            DispatchQueue.main.async {
-                navigateToSelectModeCommandCallBack(true)
-            }
+            advertisingContinuation.yield(.navigateToSelectModeCommand(true))
         case .navigateToSelectModeWithoutRemote:
-            guard let navigateToSelectModeCommandCallBack else { return }
-            DispatchQueue.main.async {
-                navigateToSelectModeCommandCallBack(false)
-            }
+            advertisingContinuation.yield(.navigateToSelectModeCommand(false))
         case .switchSelectModeView:
-            DispatchQueue.main.async {
-                self.switchModeSelectionView?()
-            }
+            modeSelectionContinuation.yield(.switchModeSelectionView)
         case .allPhotosStored:
-            DispatchQueue.main.async {
-                self.onAllPhotosStored?()
-            }
+            streamingStoreContinuation.yield(.onStoreAllPhotos)
         case .onUpdateCaptureCount:
-            DispatchQueue.main.async {
-                self.onUpdateCaptureCount?()
-            }
+            streamingStoreContinuation.yield(.onUpdateCaptureCount)
         case .heartBeat:
             heartBeater.beat()
         case .captureEffect:
-            DispatchQueue.main.async {
-                self.onCaptureEffect?()
-            }
+            streamingStoreContinuation.yield(.onCaptureEffect)
         }
     }
 
     private func handleRemoteDeviceCommand(_ remoteDeviceCommand: Browser.RemoteDeviceCommand) {
         switch remoteDeviceCommand {
         case .navigateToRemoteConnected:
-            guard let navigateToRemoteConnectedCallBack else { return }
-            DispatchQueue.main.async {
-                navigateToRemoteConnectedCallBack()
-            }
+            advertisingContinuation.yield(.navigateToRemoteConnected)
         case .navigateToRemoteCapture:
-            guard let navigateToRemoteCaptureCallBack else { return }
-            DispatchQueue.main.async {
-                navigateToRemoteCaptureCallBack()
-            }
+            remoteConnectedViewContinuation.yield(.navigateToRemoteCapture)
         case .navigateToRemoteComplete:
-            DispatchQueue.main.async {
-                self.navigateToRemoteCompleteCallBack?()
-            }
+            remoteCaptureViewContinuation.yield(.navigateToRemoteComplete)
         case .navigateToHome:
-            guard let navigateToHomeCallback else { return }
-            DispatchQueue.main.async {
-                navigateToHomeCallback()
-            }
+            remoteConnectedViewContinuation.yield(.navigateToHome)
         case .noticeIsRemoteDevice:
             advertiserType = .remote
             heartBeater.start()
@@ -256,9 +223,7 @@ extension Advertiser: MCSessionDelegate {
         }
         if session === self.commandSession {
             if state == .connected {
-                DispatchQueue.main.async {
-                    self.onConnected?()
-                }
+                advertisingContinuation.yield(.onConnected)
             }
         }
     }
@@ -316,9 +281,7 @@ extension Advertiser: MCSessionDelegate {
             }
         }
         /// 사진 수신 완료
-        DispatchQueue.main.async {
-            self.onPhotoReceived?()
-        }
+        streamingStoreContinuation.yield(.onPhotoReceived)
     }
 }
 

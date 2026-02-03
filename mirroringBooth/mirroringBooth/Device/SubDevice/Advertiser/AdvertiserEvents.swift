@@ -8,7 +8,43 @@
 import Foundation
 
 enum AdvertiserEvents {
-    // TODO: 흐름 제어 이벤트 추가 예정
+    /// 연결 성공
+    case onConnected
+    /// 미러링 화면 모드 선택으로 이동(리모트 기기 연결 여부)
+    case navigateToSelectModeCommand(_ isRemoteEnable: Bool)
+    /// 촬영 대기 화면 이동 (리모트 기기)
+    case navigateToRemoteConnected
+    case navigateToRemoteCapture
+}
+
+enum ModeSelectionEvents {
+    /// 리모트 기기 연결 끊겼을 때 모드 선택 화면 교체
+    case switchModeSelectionView
+}
+
+enum RemoteConnectedViewEvents {
+    /// 촬영 화면 이동 콜백 (리모트 기기)
+    case navigateToRemoteCapture
+    /// 홈 화면으로 이동 (리모트 기기)
+    case navigateToHome
+}
+
+enum RemoteCaptureViewEvents {
+    case navigateToRemoteComplete
+}
+
+enum StreamingStoreEvents {
+    case onPhotoReceived
+    /// 캡쳐 요청 카운트 (촬영기기에서 전송)
+    case onUpdateCaptureCount
+    /// 10장 저장 시작 (촬영기기에서 전송)
+    case onStoreAllPhotos
+    /// captureEffect 명령 수신 콜백
+    case onCaptureEffect
+}
+
+enum RootEvents {
+    case onHeartbeatTimeout
 }
 
 enum FrameReceivingEvents {

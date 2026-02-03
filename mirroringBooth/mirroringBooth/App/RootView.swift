@@ -40,13 +40,13 @@ struct RootView: View {
                             for: .timerOrRemote,
                             flag: isRemoteEnable
                         )
-                        .onAppear {
-                            store.advertiser?.onHeartBeatTimeout = {
-                                store.send(.showTimeoutAlert(true))
-                            }
-                            store.advertiser?.switchModeSelectionView = {
-                                router.pop()
-                                router.push(to: MirroringRoute.timerOrRemoteSelection(isRemoteEnable: false))
+                        .task {
+                            guard let advertiser = store.advertiser else { return }
+                            for await stream in advertiser.modeSelectionStream {
+                                if case .switchModeSelectionView = stream {
+                                    router.pop()
+                                    router.push(to: MirroringRoute.timerOrRemoteSelection(isRemoteEnable: false))
+                                }
                             }
                         }
 
@@ -77,11 +77,6 @@ struct RootView: View {
                     switch viewType {
                     case .remoteCapture(let advertiser):
                         RemoteCaptureView(advertiser: advertiser)
-                            .onAppear {
-                                store.advertiser?.onHeartBeatTimeout = {
-                                    store.send(.showTimeoutAlert(true))
-                                }
-                            }
 
                     case .completion:
                         CompletionView {

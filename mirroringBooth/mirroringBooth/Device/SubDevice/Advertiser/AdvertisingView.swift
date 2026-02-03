@@ -56,41 +56,28 @@ struct AdvertisingView: View {
         }
         .onAppear {
             store.send(.onAppear)
-            if rootStore.advertiser == nil {
-                rootStore.advertiser = store.advertiser
-            }
-            store.advertiser.onHeartBeatTimeout = { [weak rootStore] in
-                rootStore?.send(.showTimeoutAlert(true))
-            }
+            rootStore.advertiser = store.advertiser
         }
         .onDisappear {
             store.send(.exit)
         }
+        .task {
+            for await stream in store.advertiser.remoteConnectedViewStream {
+                switch stream {
+                case .navigateToRemoteCapture:
+                    router.push(to: RemoteRoute.remoteCapture(store.advertiser))
+                case .navigateToHome:
+                    router.reset()
+                }
+            }
+        }
         .onChange(of: store.state.onNavigate) { _, newValue in
             if newValue {
                 guard let deviceUseType = store.state.deviceUseType else { return }
-
-                switch deviceUseType {
-                case .mirroring:
+                if case .mirroring = deviceUseType {
                     router.push(
                         to: MirroringRoute.timerOrRemoteSelection(isRemoteEnable: store.state.isRemoteSelected)
                     )
-                case .remote:
-                    // 리모트 모드 선택 시 촬영 뷰로 이동
-                    store.advertiser.navigateToRemoteCaptureCallBack = { [weak router] in
-                        guard let router else { return }
-                        DispatchQueue.main.async {
-                            router.push(to: RemoteRoute.remoteCapture(store.advertiser))
-                        }
-                    }
-
-                    // 타이머 모드 선택 시 처음 화면으로 이동
-                    store.advertiser.navigateToHomeCallback = { [weak router] in
-                        guard let router else { return }
-                        DispatchQueue.main.async {
-                            router.reset()
-                        }
-                    }
                 }
             }
         }

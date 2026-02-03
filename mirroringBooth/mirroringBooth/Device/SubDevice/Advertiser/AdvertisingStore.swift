@@ -34,34 +34,11 @@ final class AdvertisingStore: StoreProtocol {
 
     var state: State = .init()
     let advertiser: Advertiser
+    private var commandTask: Task<Void, Never>?
 
     init(_ advertiser: Advertiser) {
         self.advertiser = advertiser
-
-        advertiser.onConnected = { [weak self] in
-            Task { @MainActor in
-                self?.send(.connected)
-            }
-        }
-
-        advertiser.navigateToSelectModeCommandCallBack = { [weak self] isRemoteEnable in
-            Task { @MainActor in
-                self?.reduce(.setIsRemoteSelected(isRemoteEnable))
-                self?.reduce(.setOnNavigate(true, type: .mirroring))
-            }
-        }
-
-        advertiser.navigateToRemoteConnectedCallBack = { [weak self] in
-            Task { @MainActor in
-                self?.reduce(.setOnNavigate(true, type: .remote))
-            }
-        }
-
-        advertiser.navigateToRemoteCaptureCallBack = { [weak self] in
-            Task { @MainActor in
-                self?.reduce(.setOnNavigate(true, type: .remote))
-            }
-        }
+        subscribeToStream()
     }
 
     func action(_ intent: Intent) -> [Result] {
@@ -75,6 +52,7 @@ final class AdvertisingStore: StoreProtocol {
             return [.setIsConnected(true)]
 
         case .exit:
+            commandTask?.cancel()
             advertiser.stopSearching()
             return []
 
@@ -103,4 +81,26 @@ final class AdvertisingStore: StoreProtocol {
         self.state = state
     }
 
+}
+
+// MARK: Stream 구독
+extension AdvertisingStore {
+    private func subscribeToStream() {
+        commandTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            for await stream in advertiser.advertisingStream {
+                switch stream {
+                case .onConnected:
+                    self.send(.connected)
+                case .navigateToSelectModeCommand(let isRemoteEnable):
+                    self.reduce(.setIsRemoteSelected(isRemoteEnable))
+                    self.reduce(.setOnNavigate(true, type: .mirroring))
+                case .navigateToRemoteConnected:
+                    self.reduce(.setOnNavigate(true, type: .remote))
+                case .navigateToRemoteCapture:
+                    self.reduce(.setOnNavigate(true, type: .remote))
+                }
+            }
+        }
+    }
 }

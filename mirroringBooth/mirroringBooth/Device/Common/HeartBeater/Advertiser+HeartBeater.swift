@@ -18,8 +18,6 @@ extension Advertiser: HeartBeaterDelegate {
     }
 
     func onTimeout(_ sender: HeartBeater) {
-        DispatchQueue.main.async {
-            self.onHeartBeatTimeout?()
-        }
+        rootContinuation.yield(.onHeartbeatTimeout)
     }
 }
