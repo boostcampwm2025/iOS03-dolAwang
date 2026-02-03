@@ -14,10 +14,6 @@ enum BrowsingEvents {
     case deviceConnected(NearbyDevice)
     case deviceConnectionFailed // 마이그레이션 완료
 
-    // 리모트 모드
-    case remoteModeCommand
-    case selectedTimerModeCommand
-
     // Heartbeat
     case heartbeatTimeout
     case remoteHeartbeatTimeout
