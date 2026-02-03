@@ -30,13 +30,13 @@ final class AdvertisingManager: NSObject {
         self.advertiser.delegate = self
     }
 
-    func startSearching() {
+    func startAdvertising() {
         isBlockingInvitation = false
         advertiser.startAdvertisingPeer()
         Logger.advertisingManager.info("광고를 시작합니다.")
     }
 
-    func stopSearching(onlyRefuse: Bool = false) {
+    func stopAdvertising(onlyRefuse: Bool = false) {
         if onlyRefuse {
             isBlockingInvitation = true
             return

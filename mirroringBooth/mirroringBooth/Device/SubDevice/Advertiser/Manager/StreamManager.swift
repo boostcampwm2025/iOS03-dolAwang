@@ -44,31 +44,31 @@ final class StreamManager {
     }
 
     // MARK: - Yield Methods
-    func yieldVideoData(_ data: Data) {
+    func yieldVideo(_ data: Data) {
         videoContinuation.yield(.streamDataReceived(data))
     }
 
-    func yieldAdvertisingEvent(_ event: AdvertiserEvents) {
+    func yieldAdvertising(_ event: AdvertiserEvents) {
         advertisingContinuation.yield(event)
     }
 
-    func yieldModeSelectionEvent(_ event: ModeSelectionEvents) {
+    func yieldModeSelection(_ event: ModeSelectionEvents) {
         modeSelectionContinuation.yield(event)
     }
 
-    func yieldRemoteConnectedViewEvent(_ event: RemoteConnectedViewEvents) {
+    func yieldRemoteConnectedView(_ event: RemoteConnectedViewEvents) {
         remoteConnectedViewContinuation.yield(event)
     }
 
-    func yieldRemoteCaptureViewEvent(_ event: RemoteCaptureViewEvents) {
+    func yieldRemoteCaptureView(_ event: RemoteCaptureViewEvents) {
         remoteCaptureViewContinuation.yield(event)
     }
 
-    func yieldStreamingStoreEvent(_ event: StreamingStoreEvents) {
+    func yieldStreamingStore(_ event: StreamingStoreEvents) {
         streamingStoreContinuation.yield(event)
     }
 
-    func yieldRootEvent(_ event: RootEvents) {
+    func yieldRoot(_ event: RootEvents) {
         rootContinuation.yield(event)
     }
 }

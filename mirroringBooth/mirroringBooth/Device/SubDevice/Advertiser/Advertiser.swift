@@ -94,11 +94,11 @@ final class Advertiser: NSObject {
     }
 
     func startSearching() {
-        connectionManager.startSearching()
+        connectionManager.startAdvertising()
     }
 
     func stopSearching(onlyRefuse: Bool = false) {
-        connectionManager.stopSearching(onlyRefuse: onlyRefuse)
+        connectionManager.stopAdvertising(onlyRefuse: onlyRefuse)
     }
 
     /// 세션과 연결을 해제합니다.
@@ -129,17 +129,15 @@ extension Advertiser: MCSessionDelegate {
         if session === self.session, state == .connected {
             heartBeater.start()
         }
-        if session === self.commandSession {
-            if state == .connected {
-                streamManager.yieldAdvertisingEvent(.onConnected)
-            }
+        if session === self.commandSession, state == .connected {
+                streamManager.yieldAdvertising(.onConnected)
         }
     }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
         if session === self.session {
             // 스트림 세션에서 수신
-            streamManager.yieldVideoData(data)
+            streamManager.yieldVideo(data)
         } else if session === commandSession {
             // 명령 세션에서 수신
             commandManager.execute(data: data, advertiserType: &advertiserType)
@@ -189,7 +187,7 @@ extension Advertiser: MCSessionDelegate {
             }
         }
         /// 사진 수신 완료
-        streamManager.yieldStreamingStoreEvent(.onPhotoReceived)
+        streamManager.yieldStreamingStore(.onPhotoReceived)
     }
 }
 

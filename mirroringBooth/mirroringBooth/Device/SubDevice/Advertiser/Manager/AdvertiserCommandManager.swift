@@ -37,19 +37,19 @@ final class AdvertiserCommandManager {
     private func handleMirroringDeviceCommand(_ command: Browser.MirroringDeviceCommand) {
         switch command {
         case .navigateToSelectModeWithRemote:
-            streamManager?.yieldAdvertisingEvent(.navigateToSelectModeCommand(true))
+            streamManager?.yieldAdvertising(.navigateToSelectModeCommand(true))
         case .navigateToSelectModeWithoutRemote:
-            streamManager?.yieldAdvertisingEvent(.navigateToSelectModeCommand(false))
+            streamManager?.yieldAdvertising(.navigateToSelectModeCommand(false))
         case .switchSelectModeView:
-            streamManager?.yieldModeSelectionEvent(.switchModeSelectionView)
+            streamManager?.yieldModeSelection(.switchModeSelectionView)
         case .allPhotosStored:
-            streamManager?.yieldStreamingStoreEvent(.onAllPhotosStored)
+            streamManager?.yieldStreamingStore(.onAllPhotosStored)
         case .onUpdateCaptureCount:
-            streamManager?.yieldStreamingStoreEvent(.onUpdateCaptureCount)
+            streamManager?.yieldStreamingStore(.onUpdateCaptureCount)
         case .heartBeat:
             heartBeater?.beat()
         case .captureEffect:
-            streamManager?.yieldStreamingStoreEvent(.onCaptureEffect)
+            streamManager?.yieldStreamingStore(.onCaptureEffect)
         }
     }
 
@@ -59,13 +59,13 @@ final class AdvertiserCommandManager {
     ) {
         switch command {
         case .navigateToRemoteConnected:
-            streamManager?.yieldAdvertisingEvent(.navigateToRemoteConnected)
+            streamManager?.yieldAdvertising(.navigateToRemoteConnected)
         case .navigateToRemoteCapture:
-            streamManager?.yieldRemoteConnectedViewEvent(.navigateToRemoteCapture)
+            streamManager?.yieldRemoteConnectedView(.navigateToRemoteCapture)
         case .navigateToRemoteComplete:
-            streamManager?.yieldRemoteCaptureViewEvent(.navigateToRemoteComplete)
+            streamManager?.yieldRemoteCaptureView(.navigateToRemoteComplete)
         case .navigateToHome:
-            streamManager?.yieldRemoteConnectedViewEvent(.navigateToHome)
+            streamManager?.yieldRemoteConnectedView(.navigateToHome)
         case .noticeIsRemoteDevice:
             advertiserType = .remote
             heartBeater?.start()
