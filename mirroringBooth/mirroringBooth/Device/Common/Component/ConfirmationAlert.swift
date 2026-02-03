@@ -94,16 +94,16 @@ extension View {
     func homeAlert(
         isPresented: Binding<Bool>,
         message: String = "진행 중인 작업이 사라질 수 있습니다.\n정말 나가시겠습니까?",
-        cancelButtonText: String = "",
+        cancelButtonText: String,
         confirmButtonText: String = "나가기",
         onConfirm: @escaping () -> Void = {},
-        onCancel: @escaping () -> Void = {}
+        onCancel: @escaping () -> Void
     ) -> some View {
         self.overlay {
             if isPresented.wrappedValue {
                 ConfirmationAlert(
                     message: message,
-                    cancelButtonText: cancelButtonText.isEmpty ? "계속하기" : cancelButtonText,
+                    cancelButtonText: cancelButtonText,
                     confirmButtonText: confirmButtonText,
                     onConfirm: {
                         isPresented.wrappedValue = false
@@ -112,6 +112,32 @@ extension View {
                     onCancel: {
                         isPresented.wrappedValue = false
                         onCancel()
+                    }
+                )
+                .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                .animation(.easeOut(duration: 0.2), value: isPresented.wrappedValue)
+            }
+        }
+    }
+
+    func homeAlert(
+        isPresented: Binding<Bool>,
+        message: String = "진행 중인 작업이 사라질 수 있습니다.\n정말 나가시겠습니까?",
+        confirmButtonText: String = "나가기",
+        onConfirm: @escaping () -> Void = {}
+    ) -> some View {
+        self.overlay {
+            if isPresented.wrappedValue {
+                ConfirmationAlert(
+                    message: message,
+                    cancelButtonText: "계속하기",
+                    confirmButtonText: confirmButtonText,
+                    onConfirm: {
+                        isPresented.wrappedValue = false
+                        onConfirm()
+                    },
+                    onCancel: {
+                        isPresented.wrappedValue = false
                     }
                 )
                 .transition(.opacity.combined(with: .scale(scale: 0.9)))
