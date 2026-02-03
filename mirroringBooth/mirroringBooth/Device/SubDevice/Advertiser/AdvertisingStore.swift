@@ -22,7 +22,7 @@ final class AdvertisingStore: StoreProtocol {
         case entry
         case exit
         case connected
-        case setShowTutorial(Bool)
+        case showTutorial(Bool)
     }
 
     enum Result {
@@ -55,7 +55,7 @@ final class AdvertisingStore: StoreProtocol {
             advertiser.stopSearching(onlyRefuse: true)
             return [.setIsConnected(true)]
 
-        case .setShowTutorial(let value):
+        case .showTutorial(let value):
             return [.setShowTutorial(value)]
         }
 

@@ -145,7 +145,7 @@ struct BrowsingView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    store.send(.setShowTutorial(true))
+                    store.send(.showTutorial(true))
                 } label: {
                     Image(systemName: "questionmark.circle")
                 }
@@ -153,12 +153,12 @@ struct BrowsingView: View {
         }
         .tutorialOverlay(isPresented: Binding(
             get: { store.state.showTutorial },
-            set: { store.send(.setShowTutorial($0)) }
+            set: { store.send(.showTutorial($0)) }
         ))
         .homeAlert(
             isPresented: Binding(
                 get: { store.state.showMirroringDisconnectedAlert },
-                set: { store.send(.setShowMirroringDisconnectedAlert($0)) }
+                set: { store.send(.showMirroringDisconnectedAlert($0)) }
             ),
             message: "미러링 기기 연결이 끊겼습니다. 다시 시도해 주세요.",
             confirmButtonText: "확인",
@@ -167,7 +167,7 @@ struct BrowsingView: View {
             .toast(
                 isPresented: Binding(
                     get: { store.state.showToast },
-                    set: { store.send(.setShowToast($0)) }
+                    set: { store.send(.showToast($0)) }
                 ), message: store.state.toastMessage)
     }
 

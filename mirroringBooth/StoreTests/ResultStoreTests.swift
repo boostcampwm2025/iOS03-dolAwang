@@ -82,7 +82,7 @@ struct ResultStoreTests {
         let store = makeSUT()
         let image = UIImage()
 
-        store.send(.setRenderedImage(image: image))
+        store.send(.renderedImage(image: image))
 
         #expect(store.state.renderedImage != nil)
     }

@@ -259,7 +259,7 @@ struct StreamingStoreTests {
     @Test func 캡쳐_효과가_켜짐() {
         let store = makeSUT()
 
-        store.send(.setShowCaptureEffect(true))
+        store.send(.showCaptureEffect(true))
 
         #expect(store.state.showCapturEffect == true)
     }
@@ -268,7 +268,7 @@ struct StreamingStoreTests {
         let store = makeSUT()
         for _ in 0..<10 { store.send(.capturePhotoCount) }
 
-        store.send(.setShowCaptureEffect(true))
+        store.send(.showCaptureEffect(true))
 
         #expect(store.state.showCapturEffect == false)
     }
@@ -278,7 +278,7 @@ struct StreamingStoreTests {
     @Test func 연결끊기_버튼을_누르면_홈_알림이_표시됨() {
         let store = makeSUT()
 
-        store.send(.setHomeAlert(true))
+        store.send(.showHomeAlert(true))
 
         #expect(store.state.showHomeAlert == true)
     }
@@ -289,7 +289,7 @@ struct StreamingStoreTests {
         let store = makeSUT()
         let size = CGSize(width: 300, height: 400)
 
-        store.send(.setVideoViewSize(size))
+        store.send(.adaptVideoViewSize(size))
 
         #expect(store.state.videoViewSize == size)
     }

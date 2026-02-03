@@ -86,7 +86,7 @@ struct AdvertisingView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    store.send(.setShowTutorial(true))
+                    store.send(.showTutorial(true))
                 } label: {
                     Image(systemName: "questionmark.circle")
                 }
@@ -94,7 +94,7 @@ struct AdvertisingView: View {
         }
         .tutorialOverlay(isPresented: Binding(
             get: { store.state.showTutorial },
-            set: { store.send(.setShowTutorial($0)) }
+            set: { store.send(.showTutorial($0)) }
         ))
     }
 }

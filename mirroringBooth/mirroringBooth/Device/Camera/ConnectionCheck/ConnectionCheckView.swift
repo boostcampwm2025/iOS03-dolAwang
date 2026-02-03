@@ -74,12 +74,12 @@ struct ConnectionCheckView: View {
             .fullScreenCover(
                 isPresented: Binding(
                     get: { store.state.showPreview },
-                    set: { store.send(.setShowPreview($0)) }
+                    set: { store.send(.showPreview($0)) }
                 ),
                 onDismiss: {
                     if store.state.shouldNavigateToCompletion {
                         router.push(to: CameraRoute.completion)
-                        store.send(.setNavigationToCompletion(false))
+                        store.send(.navigateToCompletion(false))
                     }
                 },
                 content: {
@@ -87,7 +87,7 @@ struct ConnectionCheckView: View {
                         store.browser,
                         mirroringName: store.mirroringDevice,
                         onDismissByCaptureCompletion: {
-                            store.send(.setNavigationToCompletion(true))
+                            store.send(.navigateToCompletion(true))
                         }
                     )
                 }
@@ -104,7 +104,7 @@ struct ConnectionCheckView: View {
         .homeAlert(
             isPresented: Binding(
                 get: { store.state.showRemoteDisconnectedAlert },
-                set: { store.send(.setShowRemoteDisconnectedAlert($0)) }
+                set: { store.send(.showRemoteDisconnectedAlert($0)) }
             ),
             message: "리모트 기기 연결이 끊겼습니다.",
             confirmButtonText: "확인",

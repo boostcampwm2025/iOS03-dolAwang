@@ -20,9 +20,9 @@ final class ConnectionCheckStore: StoreProtocol {
     enum Intent {
         case entry
         case onReadyToCapture
-        case setNavigationToCompletion(Bool)
-        case setShowRemoteDisconnectedAlert(Bool)
-        case setShowPreview(Bool)
+        case navigateToCompletion(Bool)
+        case showRemoteDisconnectedAlert(Bool)
+        case showPreview(Bool)
     }
 
     enum Result {
@@ -72,13 +72,13 @@ final class ConnectionCheckStore: StoreProtocol {
             browser.sendRemoteCommand(.navigateToRemoteConnected)
             return [.setShowPreview(true), .setNavigationToCompletion(false)]
 
-        case .setNavigationToCompletion(let flag):
+        case .navigateToCompletion(let flag):
             return [.setNavigationToCompletion(flag)]
 
-        case .setShowRemoteDisconnectedAlert(let flag):
+        case .showRemoteDisconnectedAlert(let flag):
             return [.setShowRemoteDisconnectedAlert(flag)]
 
-        case .setShowPreview(let flag):
+        case .showPreview(let flag):
             return [.setShowPreview(flag)]
         }
 

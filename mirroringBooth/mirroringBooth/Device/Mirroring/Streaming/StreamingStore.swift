@@ -72,11 +72,11 @@ final class StreamingStore: StoreProtocol {
         case capturePhotoCount  // 촬영 카운트 수신
 
         // 캡쳐 효과
-        case setShowCaptureEffect(Bool)
+        case showCaptureEffect(Bool)
 
         // 그 외
-        case setHomeAlert(Bool)
-        case setVideoViewSize(CGSize)
+        case showHomeAlert(Bool)
+        case adaptVideoViewSize(CGSize)
     }
 
     enum Result {
@@ -106,7 +106,7 @@ final class StreamingStore: StoreProtocol {
         case removePose
 
         // 그 외
-        case setHomeAlert(Bool)
+        case setShowHomeAlert(Bool)
         case setVideoViewSize(CGSize)
         case setColorScheme(ColorScheme?)
     }
@@ -176,15 +176,15 @@ final class StreamingStore: StoreProtocol {
             let newCount = min(state.totalCaptureCount, state.capturePhotoCount + 1)
             return [.capturePhotoCountUpdated(newCount), .removePose]
 
-        case .setShowCaptureEffect(let value):
+        case .showCaptureEffect(let value):
             if state.capturePhotoCount < state.totalCaptureCount {
                 return [.setShowCaptureEffect(value)]
             }
 
-        case .setHomeAlert(let value):
-            return [.setHomeAlert(value)]
+        case .showHomeAlert(let value):
+            return [.setShowHomeAlert(value)]
 
-        case .setVideoViewSize(let value):
+        case .adaptVideoViewSize(let value):
             return [.setVideoViewSize(value)]
         }
 
@@ -241,7 +241,7 @@ final class StreamingStore: StoreProtocol {
                 state.poseList.removeFirst()
             }
 
-        case .setHomeAlert(let value):
+        case .setShowHomeAlert(let value):
             state.showHomeAlert = value
 
         case .setVideoViewSize(let size):
@@ -338,10 +338,10 @@ extension StreamingStore {
 extension StreamingStore {
     @MainActor
     func captureEffect() {
-        self.send(.setShowCaptureEffect(true))
+        self.send(.showCaptureEffect(true))
         Task { @MainActor [weak self] in
             try? await Task.sleep(nanoseconds: 200_000_000)
-            self?.send(.setShowCaptureEffect(false))
+            self?.send(.showCaptureEffect(false))
         }
     }
 }
