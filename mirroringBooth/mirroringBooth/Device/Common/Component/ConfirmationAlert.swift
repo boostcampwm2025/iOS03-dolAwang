@@ -96,7 +96,8 @@ extension View {
         message: String = "진행 중인 작업이 사라질 수 있습니다.\n정말 나가시겠습니까?",
         cancelButtonText: String = "",
         confirmButtonText: String = "나가기",
-        onConfirm: @escaping () -> Void = {}
+        onConfirm: @escaping () -> Void = {},
+        onCancel: @escaping () -> Void = {}
     ) -> some View {
         self.overlay {
             if isPresented.wrappedValue {
@@ -108,8 +109,9 @@ extension View {
                         isPresented.wrappedValue = false
                         onConfirm()
                     },
-                    onCancel: cancelButtonText.isEmpty ? nil : {
+                    onCancel: {
                         isPresented.wrappedValue = false
+                        onCancel()
                     }
                 )
                 .transition(.opacity.combined(with: .scale(scale: 0.9)))
