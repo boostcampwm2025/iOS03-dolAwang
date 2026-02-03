@@ -41,6 +41,8 @@ final class ConnectionCheckStore: StoreProtocol {
 
     private var heartbeatTask: Task<Void, Never>?
 
+    private var heartbeatTask: Task<Void, Never>?
+
     init(
         _ list: ConnectionList,
         _ browser: Browser
@@ -52,6 +54,10 @@ final class ConnectionCheckStore: StoreProtocol {
         Task { @MainActor in
             reduce(.setRemoteDevice(list.remoteName))
         }
+    }
+
+    deinit {
+        heartbeatTask?.cancel()
     }
 
     deinit {
