@@ -68,7 +68,8 @@ final class CameraPreviewStore: StoreProtocol {
         case .entry(let angle):
             setupSubscriptions()
             cameraManager.startSession()
-            cameraManager.rawData = { buffer in
+            cameraManager.rawData = { [weak self] buffer in
+                guard let self = self else { return }
                 self.state.buffer = buffer
             }
             return [.setColorScheme(.dark), .resetCaptureCompleted,
@@ -149,6 +150,7 @@ private extension CameraPreviewStore {
 
             self.browser.sendStreamData(framedData)
         }
+        
         // 일괄 전송 시작 명령 수신
         browser.onStartTransferCommand
             .receive(on: DispatchQueue.main)
