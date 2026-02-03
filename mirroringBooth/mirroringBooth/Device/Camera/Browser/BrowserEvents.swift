@@ -12,14 +12,14 @@ enum BrowsingEvents {
     case deviceFound(NearbyDevice)
     case deviceLost(NearbyDevice)
     case deviceConnected(NearbyDevice)
-    case deviceConnectionFailed // 마이그레이션 완료
+    case deviceConnectionFailed
 }
 
 enum CameraStreamEvents {
     // 촬영
-    case captureCommand // 마이그레이션 완료
-    case sendPhoto // 마이그레이션 완료
-    case startTransfer // 마이그레이션 완료
+    case captureCommand
+    case sendPhoto
+    case startTransfer
 }
 
 enum HeartBeatEvents {
