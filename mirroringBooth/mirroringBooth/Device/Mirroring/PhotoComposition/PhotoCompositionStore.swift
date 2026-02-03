@@ -12,11 +12,13 @@ final class PhotoCompositionStore: StoreProtocol {
     struct State {
         var photos: [Photo] = []
         var selectedPhotos: [Photo] = []
-        var currentSelectionCount: Int = 0
         var selectedLayout: LayoutAsset = .oneByOne
         var selectedFrame: FrameAsset = .black
+        var currentSelectionCount: Int {
+            photos.filter { $0.selectNumber != nil }.count
+        }
         var isCompletedButtonDisabled: Bool {
-            return currentSelectionCount < selectedLayout.capacity
+            currentSelectionCount < selectedLayout.capacity
         }
     }
 
@@ -31,7 +33,6 @@ final class PhotoCompositionStore: StoreProtocol {
         case setPhotos([Photo])
         case selectPhoto(Int)
         case deselectPhoto(Int)
-        case setSelectionCount(Int)
         case setLayout(LayoutAsset)
         case setFrame(FrameAsset)
     }
@@ -53,11 +54,9 @@ final class PhotoCompositionStore: StoreProtocol {
                 guard state.currentSelectionCount < state.selectedLayout.capacity else {
                     return []
                 }
-                return [.selectPhoto(index),
-                    .setSelectionCount(state.currentSelectionCount + 1)]
+                return [.selectPhoto(index)]
             } else {
-                return [.deselectPhoto(index),
-                    .setSelectionCount(state.currentSelectionCount - 1)]
+                return [.deselectPhoto(index)]
             }
 
         case .selectLayout(let layout):
@@ -72,7 +71,6 @@ final class PhotoCompositionStore: StoreProtocol {
                         results.append(.deselectPhoto(index))
                     }
                 }
-                results.append(.setSelectionCount(newCapacity))
             }
             results.append(.setLayout(layout))
             return results
@@ -106,9 +104,6 @@ final class PhotoCompositionStore: StoreProtocol {
 
         case .setFrame(let frame):
             state.selectedFrame = frame
-
-        case .setSelectionCount(let count):
-            state.currentSelectionCount = count
         }
 
         self.state = state
