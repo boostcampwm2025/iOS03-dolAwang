@@ -37,7 +37,7 @@ enum StreamingStoreEvents {
     case onPhotoReceived
     /// 캡쳐 요청 카운트 (촬영기기에서 전송)
     case onUpdateCaptureCount
-    /// 10장 모두 저장 완료 콜백 (촬영기기에서 전송)
+    /// 10장 저장 시작 (촬영기기에서 전송)
     case onAllPhotosStored
     /// captureEffect 명령 수신 콜백
     case onCaptureEffect
