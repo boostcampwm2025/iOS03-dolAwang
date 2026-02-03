@@ -48,6 +48,7 @@ final class CameraPreviewStore: StoreProtocol {
     private let browser: Browser
     private let cameraManager: CameraManageable
     private var cancellables = Set<AnyCancellable>()
+    private var heartbeatTask: Task<Void, Never>?
 
     var eventStream: AsyncStream<CameraStreamEvents> {
         browser.cameraStreamEventStream
@@ -61,6 +62,12 @@ final class CameraPreviewStore: StoreProtocol {
         self.browser = browser
         self.cameraManager = manager
         self.state = State(deviceName: deviceName)
+
+        setupHeartbeatListener()
+    }
+
+    deinit {
+        heartbeatTask?.cancel()
     }
 
     func action(_ intent: Intent) -> [Result] {
@@ -181,6 +188,25 @@ private extension CameraPreviewStore {
         case -90: return .landscapeLeft
         case 90: return .landscapeRight
         default: return .portrait
+        }
+    }
+}
+
+extension CameraPreviewStore {
+    private func setupHeartbeatListener() {
+        heartbeatTask = Task { [weak self] in
+            guard let self else { return }
+            for await event in browser.cameraPreviewHeartbeatStream {
+                await MainActor.run {
+                    switch event {
+                    case .heartbeatTimeout:
+                        self.send(.isMirroringDisconnected)
+                        self.browser.disconnect(useType: .remote)
+                    case .remoteHeartbeatTimeout:
+                        self.browser.sendCommand(.switchSelectModeView)
+                    }
+                }
+            }
         }
     }
 }
