@@ -201,10 +201,11 @@ final class BrowsingStore: StoreProtocol {
         case .browserEvent(let event):
             return handleBrowserEvent(event)
         }
+
         return []
     }
 
-    private func handleBrowserEvent(_ event: BrowsingEvents) -> [Result] {
+    private func handleBrowserEvent(_ event: BrowsingEvents) {
         switch event {
         case .deviceConnectionFailed:
             return [.setIsConnecting(false)]
