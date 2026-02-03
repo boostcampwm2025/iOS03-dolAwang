@@ -159,16 +159,18 @@ private extension CameraPreviewStore {
 
         // 전송 완료
         cameraManager.onTransferCompleted = { [weak self] in
-            guard let self else { return }
-            self.reduce(.setIsTransferring(false))
+            Task { @MainActor in
+                self?.reduce(.setIsTransferring(false))
+            }
         }
 
         // 10장 모두 저장 완료 시 미러링기기에 알림 전송
         cameraManager.onAllPhotosStored = { [weak self] _ in
-            guard let self else { return }
-            self.browser.sendCommand(.allPhotosStored)
-            self.reduce(.captureCompleted)
-            self.reduce(.setTransferCount(0))
+            Task { @MainActor in
+                self?.browser.sendCommand(.allPhotosStored)
+                self?.reduce(.captureCompleted)
+                self?.reduce(.setTransferCount(0))
+            }
         }
     }
 

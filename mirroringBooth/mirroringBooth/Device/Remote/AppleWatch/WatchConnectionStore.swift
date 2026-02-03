@@ -40,25 +40,25 @@ final class WatchConnectionStore: StoreProtocol {
         // (아이폰으로부터 연결 완료 메시지 수신 시에만 connected로 전환)
         self.connectionManager.onReachableChanged = { [weak self] reachable in
             guard !reachable else { return }
-            Task { @MainActor [weak self] in
+            Task { @MainActor in
                 self?.reduce(.setConnectionState(.notConnected))
             }
         }
 
         self.connectionManager.onReceiveConnectionCompleted = { [weak self] in
-            Task { @MainActor [weak self] in
+            Task { @MainActor in
                 self?.reduce(.setConnectionState(.connected))
             }
         }
 
         self.connectionManager.onReceiveRequestToPrepare = { [weak self] in
-            Task { @MainActor [weak self] in
+            Task { @MainActor in
                 self?.reduce(.setIsReadyToCapture(true))
             }
         }
 
         self.connectionManager.onReceiveCaptureComplete = { [weak self] in
-            Task { @MainActor [weak self] in
+            Task { @MainActor in
                 self?.reduce(.setIsCaptureCompleted(true))
             }
         }

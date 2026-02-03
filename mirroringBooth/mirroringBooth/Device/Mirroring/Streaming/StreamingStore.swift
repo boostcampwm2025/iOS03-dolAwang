@@ -144,21 +144,29 @@ final class StreamingStore: StoreProtocol {
 
         // 사진 수신 콜백
         advertiser.onPhotoReceived = { [weak self] in
-            self?.send(.photoReceived)
+            Task { @MainActor in
+                self?.send(.photoReceived)
+            }
         }
 
         advertiser.onUpdateCaptureCount = { [weak self] in
-            self?.send(.capturePhotoCount)
+            Task { @MainActor in
+                self?.send(.capturePhotoCount)
+            }
         }
 
         // 10장 사진 저장 시작
         advertiser.onAllPhotosStored = { [weak self] in
-            self?.send(.startTransfer)
+            Task { @MainActor in
+                self?.send(.startTransfer)
+            }
         }
 
         // 카메라 캡쳐 이펙트
         advertiser.onCaptureEffect = { [weak self] in
-            self?.captureEffect()
+            Task { @MainActor in
+                self?.captureEffect()
+            }
         }
     }
 
@@ -357,9 +365,11 @@ extension StreamingStore {
 
 // MARK: - 캡쳐 이펙트
 extension StreamingStore {
+    @MainActor
     func captureEffect() {
         self.send(.setShowCaptureEffect(true))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 200_000_000)
             self?.send(.setShowCaptureEffect(false))
         }
     }
