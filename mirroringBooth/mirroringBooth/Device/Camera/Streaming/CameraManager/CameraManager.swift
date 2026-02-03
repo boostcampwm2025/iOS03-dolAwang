@@ -10,7 +10,7 @@ import Observation
 import OSLog
 import UIKit
 
-final class CameraManager: NSObject {
+final class CameraManager: NSObject, CameraManageable {
     private let logger = Logger.cameraManager
 
     let session = AVCaptureSession()

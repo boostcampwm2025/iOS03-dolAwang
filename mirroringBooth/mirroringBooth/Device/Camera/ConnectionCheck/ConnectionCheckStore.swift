@@ -47,7 +47,9 @@ final class ConnectionCheckStore: StoreProtocol {
         self.mirroringDevice = list.mirroringName
         self.browser = browser
 
-        reduce(.setRemoteDevice(list.remoteName))
+        Task { @MainActor in
+            reduce(.setRemoteDevice(list.remoteName))
+        }
     }
 
     func action(_ intent: Intent) -> [Result] {
@@ -103,12 +105,16 @@ final class ConnectionCheckStore: StoreProtocol {
 extension ConnectionCheckStore {
     private func setupBrowser() {
         browser.onHeartbeatTimeout = { [weak self] in
-            self?.reduce(.setIsMirroringDisconnected(true))
+            Task { @MainActor in
+                self?.reduce(.setIsMirroringDisconnected(true))
+            }
         }
 
         browser.onRemoteHeartbeatTimeout = { [weak self] in
-            self?.reduce(.setShowRemoteDisconnectedAlert(true))
-            self?.reduce(.setRemoteDevice(nil))
+            Task { @MainActor in
+                self?.reduce(.setShowRemoteDisconnectedAlert(true))
+                self?.reduce(.setRemoteDevice(nil))
+            }
         }
     }
 }

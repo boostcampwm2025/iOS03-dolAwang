@@ -68,13 +68,10 @@ struct CameraPreview: View {
         }
         .preferredColorScheme(store.state.colorScheme)
         .onAppear {
-            store.send(.setColorScheme(.dark))
-            store.send(.resetCaptureCompleted)
             withAnimation(.linear(duration: 0.8).repeatForever(autoreverses: true)) {
-                store.send(.startAnimation)
+                store.send(.entry(withAngle: UIDevice.current.orientation.rawValue))
             }
-            store.send(.startSession)
-            store.send(.updateAngle(rawValue: UIDevice.current.orientation.rawValue))
+
             rootStore.browser?.onHeartbeatTimeout = { [weak store, weak rootStore] in
                 store?.send(.isMirroringDisconnected)
                 rootStore?.browser?.disconnect(useType: .remote)
@@ -84,8 +81,7 @@ struct CameraPreview: View {
             }
         }
         .onDisappear {
-            store.send(.setColorScheme(nil))
-            store.send(.stopCameraSession)
+            store.send(.exit)
         }
         .task {
             for await event in store.eventStream {

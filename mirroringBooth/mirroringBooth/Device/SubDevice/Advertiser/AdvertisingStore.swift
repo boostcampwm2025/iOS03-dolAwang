@@ -39,20 +39,28 @@ final class AdvertisingStore: StoreProtocol {
         self.advertiser = advertiser
 
         advertiser.onConnected = { [weak self] in
-            self?.send(.connected)
+            Task { @MainActor in
+                self?.send(.connected)
+            }
         }
 
         advertiser.navigateToSelectModeCommandCallBack = { [weak self] isRemoteEnable in
-            self?.reduce(.setIsRemoteSelected(isRemoteEnable))
-            self?.reduce(.setOnNavigate(true, type: .mirroring))
+            Task { @MainActor in
+                self?.reduce(.setIsRemoteSelected(isRemoteEnable))
+                self?.reduce(.setOnNavigate(true, type: .mirroring))
+            }
         }
 
         advertiser.navigateToRemoteConnectedCallBack = { [weak self] in
-            self?.reduce(.setOnNavigate(true, type: .remote))
+            Task { @MainActor in
+                self?.reduce(.setOnNavigate(true, type: .remote))
+            }
         }
 
         advertiser.navigateToRemoteCaptureCallBack = { [weak self] in
-            self?.reduce(.setOnNavigate(true, type: .remote))
+            Task { @MainActor in
+                self?.reduce(.setOnNavigate(true, type: .remote))
+            }
         }
     }
 

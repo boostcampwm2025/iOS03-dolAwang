@@ -25,31 +25,26 @@ final class CameraPreviewStore: StoreProtocol {
     }
 
     enum Intent {
-        case startAnimation
-        case startSession
-        case stopCameraSession
+        case entry(withAngle: Int)
+        case exit
         case updateAngle(rawValue: Int)
-        case captureCompleted
-        case resetCaptureCompleted
         case isMirroringDisconnected
-        case setTransferCount(Int)
-        case setColorScheme(ColorScheme?)
         case browserEvent(CameraStreamEvents)
     }
 
     enum Result {
         case startAnimation
-        case startSession
         case updateAngle(Int)
         case captureCompleted
         case resetCaptureCompleted
         case isMirroringDisconnected
         case setTransferCount(Int)
+        case setIsTransferring(Bool)
         case setColorScheme(ColorScheme?)
     }
 
     private let browser: Browser
-    private let cameraManager: CameraManager
+    private let cameraManager: CameraManageable
     private(set) var state: State
     private var cancellables = Set<AnyCancellable>()
 
@@ -59,7 +54,7 @@ final class CameraPreviewStore: StoreProtocol {
 
     init(
         browser: Browser,
-        manager: CameraManager,
+        manager: CameraManageable,
         deviceName: String,
     ) {
         self.browser = browser
@@ -69,30 +64,28 @@ final class CameraPreviewStore: StoreProtocol {
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
-        case .startAnimation:
-            return [.startAnimation]
-        case .startSession:
+        case .entry(let angle):
             setupSubscriptions()
-            return [.startSession]
-        case .stopCameraSession:
+            cameraManager.startSession()
+            cameraManager.rawData = { buffer in
+                self.state.buffer = buffer
+            }
+            return [.setColorScheme(.dark), .resetCaptureCompleted,
+                    .startAnimation, .updateAngle(angle)]
+
+        case .exit:
             cameraManager.stopSession()
+            return [.setColorScheme(nil)]
+
         case .updateAngle(let rawValue):
             return [.updateAngle(rawValue)]
-        case .captureCompleted:
-            browser.sendCommand(.allPhotosStored)
-            return [.captureCompleted, .setTransferCount(0)]
-        case .resetCaptureCompleted:
-            return [.resetCaptureCompleted]
+
         case .isMirroringDisconnected:
             return [.isMirroringDisconnected]
-        case .setTransferCount(let count):
-            return [.setTransferCount(count)]
-        case .setColorScheme(let scheme):
-            return [.setColorScheme(scheme)]
+
         case .browserEvent(let event):
             return handleBrowserEvent(event)
         }
-        return []
     }
 
     func reduce(_ result: Result) {
@@ -100,21 +93,25 @@ final class CameraPreviewStore: StoreProtocol {
         switch result {
         case .startAnimation:
             state.animationFlag = true
-        case .startSession:
-            cameraManager.startSession()
-            cameraManager.rawData = { buffer in
-                self.state.buffer = buffer
-            }
+
         case .updateAngle(let rawValue):
             state.angle = getAngleByRawValue(rawValue)
+
         case .captureCompleted:
             state.isCaptureCompleted = true
+
         case .resetCaptureCompleted:
             state.isCaptureCompleted = false
+
         case .isMirroringDisconnected:
             state.isMirroringDisconnected = true
+
         case .setTransferCount(let count):
             state.transfercount = count
+
+        case .setIsTransferring(let isTransferring):
+            state.isTransferring = isTransferring
+
         case .setColorScheme(let scheme):
             state.colorScheme = scheme
         }
@@ -155,18 +152,27 @@ private extension CameraPreviewStore {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self = self else { return }
-                self.state.isTransferring = true
+                Task { @MainActor in
+                    self.reduce(.setIsTransferring(true))
+                }
                 self.cameraManager.sendAllPhotos(using: self.browser)
             }
             .store(in: &cancellables)
 
         // 전송 완료
-        cameraManager.onTransferCompleted = {
-            self.state.isTransferring = false
+        cameraManager.onTransferCompleted = { [weak self] in
+            Task { @MainActor in
+                self?.reduce(.setIsTransferring(false))
+            }
         }
+
         // 10장 모두 저장 완료 시 미러링기기에 알림 전송
-        cameraManager.onAllPhotosStored = { _ in
-            self.send(.captureCompleted)
+        cameraManager.onAllPhotosStored = { [weak self] _ in
+            Task { @MainActor in
+                self?.browser.sendCommand(.allPhotosStored)
+                self?.reduce(.captureCompleted)
+                self?.reduce(.setTransferCount(0))
+            }
         }
     }
 
