@@ -60,14 +60,12 @@ extension AdvertisingManager: MCNearbyServiceAdvertiserDelegate {
 
         // 이미 연결된 피어인지 확인
         let isAlreadyConnected = connectedPeersCheck?(peerID) ?? false
-        
         guard isBlockingInvitation == false || isAlreadyConnected else {
             invitationHandler(false, nil)
             return
         }
-
         Logger.advertisingManager.info("초대 수신: \(peerID.displayName)(타입: \(type))")
-        
+
         // 세션 생성
         let session: MCSession
         if type == "streaming" {
@@ -86,10 +84,8 @@ extension AdvertisingManager: MCNearbyServiceAdvertiserDelegate {
             invitationHandler(false, nil)
             return
         }
-        
         // 델리게이트에게 알림 (Advertiser가 세션을 저장하고 Delegate를 설정하도록)
         delegate?.connectionManager(self, didCreateSession: session, type: type)
-        
         invitationHandler(true, session)
     }
 }
