@@ -131,8 +131,6 @@ final class CameraPreviewStore: StoreProtocol {
         case .startTransfer:
             cameraManager.sendAllPhotos(using: browser)
             return [.setIsTransferring(true)]
-        default:
-            return []
         }
     }
 }

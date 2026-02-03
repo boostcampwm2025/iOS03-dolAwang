@@ -75,36 +75,6 @@ final class BrowsingStore: StoreProtocol {
     }
 
     private func setupBrowser() {
-        browser.onDeviceFound = { [weak self] device in
-            Task { @MainActor in
-                self?.reduce(.addDiscoveredDevice(device))
-            }
-        }
-
-        browser.onDeviceLost = { [weak self] device in
-            Task { @MainActor in
-                self?.reduce(.removeDiscoveredDevice(device))
-                if device == self?.state.mirroringDevice {
-                    self?.reduce(.setCurrentTarget(.mirroring))
-                }
-            }
-        }
-
-        browser.onDeviceConnected = { [weak self] device in
-            Task { @MainActor in
-                switch self?.state.currentTarget {
-                case .mirroring:
-                    self?.reduce(.setMirroringDevice(device))
-                    self?.reduce(.setCurrentTarget(.remote))
-                case .remote:
-                    self?.reduce(.setRemoteDevice(device))
-                case .none:
-                    break
-                }
-                self?.reduce(.setIsConnecting(false))
-            }
-        }
-
         browser.onRemoteModeCommand = { [weak self] in
             self?.watchConnectionManager.prepareWatchToCapture()
         }
@@ -243,18 +213,31 @@ final class BrowsingStore: StoreProtocol {
             result.append(.setShowTutorial(value))
 
         case .browserEvent(let event):
-            result.append(contentsOf: handleBrowserEvent(event))
+            handleBrowserEvent(event)
         }
-
         return result
     }
 
-    private func handleBrowserEvent(_ event: BrowsingEvents) -> [Result] {
+    private func handleBrowserEvent(_ event: BrowsingEvents) {
         switch event {
         case .deviceConnectionFailed:
-            return [.setIsConnecting(false)]
-        default:
-            return []
+            reduce(.setIsConnecting(false))
+        case .deviceFound(let device):
+            reduce(.addDiscoveredDevice(device))
+        case .deviceLost(let device):
+            reduce(.removeDiscoveredDevice(device))
+            if device == state.mirroringDevice {
+                reduce(.setCurrentTarget(.mirroring))
+            }
+        case .deviceConnected(let device):
+            switch state.currentTarget {
+            case .mirroring:
+                reduce(.setMirroringDevice(device))
+                reduce(.setCurrentTarget(.remote))
+            case .remote:
+                reduce(.setRemoteDevice(device))
+            }
+            reduce(.setIsConnecting(false))
         }
     }
 
