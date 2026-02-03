@@ -29,6 +29,7 @@ final class BrowsingStore: StoreProtocol {
         var showMirroringDisconnectedAlert = false
         var showToast = false
         var toastMessage = ""
+        var showTutorial = false
     }
 
     enum Intent {
@@ -39,6 +40,7 @@ final class BrowsingStore: StoreProtocol {
         case didChangeAppState(UIApplication.State)
         case setShowMirroringDisconnectedAlert(Bool)
         case setShowToast(Bool)
+        case setShowTutorial(Bool)
     }
 
     enum Result {
@@ -51,6 +53,7 @@ final class BrowsingStore: StoreProtocol {
         case startAnimation
         case setShowMirroringDisconnectedAlert(Bool)
         case setShowToast(Bool)
+        case setShowTutorial(Bool)
     }
 
     var state: State = .init()
@@ -225,6 +228,9 @@ final class BrowsingStore: StoreProtocol {
 
         case .setShowToast(let value):
             result.append(.setShowToast(value))
+
+        case .setShowTutorial(let value):
+            result.append(.setShowTutorial(value))
         }
 
         return result
@@ -267,14 +273,16 @@ final class BrowsingStore: StoreProtocol {
         case .startAnimation:
             state.animationTrigger = true
 
-        case let .setShowMirroringDisconnectedAlert(bool):
-            state.showMirroringDisconnectedAlert = bool
+        case .setShowMirroringDisconnectedAlert(let alert):
+            state.showMirroringDisconnectedAlert = alert
 
-        case let .setShowToast(bool):
-            state.showToast = bool
+        case .setShowToast(let value):
+            state.showToast = value
+
+        case let .setShowTutorial(bool):
+            state.showTutorial = bool
         }
 
         self.state = state
     }
-
 }
