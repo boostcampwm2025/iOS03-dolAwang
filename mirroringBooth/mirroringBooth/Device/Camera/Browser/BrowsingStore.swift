@@ -29,6 +29,7 @@ final class BrowsingStore: StoreProtocol {
         var showMirroringDisconnectedAlert = false
         var showToast = false
         var toastMessage = ""
+        var showTutorial = false
     }
 
     enum Intent {
@@ -39,6 +40,8 @@ final class BrowsingStore: StoreProtocol {
         case didChangeAppState(UIApplication.State)
         case setShowMirroringDisconnectedAlert(Bool)
         case setShowToast(Bool)
+        case setShowTutorial(Bool)
+        case browserEvent(BrowsingEvents)
     }
 
     enum Result {
@@ -51,12 +54,17 @@ final class BrowsingStore: StoreProtocol {
         case startAnimation
         case setShowMirroringDisconnectedAlert(Bool)
         case setShowToast(Bool)
+        case setShowTutorial(Bool)
     }
 
     var state: State = .init()
     let browser: Browser
     let watchConnectionManager: WatchConnectionManager
     private var cancellables = Set<AnyCancellable>()
+
+    var eventStream: AsyncStream<BrowsingEvents> {
+        browser.browsingEventStream
+    }
 
     init(_ browser: Browser, _ watchConnectionManager: WatchConnectionManager) {
         self.browser = browser
@@ -88,10 +96,6 @@ final class BrowsingStore: StoreProtocol {
             case .none:
                 break
             }
-            self?.reduce(.setIsConnecting(false))
-        }
-
-        browser.onDeviceConnectionFailed = { [weak self] in
             self?.reduce(.setIsConnecting(false))
         }
 
@@ -225,9 +229,25 @@ final class BrowsingStore: StoreProtocol {
 
         case .setShowToast(let value):
             result.append(.setShowToast(value))
+
+        case .setShowTutorial(let value):
+            result.append(.setShowTutorial(value))
+
+        case .browserEvent(let event):
+            result.append(contentsOf: handleBrowserEvent(event))
         }
 
         return result
+    }
+
+    // View에서 전달받은 BrowsingEvents를 처리하여 Result로 변환합니다.
+    private func handleBrowserEvent(_ event: BrowsingEvents) -> [Result] {
+        switch event {
+        case .deviceConnectionFailed:
+            return [.setIsConnecting(false)]
+        default:
+            return []
+        }
     }
 
     func reduce(_ result: Result) {
@@ -267,14 +287,16 @@ final class BrowsingStore: StoreProtocol {
         case .startAnimation:
             state.animationTrigger = true
 
-        case let .setShowMirroringDisconnectedAlert(bool):
-            state.showMirroringDisconnectedAlert = bool
+        case .setShowMirroringDisconnectedAlert(let alert):
+            state.showMirroringDisconnectedAlert = alert
 
-        case let .setShowToast(bool):
-            state.showToast = bool
+        case .setShowToast(let value):
+            state.showToast = value
+
+        case let .setShowTutorial(bool):
+            state.showTutorial = bool
         }
 
         self.state = state
     }
-
 }

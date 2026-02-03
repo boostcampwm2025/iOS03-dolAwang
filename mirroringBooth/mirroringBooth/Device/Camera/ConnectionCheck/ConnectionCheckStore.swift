@@ -18,6 +18,7 @@ final class ConnectionCheckStore: StoreProtocol {
     }
 
     enum Intent {
+        case entry
         case setShowPreview(Bool)
         case setNavigationToCompletion(Bool)
         case setShowRemoteDisconnectedAlert(Bool)
@@ -46,12 +47,15 @@ final class ConnectionCheckStore: StoreProtocol {
         self.mirroringDevice = list.mirroringName
         self.browser = browser
 
-        setupBrowser()
         reduce(.setRemoteDevice(list.remoteName))
     }
 
     func action(_ intent: Intent) -> [Result] {
         switch intent {
+        case .entry:
+            setupBrowser()
+            return []
+
         case .setShowPreview(let flag):
             return [.setShowPreview(flag)]
 
@@ -98,7 +102,7 @@ final class ConnectionCheckStore: StoreProtocol {
 
 extension ConnectionCheckStore {
     private func setupBrowser() {
-        browser.onRemoteHeartbeatTimeout = { [weak self] in
+        browser.onHeartbeatTimeout = { [weak self] in
             self?.reduce(.setIsMirroringDisconnected(true))
         }
 

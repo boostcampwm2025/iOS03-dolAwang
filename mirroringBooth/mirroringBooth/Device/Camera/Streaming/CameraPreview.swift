@@ -87,6 +87,11 @@ struct CameraPreview: View {
             store.send(.setColorScheme(nil))
             store.send(.stopCameraSession)
         }
+        .task {
+            for await event in store.eventStream {
+                store.send(.browserEvent(event))
+            }
+        }
         .onChange(of: UIDevice.current.orientation.rawValue) { _, value in
             withAnimation(.easeInOut(duration: 0.3)) {
                 store.send(.updateAngle(rawValue: value))

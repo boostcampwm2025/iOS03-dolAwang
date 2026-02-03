@@ -44,6 +44,17 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       shouldAutocreateTestPlan = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0C2009832F306ED700B6197B"
+               BuildableName = "mirroringBoothTests.xctest"
+               BlueprintName = "mirroringBoothTests"
+               ReferencedContainer = "container:mirroringBooth.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

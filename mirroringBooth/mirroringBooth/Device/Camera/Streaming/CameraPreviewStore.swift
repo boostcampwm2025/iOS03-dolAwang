@@ -34,6 +34,7 @@ final class CameraPreviewStore: StoreProtocol {
         case isMirroringDisconnected
         case setTransferCount(Int)
         case setColorScheme(ColorScheme?)
+        case browserEvent(CameraStreamEvents)
     }
 
     enum Result {
@@ -51,6 +52,10 @@ final class CameraPreviewStore: StoreProtocol {
     private let cameraManager: CameraManager
     private(set) var state: State
     private var cancellables = Set<AnyCancellable>()
+
+    var eventStream: AsyncStream<CameraStreamEvents> {
+        browser.cameraStreamEventStream
+    }
 
     init(
         browser: Browser,
@@ -83,7 +88,9 @@ final class CameraPreviewStore: StoreProtocol {
         case .setTransferCount(let count):
             return [.setTransferCount(count)]
         case .setColorScheme(let scheme):
-            return [.setColorScheme(scheme) ]
+            return [.setColorScheme(scheme)]
+        case .browserEvent(let event):
+            return handleBrowserEvent(event)
         }
         return []
     }
@@ -114,6 +121,19 @@ final class CameraPreviewStore: StoreProtocol {
 
         self.state = state
     }
+
+    // View에서 전달받은 CameraStreamEvents를 처리하여 Result로 변환합니다.
+    private func handleBrowserEvent(_ event: CameraStreamEvents) -> [Result] {
+        switch event {
+        case .sendPhoto:
+            return [.setTransferCount(state.transfercount + 1)]
+        case .captureCommand:
+            cameraManager.capturePhoto(getOrientationByAngle(state.angle))
+            return []
+        default:
+            return []
+        }
+    }
 }
 
 private extension CameraPreviewStore {
@@ -130,12 +150,6 @@ private extension CameraPreviewStore {
 
             self.browser.sendStreamData(framedData)
         }
-        // 촬영 명령 수신
-        browser.onCaptureCommand = {
-            self.cameraManager.capturePhoto(
-                self.getOrientationByAngle(self.state.angle)
-            )
-        }
         // 일괄 전송 시작 명령 수신
         browser.onStartTransferCommand
             .receive(on: DispatchQueue.main)
@@ -145,11 +159,6 @@ private extension CameraPreviewStore {
                 self.cameraManager.sendAllPhotos(using: self.browser)
             }
             .store(in: &cancellables)
-        // 장당 전송 완료
-        browser.onSendPhoto = { [weak self] in
-            guard let self else { return }
-            self.send(.setTransferCount(self.state.transfercount + 1))
-        }
 
         // 전송 완료
         cameraManager.onTransferCompleted = {
