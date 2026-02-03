@@ -57,13 +57,12 @@ final class Browser: NSObject {
     /// 현재 연결 시도 중인 리모트 디바이스 ID
     private var targetRemoteDeviceID: String?
 
+    /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
+    var isVideoSender: Bool {
+        UIDevice.current.userInterfaceIdiom == .phone
+    }
+
     let myDeviceName: String
-
-    var onDeviceFound: ((NearbyDevice) -> Void)?
-
-    var onDeviceLost: ((NearbyDevice) -> Void)?
-
-    var onDeviceConnected: ((NearbyDevice) -> Void)?
 
     /// 원격 모드 설정 명령 수신 콜백
     var onRemoteModeCommand: (() -> Void)?
@@ -74,11 +73,6 @@ final class Browser: NSObject {
     /// heartbeat 메시지 타임아웃
     var onHeartbeatTimeout: (() -> Void)?
     var onRemoteHeartbeatTimeout: (() -> Void)?
-
-    /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
-    var isVideoSender: Bool {
-        UIDevice.current.userInterfaceIdiom == .phone
-    }
 
     /// 기기 검색 및 연결 전용 이벤트 스트림
     let browsingEventStream: AsyncStream<BrowsingEvents>
@@ -398,7 +392,7 @@ extension Browser: MCSessionDelegate {
 
         switch state {
         case .connected:
-            onDeviceConnected?(device)
+            browsingEventContinuation.yield(.deviceConnected(device))
 
         case .notConnected:
             browsingEventContinuation.yield(.deviceConnectionFailed)
@@ -501,9 +495,7 @@ extension Browser: MCNearbyServiceBrowserDelegate {
             state: .notConnected,
             type: deviceType
         )
-        DispatchQueue.main.async {
-            self.onDeviceFound?(device)
-        }
+        browsingEventContinuation.yield(.deviceFound(device))
     }
 
     func browser(_ browser: MCNearbyServiceBrowser,
@@ -516,8 +508,6 @@ extension Browser: MCNearbyServiceBrowserDelegate {
             state: .notConnected,
             type: deviceType
         )
-        DispatchQueue.main.async {
-            self.onDeviceLost?(device)
-        }
+        browsingEventContinuation.yield(.deviceLost(device))
     }
 }
