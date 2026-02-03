@@ -18,6 +18,6 @@ extension Advertiser: HeartBeaterDelegate {
     }
 
     func onTimeout(_ sender: HeartBeater) {
-        rootContinuation.yield(.onHeartbeatTimeout)
+        streamManager.yieldRootEvent(.onHeartbeatTimeout)
     }
 }
