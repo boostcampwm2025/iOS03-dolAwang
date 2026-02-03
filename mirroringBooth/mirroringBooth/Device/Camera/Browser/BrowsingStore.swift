@@ -61,6 +61,7 @@ final class BrowsingStore: StoreProtocol {
     let browser: Browser
     let watchConnectionManager: WatchConnectionManager
     private var cancellables = Set<AnyCancellable>()
+    private var heartbeatTask: Task<Void, Never>?
 
     var eventStream: AsyncStream<BrowsingEvents> {
         browser.browsingEventStream
@@ -72,6 +73,11 @@ final class BrowsingStore: StoreProtocol {
 
         setupBrowser()
         setupWatchConnectionManager()
+        setupHeartbeatListener()
+    }
+
+    deinit {
+        heartbeatTask?.cancel()
     }
 
     private func setupBrowser() {
@@ -86,21 +92,6 @@ final class BrowsingStore: StoreProtocol {
                     self?.watchConnectionManager.sendDisconnectionNotification()
                 }
                 self?.reduce(.setRemoteDevice(nil))
-            }
-        }
-
-        // 미러링 기기 연결 끊긴 경우
-        browser.onHeartbeatTimeout = { [weak self] in
-            Task { @MainActor in
-                self?.reduce(.setMirroringDevice(nil))
-                self?.reduce(.setCurrentTarget(.mirroring))
-            }
-        }
-        // 리모트 기기 연결 끊긴 경우
-        browser.onRemoteHeartbeatTimeout = { [weak self] in
-            Task { @MainActor in
-                self?.reduce(.setRemoteDevice(nil))
-                self?.reduce(.setCurrentTarget(.remote))
             }
         }
     }
@@ -289,5 +280,25 @@ final class BrowsingStore: StoreProtocol {
         }
 
         self.state = state
+    }
+}
+
+extension BrowsingStore {
+    private func setupHeartbeatListener() {
+        heartbeatTask = Task { [weak self] in
+            guard let self else { return }
+            for await event in browser.browsingHeartbeatStream {
+                await MainActor.run {
+                    switch event {
+                    case .heartbeatTimeout:
+                        self.reduce(.setMirroringDevice(nil))
+                        self.reduce(.setCurrentTarget(.mirroring))
+                    case .remoteHeartbeatTimeout:
+                        self.reduce(.setRemoteDevice(nil))
+                        self.reduce(.setCurrentTarget(.remote))
+                    }
+                }
+            }
+        }
     }
 }
