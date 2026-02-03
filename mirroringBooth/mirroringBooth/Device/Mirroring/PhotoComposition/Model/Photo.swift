@@ -11,7 +11,7 @@ import Foundation
 struct Photo: Identifiable, Hashable {
     let id: UUID
     let url: URL
-    let selectNumber: Int?
+    var selectNumber: Int?
 
     var imageData: Data? {
         return try? Data(contentsOf: url)

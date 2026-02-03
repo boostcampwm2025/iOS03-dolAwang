@@ -61,7 +61,21 @@ final class PhotoCompositionStore: StoreProtocol {
             }
 
         case .selectLayout(let layout):
-            return [.setLayout(layout)]
+            let newCapacity = layout.capacity
+            let oldCapacity = state.selectedLayout.capacity
+            var results: [Result] = []
+            
+            // capacity가 줄어들고, 현재 선택된 이미지의 개수가 capacity를 초과하는 경우
+            if newCapacity < oldCapacity && state.currentSelectionCount > newCapacity {
+                for (index, photo) in state.photos.enumerated() {
+                    if let selectNumber = photo.selectNumber, selectNumber > newCapacity {
+                        results.append(.deselectPhoto(index))
+                    }
+                }
+                results.append(.setSelectionCount(newCapacity))
+            }
+            results.append(.setLayout(layout))
+            return results
 
         case .selectFrame(let frame):
             return [.setFrame(frame)]
@@ -76,57 +90,19 @@ final class PhotoCompositionStore: StoreProtocol {
             state.photos = photos
 
         case .selectPhoto(let index):
-            let photo = state.photos[index]
-            state.photos[index] = Photo(id: photo.id, url: photo.url, selectNumber: state.currentSelectionCount + 1)
+            state.photos[index].selectNumber = state.currentSelectionCount + 1
             state.selectedPhotos.append(state.photos[index])
 
         case .deselectPhoto(let index):
-            var copyState = self.state
-            guard let number = copyState.photos[index].selectNumber else { return }
-            copyState.photos[index] = Photo(
-                id: copyState.photos[index].id,
-                url: copyState.photos[index].url,
-                selectNumber: nil
-            )
-            copyState.selectedPhotos.remove(at: number - 1)
-            for (index, photo) in copyState.photos.enumerated() {
-                if let iterator = photo.selectNumber, iterator > number {
-                    copyState.photos[index] = Photo(
-                        id: photo.id,
-                        url: photo.url,
-                        selectNumber: iterator - 1
-                    )
-                }
+            guard let number = state.photos[index].selectNumber else { return }
+            state.photos[index].selectNumber = nil
+            state.selectedPhotos.remove(at: number - 1)
+            for index in state.photos.indices where state.photos[index].selectNumber ?? 0 > number {
+                state.photos[index].selectNumber? -= 1
             }
-            state = copyState
 
         case .setLayout(let layout):
-            var copyState = state
-            let newCapacity = layout.capacity
-            let oldCapacity = state.selectedLayout.capacity
-
-            // capacity가 줄어들고, 현재 선택된 이미지의 개수가 capacity를 초과하는 경우만 처리합니다.
-            if newCapacity < oldCapacity && copyState.currentSelectionCount > newCapacity {
-                // 초과된 사진 사진들의 selectNumber 제거
-                for index in 0 ..< copyState.photos.count {
-                    if let selectNumber = copyState.photos[index].selectNumber,
-                       selectNumber > newCapacity {
-                        copyState.photos[index] = Photo(
-                            id: copyState.photos[index].id,
-                            url: copyState.photos[index].url,
-                            selectNumber: nil
-                        )
-                    }
-                }
-
-                copyState.selectedPhotos = copyState.photos
-                    .filter { $0.selectNumber != nil }
-                    .sorted { ($0.selectNumber ?? 0) < ($1.selectNumber ?? 0) }
-
-                copyState.currentSelectionCount = copyState.selectedPhotos.count
-            }
-            copyState.selectedLayout = layout
-            state = copyState
+            state.selectedLayout = layout
 
         case .setFrame(let frame):
             state.selectedFrame = frame
