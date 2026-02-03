@@ -308,7 +308,9 @@ extension StreamingStore {
 extension StreamingStore {
     private func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.send(.tick)
+            Task { @MainActor [weak self] in
+                self?.send(.tick)
+            }
         }
     }
 

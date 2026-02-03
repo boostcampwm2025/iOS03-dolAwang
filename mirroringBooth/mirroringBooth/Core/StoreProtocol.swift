@@ -18,6 +18,7 @@ protocol StoreProtocol: AnyObject {
 }
 
 extension StoreProtocol {
+    @MainActor
     func send(_ intent: Intent) {
         let results = action(intent)
         for result in results {

@@ -59,8 +59,8 @@ final class WatchConnectionStore: StoreProtocol {
     func action(_ intent: Intent) -> [Result] {
         switch intent {
         case .tapRequestCapture:
-            Task {
-                await self.connectionManager.sendCaptureRequest()
+            Task { [weak self] in
+                await self?.connectionManager.sendCaptureRequest()
             }
         case .disconnect:
             self.connectionManager.stop()
