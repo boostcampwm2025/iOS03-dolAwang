@@ -133,6 +133,7 @@ final class StreamingStore: StoreProtocol {
                 self?.reduce(.videoFrameDecoded(sampleBuffer, rotationAngle))
             }
         }
+        startListening()
     }
 
     func action(_ intent: Intent) -> [Result] {
