@@ -40,13 +40,15 @@ final class RootStore: StoreProtocol {
         switch intent {
         case let .showTimeoutAlert(bool):
             return [.showTimeoutAlert(bool)]
+
         case .disconnect:
             advertiser?.disconnect()
             browser?.disconnect()
             advertiser = nil
             browser = nil
-            return []
         }
+
+        return []
     }
 
     func reduce(_ result: Result) {

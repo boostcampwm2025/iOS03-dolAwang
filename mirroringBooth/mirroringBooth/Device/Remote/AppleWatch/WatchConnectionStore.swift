@@ -73,11 +73,14 @@ final class WatchConnectionStore: StoreProtocol {
             Task { [weak self] in
                 await self?.connectionManager.sendCaptureRequest()
             }
+
         case .disconnect:
             self.connectionManager.stop()
             return [.setConnectionState(.notConnected)]
+
         case .startConnecting:
             self.connectionManager.start()
+
         case .isWaitingChanged(let isWaiting):
             return [.setIsWaiting(isWaiting)]
         }

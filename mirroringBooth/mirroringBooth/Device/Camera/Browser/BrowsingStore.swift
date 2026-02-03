@@ -132,29 +132,16 @@ final class BrowsingStore: StoreProtocol {
     }
 
     func action(_ intent: Intent) -> [Result] {
-        var result: [Result] = []
-
         switch intent {
         case .entry:
             browser.startSearching()
             watchConnectionManager.start()
-            result.append(.startAnimation)
-            if !browser.isMirroringSessionActive {
-                if let mirroringDevice = state.mirroringDevice {
-                    result.append(.setMirroringDevice(nil))
-                    result.append(.removeDiscoveredDevice(mirroringDevice))
-                }
-                result.append(.setCurrentTarget(.mirroring))
-            } else if !browser.isRemoteSessionActive {
-                if let remoteDevice = state.remoteDevice {
-                    result.append(.setRemoteDevice(nil))
-                    result.append(.removeDiscoveredDevice(remoteDevice))
-                }
-                result.append(.setCurrentTarget(.remote))
-            }
+            return [.startAnimation] + clearDevices()
+
         case .exit:
             browser.stopSearching()
             watchConnectionManager.stop()
+
         case .didSelect(let device):
             // 1. 현재 타겟에 맞는 연결된 기기 확인
             let currentDevice: NearbyDevice? = switch state.currentTarget {
@@ -170,7 +157,7 @@ final class BrowsingStore: StoreProtocol {
                     watchConnectionManager.sendConnectionRequest()
                 } else {
                     browser.connect(to: device.id, as: state.currentTarget)
-                    result.append(.setIsConnecting(true))
+                    return [.setIsConnecting(true)]
                 }
             }
 
@@ -183,30 +170,26 @@ final class BrowsingStore: StoreProtocol {
                 watchConnectionManager.sendDisconnectionNotification()
             }
 
-            result.append(.setMirroringDevice(nil))
-            result.append(.setRemoteDevice(nil))
-
-            // 2. 리모트 선택 중이었다면 미러링 선택 화면으로 이동
-            if state.currentTarget == .remote {
-                result.append(.setCurrentTarget(.mirroring))
-            }
+            return [.setMirroringDevice(nil), .setRemoteDevice(nil)]
+                       + (state.currentTarget == .remote ? [.setCurrentTarget(.mirroring)] : [])
 
         case .didChangeAppState(let state):
             watchConnectionManager.pushIOSAppState(state: state)
 
         case .setShowMirroringDisconnectedAlert(let value):
-            result.append(.setShowMirroringDisconnectedAlert(value))
+            return [.setShowMirroringDisconnectedAlert(value)]
 
         case .setShowToast(let value):
-            result.append(.setShowToast(value))
+            return [.setShowToast(value)]
 
         case .setShowTutorial(let value):
-            result.append(.setShowTutorial(value))
+            return [.setShowTutorial(value)]
 
         case .browserEvent(let event):
-            result.append(contentsOf: handleBrowserEvent(event))
+            return handleBrowserEvent(event)
         }
-        return result
+
+        return []
     }
 
     private func handleBrowserEvent(_ event: BrowsingEvents) -> [Result] {
@@ -282,6 +265,24 @@ final class BrowsingStore: StoreProtocol {
 }
 
 extension BrowsingStore {
+    func clearDevices() -> [Result] {
+        var results: [Result] = []
+        if !browser.isMirroringSessionActive {
+            if let mirroringDevice = state.mirroringDevice {
+                results.append(.setMirroringDevice(nil))
+                results.append(.removeDiscoveredDevice(mirroringDevice))
+            }
+            results.append(.setCurrentTarget(.mirroring))
+        } else if !browser.isRemoteSessionActive {
+            if let remoteDevice = state.remoteDevice {
+                results.append(.setRemoteDevice(nil))
+                results.append(.removeDiscoveredDevice(remoteDevice))
+            }
+            results.append(.setCurrentTarget(.remote))
+        }
+        return results
+    }
+
     private func setupHeartbeatListener() {
         heartbeatTask = Task { [weak self] in
             guard let self else { return }
