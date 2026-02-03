@@ -196,17 +196,21 @@ final class BrowsingStore: StoreProtocol {
         switch event {
         case .deviceConnectionFailed:
             return [.setIsConnecting(false)]
+
         case .deviceFound(let device):
             return [.addDiscoveredDevice(device)]
+
         case .deviceLost(let device):
             if device == state.mirroringDevice {
                 return [.removeDiscoveredDevice(device), .setCurrentTarget(.mirroring)]
             }
             return [.removeDiscoveredDevice(device)]
+
         case .deviceConnected(let device):
             switch state.currentTarget {
             case .mirroring:
                 return [.setMirroringDevice(device), .setCurrentTarget(.remote), .setIsConnecting(false)]
+
             case .remote:
                 return [.setRemoteDevice(device), .setIsConnecting(false)]
             }
@@ -256,7 +260,7 @@ final class BrowsingStore: StoreProtocol {
         case .setShowToast(let value):
             state.showToast = value
 
-        case let .setShowTutorial(bool):
+        case .setShowTutorial(let bool):
             state.showTutorial = bool
         }
 

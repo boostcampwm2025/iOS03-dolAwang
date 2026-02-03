@@ -72,15 +72,15 @@ final class PhotoCompositionStore: StoreProtocol {
         var state = self.state
 
         switch result {
-        case let .setPhotos(photos):
+        case .setPhotos(let photos):
             state.photos = photos
 
-        case let .selectPhoto(index):
+        case .selectPhoto(let index):
             let photo = state.photos[index]
             state.photos[index] = Photo(id: photo.id, url: photo.url, selectNumber: state.currentSelectionCount + 1)
             state.selectedPhotos.append(state.photos[index])
 
-        case let .deselectPhoto(index):
+        case .deselectPhoto(let index):
             var copyState = self.state
             guard let number = copyState.photos[index].selectNumber else { return }
             copyState.photos[index] = Photo(
@@ -130,7 +130,8 @@ final class PhotoCompositionStore: StoreProtocol {
 
         case .setFrame(let frame):
             state.selectedFrame = frame
-        case let .setSelectionCount(count):
+
+        case .setSelectionCount(let count):
             state.currentSelectionCount = count
         }
 
