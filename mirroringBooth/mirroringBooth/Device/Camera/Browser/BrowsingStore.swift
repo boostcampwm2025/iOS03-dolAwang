@@ -69,6 +69,7 @@ final class BrowsingStore: StoreProtocol {
 
     private(set) var state: State = .init()
     private var cancellables = Set<AnyCancellable>()
+    private var heartbeatTask: Task<Void, Never>?
 
     let browser: Browser
     let watchConnectionManager: WatchConnectionManager
@@ -83,6 +84,11 @@ final class BrowsingStore: StoreProtocol {
 
         setupBrowser()
         setupWatchConnectionManager()
+        setupHeartbeatListener()
+    }
+
+    deinit {
+        heartbeatTask?.cancel()
     }
 
     private func setupBrowser() {
@@ -97,21 +103,6 @@ final class BrowsingStore: StoreProtocol {
                     self?.watchConnectionManager.sendDisconnectionNotification()
                 }
                 self?.reduce(.setRemoteDevice(nil))
-            }
-        }
-
-        // 미러링 기기 연결 끊긴 경우
-        browser.onHeartbeatTimeout = { [weak self] in
-            Task { @MainActor in
-                self?.reduce(.setMirroringDevice(nil))
-                self?.reduce(.setCurrentTarget(.mirroring))
-            }
-        }
-        // 리모트 기기 연결 끊긴 경우
-        browser.onRemoteHeartbeatTimeout = { [weak self] in
-            Task { @MainActor in
-                self?.reduce(.setRemoteDevice(nil))
-                self?.reduce(.setCurrentTarget(.remote))
             }
         }
     }
@@ -291,22 +282,22 @@ final class BrowsingStore: StoreProtocol {
     }
 }
 
-private extension BrowsingStore {
-    func clearDevices() -> [Result] {
-        var results: [Result] = []
-        if !browser.isMirroringSessionActive {
-            if let mirroringDevice = state.mirroringDevice {
-                results.append(.setMirroringDevice(nil))
-                results.append(.removeDiscoveredDevice(mirroringDevice))
+extension BrowsingStore {
+    private func setupHeartbeatListener() {
+        heartbeatTask = Task { [weak self] in
+            guard let self else { return }
+            for await event in browser.browsingHeartbeatStream {
+                await MainActor.run {
+                    switch event {
+                    case .heartbeatTimeout:
+                        self.reduce(.setMirroringDevice(nil))
+                        self.reduce(.setCurrentTarget(.mirroring))
+                    case .remoteHeartbeatTimeout:
+                        self.reduce(.setRemoteDevice(nil))
+                        self.reduce(.setCurrentTarget(.remote))
+                    }
+                }
             }
-            results.append(.setCurrentTarget(.mirroring))
-        } else if !browser.isRemoteSessionActive {
-            if let remoteDevice = state.remoteDevice {
-                results.append(.setRemoteDevice(nil))
-                results.append(.removeDiscoveredDevice(remoteDevice))
-            }
-            results.append(.setCurrentTarget(.remote))
         }
-        return results
     }
 }
