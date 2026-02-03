@@ -296,7 +296,7 @@ extension StreamingStore {
         guard let advertiser else { return }
         streamingTask = Task { [weak self] in
             for await stream in advertiser.videoStream {
-                if case let .streamDataReceived(data) = stream {
+                if case .streamDataReceived(let data) = stream {
                     self?.decoder.decode(data)
                 }
             }
