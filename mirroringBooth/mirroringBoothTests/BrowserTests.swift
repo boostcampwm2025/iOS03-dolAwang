@@ -10,20 +10,16 @@ import MultipeerConnectivity
 @testable import mirroringBooth
 
 // MARK: - Browser Tests
-// 우선순위:
-// 1. 이벤트 스트림 방출 (browsingEventStream, cameraStreamEventStream) - 핵심 출력
-// 2. 명령 수신/처리 (executeCommand) - 핵심 입력
-// 3. 연결 상태 변경 - 세션 관리
-
+/// AI를 활용해 작성했습니다.
+@MainActor
 struct BrowserTests {
-
-    // MARK: - SUT Factory
-
-    /// System Under Test (SUT) 생성 헬퍼
-    /// 테스트에서 Browser 인스턴스와 관련 이벤트 수집기를 함께 생성
+    
     private func makeSUT() -> (browser: Browser, eventCollector: EventCollector) {
         let browser = Browser()
-        let collector = EventCollector(browser: browser)
+        let collector = EventCollector(
+            browsingStream: browser.browsingEventStream,
+            cameraStream: browser.cameraStreamEventStream
+        )
         return (browser, collector)
     }
 
@@ -32,7 +28,7 @@ struct BrowserTests {
     @Test func 주변_기기를_발견하면_deviceFound_이벤트가_발생한다() async {
         // GIVEN
         let (browser, collector) = makeSUT()
-        let testPeerID = MCPeerID(displayName: "TestPeer")
+        let testPeerID = MCPeerID(displayName: "몽이")
         let discoveryInfo = ["deviceType": "iPad"]
 
         await collector.startCollecting(streamType: .browsing)
@@ -51,17 +47,17 @@ struct BrowserTests {
             Issue.record("Expected .deviceFound event, got: \(String(describing: events.first))")
             return
         }
-        #expect(device.id == "TestPeer")
+        #expect(device.id == "몽이")
         #expect(device.type == .iPad)
     }
 
     @Test func 주변_기기가_사라지면_deviceLost_이벤트가_발생한다() async {
         // GIVEN
         let (browser, collector) = makeSUT()
-        let testPeerID = MCPeerID(displayName: "TestPeer")
+        let testPeerID = MCPeerID(displayName: "몽이")
         let discoveryInfo = ["deviceType": "iPad"]
 
-        // 먼저 기기 발견 시뮬레이션
+        // 기기 발견 시뮬레이션
         browser.browser(
             MCNearbyServiceBrowser(peer: testPeerID, serviceType: "mirroringbooth"),
             foundPeer: testPeerID,
@@ -84,14 +80,14 @@ struct BrowserTests {
             Issue.record("Expected .deviceLost event, got: \(String(describing: events.first))")
             return
         }
-        #expect(device.id == "TestPeer")
+        #expect(device.id == "몽이")
     }
 
     @Test func deviceType이_없는_기기는_발견_이벤트가_발생하지_않는다() async {
         // GIVEN
         let (browser, collector) = makeSUT()
-        let testPeerID = MCPeerID(displayName: "TestPeer")
-        let emptyDiscoveryInfo: [String: String] = [:]  // deviceType 없음
+        let testPeerID = MCPeerID(displayName: "몽이")
+        let emptyDiscoveryInfo: [String: String] = [:]  // deviceType 없는 상태
 
         await collector.startCollecting(streamType: .browsing)
 
@@ -126,16 +122,20 @@ struct BrowserTests {
         }
     }
 
-    // TODO: executeCommand는 현재 private이므로 리팩터링 후 BrowserCommandManager를 통해 명령 수신 테스트 진행 예정
-    // TODO: MCSession 의존성 주입이 필요하므로 리팩터링 후 연결 상태 변경(deviceConnected, deviceConnectionFailed) 테스트 진행 예정
-    // TODO: sendPhotoResource 완료 이벤트(.sendPhoto)는 실제 MCSession.sendResource 콜백이 필요하므로 리팩터링 후 테스트 진행 예정
+    // executeCommand는 현재 private이므로 리팩터링 후
+    // BrowserCommandManager를 통해 명령 수신 테스트 진행 예정입니다.
 
+    // MCSession 의존성 주입이 필요하므로 리팩터링 후
+    // 연결 상태 변경(deviceConnected, deviceConnectionFailed) 테스트 진행 예정입니다.
+
+    // sendPhotoResource 완료 이벤트(.sendPhoto)는
+    // 실제 MCSession.sendResource 콜백이 필요하므로 리팩터링 후 테스트 진행 예정
 
     // MARK: - 4. 명령 전송 (세션 없을 때 안전성)
 
     @Test func 세션이_없을때_sendCommand는_실패해도_크래시하지_않는다() async {
         // GIVEN
-        let browser = Browser()
+        let (browser, _) = makeSUT()
 
         // WHEN - mirroringCommandSession이 nil인 상태
         browser.sendCommand(.heartBeat)
@@ -146,7 +146,7 @@ struct BrowserTests {
 
     @Test func 세션이_없을때_sendRemoteCommand는_실패해도_크래시하지_않는다() async {
         // GIVEN
-        let browser = Browser()
+        let (browser, _) = makeSUT()
 
         // WHEN - remoteSession이 nil인 상태
         browser.sendRemoteCommand(.heartBeat)
@@ -157,7 +157,7 @@ struct BrowserTests {
 
     @Test func 세션이_없을때_sendStreamData는_실패해도_크래시하지_않는다() async {
         // GIVEN
-        let browser = Browser()
+        let (browser, _) = makeSUT()
         let testData = Data([0x01, 0x02, 0x03])
 
         // WHEN - mirroringSession이 nil인 상태
@@ -171,7 +171,7 @@ struct BrowserTests {
 
     @Test func startSearching_호출시_크래시하지_않는다() async {
         // GIVEN
-        let browser = Browser()
+        let (browser, _) = makeSUT()
 
         // WHEN
         browser.startSearching()
@@ -185,7 +185,7 @@ struct BrowserTests {
 
     @Test func disconnect_호출시_크래시하지_않는다() async {
         // GIVEN
-        let browser = Browser()
+        let (browser, _) = makeSUT()
 
         // WHEN
         browser.disconnect()
@@ -205,14 +205,19 @@ actor EventCollector {
         case cameraStream
     }
 
-    private let browser: Browser
+    private let browsingStream: AsyncStream<BrowsingEvents>
+    private let cameraStream: AsyncStream<CameraStreamEvents>
     private var browsingEvents: [BrowsingEvents] = []
     private var cameraStreamEvents: [CameraStreamEvents] = []
     private var browsingTask: Task<Void, Never>?
     private var cameraStreamTask: Task<Void, Never>?
 
-    init(browser: Browser) {
-        self.browser = browser
+    init(
+        browsingStream: AsyncStream<BrowsingEvents>,
+        cameraStream: AsyncStream<CameraStreamEvents>
+    ) {
+        self.browsingStream = browsingStream
+        self.cameraStream = cameraStream
     }
 
     deinit {
@@ -227,7 +232,7 @@ actor EventCollector {
             browsingTask = Task { [weak self] in
                 guard let self else { return }
                 var skipped = 0
-                for await event in browser.browsingEventStream {
+                for await event in browsingStream {
                     if skipped < skipFirst {
                         skipped += 1
                         continue
@@ -238,7 +243,7 @@ actor EventCollector {
         case .cameraStream:
             cameraStreamTask = Task { [weak self] in
                 guard let self else { return }
-                for await event in browser.cameraStreamEventStream {
+                for await event in cameraStream {
                     await self.appendCameraStreamEvent(event)
                 }
             }
