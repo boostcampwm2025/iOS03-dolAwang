@@ -16,12 +16,14 @@ struct StreamingStoreTests {
     // MARK: - Helper
 
     private func makeSUT(
-        isTimerMode: Bool = false
+        isTimerMode: Bool = false,
+        isPoseMode: Bool = false
     ) -> StreamingStore {
         StreamingStore(
             nil,
             decoder: H264Decoder(),
-            isTimerMode: isTimerMode
+            isTimerMode: isTimerMode,
+            isPoseMode: isPoseMode
         )
     }
 
@@ -36,7 +38,7 @@ struct StreamingStoreTests {
     @Test func 진입하면_스트리밍이_시작됨() {
         let store = makeSUT()
 
-        store.send(.entry(with: []))
+        store.send(.entry)
 
         #expect(store.state.isStreaming == true)
     }
@@ -44,42 +46,41 @@ struct StreamingStoreTests {
     @Test func 진입하면_다크모드로_설정됨() {
         let store = makeSUT()
 
-        store.send(.entry(with: []))
+        store.send(.entry)
 
         #expect(store.state.colorScheme == .dark)
     }
 
     @Test func 포즈_리스트와_함께_진입하면_포즈_제안_오버레이가_추가됨() {
-        let store = makeSUT()
+        let store = makeSUT(isPoseMode: true)
         let poses = makePoseList()
 
-        store.send(.entry(with: poses))
+        store.send(.entry)
 
         #expect(store.state.overlayPhase.contains(.poseSuggestion))
     }
 
     @Test func 포즈_리스트와_함께_진입하면_포즈가_저장됨() {
-        let store = makeSUT()
-        let poses = makePoseList(count: 5)
+        let store = makeSUT(isPoseMode: true)
 
-        store.send(.entry(with: poses))
+        store.send(.entry)
 
-        #expect(store.state.poseList.count == 5)
+        #expect(store.state.poseList.count == 10)
     }
 
     @Test func 빈_포즈_리스트로_진입하면_포즈_제안_오버레이가_없음() {
         let store = makeSUT()
 
-        store.send(.entry(with: []))
+        store.send(.entry)
 
         #expect(!store.state.overlayPhase.contains(.poseSuggestion))
     }
 
     @Test func 현재_제안_포즈는_최대_2개까지_표시됨() {
-        let store = makeSUT()
+        let store = makeSUT(isPoseMode: true)
         let poses = makePoseList(count: 5)
 
-        store.send(.entry(with: poses))
+        store.send(.entry)
 
         #expect(store.state.currentSuggestedPoses.count == 2)
     }
@@ -88,7 +89,7 @@ struct StreamingStoreTests {
 
     @Test func 퇴장하면_스트리밍이_중지됨() {
         let store = makeSUT()
-        store.send(.entry(with: []))
+        store.send(.entry)
 
         store.send(.exit)
 
@@ -97,7 +98,7 @@ struct StreamingStoreTests {
 
     @Test func 퇴장하면_설정이_초기화됨() {
         let store = makeSUT()
-        store.send(.entry(with: []))
+        store.send(.entry)
 
         store.send(.exit)
 
@@ -236,18 +237,17 @@ struct StreamingStoreTests {
     }
 
     @Test func 촬영_카운트_수신_시_포즈가_하나_제거됨() {
-        let store = makeSUT()
-        let poses = makePoseList(count: 3)
-        store.send(.entry(with: poses))
+        let store = makeSUT(isPoseMode: true)
+        store.send(.entry)
 
         store.send(.capturePhotoCount)
 
-        #expect(store.state.poseList.count == 2)
+        #expect(store.state.poseList.count == 9)
     }
 
     @Test func 포즈가_비어있을때_촬영_카운트_수신해도_크래시_안함() {
         let store = makeSUT()
-        store.send(.entry(with: []))
+        store.send(.entry)
 
         store.send(.capturePhotoCount)
 
