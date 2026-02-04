@@ -145,7 +145,7 @@ final class BrowsingStore: StoreProtocol {
         case .entry:
             browser.startSearching()
             watchConnectionManager.start()
-            return [.startAnimation]
+            return [.startAnimation] + cleanupConnectedDevices()
 
         case .exit:
             browser.stopSearching()
@@ -180,7 +180,6 @@ final class BrowsingStore: StoreProtocol {
             }
 
         case .cancel:
-            var results: [Result] = []
             // 1. 모든 연결 해제
             browser.disconnect()
 
@@ -189,20 +188,9 @@ final class BrowsingStore: StoreProtocol {
                 watchConnectionManager.sendDisconnectionNotification()
             }
 
-            if state.currentTarget == .remote {
-                results.append(.setCurrentTarget(.mirroring))
-            }
-
-            if let mirroringDevice = state.mirroringDevice {
-                results.append(.removeDiscoveredDevice(mirroringDevice))
-            }
-
-            if let remoteDevice = state.remoteDevice {
-                results.append(.removeDiscoveredDevice(remoteDevice))
-            }
-
             // 2. 리모트 선택 중이었다면 미러링 선택 화면으로 이동
-            return results + [.setMirroringDevice(nil), .setRemoteDevice(nil)]
+            return cleanupConnectedDevices()
+            + (state.currentTarget == .remote ? [.setCurrentTarget(.mirroring)] : [])
 
         case .didChangeAppState(let state):
             watchConnectionManager.pushIOSAppState(state: state)
@@ -220,32 +208,6 @@ final class BrowsingStore: StoreProtocol {
             return [.setIsMovingToNextStep(true)]
         }
         return []
-    }
-
-    private func handleBrowserEvent(_ event: BrowsingEvents) -> [Result] {
-        switch event {
-        case .deviceConnectionFailed:
-            return [.setIsConnecting(false)]
-        case .deviceFound(let device):
-            return [.addDiscoveredDevice(device)]
-        case .deviceLost(let device):
-            var results: [Result] = []
-            if device == state.mirroringDevice {
-                browser.disconnect(useType: .mirroring)
-                results.append(contentsOf: [.setCurrentTarget(.mirroring), .setMirroringDevice(nil)])
-            } else if device == state.remoteDevice {
-                browser.disconnect(useType: .remote)
-                results.append(.setRemoteDevice(nil))
-            }
-            return results + [.removeDiscoveredDevice(device)]
-        case .deviceConnected(let device):
-            switch state.currentTarget {
-            case .mirroring:
-                return [.setMirroringDevice(device), .setCurrentTarget(.remote), .setIsConnecting(false)]
-            case .remote:
-                return [.setRemoteDevice(device), .setIsConnecting(false)]
-            }
-        }
     }
 
     func reduce(_ result: Result) {
@@ -301,6 +263,45 @@ final class BrowsingStore: StoreProtocol {
 }
 
 extension BrowsingStore {
+    private func cleanupConnectedDevices() -> [Result] {
+        var results: [Result] = []
+
+        if let mirroringDevice = state.mirroringDevice {
+            results.append(contentsOf: [.removeDiscoveredDevice(mirroringDevice), .setMirroringDevice(nil)])
+        }
+
+        if let remoteDevice = state.remoteDevice {
+            results.append(contentsOf: [.removeDiscoveredDevice(remoteDevice), .setRemoteDevice(nil)])
+        }
+        return results
+    }
+
+    private func handleBrowserEvent(_ event: BrowsingEvents) -> [Result] {
+        switch event {
+        case .deviceConnectionFailed:
+            return [.setIsConnecting(false)]
+        case .deviceFound(let device):
+            return [.addDiscoveredDevice(device)]
+        case .deviceLost(let device):
+            var results: [Result] = []
+            if device == state.mirroringDevice {
+                browser.disconnect(useType: .mirroring)
+                results.append(contentsOf: [.setCurrentTarget(.mirroring), .setMirroringDevice(nil)])
+            } else if device == state.remoteDevice {
+                browser.disconnect(useType: .remote)
+                results.append(.setRemoteDevice(nil))
+            }
+            return results + [.removeDiscoveredDevice(device)]
+        case .deviceConnected(let device):
+            switch state.currentTarget {
+            case .mirroring:
+                return [.setMirroringDevice(device), .setCurrentTarget(.remote), .setIsConnecting(false)]
+            case .remote:
+                return [.setRemoteDevice(device), .setIsConnecting(false)]
+            }
+        }
+    }
+
     private func setupHeartbeatListener() {
         heartbeatTask = Task { [weak self] in
             guard let self else { return }
