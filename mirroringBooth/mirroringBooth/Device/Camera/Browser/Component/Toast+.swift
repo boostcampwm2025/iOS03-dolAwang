@@ -47,6 +47,7 @@ private struct ToastOverlayView: View {
                 .onDisappear {
                     dismissWorkItem?.cancel()
                     dismissWorkItem = nil
+                    isPresented = false
                 }
                 .transition(.identity)
         }
