@@ -29,6 +29,7 @@ final class Browser: NSObject {
         case navigateToHome
         case noticeIsRemoteDevice
         case heartBeat
+        case stopHeartBeat
     }
 
     enum SessionType: String {
@@ -465,7 +466,10 @@ extension Browser: MCSessionDelegate {
                 DispatchQueue.main.async {
                     self.onSelectedTimerModeCommand?()
                     self.sendRemoteCommand(.navigateToHome)
-                    self.disconnect(useType: .remote, onPurpose: true)
+                    self.sendRemoteCommand(.stopHeartBeat)
+                    Task {
+                        self.disconnect(useType: .remote, onPurpose: true)
+                    }
                 }
             case .heartBeat:
                 mirroringHeartBeater.beat()
