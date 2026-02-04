@@ -111,7 +111,8 @@ struct ResultView: View {
                 get: { store.state.showHomeAlert },
                 set: { store.send(.showHomeAlert($0)) }
             ),
-            message: "홈으로 돌아가시겠습니까?"
+            message: "사진을 저장하셨나요?",
+            cancelButtonText: "취소"
         ) {
             router.reset()
             rootStore.send(.disconnect)
