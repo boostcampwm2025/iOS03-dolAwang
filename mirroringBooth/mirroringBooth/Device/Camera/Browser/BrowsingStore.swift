@@ -30,6 +30,7 @@ final class BrowsingStore: StoreProtocol {
         var showToast: Bool = false
         var toastMessage: String = ""
         var showTutorial: Bool = false
+        var isMovingToNextStep: Bool = false
     }
 
     enum Intent {
@@ -49,6 +50,7 @@ final class BrowsingStore: StoreProtocol {
         case showToast(Bool, String = "")
         case showTutorial(Bool)
         case browserEvent(BrowsingEvents)
+        case prepareMoveToNextStep
     }
 
     enum Result {
@@ -65,6 +67,8 @@ final class BrowsingStore: StoreProtocol {
         case setShowMirroringDisconnectedAlert(Bool)
         case setShowToast(Bool, String)
         case setShowTutorial(Bool)
+
+        case setIsMovingToNextStep(Bool)
     }
 
     private(set) var state: State = .init()
@@ -150,6 +154,11 @@ final class BrowsingStore: StoreProtocol {
             browser.stopSearching()
             watchConnectionManager.stop()
 
+            // navigation의 뒤로가기 클릭 시
+            if !state.isMovingToNextStep {
+                browser.disconnect()
+            }
+
         case .didSelect(let device):
             // 1. 현재 타겟에 맞는 연결된 기기 확인
             let currentDevice: NearbyDevice? = switch state.currentTarget {
@@ -200,6 +209,9 @@ final class BrowsingStore: StoreProtocol {
 
         case .browserEvent(let event):
             return handleBrowserEvent(event)
+
+        case .prepareMoveToNextStep:
+            return [.setIsMovingToNextStep(true)]
         }
         return []
     }
@@ -271,6 +283,9 @@ final class BrowsingStore: StoreProtocol {
 
         case .setShowMirroringDisconnectedAlert(let bool):
             state.showMirroringDisconnectedAlert = bool
+
+        case .setIsMovingToNextStep(let bool):
+            state.isMovingToNextStep = bool
         }
 
         self.state = state

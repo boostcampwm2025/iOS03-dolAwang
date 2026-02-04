@@ -87,6 +87,7 @@ struct BrowsingView: View {
                 if store.state.currentTarget == .remote {
                     Button {
                         if let mirroringDevice = store.state.mirroringDevice {
+                            store.send(.prepareMoveToNextStep)
                             router.push(
                                 to: CameraRoute.connectionList(
                                     ConnectionList(
