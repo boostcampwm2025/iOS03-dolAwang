@@ -11,7 +11,7 @@ import OSLog
 
 /// 스트림 송신 측 (iPhone)
 /// 다른 기기를 탐색하고 연결하여 스트림 데이터(비디오/사진)를 전송
-final class Browser: NSObject {
+final class Browser: NSObject, BrowserCommandDelegate {
     enum MirroringDeviceCommand: String {
         case navigateToSelectModeWithRemote
         case navigateToSelectModeWithoutRemote
@@ -66,6 +66,7 @@ final class Browser: NSObject {
     // MARK: - Stream Manager
 
     let streamManager = BrowserStreamManager()
+    private let commandManager: BrowserCommandManager
 
     /// 기기 검색 및 연결 전용 이벤트 스트림
     var browsingEventStream: AsyncStream<BrowsingEvents> { streamManager.browsingEventStream }
@@ -88,8 +89,10 @@ final class Browser: NSObject {
         self.peerID = MCPeerID(displayName: myDeviceName)
         self.mirroringHeartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
         self.browsingManager = BrowsingManager(peerID: peerID, serviceType: serviceType, streamManager: streamManager)
+        self.commandManager = BrowserCommandManager(streamManager: streamManager)
 
         super.init()
+        commandManager.delegate = self
         mirroringHeartBeater.delegate = self
     }
 
@@ -389,45 +392,9 @@ extension Browser: MCSessionDelegate {
         fromPeer peerID: MCPeerID
     ) {
         if session === mirroringCommandSession || session === remoteSession {
-            executeCommand(data: data)
+            commandManager.execute(data: data)
         } else if session === mirroringSession {
             logger.info("스트림 세션에서 데이터 수신: \(data.count) bytes")
-        }
-    }
-
-    // MARK: - 명령 수신 처리
-
-    private func executeCommand(data: Data) {
-        guard let command = String(data: data, encoding: .utf8) else { return }
-        if let type = Advertiser.CameraDeviceCommand(rawValue: command) {
-            switch type {
-            case .capturePhoto:
-                DispatchQueue.main.async {
-                    self.capturePhoto()
-                }
-            case .startTransfer:
-                DispatchQueue.main.async {
-                    self.streamManager.yieldCameraStreamEvent(.startTransfer)
-                    self.sendRemoteCommand(.navigateToRemoteComplete)
-                }
-            case .setRemoteMode:
-                DispatchQueue.main.async {
-                    self.onRemoteModeCommand?()
-                    self.sendRemoteCommand(.navigateToRemoteCapture)
-                }
-            case .selectedTimerMode:
-                DispatchQueue.main.async {
-                    self.onSelectedTimerModeCommand?()
-                    self.sendRemoteCommand(.navigateToHome)
-                }
-            case .heartBeat:
-                mirroringHeartBeater.beat()
-            case .remoteHeartBeat:
-                remoteHeartBeater?.beat()
-            case .stopHeartBeat:
-                mirroringHeartBeater.stop()
-                remoteHeartBeater?.stop()
-            }
         }
     }
 
