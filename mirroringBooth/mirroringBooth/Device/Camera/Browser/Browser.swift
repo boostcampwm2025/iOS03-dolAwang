@@ -419,5 +419,4 @@ extension Browser: MCSessionDelegate {
         at localURL: URL?,
         withError error: (any Error)?
     ) {}
-
 }
