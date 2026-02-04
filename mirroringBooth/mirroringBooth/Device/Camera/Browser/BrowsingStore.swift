@@ -82,7 +82,6 @@ final class BrowsingStore: StoreProtocol {
         self.browser = browser
         self.watchConnectionManager = watchConnectionManager
 
-        setupBrowser()
         setupWatchConnectionManager()
         setupHeartbeatListener()
     }
@@ -91,7 +90,7 @@ final class BrowsingStore: StoreProtocol {
         heartbeatTask?.cancel()
     }
 
-    private func setupBrowser() {
+    private func setupWatchConnectionManager() {
         browser.onRemoteModeCommand = { [weak self] in
             self?.watchConnectionManager.prepareWatchToCapture()
         }
@@ -105,9 +104,7 @@ final class BrowsingStore: StoreProtocol {
                 self?.reduce(.setRemoteDevice(nil))
             }
         }
-    }
 
-    private func setupWatchConnectionManager() {
         watchConnectionManager.onReachableChanged = { [weak self] isReachable in
             Task { @MainActor in
                 let watchDevice = NearbyDevice(
