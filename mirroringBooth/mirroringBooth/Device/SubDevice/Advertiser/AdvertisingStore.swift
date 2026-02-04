@@ -23,6 +23,7 @@ final class AdvertisingStore: StoreProtocol {
         case exit
         case setShowTutorial(Bool)
         case connected
+        case disconnect
     }
 
     enum Result {
@@ -57,6 +58,9 @@ final class AdvertisingStore: StoreProtocol {
 
         case .setShowTutorial(let value):
             return [.setShowTutorial(value)]
+
+        case .disconnect:
+            advertiser.disconnect()
         }
 
         return []

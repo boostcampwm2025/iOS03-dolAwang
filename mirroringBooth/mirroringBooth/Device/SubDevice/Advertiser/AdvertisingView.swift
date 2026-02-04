@@ -21,6 +21,9 @@ struct AdvertisingView: View {
             Color.black.opacity(0.3)
                 .ignoresSafeArea()
                 .onTapGesture {
+                    if store.state.isConnected {
+                        store.send(.disconnect)
+                    }
                     router.reset()
                 }
 
