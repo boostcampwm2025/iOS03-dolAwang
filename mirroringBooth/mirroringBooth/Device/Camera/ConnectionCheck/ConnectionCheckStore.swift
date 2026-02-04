@@ -52,6 +52,8 @@ final class ConnectionCheckStore: StoreProtocol {
         Task { @MainActor in
             reduce(.setRemoteDevice(list.remoteName))
         }
+
+        setupHeartbeatListener()
     }
 
     deinit {
@@ -61,7 +63,6 @@ final class ConnectionCheckStore: StoreProtocol {
     func action(_ intent: Intent) -> [Result] {
         switch intent {
         case .entry:
-            setupHeartbeatListener()
             return []
 
         case .onReadyToCapture:
