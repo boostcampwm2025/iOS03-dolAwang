@@ -229,7 +229,9 @@ final class Browser: NSObject, BrowserCommandDelegate {
                 toPeers: connectedPeers,
                 with: .reliable
             )
-            logger.info("리모트 명령 전송 성공: \(command.rawValue)")
+            if command != .heartBeat {
+                logger.info("리모트 명령 전송 성공: \(command.rawValue)")
+            }
         } catch {
             logger.warning("리모트 명령 전송 실패: \(error.localizedDescription)")
         }
