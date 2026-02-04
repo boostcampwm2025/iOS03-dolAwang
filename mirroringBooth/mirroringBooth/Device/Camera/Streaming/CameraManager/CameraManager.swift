@@ -74,6 +74,7 @@ final class CameraManager: NSObject, CameraManageable {
 
     /// 사진을 촬영합니다.
     func capturePhoto(_ orientation: CameraOrientation) {
+        guard capturedPhotoURLs.count < 10 else { return }
         DispatchQueue.main.async {
             self.logger.info("capturePhoto() 호출됨 - 촬영 시작")
             // JPEG 포맷으로 사진 촬영
