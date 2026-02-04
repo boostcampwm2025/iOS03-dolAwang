@@ -10,7 +10,6 @@ import SwiftUI
 struct StreamingCompletionView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) private var rootStore
-    @State private var showHomeAlert: Bool = false
 
     var body: some View {
         VStack {

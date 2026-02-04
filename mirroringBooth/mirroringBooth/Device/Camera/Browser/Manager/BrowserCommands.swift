@@ -22,4 +22,5 @@ enum RemoteDeviceCommand: String {
     case navigateToHome
     case noticeIsRemoteDevice
     case heartBeat
+    case stopHeartBeat
 }
