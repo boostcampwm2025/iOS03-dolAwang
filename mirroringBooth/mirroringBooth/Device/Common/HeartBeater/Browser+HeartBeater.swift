@@ -17,13 +17,9 @@ extension Browser: HeartBeaterDelegate {
 
     func onTimeout(_ sender: HeartBeater) {
         if sender === mirroringHeartBeater {
-            browsingHeartbeatContinuation.yield(.heartbeatTimeout)
-            connectionCheckHeartbeatContinuation.yield(.heartbeatTimeout)
-            cameraPreviewHeartbeatContinuation.yield(.heartbeatTimeout)
+            streamManager.yieldHeartbeatTimeoutToAll()
         } else if sender === remoteHeartBeater {
-            browsingHeartbeatContinuation.yield(.remoteHeartbeatTimeout)
-            connectionCheckHeartbeatContinuation.yield(.remoteHeartbeatTimeout)
-            cameraPreviewHeartbeatContinuation.yield(.remoteHeartbeatTimeout)
+            streamManager.yieldRemoteHeartbeatTimeoutToAll()
         }
     }
 }
