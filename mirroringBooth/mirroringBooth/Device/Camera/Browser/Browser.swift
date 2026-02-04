@@ -306,14 +306,11 @@ extension Browser: MCSessionDelegate {
     }
 
     private func getSessionTypeLabel(for session: MCSession) -> String {
-        if session === mirroringSession {
-            return "미러링"
-        } else if session === mirroringCommandSession {
-            return "미러링 명령"
-        } else if session === remoteSession {
-            return "리모트"
-        } else {
-            return "알 수 없음"
+        switch session {
+        case mirroringSession: return "미러링"
+        case mirroringCommandSession: return "미러링 명령"
+        case remoteSession: return "리모트"
+        default: return "알 수 없음"
         }
     }
 
