@@ -152,14 +152,6 @@ struct BrowsingView: View {
             get: { store.state.showTutorial },
             set: { store.send(.showTutorial($0)) }
         ))
-        .homeAlert(
-            isPresented: Binding(
-                get: { store.state.showMirroringDisconnectedAlert },
-                set: { store.send(.showMirroringDisconnectedAlert($0)) }
-            ),
-            message: "미러링 기기 연결이 끊겼습니다. 다시 시도해 주세요.",
-            confirmButtonText: "확인"
-        )
         .toast(
             isPresented: Binding(
                 get: { store.state.showToast },
