@@ -196,7 +196,7 @@ struct BrowserTests {
         await collector.startCollecting(streamType: .cameraStream)
 
         // WHEN - Advertiser.CameraDeviceCommand.capturePhoto 명령 수신 시뮬레이션
-        let commandData = "capturePhoto".data(using: .utf8)!
+        let commandData = Data("capturePhoto".utf8)
         browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
 
         // THEN
@@ -217,7 +217,7 @@ struct BrowserTests {
         await collector.startCollecting(streamType: .cameraStream)
 
         // WHEN - Advertiser.CameraDeviceCommand.startTransfer 명령 수신 시뮬레이션
-        let commandData = "startTransfer".data(using: .utf8)!
+        let commandData = Data("startTransfer".utf8)
         browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
 
         // THEN
@@ -236,7 +236,7 @@ struct BrowserTests {
         let mockSession = MCSession(peer: testPeerID, securityIdentity: nil, encryptionPreference: .none)
 
         // WHEN - heartBeat 명령 수신 (크래시 없이 처리되면 성공)
-        let commandData = "heartBeat".data(using: .utf8)!
+        let commandData = Data("heartBeat".utf8)
         browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
 
         // THEN - 크래시 없이 처리되면 성공
@@ -250,7 +250,7 @@ struct BrowserTests {
         let mockSession = MCSession(peer: testPeerID, securityIdentity: nil, encryptionPreference: .none)
 
         // WHEN - 알 수 없는 명령 수신
-        let commandData = "unknownCommand".data(using: .utf8)!
+        let commandData = Data("unknownCommand".utf8)
         browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
 
         // THEN - 크래시 없이 처리되면 성공
