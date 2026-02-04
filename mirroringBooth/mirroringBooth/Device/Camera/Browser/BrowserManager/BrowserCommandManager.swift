@@ -9,7 +9,7 @@ import Foundation
 
 protocol BrowserCommandDelegate: AnyObject {
     func capturePhoto()
-    func sendRemoteCommand(_ command: Browser.RemoteDeviceCommand)
+    func sendRemoteCommand(_ command: RemoteDeviceCommand)
     var onRemoteModeCommand: (() -> Void)? { get }
     var onSelectedTimerModeCommand: (() -> Void)? { get }
     var mirroringHeartBeater: HeartBeater { get }
