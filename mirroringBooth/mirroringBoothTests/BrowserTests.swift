@@ -34,7 +34,7 @@ struct BrowserTests {
         await collector.startCollecting(streamType: .browsing)
 
         // WHEN
-        browser.browser(
+        browser.browsingManager.browser(
             MCNearbyServiceBrowser(peer: testPeerID, serviceType: "mirroringbooth"),
             foundPeer: testPeerID,
             withDiscoveryInfo: discoveryInfo
@@ -58,7 +58,7 @@ struct BrowserTests {
         let discoveryInfo = ["deviceType": "iPad"]
 
         // 기기 발견 시뮬레이션
-        browser.browser(
+        browser.browsingManager.browser(
             MCNearbyServiceBrowser(peer: testPeerID, serviceType: "mirroringbooth"),
             foundPeer: testPeerID,
             withDiscoveryInfo: discoveryInfo
@@ -68,7 +68,7 @@ struct BrowserTests {
         await collector.startCollecting(streamType: .browsing, skipFirst: 1)
 
         // WHEN
-        browser.browser(
+        browser.browsingManager.browser(
             MCNearbyServiceBrowser(peer: testPeerID, serviceType: "mirroringbooth"),
             lostPeer: testPeerID
         )
@@ -92,7 +92,7 @@ struct BrowserTests {
         await collector.startCollecting(streamType: .browsing)
 
         // WHEN
-        browser.browser(
+        browser.browsingManager.browser(
             MCNearbyServiceBrowser(peer: testPeerID, serviceType: "mirroringbooth"),
             foundPeer: testPeerID,
             withDiscoveryInfo: emptyDiscoveryInfo
