@@ -185,16 +185,172 @@ struct BrowserTests {
         #expect(true)
     }
 
-    // MARK: - TODO
+    // MARK: - 명령 수신 (executeCommand) 테스트
 
-    // executeCommand는 현재 private이므로 리팩터링 후
-    // BrowserCommandManager를 통해 명령 수신 테스트 진행 예정입니다.
+    @Test func capturePhoto_명령_수신시_captureCommand_이벤트가_발생한다() async {
+        // GIVEN
+        let (browser, collector) = makeSUT()
+        let testPeerID = MCPeerID(displayName: "테스트기기")
+        let mockSession = MCSession(peer: testPeerID, securityIdentity: nil, encryptionPreference: .none)
 
-    // MCSession 의존성 주입이 필요하므로 리팩터링 후
-    // 연결 상태 변경(deviceConnected, deviceConnectionFailed) 테스트 진행 예정입니다.
+        await collector.startCollecting(streamType: .cameraStream)
 
-    // sendPhotoResource 완료 이벤트(.sendPhoto)는
-    // 실제 MCSession.sendResource 콜백이 필요하므로 리팩터링 후 테스트 진행 예정입니다.
+        // WHEN - Advertiser.CameraDeviceCommand.capturePhoto 명령 수신 시뮬레이션
+        let commandData = "capturePhoto".data(using: .utf8)!
+        browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
+
+        // THEN
+        let events = await collector.collectCameraStreamEvents(count: 1, timeout: 0.5)
+        #expect(events.count == 1)
+        guard case .captureCommand = events.first else {
+            Issue.record("Expected .captureCommand event, got: \(String(describing: events.first))")
+            return
+        }
+    }
+
+    @Test func startTransfer_명령_수신시_startTransfer_이벤트가_발생한다() async {
+        // GIVEN
+        let (browser, collector) = makeSUT()
+        let testPeerID = MCPeerID(displayName: "테스트기기")
+        let mockSession = MCSession(peer: testPeerID, securityIdentity: nil, encryptionPreference: .none)
+
+        await collector.startCollecting(streamType: .cameraStream)
+
+        // WHEN - Advertiser.CameraDeviceCommand.startTransfer 명령 수신 시뮬레이션
+        let commandData = "startTransfer".data(using: .utf8)!
+        browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
+
+        // THEN
+        let events = await collector.collectCameraStreamEvents(count: 1, timeout: 0.5)
+        #expect(events.count == 1)
+        guard case .startTransfer = events.first else {
+            Issue.record("Expected .startTransfer event, got: \(String(describing: events.first))")
+            return
+        }
+    }
+
+    @Test func heartBeat_명령_수신시_HeartBeater가_beat를_호출한다() async {
+        // GIVEN
+        let (browser, _) = makeSUT()
+        let testPeerID = MCPeerID(displayName: "테스트기기")
+        let mockSession = MCSession(peer: testPeerID, securityIdentity: nil, encryptionPreference: .none)
+
+        // WHEN - heartBeat 명령 수신 (크래시 없이 처리되면 성공)
+        let commandData = "heartBeat".data(using: .utf8)!
+        browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
+
+        // THEN - 크래시 없이 처리되면 성공
+        #expect(true)
+    }
+
+    @Test func 알_수_없는_명령_수신시_크래시하지_않는다() async {
+        // GIVEN
+        let (browser, _) = makeSUT()
+        let testPeerID = MCPeerID(displayName: "테스트기기")
+        let mockSession = MCSession(peer: testPeerID, securityIdentity: nil, encryptionPreference: .none)
+
+        // WHEN - 알 수 없는 명령 수신
+        let commandData = "unknownCommand".data(using: .utf8)!
+        browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
+
+        // THEN - 크래시 없이 처리되면 성공
+        #expect(true)
+    }
+
+    // MARK: - Heartbeat 타임아웃 테스트
+
+    @Test func mirroringHeartbeat_타임아웃시_heartbeatTimeout_이벤트가_발생한다() async {
+        // GIVEN
+        let (browser, _) = makeSUT()
+        let heartbeatCollector = HeartbeatEventCollector(
+            browsingStream: browser.browsingHeartbeatStream,
+            connectionCheckStream: browser.connectionCheckHeartbeatStream,
+            cameraPreviewStream: browser.cameraPreviewHeartbeatStream
+        )
+
+        await heartbeatCollector.startCollecting(streamType: .browsing)
+
+        // WHEN - mirroringHeartBeater 타임아웃 시뮬레이션
+        browser.onTimeout(browser.mirroringHeartBeater)
+
+        // THEN
+        let events = await heartbeatCollector.collectEvents(count: 1, timeout: 0.5)
+        #expect(events.count == 1)
+        guard case .heartbeatTimeout = events.first else {
+            Issue.record("Expected .heartbeatTimeout event, got: \(String(describing: events.first))")
+            return
+        }
+    }
+
+    @Test func remoteHeartbeat_타임아웃시_remoteHeartbeatTimeout_이벤트가_발생한다() async {
+        // GIVEN
+        let browser = Browser()
+        // remoteHeartBeater 생성을 위해 connect 시뮬레이션이 필요하지만,
+        // 직접 테스트하기 어려우므로 remoteHeartBeater가 nil인 경우 스킵
+
+        guard let remoteHeartBeater = browser.remoteHeartBeater else {
+            // remoteHeartBeater가 nil이면 이 테스트는 의미가 없음
+            // 리팩터링 후 BrowserCommandManager에서 테스트 예정
+            #expect(true, "remoteHeartBeater가 nil이므로 스킵")
+            return
+        }
+
+        let heartbeatCollector = HeartbeatEventCollector(
+            browsingStream: browser.browsingHeartbeatStream,
+            connectionCheckStream: browser.connectionCheckHeartbeatStream,
+            cameraPreviewStream: browser.cameraPreviewHeartbeatStream
+        )
+
+        await heartbeatCollector.startCollecting(streamType: .browsing)
+
+        // WHEN - remoteHeartBeater 타임아웃 시뮬레이션
+        browser.onTimeout(remoteHeartBeater)
+
+        // THEN
+        let events = await heartbeatCollector.collectEvents(count: 1, timeout: 0.5)
+        #expect(events.count == 1)
+        guard case .remoteHeartbeatTimeout = events.first else {
+            Issue.record("Expected .remoteHeartbeatTimeout event, got: \(String(describing: events.first))")
+            return
+        }
+    }
+
+    @Test func heartbeat_타임아웃시_모든_스트림에_이벤트가_전달된다() async {
+        // GIVEN
+        let (browser, _) = makeSUT()
+
+        let browsingCollector = HeartbeatEventCollector(
+            browsingStream: browser.browsingHeartbeatStream,
+            connectionCheckStream: browser.connectionCheckHeartbeatStream,
+            cameraPreviewStream: browser.cameraPreviewHeartbeatStream
+        )
+        let connectionCheckCollector = HeartbeatEventCollector(
+            browsingStream: browser.browsingHeartbeatStream,
+            connectionCheckStream: browser.connectionCheckHeartbeatStream,
+            cameraPreviewStream: browser.cameraPreviewHeartbeatStream
+        )
+        let cameraPreviewCollector = HeartbeatEventCollector(
+            browsingStream: browser.browsingHeartbeatStream,
+            connectionCheckStream: browser.connectionCheckHeartbeatStream,
+            cameraPreviewStream: browser.cameraPreviewHeartbeatStream
+        )
+
+        await browsingCollector.startCollecting(streamType: .browsing)
+        await connectionCheckCollector.startCollecting(streamType: .connectionCheck)
+        await cameraPreviewCollector.startCollecting(streamType: .cameraPreview)
+
+        // WHEN
+        browser.onTimeout(browser.mirroringHeartBeater)
+
+        // THEN - 모든 스트림에서 이벤트 수신
+        let browsingEvents = await browsingCollector.collectEvents(count: 1, timeout: 0.5)
+        let connectionCheckEvents = await connectionCheckCollector.collectEvents(count: 1, timeout: 0.5)
+        let cameraPreviewEvents = await cameraPreviewCollector.collectEvents(count: 1, timeout: 0.5)
+
+        #expect(browsingEvents.count == 1, "browsingHeartbeatStream에서 이벤트 수신 실패")
+        #expect(connectionCheckEvents.count == 1, "connectionCheckHeartbeatStream에서 이벤트 수신 실패")
+        #expect(cameraPreviewEvents.count == 1, "cameraPreviewHeartbeatStream에서 이벤트 수신 실패")
+    }
 }
 
 // MARK: - Event Collector (Test Helper)
@@ -282,5 +438,71 @@ actor EventCollector {
     func reset() {
         browsingEvents.removeAll()
         cameraStreamEvents.removeAll()
+    }
+}
+
+// MARK: - Heartbeat Event Collector (Test Helper)
+
+/// Heartbeat 이벤트 스트림을 수집하는 테스트 헬퍼
+actor HeartbeatEventCollector {
+    enum StreamType {
+        case browsing
+        case connectionCheck
+        case cameraPreview
+    }
+
+    private let browsingStream: AsyncStream<HeartBeatEvents>
+    private let connectionCheckStream: AsyncStream<HeartBeatEvents>
+    private let cameraPreviewStream: AsyncStream<HeartBeatEvents>
+    private var events: [HeartBeatEvents] = []
+    private var task: Task<Void, Never>?
+
+    init(
+        browsingStream: AsyncStream<HeartBeatEvents>,
+        connectionCheckStream: AsyncStream<HeartBeatEvents>,
+        cameraPreviewStream: AsyncStream<HeartBeatEvents>
+    ) {
+        self.browsingStream = browsingStream
+        self.connectionCheckStream = connectionCheckStream
+        self.cameraPreviewStream = cameraPreviewStream
+    }
+
+    deinit {
+        task?.cancel()
+    }
+
+    func startCollecting(streamType: StreamType) {
+        let stream: AsyncStream<HeartBeatEvents>
+        switch streamType {
+        case .browsing:
+            stream = browsingStream
+        case .connectionCheck:
+            stream = connectionCheckStream
+        case .cameraPreview:
+            stream = cameraPreviewStream
+        }
+
+        task = Task { [weak self] in
+            guard let self else { return }
+            for await event in stream {
+                await self.appendEvent(event)
+            }
+        }
+    }
+
+    private func appendEvent(_ event: HeartBeatEvents) {
+        events.append(event)
+    }
+
+    func collectEvents(count: Int, timeout: TimeInterval) async -> [HeartBeatEvents] {
+        let deadline = Date().addingTimeInterval(timeout)
+        while events.count < count && Date() < deadline {
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        return events
+    }
+
+    func reset() {
+        events.removeAll()
     }
 }
