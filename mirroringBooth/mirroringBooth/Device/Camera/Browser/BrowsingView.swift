@@ -164,7 +164,9 @@ struct BrowsingView: View {
             isPresented: Binding(
                 get: { store.state.showToast },
                 set: { store.send(.showToast($0)) }
-        ), message: store.state.toastMessage)
+            ),
+            message: store.state.toastMessage
+        )
     }
 
     private func isDeviceSelected(_ device: NearbyDevice) -> DeviceUseType? {
