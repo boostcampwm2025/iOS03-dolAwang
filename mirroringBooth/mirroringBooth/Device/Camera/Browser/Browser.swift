@@ -57,11 +57,6 @@ final class Browser: NSObject {
     /// 현재 연결 시도 중인 리모트 디바이스 ID
     private var targetRemoteDeviceID: String?
 
-    /// 현재 기기가 비디오 송신 역할인지 여부 (iPhone만 송신)
-    var isVideoSender: Bool {
-        UIDevice.current.userInterfaceIdiom == .phone
-    }
-
     let myDeviceName: String
 
     /// 원격 모드 설정 명령 수신 콜백
