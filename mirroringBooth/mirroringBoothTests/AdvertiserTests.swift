@@ -105,11 +105,11 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN: 원격 포함 명령 수신
-        let commandWithRemote = Browser.MirroringDeviceCommand.navigateToSelectModeWithRemote.rawValue.data(using: .utf8)!
+        let commandWithRemote = MirroringDeviceCommand.navigateToSelectModeWithRemote.rawValue.data(using: .utf8)!
         await advertiser.session(session, didReceive: commandWithRemote, fromPeer: peerID)
 
         // WHEN: 원격 미포함 명령 수신
-        let commandWithoutRemote = Browser.MirroringDeviceCommand.navigateToSelectModeWithoutRemote.rawValue.data(using: .utf8)!
+        let commandWithoutRemote = MirroringDeviceCommand.navigateToSelectModeWithoutRemote.rawValue.data(using: .utf8)!
         await advertiser.session(session, didReceive: commandWithoutRemote, fromPeer: peerID)
 
         // THEN
@@ -133,7 +133,7 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN
-        let command = Browser.RemoteDeviceCommand.navigateToRemoteConnected.rawValue.data(using: .utf8)!
+        let command = RemoteDeviceCommand.navigateToRemoteConnected.rawValue.data(using: .utf8)!
         await advertiser.session(session, didReceive: command, fromPeer: peerID)
 
         // THEN
@@ -159,7 +159,7 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN
-        let command = Browser.MirroringDeviceCommand.switchSelectModeView.rawValue.data(using: .utf8)!
+        let command = MirroringDeviceCommand.switchSelectModeView.rawValue.data(using: .utf8)!
         await advertiser.session(session, didReceive: command, fromPeer: peerID)
 
         // THEN
@@ -190,11 +190,11 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN: Capture 명령
-        let commandCapture = Browser.RemoteDeviceCommand.navigateToRemoteCapture.rawValue.data(using: .utf8)!
+        let commandCapture = RemoteDeviceCommand.navigateToRemoteCapture.rawValue.data(using: .utf8)!
         await advertiser.session(session, didReceive: commandCapture, fromPeer: peerID)
 
         // WHEN: Home 명령
-        let commandHome = Browser.RemoteDeviceCommand.navigateToHome.rawValue.data(using: .utf8)!
+        let commandHome = RemoteDeviceCommand.navigateToHome.rawValue.data(using: .utf8)!
         await advertiser.session(session, didReceive: commandHome, fromPeer: peerID)
 
         // THEN
@@ -220,7 +220,7 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN
-        let command = Browser.RemoteDeviceCommand.navigateToRemoteComplete.rawValue.data(using: .utf8)!
+        let command = RemoteDeviceCommand.navigateToRemoteComplete.rawValue.data(using: .utf8)!
         await advertiser.session(session, didReceive: command, fromPeer: peerID)
 
         // THEN
@@ -253,13 +253,13 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN
-        let commandAllStored = Browser.MirroringDeviceCommand.onStoreAllPhotos.rawValue.data(using: .utf8)!
+        let commandAllStored = MirroringDeviceCommand.onStoreAllPhotos.rawValue.data(using: .utf8)!
         await advertiser.session(session, didReceive: commandAllStored, fromPeer: peerID)
 
-        let commandUpdateCount = Browser.MirroringDeviceCommand.onUpdateCaptureCount.rawValue.data(using: .utf8)!
+        let commandUpdateCount = MirroringDeviceCommand.onUpdateCaptureCount.rawValue.data(using: .utf8)!
         await advertiser.session(session, didReceive: commandUpdateCount, fromPeer: peerID)
 
-        let commandCaptureEffect = Browser.MirroringDeviceCommand.captureEffect.rawValue.data(using: .utf8)!
+        let commandCaptureEffect = MirroringDeviceCommand.captureEffect.rawValue.data(using: .utf8)!
         await advertiser.session(session, didReceive: commandCaptureEffect, fromPeer: peerID)
 
         // 사진 수신 시뮬레이션 (didFinishReceivingResource)

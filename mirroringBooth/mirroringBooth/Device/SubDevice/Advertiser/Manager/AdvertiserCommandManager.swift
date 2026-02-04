@@ -23,18 +23,18 @@ final class AdvertiserCommandManager {
     func execute(data: Data, advertiserType: inout DeviceUseType) {
         guard let commandString = String(data: data, encoding: .utf8) else { return }
 
-        if let mirroringDeviceCommand = Browser.MirroringDeviceCommand(rawValue: commandString) {
+        if let mirroringDeviceCommand = MirroringDeviceCommand(rawValue: commandString) {
             handleMirroringDeviceCommand(mirroringDeviceCommand)
             return
         }
 
-        if let remoteDeviceCommand = Browser.RemoteDeviceCommand(rawValue: commandString) {
+        if let remoteDeviceCommand = RemoteDeviceCommand(rawValue: commandString) {
             handleRemoteDeviceCommand(remoteDeviceCommand, advertiserType: &advertiserType)
             return
         }
     }
 
-    private func handleMirroringDeviceCommand(_ command: Browser.MirroringDeviceCommand) {
+    private func handleMirroringDeviceCommand(_ command: MirroringDeviceCommand) {
         switch command {
         case .navigateToSelectModeWithRemote:
             streamManager?.yieldAdvertising(.navigateToSelectModeCommand(true))
@@ -54,7 +54,7 @@ final class AdvertiserCommandManager {
     }
 
     private func handleRemoteDeviceCommand(
-        _ command: Browser.RemoteDeviceCommand,
+        _ command: RemoteDeviceCommand,
         advertiserType: inout DeviceUseType
     ) {
         switch command {

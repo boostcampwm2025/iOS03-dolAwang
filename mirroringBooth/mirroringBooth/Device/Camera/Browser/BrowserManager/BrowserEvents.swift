@@ -1,5 +1,5 @@
 //
-//  Browser.swift
+//  BrowsingEvents.swift
 //  mirroringBooth
 //
 //  Created by 윤대현 on 2026-02-02.
