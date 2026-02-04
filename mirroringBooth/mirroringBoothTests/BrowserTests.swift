@@ -120,6 +120,7 @@ struct BrowserTests {
             Issue.record("Expected .captureCommand event, got: \(String(describing: events.first))")
             return
         }
+        #expect(true, "captureCommand 이벤트 확인 완료")
     }
 
     // MARK: - 명령 전송
