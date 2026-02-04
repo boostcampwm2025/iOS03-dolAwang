@@ -39,7 +39,7 @@ final class BrowsingStore: StoreProtocol {
         case cancel
         case didChangeAppState(UIApplication.State)
         case setShowMirroringDisconnectedAlert(Bool)
-        case setShowToast(Bool)
+        case setShowToast(Bool, String = "")
         case setShowTutorial(Bool)
         case browserEvent(BrowsingEvents)
     }
@@ -53,7 +53,7 @@ final class BrowsingStore: StoreProtocol {
         case setCurrentTarget(DeviceUseType)
         case startAnimation
         case setShowMirroringDisconnectedAlert(Bool)
-        case setShowToast(Bool)
+        case setShowToast(Bool, String)
         case setShowTutorial(Bool)
     }
 
@@ -213,7 +213,11 @@ final class BrowsingStore: StoreProtocol {
             // 2. 연결된 기기와 다른 기기를 선택했을 경우 연결 요청 전송
             if currentDevice != device {
                 if device.type == .watch {
-                    watchConnectionManager.sendConnectionRequest()
+                    if state.currentTarget == .mirroring {
+                        return [.setShowToast(true, "Apple Watch는 리모트 기기로만 연결할 수 있습니다.")]
+                    } else {
+                        watchConnectionManager.sendConnectionRequest()
+                    }
                 } else {
                     browser.connect(to: device.id, as: state.currentTarget)
                     result.append(.setIsConnecting(true))
@@ -243,8 +247,8 @@ final class BrowsingStore: StoreProtocol {
         case .setShowMirroringDisconnectedAlert(let value):
             result.append(.setShowMirroringDisconnectedAlert(value))
 
-        case .setShowToast(let value):
-            result.append(.setShowToast(value))
+        case .setShowToast(let value, let message):
+            result.append(.setShowToast(value, message))
 
         case .setShowTutorial(let value):
             result.append(.setShowTutorial(value))
@@ -306,7 +310,8 @@ final class BrowsingStore: StoreProtocol {
         case .setShowMirroringDisconnectedAlert(let alert):
             state.showMirroringDisconnectedAlert = alert
 
-        case .setShowToast(let value):
+        case .setShowToast(let value, let message):
+            state.toastMessage = message
             state.showToast = value
 
         case let .setShowTutorial(bool):
