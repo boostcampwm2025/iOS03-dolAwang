@@ -243,20 +243,25 @@ struct BrowserTests {
         // GIVEN
         let (browser, _) = makeSUT()
 
+        // 스트림을 먼저 한 번씩만 가져옴 (connectionCheckHeartbeatStream은 접근할 때마다 새 스트림 생성)
+        let browsingStream = browser.browsingHeartbeatStream
+        let connectionCheckStream = browser.connectionCheckHeartbeatStream
+        let cameraPreviewStream = browser.cameraPreviewHeartbeatStream
+
         let browsingCollector = HeartbeatEventCollector(
-            browsingStream: browser.browsingHeartbeatStream,
-            connectionCheckStream: browser.connectionCheckHeartbeatStream,
-            cameraPreviewStream: browser.cameraPreviewHeartbeatStream
+            browsingStream: browsingStream,
+            connectionCheckStream: connectionCheckStream,
+            cameraPreviewStream: cameraPreviewStream
         )
         let connectionCheckCollector = HeartbeatEventCollector(
-            browsingStream: browser.browsingHeartbeatStream,
-            connectionCheckStream: browser.connectionCheckHeartbeatStream,
-            cameraPreviewStream: browser.cameraPreviewHeartbeatStream
+            browsingStream: browsingStream,
+            connectionCheckStream: connectionCheckStream,
+            cameraPreviewStream: cameraPreviewStream
         )
         let cameraPreviewCollector = HeartbeatEventCollector(
-            browsingStream: browser.browsingHeartbeatStream,
-            connectionCheckStream: browser.connectionCheckHeartbeatStream,
-            cameraPreviewStream: browser.cameraPreviewHeartbeatStream
+            browsingStream: browsingStream,
+            connectionCheckStream: connectionCheckStream,
+            cameraPreviewStream: cameraPreviewStream
         )
 
         await browsingCollector.startCollecting(streamType: .browsing)
