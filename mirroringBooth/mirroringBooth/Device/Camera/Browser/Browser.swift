@@ -259,6 +259,7 @@ final class Browser: NSObject, BrowserCommandDelegate {
             remoteSession = nil
             targetRemoteDeviceID = nil
             remoteHeartBeater?.stop()
+            remoteHeartBeater = nil
             logger.info("리모트 연결 해제")
         }
     }
