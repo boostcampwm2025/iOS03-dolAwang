@@ -216,7 +216,7 @@ struct BrowserTests {
 
         await collector.startCollecting(streamType: .cameraStream)
 
-        // WHEN - Advertiser.CameraDeviceCommand.startTransfer 명령 수신 시뮬레이션
+        // WHEN - Advertiser.CameraDeviceCommand.startTransfer 명령 수신을 시뮬레이션 합니다.
         let commandData = Data("startTransfer".utf8)
         browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
 
@@ -278,39 +278,6 @@ struct BrowserTests {
         #expect(events.count == 1)
         guard case .heartbeatTimeout = events.first else {
             Issue.record("Expected .heartbeatTimeout event, got: \(String(describing: events.first))")
-            return
-        }
-    }
-
-    @Test func remoteHeartbeat_타임아웃시_remoteHeartbeatTimeout_이벤트가_발생한다() async {
-        // GIVEN
-        let browser = Browser()
-        // remoteHeartBeater 생성을 위해 connect 시뮬레이션이 필요하지만,
-        // 직접 테스트하기 어려우므로 remoteHeartBeater가 nil인 경우 스킵
-
-        guard let remoteHeartBeater = browser.remoteHeartBeater else {
-            // remoteHeartBeater가 nil이면 이 테스트는 의미가 없음
-            // 리팩터링 후 BrowserCommandManager에서 테스트 예정
-            #expect(true, "remoteHeartBeater가 nil이므로 스킵")
-            return
-        }
-
-        let heartbeatCollector = HeartbeatEventCollector(
-            browsingStream: browser.browsingHeartbeatStream,
-            connectionCheckStream: browser.connectionCheckHeartbeatStream,
-            cameraPreviewStream: browser.cameraPreviewHeartbeatStream
-        )
-
-        await heartbeatCollector.startCollecting(streamType: .browsing)
-
-        // WHEN - remoteHeartBeater 타임아웃 시뮬레이션
-        browser.onTimeout(remoteHeartBeater)
-
-        // THEN
-        let events = await heartbeatCollector.collectEvents(count: 1, timeout: 0.5)
-        #expect(events.count == 1)
-        guard case .remoteHeartbeatTimeout = events.first else {
-            Issue.record("Expected .remoteHeartbeatTimeout event, got: \(String(describing: events.first))")
             return
         }
     }
@@ -441,7 +408,7 @@ actor EventCollector {
     }
 }
 
-// MARK: - Heartbeat Event Collector (Test Helper)
+// MARK: - Heartbeat Event Collector
 
 /// Heartbeat 이벤트 스트림을 수집하는 테스트 헬퍼
 actor HeartbeatEventCollector {
