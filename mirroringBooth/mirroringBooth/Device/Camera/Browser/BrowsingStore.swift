@@ -180,6 +180,7 @@ final class BrowsingStore: StoreProtocol {
             }
 
         case .cancel:
+            var results: [Result] = []
             // 1. 모든 연결 해제
             browser.disconnect()
 
@@ -188,9 +189,20 @@ final class BrowsingStore: StoreProtocol {
                 watchConnectionManager.sendDisconnectionNotification()
             }
 
+            if state.currentTarget == .remote {
+                results.append(.setCurrentTarget(.mirroring))
+            }
+
+            if let mirroringDevice = state.mirroringDevice {
+                results.append(.removeDiscoveredDevice(mirroringDevice))
+            }
+
+            if let remoteDevice = state.remoteDevice {
+                results.append(.removeDiscoveredDevice(remoteDevice))
+            }
+
             // 2. 리모트 선택 중이었다면 미러링 선택 화면으로 이동
-            return [.setMirroringDevice(nil), .setRemoteDevice(nil)]
-            + (state.currentTarget == .remote ? [.setCurrentTarget(.mirroring)] : [])
+            return results + [.setMirroringDevice(nil), .setRemoteDevice(nil)]
 
         case .didChangeAppState(let state):
             watchConnectionManager.pushIOSAppState(state: state)
