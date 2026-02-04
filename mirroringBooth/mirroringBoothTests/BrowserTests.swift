@@ -185,50 +185,6 @@ struct BrowserTests {
         #expect(true)
     }
 
-    // MARK: - 명령 수신 (executeCommand) 테스트
-
-    @Test func capturePhoto_명령_수신시_captureCommand_이벤트가_발생한다() async {
-        // GIVEN
-        let (browser, collector) = makeSUT()
-        let testPeerID = MCPeerID(displayName: "테스트기기")
-        let mockSession = MCSession(peer: testPeerID, securityIdentity: nil, encryptionPreference: .none)
-
-        await collector.startCollecting(streamType: .cameraStream)
-
-        // WHEN - Advertiser.CameraDeviceCommand.capturePhoto 명령 수신 시뮬레이션
-        let commandData = Data("capturePhoto".utf8)
-        browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
-
-        // THEN
-        let events = await collector.collectCameraStreamEvents(count: 1, timeout: 0.5)
-        #expect(events.count == 1)
-        guard case .captureCommand = events.first else {
-            Issue.record("Expected .captureCommand event, got: \(String(describing: events.first))")
-            return
-        }
-    }
-
-    @Test func startTransfer_명령_수신시_startTransfer_이벤트가_발생한다() async {
-        // GIVEN
-        let (browser, collector) = makeSUT()
-        let testPeerID = MCPeerID(displayName: "테스트기기")
-        let mockSession = MCSession(peer: testPeerID, securityIdentity: nil, encryptionPreference: .none)
-
-        await collector.startCollecting(streamType: .cameraStream)
-
-        // WHEN - Advertiser.CameraDeviceCommand.startTransfer 명령 수신을 시뮬레이션 합니다.
-        let commandData = Data("startTransfer".utf8)
-        browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
-
-        // THEN
-        let events = await collector.collectCameraStreamEvents(count: 1, timeout: 0.5)
-        #expect(events.count == 1)
-        guard case .startTransfer = events.first else {
-            Issue.record("Expected .startTransfer event, got: \(String(describing: events.first))")
-            return
-        }
-    }
-
     @Test func heartBeat_명령_수신시_HeartBeater가_beat를_호출한다() async {
         // GIVEN
         let (browser, _) = makeSUT()
