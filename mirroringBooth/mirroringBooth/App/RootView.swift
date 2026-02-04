@@ -38,7 +38,8 @@ struct RootView: View {
                     case .timerOrRemoteSelection(let isRemoteEnable):
                         ModeSelectionView(
                             for: .timerOrRemote,
-                            flag: isRemoteEnable
+                            flag: isRemoteEnable,
+                            advertiser: store.advertiser
                         )
                         .task {
                             guard let advertiser = store.advertiser else { return }
