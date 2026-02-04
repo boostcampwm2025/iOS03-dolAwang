@@ -55,6 +55,9 @@ final class BrowserCommandManager {
         case .remoteHeartBeat:
             delegate?.remoteHeartBeater?.beat()
         case .stopHeartBeat:
+            DispatchQueue.main.async { [weak self] in
+                self?.delegate?.sendRemoteCommand(.stopHeartBeat)
+            }
             delegate?.mirroringHeartBeater.stop()
             delegate?.remoteHeartBeater?.stop()
         }

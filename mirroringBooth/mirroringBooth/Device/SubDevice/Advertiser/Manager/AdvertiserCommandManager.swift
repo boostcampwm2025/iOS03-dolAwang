@@ -71,6 +71,8 @@ final class AdvertiserCommandManager {
             heartBeater?.start()
         case .heartBeat:
             heartBeater?.beat()
+        case .stopHeartBeat:
+            heartBeater?.stop()
         }
     }
 
