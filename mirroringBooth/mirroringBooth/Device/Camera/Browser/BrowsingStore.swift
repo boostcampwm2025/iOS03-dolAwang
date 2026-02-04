@@ -26,7 +26,6 @@ final class BrowsingStore: StoreProtocol {
             }
         }
         var animationTrigger: Bool = false
-        var showMirroringDisconnectedAlert: Bool = false
         var showToast: Bool = false
         var toastMessage: String = ""
         var showTutorial: Bool = false
@@ -46,7 +45,6 @@ final class BrowsingStore: StoreProtocol {
         case didChangeAppState(UIApplication.State)
 
         // 기타
-        case showMirroringDisconnectedAlert(Bool)
         case showToast(Bool, String = "")
         case showTutorial(Bool)
         case browserEvent(BrowsingEvents)
@@ -64,7 +62,6 @@ final class BrowsingStore: StoreProtocol {
         case setCurrentTarget(DeviceUseType)
 
         case startAnimation
-        case setShowMirroringDisconnectedAlert(Bool)
         case setShowToast(Bool, String)
         case setShowTutorial(Bool)
 
@@ -198,9 +195,6 @@ final class BrowsingStore: StoreProtocol {
         case .didChangeAppState(let state):
             watchConnectionManager.pushIOSAppState(state: state)
 
-        case .showMirroringDisconnectedAlert(let value):
-            return [.setShowMirroringDisconnectedAlert(value)]
-
         case .showToast(let value, let message):
             return [.setShowToast(value, message)]
 
@@ -272,9 +266,6 @@ final class BrowsingStore: StoreProtocol {
 
         case .setCurrentTarget(let target):
             state.currentTarget = target
-            if self.state.currentTarget == .remote, target == .mirroring {
-                state.showMirroringDisconnectedAlert = true
-            }
 
         case .startAnimation:
             state.animationTrigger = true
