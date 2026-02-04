@@ -208,41 +208,30 @@ final class Browser: NSObject {
     }
 
     /// 미러링 세션에 연결된 피어에게 사진 리소스를 전송합니다.
-    func sendPhotoResource(_ data: Data) {
+    func sendPhotoResource(at fileURL: URL) {
         guard let mirroringSession else { return }
         guard let mirroringPeer = mirroringSession.connectedPeers.first else {
             logger.warning("사진 전송 실패: 미러링 세션에 연결된 피어가 없습니다.")
             return
         }
 
-        let photoID = UUID()
-        let fileName = "\(photoID.uuidString).jpg"
+        let fileName = fileURL.lastPathComponent
+        logger.info("사진 전송 시작: \(fileName)")
 
-        // 임시 파일 생성
-        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-
-        do {
-            try data.write(to: tempURL)
-            logger.info("사진 전송 시작: \(fileName) (\(data.count) bytes)")
-
-            mirroringSession.sendResource(
-                at: tempURL,
-                withName: fileName,
-                toPeer: mirroringPeer
-            ) { error in
-                if let error {
-                    self.logger.warning("사진 전송 실패 : \(error.localizedDescription)")
-                } else {
-                    self.cameraStreamEventContinuation.yield(.sendPhoto)
-                    self.logger.info("사진 전송 완료: \(fileName)")
-                }
-
-                // 전송 완료 후 임시 파일 삭제
-                try? FileManager.default.removeItem(at: tempURL)
+        mirroringSession.sendResource(
+            at: fileURL,
+            withName: fileName,
+            toPeer: mirroringPeer
+        ) { error in
+            if let error {
+                self.logger.warning("사진 전송 실패 : \(error.localizedDescription)")
+            } else {
+                self.cameraStreamEventContinuation.yield(.sendPhoto)
+                self.logger.info("사진 전송 완료: \(fileName)")
             }
 
-        } catch {
-            logger.warning("임시 파일 생성 실패 : \(error.localizedDescription)")
+            // 전송 완료 후 임시 파일 삭제
+            try? FileManager.default.removeItem(at: fileURL)
         }
     }
 

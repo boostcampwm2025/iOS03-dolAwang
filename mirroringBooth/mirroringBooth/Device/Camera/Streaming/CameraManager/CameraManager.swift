@@ -32,17 +32,14 @@ final class CameraManager: NSObject, CameraManageable {
         set { encoder.onEncodedData = newValue }
     }
 
-    /// 촬영된 이미지 데이터 콜백
-    var onCapturedPhoto: ((Data) -> Void)?
-
     /// 전송 완료 콜백
     var onTransferCompleted: (() -> Void)?
 
     /// 10장 저장 완료 콜백 (타이머 모드에서 10장 모두 저장되면 호출)
-    var onAllPhotosStored: ((Int) -> Void)?
+    var onAllPhotosStored: (() -> Void)?
 
-    // 촬영된 이미지 임시 저장 배열
-    private var capturedPhotos: [Data] = []
+    // 촬영된 이미지 임시 파일 URL 배열
+    private var capturedPhotoURLs: [URL] = []
 
     // 현재 전송 진행 상황
     var transferProgress: (current: Int, total: Int) = (0, 0)
@@ -98,7 +95,7 @@ final class CameraManager: NSObject, CameraManageable {
 
     /// 저장된 사진을 일괄 전송합니다.
     func sendAllPhotos(using browser: Browser) {
-        let total = capturedPhotos.count
+        let total = capturedPhotoURLs.count
         guard total > 0 else {
             logger.warning("전송할 사진이 없습니다.")
             return
@@ -108,16 +105,16 @@ final class CameraManager: NSObject, CameraManageable {
         logger.info("일괄 전송 시작: \(total)장")
 
         Task { @MainActor in
-            for (index, photoData) in capturedPhotos.enumerated() {
-                browser.sendPhotoResource(photoData)
+            for (index, photoURL) in capturedPhotoURLs.enumerated() {
+                browser.sendPhotoResource(at: photoURL)
 
                 transferProgress = (index + 1, total)
 
                 try? await Task.sleep(nanoseconds: 100_000_000) // 0.1초 짧게 대기
             }
 
-            // 전송 완료 처리
-            capturedPhotos.removeAll()
+            // 전송 완료 처리 (임시 파일 삭제는 Browser에서 전송 완료 후 처리)
+            capturedPhotoURLs.removeAll()
             transferProgress = (0, 0)
             logger.info("일괄 전송 완료")
             onTransferCompleted?()
@@ -297,19 +294,27 @@ extension CameraManager: AVCapturePhotoCaptureDelegate {
         }
     }
 
-    /// 촬영된 사진 데이터를 저장하고 콜백을 호출합니다.
+    /// 촬영된 사진 데이터를 임시 파일로 저장하고 콜백을 호출합니다.
     private func storePhotoData(_ photoData: Data) {
-        DispatchQueue.main.async {
-            self.capturedPhotos.append(photoData)
-            let storedCount = self.capturedPhotos.count
+        // 임시 파일로 저장 
+        let fileName = "\(UUID().uuidString).jpg"
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
 
-            // 수동 촬영 버튼용 콜백
-            // self.onCapturedPhoto?(photoData)
+        do {
+            try photoData.write(to: tempURL)
+            logger.info("사진 임시 저장 완료: \(fileName) (\(photoData.count) bytes)")
 
-            // 10장 모두 저장되면 콜백 호출
-            if storedCount == 10 {
-                self.onAllPhotosStored?(storedCount)
+            DispatchQueue.main.async {
+                self.capturedPhotoURLs.append(tempURL)
+                let storedCount = self.capturedPhotoURLs.count
+
+                // 10장 모두 저장되면 콜백 호출
+                if storedCount == 10 {
+                    self.onAllPhotosStored?()
+                }
             }
+        } catch {
+            logger.warning("사진 임시 파일 저장 실패: \(error.localizedDescription)")
         }
     }
 

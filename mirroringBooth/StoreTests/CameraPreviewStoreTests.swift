@@ -14,7 +14,7 @@ final class MockCameraManager: CameraManageable {
     var rawData: ((CMSampleBuffer) -> Void)?
     var onEncodedData: ((Data) -> Void)?
     var onTransferCompleted: (() -> Void)?
-    var onAllPhotosStored: ((Int) -> Void)?
+    var onAllPhotosStored: (() -> Void)?
 
     private(set) var startSessionCallCount = 0
     private(set) var stopSessionCallCount = 0
