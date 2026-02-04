@@ -223,10 +223,15 @@ final class BrowsingStore: StoreProtocol {
         case .deviceFound(let device):
             return [.addDiscoveredDevice(device)]
         case .deviceLost(let device):
+            var results: [Result] = []
             if device == state.mirroringDevice {
-                return [.removeDiscoveredDevice(device), .setCurrentTarget(.mirroring)]
+                browser.disconnect(useType: .mirroring)
+                results.append(contentsOf: [.setCurrentTarget(.mirroring), .setMirroringDevice(nil)])
+            } else if device == state.remoteDevice {
+                browser.disconnect(useType: .remote)
+                results.append(.setRemoteDevice(nil))
             }
-            return [.removeDiscoveredDevice(device)]
+            return results + [.removeDiscoveredDevice(device)]
         case .deviceConnected(let device):
             switch state.currentTarget {
             case .mirroring:
