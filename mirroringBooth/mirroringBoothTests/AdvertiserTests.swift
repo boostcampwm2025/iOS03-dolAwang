@@ -253,7 +253,7 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN
-        let commandAllStored = Browser.MirroringDeviceCommand.allPhotosStored.rawValue.data(using: .utf8)!
+        let commandAllStored = Browser.MirroringDeviceCommand.onStoreAllPhotos.rawValue.data(using: .utf8)!
         await advertiser.session(session, didReceive: commandAllStored, fromPeer: peerID)
 
         let commandUpdateCount = Browser.MirroringDeviceCommand.onUpdateCaptureCount.rawValue.data(using: .utf8)!
