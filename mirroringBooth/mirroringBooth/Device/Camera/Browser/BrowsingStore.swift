@@ -144,7 +144,7 @@ final class BrowsingStore: StoreProtocol {
         case .entry:
             browser.startSearching()
             watchConnectionManager.start()
-            return [.startAnimation] + clearDevices()
+            return [.startAnimation]
 
         case .exit:
             browser.stopSearching()
