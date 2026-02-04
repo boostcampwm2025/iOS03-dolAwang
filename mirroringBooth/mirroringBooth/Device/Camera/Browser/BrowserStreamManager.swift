@@ -26,15 +26,15 @@ final class BrowserStreamManager {
 
     /// BrowsingStore 전용 Heartbeat 스트림
     let browsingHeartbeatStream: AsyncStream<HeartBeatEvents>
-    let browsingHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
+    private let browsingHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
 
     /// ConnectionCheckStore 전용 Heartbeat 스트림
     let connectionCheckHeartbeatStream: AsyncStream<HeartBeatEvents>
-    let connectionCheckHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
+    private let connectionCheckHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
 
     /// CameraPreviewStore 전용 Heartbeat 스트림
     let cameraPreviewHeartbeatStream: AsyncStream<HeartBeatEvents>
-    let cameraPreviewHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
+    private let cameraPreviewHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
 
     init() {
         (self.browsingEventStream, self.browsingEventContinuation) = AsyncStream.makeStream(
