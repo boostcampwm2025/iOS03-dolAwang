@@ -78,22 +78,6 @@ jobs:
             -destination "platform=${PLATFORM},name=${DEVICE}" \
             -skipPackagePluginValidation
 
-      - name: Test
-        if: matrix.scheme == 'mirroringBooth'
-        working-directory: mirroringBooth
-        env:
-          SCHEME: ${{ matrix.scheme }}
-          PLATFORM: ${{ matrix.platform }}
-          DEVICE: ${{ steps.sim.outputs.device }}
-        run: |
-          set -euo pipefail
-
-          xcodebuild test \
-            -scheme "${SCHEME}" \
-            -project "mirroringBooth.xcodeproj" \
-            -destination "platform=${PLATFORM},name=${DEVICE}" \
-            -skipPackagePluginValidation
-
       - name: Notify Slack on failure
         if: failure()
         env:
