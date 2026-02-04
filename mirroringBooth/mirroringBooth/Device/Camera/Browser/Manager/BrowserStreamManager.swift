@@ -12,9 +12,15 @@ final class BrowserStreamManager {
 
     // MARK: - Browsing
 
-    /// 기기 검색 및 연결 전용 이벤트 스트림
-    let browsingEventStream: AsyncStream<BrowsingEvents>
-    private let browsingEventContinuation: AsyncStream<BrowsingEvents>.Continuation
+    /// 기기 검색 및 연결 전용 이벤트 스트림 (매번 새 스트림 생성)
+    var browsingEventStream: AsyncStream<BrowsingEvents> {
+        // 이전 구독 종료
+        browsingEventContinuation?.finish()
+        let (stream, continuation) = AsyncStream.makeStream(of: BrowsingEvents.self)
+        browsingEventContinuation = continuation
+        return stream
+    }
+    private var browsingEventContinuation: AsyncStream<BrowsingEvents>.Continuation?
 
     // MARK: - Camera Stream
 
@@ -29,29 +35,28 @@ final class BrowserStreamManager {
     private let browsingHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
 
     /// ConnectionCheckStore 전용 Heartbeat 스트림
-    let connectionCheckHeartbeatStream: AsyncStream<HeartBeatEvents>
-    private let connectionCheckHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
+    var connectionCheckHeartbeatStream: AsyncStream<HeartBeatEvents> {
+        connectionCheckHeartbeatContinuation?.finish()
+        let (stream, continuation) = AsyncStream.makeStream(
+            of: HeartBeatEvents.self,
+            bufferingPolicy: .bufferingNewest(1)
+        )
+        connectionCheckHeartbeatContinuation = continuation
+        return stream
+    }
+    private var connectionCheckHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation?
 
     /// CameraPreviewStore 전용 Heartbeat 스트림
     let cameraPreviewHeartbeatStream: AsyncStream<HeartBeatEvents>
     private let cameraPreviewHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
 
     init() {
-        (self.browsingEventStream, self.browsingEventContinuation) = AsyncStream.makeStream(
-            of: BrowsingEvents.self
-        )
-
         (self.cameraStreamEventStream, self.cameraStreamEventContinuation) = AsyncStream.makeStream(
             of: CameraStreamEvents.self,
             bufferingPolicy: .bufferingNewest(1)
         )
 
         (self.browsingHeartbeatStream, self.browsingHeartbeatContinuation) = AsyncStream.makeStream(
-            of: HeartBeatEvents.self,
-            bufferingPolicy: .bufferingNewest(1)
-        )
-
-        (self.connectionCheckHeartbeatStream, self.connectionCheckHeartbeatContinuation) = AsyncStream.makeStream(
             of: HeartBeatEvents.self,
             bufferingPolicy: .bufferingNewest(1)
         )
@@ -63,7 +68,7 @@ final class BrowserStreamManager {
     }
 
     func yieldBrowsingEvent(_ event: BrowsingEvents) {
-        browsingEventContinuation.yield(event)
+        browsingEventContinuation?.yield(event)
     }
 
     func yieldCameraStreamEvent(_ event: CameraStreamEvents) {
@@ -72,13 +77,13 @@ final class BrowserStreamManager {
 
     func yieldHeartbeatTimeoutToAll() {
         browsingHeartbeatContinuation.yield(.heartbeatTimeout)
-        connectionCheckHeartbeatContinuation.yield(.heartbeatTimeout)
+        connectionCheckHeartbeatContinuation?.yield(.heartbeatTimeout)
         cameraPreviewHeartbeatContinuation.yield(.heartbeatTimeout)
     }
 
     func yieldRemoteHeartbeatTimeoutToAll() {
         browsingHeartbeatContinuation.yield(.remoteHeartbeatTimeout)
-        connectionCheckHeartbeatContinuation.yield(.remoteHeartbeatTimeout)
+        connectionCheckHeartbeatContinuation?.yield(.remoteHeartbeatTimeout)
         cameraPreviewHeartbeatContinuation.yield(.remoteHeartbeatTimeout)
     }
 }
