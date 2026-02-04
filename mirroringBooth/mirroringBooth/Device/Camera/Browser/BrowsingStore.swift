@@ -91,61 +91,12 @@ final class BrowsingStore: StoreProtocol {
         heartbeatTask?.cancel()
     }
 
-    private func setupWatchConnectionManager() {
-        browser.onRemoteModeCommand = { [weak self] in
-            self?.watchConnectionManager.prepareWatchToCapture()
-        }
-
-        browser.onSelectedTimerModeCommand = { [weak self] in
-            Task { @MainActor in
-                // 리모트 기기가 워치인 경우 워치에게 연결 해제 알림
-                if self?.state.remoteDevice?.type == .watch {
-                    self?.watchConnectionManager.sendDisconnectionNotification()
-                }
-                self?.reduce(.setRemoteDevice(nil))
-            }
-        }
-
-        watchConnectionManager.onReachableChanged = { [weak self] isReachable in
-            Task { @MainActor in
-                let watchDevice = NearbyDevice(
-                    id: "나의 Apple Watch",
-                    state: .notConnected,
-                    type: .watch
-                )
-                if isReachable {
-                    self?.reduce(.addDiscoveredDevice(watchDevice))
-                } else {
-                    self?.reduce(.removeDiscoveredDevice(watchDevice))
-                    if self?.state.remoteDevice?.type == .watch {
-                        self?.reduce(.setRemoteDevice(nil))
-                    }
-                }
-            }
-        }
-
-        watchConnectionManager.onReceiveCaptureRequest = { [ weak self] in
-            self?.browser.capturePhoto()
-        }
-
-        watchConnectionManager.onReceiveConnectionAck = { [weak self] in
-            Task { @MainActor in
-                let watchDevice = NearbyDevice(
-                    id: "나의 Apple Watch",
-                    state: .connected,
-                    type: .watch
-                )
-                self?.reduce(.setRemoteDevice(watchDevice))
-            }
-        }
-    }
-
     func action(_ intent: Intent) -> [Result] {
         switch intent {
         case .entry:
             browser.startSearching()
             watchConnectionManager.start()
-            return [.startAnimation] + cleanupConnectedDevices()
+            return [.startAnimation]
 
         case .exit:
             browser.stopSearching()
@@ -309,13 +260,63 @@ extension BrowsingStore {
                 await MainActor.run {
                     switch event {
                     case .heartbeatTimeout:
-                        self.reduce(.setMirroringDevice(nil))
+                        self.cleanupConnectedDevices().forEach { self.reduce($0) }
                         self.reduce(.setCurrentTarget(.mirroring))
                     case .remoteHeartbeatTimeout:
+                        self.cleanupConnectedDevices().forEach { self.reduce($0) }
                         self.reduce(.setRemoteDevice(nil))
                         self.reduce(.setCurrentTarget(.remote))
                     }
                 }
+            }
+        }
+    }
+
+    private func setupWatchConnectionManager() {
+        browser.onRemoteModeCommand = { [weak self] in
+            self?.watchConnectionManager.prepareWatchToCapture()
+        }
+
+        browser.onSelectedTimerModeCommand = { [weak self] in
+            Task { @MainActor in
+                // 리모트 기기가 워치인 경우 워치에게 연결 해제 알림
+                if self?.state.remoteDevice?.type == .watch {
+                    self?.watchConnectionManager.sendDisconnectionNotification()
+                }
+                self?.reduce(.setRemoteDevice(nil))
+            }
+        }
+
+        watchConnectionManager.onReachableChanged = { [weak self] isReachable in
+            Task { @MainActor in
+                let watchDevice = NearbyDevice(
+                    id: "나의 Apple Watch",
+                    state: .notConnected,
+                    type: .watch
+                )
+                if isReachable {
+                    self?.reduce(.addDiscoveredDevice(watchDevice))
+                } else {
+                    self?.reduce(.removeDiscoveredDevice(watchDevice))
+                    if self?.state.remoteDevice?.type == .watch {
+                        self?.reduce(.setRemoteDevice(nil))
+                    }
+                }
+            }
+        }
+
+        watchConnectionManager.onReceiveCaptureRequest = { [ weak self] in
+            self?.browser.capturePhoto()
+        }
+
+        watchConnectionManager.onReceiveConnectionAck = { [weak self] in
+            Task { @MainActor in
+                let watchDevice = NearbyDevice(
+                    id: "나의 Apple Watch",
+                    state: .connected,
+                    type: .watch
+                )
+                self?.reduce(.setRemoteDevice(watchDevice))
             }
         }
     }
