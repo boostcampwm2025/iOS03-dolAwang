@@ -152,7 +152,7 @@ private extension CameraPreviewStore {
         }
 
         // 10장 모두 저장 완료 시 미러링기기에 알림 전송
-        cameraManager.onAllPhotosStored = { [weak self] _ in
+        cameraManager.onAllPhotosStored = { [weak self] in
             Task { @MainActor in
                 self?.browser.sendCommand(.onStoreAllPhotos)
                 self?.reduce(.captureCompleted)

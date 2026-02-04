@@ -11,7 +11,7 @@ protocol CameraManageable: AnyObject {
     var rawData: ((CMSampleBuffer) -> Void)? { get set }
     var onEncodedData: ((Data) -> Void)? { get set }
     var onTransferCompleted: (() -> Void)? { get set }
-    var onAllPhotosStored: ((Int) -> Void)? { get set }
+    var onAllPhotosStored: (() -> Void)? { get set }
 
     func startSession()
     func stopSession()
