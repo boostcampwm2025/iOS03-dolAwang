@@ -142,7 +142,7 @@ private extension CameraPreviewStore {
             framedData.append(data)
 
             self.browser.sendStreamData(framedData)
-        }   
+        }
 
         // 전송 완료
         cameraManager.onTransferCompleted = { [weak self] in
@@ -154,7 +154,7 @@ private extension CameraPreviewStore {
         // 10장 모두 저장 완료 시 미러링기기에 알림 전송
         cameraManager.onAllPhotosStored = { [weak self] _ in
             Task { @MainActor in
-                self?.browser.sendCommand(.allPhotosStored)
+                self?.browser.sendCommand(.onStoreAllPhotos)
                 self?.reduce(.captureCompleted)
                 self?.reduce(.setTransferCount(0))
             }

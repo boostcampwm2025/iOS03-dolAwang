@@ -28,8 +28,5 @@ struct RemoteCaptureView: View {
                 }
             }
         }
-        .task {
-            
-        }
     }
 }
