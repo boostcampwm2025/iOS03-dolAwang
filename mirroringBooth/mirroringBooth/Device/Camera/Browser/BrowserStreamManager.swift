@@ -7,8 +7,7 @@
 
 import Foundation
 
-/// Browser의 모든 AsyncStream과 Continuation을 관리하는 매니저
-/// 이벤트 발행(yield)과 스트림 접근을 담당합니다.
+/// Browser의 Stream과 Continuation을 관리하는 매니저
 final class BrowserStreamManager {
 
     // MARK: - Browsing
@@ -36,7 +35,6 @@ final class BrowserStreamManager {
     /// CameraPreviewStore 전용 Heartbeat 스트림
     let cameraPreviewHeartbeatStream: AsyncStream<HeartBeatEvents>
     let cameraPreviewHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
-
 
     init() {
         (self.browsingEventStream, self.browsingEventContinuation) = AsyncStream.makeStream(
