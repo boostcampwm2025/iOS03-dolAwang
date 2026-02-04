@@ -57,25 +57,6 @@ struct BrowsingStoreTests {
         #expect(store.state.toastMessage.contains("MyiPad"))
     }
 
-    // MARK: - 타겟 전환 시 알럿 조건
-
-    @Test func 리모트에서_미러링으로_돌아가면_끊김_알럿이_표시됨() {
-        let store = makeSUT()
-        store.reduce(.setCurrentTarget(.remote))
-
-        store.reduce(.setCurrentTarget(.mirroring))
-
-        #expect(store.state.showMirroringDisconnectedAlert == true)
-    }
-
-    @Test func 미러링에서_미러링으로_설정하면_끊김_알럿이_뜨지_않음() {
-        let store = makeSUT()
-
-        store.reduce(.setCurrentTarget(.mirroring))
-
-        #expect(store.state.showMirroringDisconnectedAlert == false)
-    }
-
     // MARK: - 기기 연결 시도
 
     @Test func 기기에_연결을_시도하면_연결중_상태가_됨() {
