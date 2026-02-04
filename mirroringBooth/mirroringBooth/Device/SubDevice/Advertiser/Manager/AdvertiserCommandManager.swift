@@ -42,8 +42,8 @@ final class AdvertiserCommandManager {
             streamManager?.yieldAdvertising(.navigateToSelectModeCommand(false))
         case .switchSelectModeView:
             streamManager?.yieldModeSelection(.switchModeSelectionView)
-        case .allPhotosStored:
-            streamManager?.yieldStreamingStore(.onAllPhotosStored)
+        case .onStoreAllPhotos:
+            streamManager?.yieldStreamingStore(.onStoreAllPhotos)
         case .onUpdateCaptureCount:
             streamManager?.yieldStreamingStore(.onUpdateCaptureCount)
         case .heartBeat:

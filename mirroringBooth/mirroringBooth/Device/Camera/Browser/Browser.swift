@@ -16,7 +16,7 @@ final class Browser: NSObject {
         case navigateToSelectModeWithRemote
         case navigateToSelectModeWithoutRemote
         case switchSelectModeView
-        case allPhotosStored // 사진 10장 모두 저장 완료
+        case onStoreAllPhotos // 사진 10장 저장 시작 명령(from camera)
         case onUpdateCaptureCount   //  리모트 기기에서 카메라 캡처 요청 보내기
         case heartBeat
         case captureEffect
