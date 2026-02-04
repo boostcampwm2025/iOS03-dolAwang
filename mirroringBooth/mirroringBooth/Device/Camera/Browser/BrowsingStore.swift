@@ -260,10 +260,16 @@ extension BrowsingStore {
                 await MainActor.run {
                     switch event {
                     case .heartbeatTimeout:
-                        self.cleanupConnectedDevices().forEach { self.reduce($0) }
+                        if let mirroringDevice = self.state.mirroringDevice {
+                            self.reduce(.removeDiscoveredDevice(mirroringDevice))
+                            self.reduce(.setMirroringDevice(nil))
+                        }
                         self.reduce(.setCurrentTarget(.mirroring))
                     case .remoteHeartbeatTimeout:
-                        self.cleanupConnectedDevices().forEach { self.reduce($0) }
+                        if let remoteDevice = self.state.remoteDevice {
+                            self.reduce(.removeDiscoveredDevice(remoteDevice))
+                            self.reduce(.setMirroringDevice(nil))
+                        }
                         self.reduce(.setRemoteDevice(nil))
                         self.reduce(.setCurrentTarget(.remote))
                     }
