@@ -65,25 +65,24 @@ final class Browser: NSObject {
     /// 타이머 모드 선택 명령 수신 콜백
     var onSelectedTimerModeCommand: (() -> Void)?
 
+    // MARK: - Stream Manager
+
+    let streamManager = BrowserStreamManager()
+
     /// 기기 검색 및 연결 전용 이벤트 스트림
-    let browsingEventStream: AsyncStream<BrowsingEvents>
-    private let browsingEventContinuation: AsyncStream<BrowsingEvents>.Continuation
+    var browsingEventStream: AsyncStream<BrowsingEvents> { streamManager.browsingEventStream }
 
     /// 카메라 촬영 및 전송 전용 이벤트 스트림
-    let cameraStreamEventStream: AsyncStream<CameraStreamEvents>
-    private let cameraStreamEventContinuation: AsyncStream<CameraStreamEvents>.Continuation
+    var cameraStreamEventStream: AsyncStream<CameraStreamEvents> { streamManager.cameraStreamEventStream }
 
     /// BrowsingStore 전용 Heartbeat 스트림
-    let browsingHeartbeatStream: AsyncStream<HeartBeatEvents>
-    let browsingHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
+    var browsingHeartbeatStream: AsyncStream<HeartBeatEvents> { streamManager.browsingHeartbeatStream }
 
     /// ConnectionCheckStore 전용 Heartbeat 스트림
-    let connectionCheckHeartbeatStream: AsyncStream<HeartBeatEvents>
-    let connectionCheckHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
+    var connectionCheckHeartbeatStream: AsyncStream<HeartBeatEvents> { streamManager.connectionCheckHeartbeatStream }
 
     /// CameraPreviewStore 전용 Heartbeat 스트림
-    let cameraPreviewHeartbeatStream: AsyncStream<HeartBeatEvents>
-    let cameraPreviewHeartbeatContinuation: AsyncStream<HeartBeatEvents>.Continuation
+    var cameraPreviewHeartbeatStream: AsyncStream<HeartBeatEvents> { streamManager.cameraPreviewHeartbeatStream }
 
     init(serviceType: String = "mirroringbooth") {
         self.serviceType = serviceType
@@ -91,30 +90,6 @@ final class Browser: NSObject {
         self.peerID = MCPeerID(displayName: myDeviceName)
         self.browser = MCNearbyServiceBrowser(peer: peerID, serviceType: serviceType)
         self.mirroringHeartBeater = HeartBeater(repeatInterval: 1.0, timeout: 2.5)
-
-        (self.browsingEventStream, self.browsingEventContinuation) = AsyncStream.makeStream(
-            of: BrowsingEvents.self
-        )
-
-        (self.cameraStreamEventStream, self.cameraStreamEventContinuation) = AsyncStream.makeStream(
-            of: CameraStreamEvents.self,
-            bufferingPolicy: .bufferingNewest(1)
-        )
-
-        (self.browsingHeartbeatStream, self.browsingHeartbeatContinuation) = AsyncStream.makeStream(
-            of: HeartBeatEvents.self,
-            bufferingPolicy: .bufferingNewest(1)
-        )
-
-        (self.connectionCheckHeartbeatStream, self.connectionCheckHeartbeatContinuation) = AsyncStream.makeStream(
-            of: HeartBeatEvents.self,
-            bufferingPolicy: .bufferingNewest(1)
-        )
-
-        (self.cameraPreviewHeartbeatStream, self.cameraPreviewHeartbeatContinuation) = AsyncStream.makeStream(
-            of: HeartBeatEvents.self,
-            bufferingPolicy: .bufferingNewest(1)
-        )
 
         super.init()
         browser.delegate = self
@@ -186,7 +161,7 @@ final class Browser: NSObject {
 
     /// 카메라 캡쳐 액션을 실행합니다.
     func capturePhoto() {
-        cameraStreamEventContinuation.yield(.captureCommand)
+        streamManager.yieldCameraStreamEvent(.captureCommand)
         self.sendCommand(.onUpdateCaptureCount)
         self.sendCommand(.captureEffect)
     }
@@ -400,10 +375,10 @@ extension Browser: MCSessionDelegate {
 
         switch state {
         case .connected:
-            browsingEventContinuation.yield(.deviceConnected(device))
+            streamManager.yieldBrowsingEvent(.deviceConnected(device))
 
         case .notConnected:
-            browsingEventContinuation.yield(.deviceConnectionFailed)
+            streamManager.yieldBrowsingEvent(.deviceConnectionFailed)
             if isMirroringTarget || isMirroringCommandTarget {
                 targetMirroringDeviceID = nil
             }
@@ -439,7 +414,7 @@ extension Browser: MCSessionDelegate {
                 }
             case .startTransfer:
                 DispatchQueue.main.async {
-                    self.cameraStreamEventContinuation.yield(.startTransfer)
+                    self.streamManager.yieldCameraStreamEvent(.startTransfer)
                     self.sendRemoteCommand(.navigateToRemoteComplete)
                 }
             case .setRemoteMode:
@@ -503,7 +478,7 @@ extension Browser: MCNearbyServiceBrowserDelegate {
             state: .notConnected,
             type: deviceType
         )
-        browsingEventContinuation.yield(.deviceFound(device))
+        streamManager.yieldBrowsingEvent(.deviceFound(device))
     }
 
     func browser(_ browser: MCNearbyServiceBrowser,
@@ -516,6 +491,6 @@ extension Browser: MCNearbyServiceBrowserDelegate {
             state: .notConnected,
             type: deviceType
         )
-        browsingEventContinuation.yield(.deviceLost(device))
+        streamManager.yieldBrowsingEvent(.deviceLost(device))
     }
 }
