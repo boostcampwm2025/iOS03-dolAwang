@@ -191,8 +191,7 @@ extension CameraPreviewStore {
                 await MainActor.run {
                     switch event {
                     case .heartbeatTimeout:
-                        self.send(.isPrimaryDeviceDisconnected)
-                        self.browser.disconnect(useType: .remote)
+                        self.handleDisconnection()
                     case .remoteHeartbeatTimeout:
                         self.handleDisconnection()
                     }
