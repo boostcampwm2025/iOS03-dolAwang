@@ -86,7 +86,6 @@ struct ConnectionCheckView: View {
                     CameraPreview(
                         store.browser,
                         mirroringName: store.mirroringDevice,
-                        remoteType: store.remoteType,
                         watchConnectionManager: store.watchConnectionManager,
                         onDismissByCaptureCompletion: {
                             store.send(.navigateToCompletion(true))

@@ -19,7 +19,6 @@ struct CameraPreview: View {
     init(
         _ browser: Browser,
         mirroringName: String,
-        remoteType: DeviceType?,
         watchConnectionManager: WatchConnectionManager?,
         onDismissByCaptureCompletion: (() -> Void)? = nil
     ) {

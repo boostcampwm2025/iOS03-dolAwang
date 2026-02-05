@@ -39,7 +39,6 @@ final class ConnectionCheckStore: StoreProtocol {
     let watchConnectionManager: WatchConnectionManager
     let cameraDevice: String
     let mirroringDevice: String
-    let remoteType: DeviceType?
 
     private var heartbeatTask: Task<Void, Never>?
 
@@ -50,7 +49,6 @@ final class ConnectionCheckStore: StoreProtocol {
     ) {
         self.cameraDevice = list.cameraName
         self.mirroringDevice = list.mirroringName
-        self.remoteType = list.remoteType
         self.browser = browser
         self.watchConnectionManager = watchConnectionManager
 

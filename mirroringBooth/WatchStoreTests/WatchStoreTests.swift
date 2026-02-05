@@ -101,7 +101,7 @@ struct WatchStoreTests {
     @Test func 대기_화면이_나타나면_대기_상태가_켜짐() {
         let store = makeSUT()
 
-        store.send(.setIsWaiting(true))
+        store.send(.isWaiting(true))
 
         #expect(store.state.isWaiting == true)
     }
