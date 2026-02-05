@@ -151,8 +151,8 @@ TestFlight가 처음이라면 → [설치 가이드](https://drive.google.com/fi
 | **UI** | <img src="https://img.shields.io/badge/SwiftUI-0D96F6?style=flat-square&logo=swift&logoColor=white"> <img src="https://img.shields.io/badge/@Observable-8E44AD?style=flat-square&logo=swift&logoColor=white"> |
 | **Connectivity** | <img src="https://img.shields.io/badge/MultipeerConnectivity-34C759?style=flat-square&logo=apple&logoColor=white"> <img src="https://img.shields.io/badge/WatchConnectivity-FF9500?style=flat-square&logo=apple&logoColor=white"> |
 | **Media** | <img src="https://img.shields.io/badge/AVFoundation-FF2D55?style=flat-square&logo=apple&logoColor=white"> <img src="https://img.shields.io/badge/VideoToolbox_(H.264)-5856D6?style=flat-square&logo=apple&logoColor=white"> |
-| **Async** | <img src="https://img.shields.io/badge/Combine-007AFF?style=flat-square&logo=apple&logoColor=white"> <img src="https://img.shields.io/badge/async/await-1ABC9C?style=flat-square&logo=swift&logoColor=white"> |
-| **Tools** | <img src="https://img.shields.io/badge/Xcode-147EFB?style=flat-square&logo=xcode&logoColor=white"> <img src="https://img.shields.io/badge/SwiftLint-E74C3C?style=flat-square&logo=swift&logoColor=white"> |
+| **Concurrency** | <img src="https://img.shields.io/badge/AsyncStream-007AFF?style=flat-square&logo=swift&logoColor=white"> <img src="https://img.shields.io/badge/async/await-1ABC9C?style=flat-square&logo=swift&logoColor=white"> |
+| **Tools** | <img src="https://img.shields.io/badge/Xcode-147EFB?style=flat-square&logo=xcode&logoColor=white"> <img src="https://img.shields.io/badge/SwiftLint-E74C3C?style=flat-square&logo=swift&logoColor=white"> <img src="https://img.shields.io/badge/Swift_Testing-F05138?style=flat-square&logo=swift&logoColor=white"> |
 | **CI/CD** | <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white"> <img src="https://img.shields.io/badge/Fastlane-00F200?style=flat-square&logo=fastlane&logoColor=white"> <img src="https://img.shields.io/badge/n8n-EA4B71?style=flat-square&logo=n8n&logoColor=white"> |
 
 ---
@@ -161,13 +161,13 @@ TestFlight가 처음이라면 → [설치 가이드](https://drive.google.com/fi
 
 | 경험 | 설명 | 링크 |
 |---|---|---|
-| **연결 끊김 대응** | Multipeer Connectivity 환경에서 Heartbeat와 재연결 로직으로 연결 안정성을 확보한 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-9B59B6?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%F0%9F%94%AA-%EC%97%B0%EA%B2%B0-%EB%81%8A%EA%B9%80-%EB%8C%80%EC%9D%91) |
-| **권한 요청** | 카메라, 로컬 네트워크, 앨범 접근 권한을 단계별로 요청하고 거부 시 설정 유도까지 처리했습니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-E67E22?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%F0%9F%94%AB-%EA%B6%8C%ED%95%9C-%EC%9A%94%EC%B2%AD) |
-| **Connectivity 통신 과정** | MultipeerConnectivity와 WatchConnectivity로 기기 간 통신 구조를 설계한 과정을 소개합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-2D9CDB?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-%ED%86%B5%EC%8B%A0-%EA%B3%BC%EC%A0%95) |
-| **사용자 피드백 대응** | TestFlight와 설문을 통해 사용자 피드백을 수집하고 UX 개선에 반영했습니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-FF9500?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EC%82%AC%EC%9A%A9%EC%9E%90-%ED%94%BC%EB%93%9C%EB%B0%B1-%EB%8C%80%EC%9D%91) |
-| **동적 UI** | GeometryReader를 활용해 iPhone, iPad, Mac에서 반응형 UI를 구현한 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-1ABC9C?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EB%8F%99%EC%A0%81-UI) |
-| **AI PR 자동 리뷰** | n8n을 활용해 PR 생성 시 AI가 자동으로 코드 리뷰를 수행하는 파이프라인을 구축했습니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-27AE60?style=flat-square)](https://daegom.notion.site/n8n-PR-2eb1833ac003807ba1f7ec97515ea243) |
-| **CI/CD 자동화** | GitHub Actions로 빌드 자동화, 에셋 자동 병합 시스템 구축을 진행했습니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-E74C3C?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/pull/68) |
+| **연결 끊김 대응** | Multipeer Connectivity 환경에서 Heartbeat와 재연결 로직으로 연결 안정성을 확보한 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/Wiki-9B59B6?style=flat)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%F0%9F%94%AA-%EC%97%B0%EA%B2%B0-%EB%81%8A%EA%B9%80-%EB%8C%80%EC%9D%91) |
+| **권한 요청** | 카메라, 로컬 네트워크, 앨범 접근 권한을 단계별로 요청하고 거부 시 설정 유도까지 처리했습니다. | [![Wiki](https://img.shields.io/badge/Wiki-E67E22?style=flat)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%F0%9F%94%AB-%EA%B6%8C%ED%95%9C-%EC%9A%94%EC%B2%AD) |
+| **Connectivity 통신 과정** | Multipeer Connectivity와 Watch Connectivity로 기기 간 통신 구조를 설계한 과정을 소개합니다. | [![Wiki](https://img.shields.io/badge/Wiki-2D9CDB?style=flat)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-%ED%86%B5%EC%8B%A0-%EA%B3%BC%EC%A0%95) |
+| **사용자 피드백 대응** | TestFlight와 설문을 통해 사용자 피드백을 수집하고 UX 개선에 반영했습니다. | [![Wiki](https://img.shields.io/badge/Wiki-FF9500?style=flat)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EC%82%AC%EC%9A%A9%EC%9E%90-%ED%94%BC%EB%93%9C%EB%B0%B1-%EB%8C%80%EC%9D%91) |
+| **동적 UI** | GeometryReader를 활용해 iPhone, iPad, Mac에서 반응형 UI를 구현한 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/Wiki-1ABC9C?style=flat)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EB%8F%99%EC%A0%81-UI) |
+| **AI PR 자동 리뷰** | n8n을 활용해 PR 생성 시 AI가 자동으로 코드 리뷰를 수행하는 파이프라인을 구축했습니다. | [![Wiki](https://img.shields.io/badge/Wiki-27AE60?style=flat)](https://daegom.notion.site/n8n-PR-2eb1833ac003807ba1f7ec97515ea243) |
+| **CI/CD 자동화** | GitHub Actions로 빌드 자동화, 에셋 자동 병합 시스템 구축을 진행했습니다. | [![Wiki](https://img.shields.io/badge/Wiki-E74C3C?style=flat)](https://github.com/boostcampwm2025/iOS03-dolAwang/pull/68) |
 
 ---
 
@@ -221,10 +221,10 @@ mirroringBooth/
 
 | 문서 | 링크 |
 |---|---|
-| 그라운드 룰 | [![Wiki](https://img.shields.io/badge/↗_그라운드룰-2D9CDB?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%E2%9A%94%EF%B8%8F%C2%A0%EA%B7%B8%EB%9D%BC%EC%9A%B4%EB%93%9C-%EB%A3%B0) |
-| 기획서 | [![Wiki](https://img.shields.io/badge/↗_프로젝트_기획서-9B59B6?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EA%B8%B0%ED%9A%8D%EC%84%9C) |
-| 설계서 | [![Wiki](https://img.shields.io/badge/↗_프로젝트_설계서-E74C3C?style=flat-square)](https://www.figma.com/design/7JOGxTFogHn71WU3q8VOSZ/%EB%AF%B8%EB%9F%AC%EB%A7%81%EB%B6%80%EC%8A%A4-%ED%99%94%EB%A9%B4-%EC%84%A4%EA%B3%84%EC%95%88?node-id=0-1&t=GsglDcx1sHtk6ooq-1) |
-| 프로덕트 백로그 | [![Wiki](https://img.shields.io/badge/↗_프로덕트_백로그-27AE60?style=flat-square)](https://github.com/orgs/boostcampwm2025/projects/239/views/5) |
+| 그라운드 룰 | [![Wiki](https://img.shields.io/badge/그라운드룰-2D9CDB?style=flat)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%E2%9A%94%EF%B8%8F%C2%A0%EA%B7%B8%EB%9D%BC%EC%9A%B4%EB%93%9C-%EB%A3%B0) |
+| 기획서 | [![Wiki](https://img.shields.io/badge/프로젝트_기획서-9B59B6?style=flat)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EA%B8%B0%ED%9A%8D%EC%84%9C) |
+| 설계서 | [![Wiki](https://img.shields.io/badge/프로젝트_설계서-E74C3C?style=flat)](https://www.figma.com/design/7JOGxTFogHn71WU3q8VOSZ/%EB%AF%B8%EB%9F%AC%EB%A7%81%EB%B6%80%EC%8A%A4-%ED%99%94%EB%A9%B4-%EC%84%A4%EA%B3%84%EC%95%88?node-id=0-1&t=GsglDcx1sHtk6ooq-1) |
+| 프로덕트 백로그 | [![Wiki](https://img.shields.io/badge/프로덕트_백로그-27AE60?style=flat)](https://github.com/orgs/boostcampwm2025/projects/239/views/5) |
 
 ---
 
