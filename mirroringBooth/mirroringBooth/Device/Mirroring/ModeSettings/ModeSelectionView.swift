@@ -81,7 +81,7 @@ struct ModeSelectionView: View {
                 title: "타이머 모드",
                 description: "80초 동안 8초 간격으로\n자동 촬영합니다."
             ) {
-                store.send(.timerMode)
+                store.send(.chooseMode(.timer))
                 router.push(to: MirroringRoute.poseSuggestionSelection(isTimerMode: true))
             }
 
@@ -92,7 +92,7 @@ struct ModeSelectionView: View {
                 title: "포즈 추천 받을래요",
                 description: "포즈를 정하기 어려우신가요?\n이모지를 통해 포즈를 추천해 드릴게요!"
             ) {
-                store.send(.remoteMode)
+                store.send(.chooseMode(.remote))
                 router.push(to: MirroringRoute.streaming(isTimerMode: store.flag, isPoseSuggestionEnabled: true))
             }
         }
@@ -119,7 +119,7 @@ struct ModeSelectionView: View {
                 title: "추천은 괜찮아요",
                 description: "자유롭게 촬영을 진행해보세요!"
             ) {
-                store.send(.remoteMode)
+                store.send(.chooseMode(.remote))
                 router.push(to: MirroringRoute.streaming(isTimerMode: store.flag, isPoseSuggestionEnabled: false))
             }
         }

@@ -15,11 +15,15 @@ final class ModeSelectionStore: StoreProtocol {
 
     enum Intent {
         case showHomeAlert(Bool)
-        case timerMode, remoteMode
+        case chooseMode(CaptureMode)
     }
 
     enum Result {
         case setShowHomeAlert(Bool)
+    }
+
+    enum CaptureMode {
+        case timer, remote
     }
 
     private(set) var state: State = .init()
@@ -47,14 +51,17 @@ final class ModeSelectionStore: StoreProtocol {
         case .showHomeAlert(let show):
             return [.setShowHomeAlert(show)]
 
-        case .remoteMode:
-            if let advertiser, !flag {
-                advertiser.sendCommand(.setRemoteMode)
-            }
+        case .chooseMode(let mode):
+            switch mode {
+            case .remote:
+                if let advertiser, !flag {
+                    advertiser.sendCommand(.setRemoteMode)
+                }
 
-        case .timerMode:
-            if let advertiser {
-                advertiser.sendCommand(.selectedTimerMode)
+            case .timer:
+                if let advertiser {
+                    advertiser.sendCommand(.selectedTimerMode)
+                }
             }
         }
 
