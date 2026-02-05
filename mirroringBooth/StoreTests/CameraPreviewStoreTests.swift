@@ -47,7 +47,8 @@ struct CameraPreviewStoreTests {
         let store = CameraPreviewStore(
             browser: Browser(),
             manager: manager,
-            deviceName: deviceName
+            deviceName: deviceName,
+            watchConnectionManager: nil
         )
         return (store, manager)
     }
@@ -154,9 +155,9 @@ struct CameraPreviewStoreTests {
     @Test func 미러링_연결이_끊기면_상태가_반영됨() {
         let (store, _) = makeSUT()
 
-        store.send(.isMirroringDisconnected)
+        store.send(.isPrimaryDeviceDisconnected)
 
-        #expect(store.state.isMirroringDisconnected == true)
+        #expect(store.state.isPrimaryDeviceDisconnected == true)
     }
 
     // MARK: - reduce 테스트 (Browser 관련 Intent 대체)
