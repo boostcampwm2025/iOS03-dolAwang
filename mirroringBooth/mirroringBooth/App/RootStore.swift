@@ -70,7 +70,7 @@ extension RootStore {
             for await stream in advertiser.rootStream {
                 switch stream {
                 case .onHeartbeatTimeout:
-                    await MainActor.run {
+                    await MainActor.run { [weak self] in
                         self?.send(.showTimeoutAlert(true))
                     }
                 }

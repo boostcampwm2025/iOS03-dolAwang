@@ -211,6 +211,7 @@ extension CameraPreviewStore {
         }
     }
 
+    @MainActor
     private func handleDisconnection() {
         send(.isPrimaryDeviceDisconnected)
         browser.disconnect()
