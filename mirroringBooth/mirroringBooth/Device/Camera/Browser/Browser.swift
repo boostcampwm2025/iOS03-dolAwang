@@ -180,7 +180,8 @@ final class Browser: NSObject, BrowserCommandDelegate {
             if let error {
                 self.logger.warning("사진 전송 실패 : \(error.localizedDescription)")
             } else {
-                self.cameraStreamEventContinuation.yield(.sendPhoto)
+                self.streamManager.yieldCameraStreamEvent(.sendPhoto)
+
                 self.logger.info("사진 전송 완료: \(fileName)")
             }
 
