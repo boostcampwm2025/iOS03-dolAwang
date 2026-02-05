@@ -5,39 +5,29 @@
 //  Created by Liam on 1/6/26.
 //
 
-import OSLog
 import SwiftUI
 
 struct ModeSelectionView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) private var rootStore
-
-    private let selectionType: ModeSelectionType
-    /// 촬영 모드 선택 때는 '리모트 가능 여부 ' / 포즈 추천 여부 선택 때는 '현재 타이머 모드인지 여부'
-    private let flag: Bool
-    private let advertiser: Advertiser?
-
-    @State private var showHomeAlert: Bool = false
+    @State private var store: ModeSelectionStore
 
     init(
         for type: ModeSelectionType,
         flag: Bool,
         advertiser: Advertiser? = nil
     ) {
-        self.selectionType = type
-        self.flag = flag
-
-        self.advertiser = advertiser
-
-        if type == .poseSuggestion && advertiser == nil {
-            Logger.modeSelectionView.error("포즈 추천 여부 선택 상황이지만, advertiser가 없어 정상 동작하지 않습니다.")
-        }
+        self.store = .init(
+            type: type,
+            flag: flag,
+            advertiser: advertiser
+        )
     }
 
     var body: some View {
         VStack(spacing: 20) {
             DisconnectButtonView {
-                showHomeAlert = true
+                store.send(.showHomeAlert(true))
             }
 
             titleView
@@ -72,7 +62,10 @@ struct ModeSelectionView: View {
         .padding(.horizontal)
         .navigationBarBackButtonHidden()
         .backgroundStyle()
-        .homeAlert(isPresented: $showHomeAlert) {
+        .homeAlert(isPresented: Binding(
+            get: { store.state.showHomeAlert },
+            set: { store.send(.showHomeAlert($0)) }
+        )) {
             router.reset()
             rootStore.send(.disconnect)
         }
@@ -80,7 +73,7 @@ struct ModeSelectionView: View {
 
     @ViewBuilder
     private var firstCard: some View {
-        switch selectionType {
+        switch store.selectionType {
         case .timerOrRemote:
             SelectionCard(
                 iconName: "stopwatch",
@@ -88,6 +81,7 @@ struct ModeSelectionView: View {
                 title: "타이머 모드",
                 description: "80초 동안 8초 간격으로\n자동 촬영합니다."
             ) {
+                store.send(.chooseMode(.timer))
                 router.push(to: MirroringRoute.poseSuggestionSelection(isTimerMode: true))
             }
 
@@ -98,15 +92,15 @@ struct ModeSelectionView: View {
                 title: "포즈 추천 받을래요",
                 description: "포즈를 정하기 어려우신가요?\n이모지를 통해 포즈를 추천해 드릴게요!"
             ) {
-                noticeShootingMode()
-                router.push(to: MirroringRoute.streaming(isTimerMode: flag, isPoseSuggestionEnabled: true))
+                store.send(.chooseMode(.remote))
+                router.push(to: MirroringRoute.streaming(isTimerMode: store.flag, isPoseSuggestionEnabled: true))
             }
         }
     }
 
     @ViewBuilder
     private var secondCard: some View {
-        switch selectionType {
+        switch store.selectionType {
         case .timerOrRemote:
             SelectionCard(
                 iconName: "target", // SF Symbol
@@ -116,7 +110,7 @@ struct ModeSelectionView: View {
             ) {
                 router.push(to: MirroringRoute.poseSuggestionSelection(isTimerMode: false))
             }
-            .disabled(!flag)
+            .disabled(!store.flag)
 
         case .poseSuggestion:
             SelectionCard(
@@ -125,8 +119,8 @@ struct ModeSelectionView: View {
                 title: "추천은 괜찮아요",
                 description: "자유롭게 촬영을 진행해보세요!"
             ) {
-                noticeShootingMode()
-                router.push(to: MirroringRoute.streaming(isTimerMode: flag, isPoseSuggestionEnabled: false))
+                store.send(.chooseMode(.remote))
+                router.push(to: MirroringRoute.streaming(isTimerMode: store.flag, isPoseSuggestionEnabled: false))
             }
         }
     }
@@ -135,7 +129,7 @@ struct ModeSelectionView: View {
     private var titleView: some View {
         VStack(spacing: 12) {
             let title: String = {
-                switch selectionType {
+                switch store.selectionType {
                 case .timerOrRemote:
                     return "촬영 방식 선택"
                 case .poseSuggestion:
@@ -150,15 +144,6 @@ struct ModeSelectionView: View {
             Text("어떻게 촬영하시겠어요?")
                 .font(.callout)
                 .foregroundColor(.gray)
-        }
-    }
-
-    private func noticeShootingMode() {
-        guard let advertiser else { return }
-        if flag {
-            advertiser.sendCommand(.selectedTimerMode)
-        } else {
-            advertiser.sendCommand(.setRemoteMode)
         }
     }
 }

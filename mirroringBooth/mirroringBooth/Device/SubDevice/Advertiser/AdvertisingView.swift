@@ -71,6 +71,7 @@ struct AdvertisingView: View {
                     router.push(to: RemoteRoute.remoteCapture(store.advertiser))
                 case .navigateToHome:
                     router.reset()
+                    store.send(.disconnect)
                 }
             }
         }

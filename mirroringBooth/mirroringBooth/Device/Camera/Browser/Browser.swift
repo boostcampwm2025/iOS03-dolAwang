@@ -246,7 +246,7 @@ final class Browser: NSObject, BrowserCommandDelegate {
     }
 
     /// 특정 타겟 타입의 연결만 해제합니다.
-    func disconnect(useType: DeviceUseType) {
+    func disconnect(useType: DeviceUseType, onPurpose: Bool = false) {
         switch useType {
         case .mirroring:
             mirroringSession?.disconnect()
@@ -263,6 +263,9 @@ final class Browser: NSObject, BrowserCommandDelegate {
             remoteHeartBeater?.stop()
             remoteHeartBeater = nil
             logger.info("리모트 연결 해제")
+            if onPurpose {
+                remoteHeartBeater = nil
+            }
         }
     }
 }

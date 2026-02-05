@@ -130,7 +130,7 @@ extension Advertiser: MCSessionDelegate {
             heartBeater.start()
         }
         if session === self.commandSession, state == .connected {
-                streamManager.yieldAdvertising(.onConnected)
+            streamManager.yieldAdvertising(.onConnected)
         }
     }
 
