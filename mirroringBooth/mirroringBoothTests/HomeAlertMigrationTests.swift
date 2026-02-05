@@ -75,7 +75,6 @@ struct HomeAlertMigrationTests {
         // 개선 후: cancelButtonText 생략 시 기본값 "" → "계속하기"로 변환
         let afterCancelText = ""
         let afterResolvedCancelText = afterCancelText.isEmpty ? "계속하기" : afterCancelText
-        let afterHasCancel = afterCancelText.isEmpty ? nil : {}
 
         // 개선 후 로직: isEmpty이면 onCancel은 nil이지만, cancelButtonText는 "계속하기"로 설정
         // 실제 UI에서는 onCancel이 nil이 아니어야 하므로 취소 버튼이 표시됨
