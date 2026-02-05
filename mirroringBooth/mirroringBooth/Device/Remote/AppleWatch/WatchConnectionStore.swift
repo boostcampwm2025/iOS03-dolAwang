@@ -78,6 +78,7 @@ final class WatchConnectionStore: StoreProtocol {
             self.connectionManager.start()
 
         case .disconnect:
+            self.connectionManager.sendDisconnectRequest()
             self.connectionManager.stop()
             return [.setConnectionState(.notConnected)]
 

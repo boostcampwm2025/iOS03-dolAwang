@@ -93,9 +93,10 @@ struct BrowsingView: View {
                                     ConnectionList(
                                         cameraName: store.browser.myDeviceName,
                                         mirroringName: mirroringDevice.id,
-                                        remoteName: store.state.remoteDevice?.id ?? nil
+                                        remoteName: store.state.remoteDevice?.id
                                     ),
-                                    store.browser
+                                    store.browser,
+                                    store.watchConnectionManager
                                 )
                             )
                         }

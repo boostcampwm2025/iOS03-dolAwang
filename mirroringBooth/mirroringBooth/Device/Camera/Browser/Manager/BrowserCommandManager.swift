@@ -15,6 +15,7 @@ protocol BrowserCommandDelegate: AnyObject {
     var onSelectedTimerModeCommand: (() -> Void)? { get }
     var mirroringHeartBeater: HeartBeater { get }
     var remoteHeartBeater: HeartBeater? { get }
+    var isTimerModeSelected: Bool { get set }
 }
 
 /// 명령 수신 및 실행을 담당하는 매니저
@@ -42,11 +43,14 @@ final class BrowserCommandManager {
                 self?.delegate?.sendRemoteCommand(.navigateToRemoteComplete)
             }
         case .setRemoteMode:
+            delegate?.isTimerModeSelected = false
             DispatchQueue.main.async { [weak self] in
                 self?.delegate?.onRemoteModeCommand?()
                 self?.delegate?.sendRemoteCommand(.navigateToRemoteCapture)
             }
         case .selectedTimerMode:
+            // 워치 disconnect 무시를 위해 동기적으로 먼저 플래그 설정
+            delegate?.isTimerModeSelected = true
             DispatchQueue.main.async { [weak self] in
                 self?.delegate?.onSelectedTimerModeCommand?()
                 self?.delegate?.sendRemoteCommand(.navigateToHome)

@@ -11,8 +11,8 @@ struct ConnectionCheckView: View {
     @Environment(Router.self) var router: Router
     @State private var store: ConnectionCheckStore
 
-    init(_ list: ConnectionList, browser: Browser) {
-        self.store = .init(list, browser)
+    init(_ list: ConnectionList, browser: Browser, watchConnectionManager: WatchConnectionManager) {
+        self.store = .init(list, browser, watchConnectionManager)
     }
 
     var body: some View {
@@ -86,6 +86,7 @@ struct ConnectionCheckView: View {
                     CameraPreview(
                         store.browser,
                         mirroringName: store.mirroringDevice,
+                        watchConnectionManager: store.watchConnectionManager,
                         onDismissByCaptureCompletion: {
                             store.send(.navigateToCompletion(true))
                         }
@@ -98,6 +99,8 @@ struct ConnectionCheckView: View {
             store.send(.entry)
         }
         .onChange(of: store.state.isMirroringDisconnected) {
+            guard !store.state.showPreview else { return }
+
             store.browser.disconnect(useType: .mirroring)
             router.pop()
         }

@@ -28,5 +28,6 @@ struct RemoteCaptureView: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden()
     }
 }
