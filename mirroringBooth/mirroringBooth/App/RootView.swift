@@ -23,8 +23,8 @@ struct RootView: View {
                     case .advertising:
                         AdvertisingView()
 
-                    case .connectionList(let list, let browser):
-                        ConnectionCheckView(list, browser: browser)
+                    case .connectionList(let list, let browser, let watchConnectionManager):
+                        ConnectionCheckView(list, browser: browser, watchConnectionManager: watchConnectionManager)
 
                     case .completion:
                         StreamingCompletionView()

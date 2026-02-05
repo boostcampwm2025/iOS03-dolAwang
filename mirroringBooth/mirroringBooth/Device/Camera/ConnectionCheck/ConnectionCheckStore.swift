@@ -36,18 +36,23 @@ final class ConnectionCheckStore: StoreProtocol {
     private(set) var state: State = .init()
 
     let browser: Browser
+    let watchConnectionManager: WatchConnectionManager
     let cameraDevice: String
     let mirroringDevice: String
+    let remoteType: DeviceType?
 
     private var heartbeatTask: Task<Void, Never>?
 
     init(
         _ list: ConnectionList,
-        _ browser: Browser
+        _ browser: Browser,
+        _ watchConnectionManager: WatchConnectionManager
     ) {
         self.cameraDevice = list.cameraName
         self.mirroringDevice = list.mirroringName
+        self.remoteType = list.remoteType
         self.browser = browser
+        self.watchConnectionManager = watchConnectionManager
 
         Task { @MainActor in
             reduce(.setRemoteDevice(list.remoteName))

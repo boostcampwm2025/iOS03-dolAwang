@@ -21,14 +21,14 @@ final class CameraPreviewStore: StoreProtocol {
         var animationFlag: Bool = false
         var isTransferring: Bool = false
         var isCaptureCompleted: Bool = false
-        var isMirroringDisconnected: Bool = false
+        var isPrimaryDeviceDisconnected: Bool = false
     }
 
     enum Intent {
         case entry(withAngle: Int)
         case exit
         case updateAngle(rawValue: Int)
-        case isMirroringDisconnected
+        case isPrimaryDeviceDisconnected
         case browserEvent(CameraStreamEvents)
     }
 
@@ -41,12 +41,14 @@ final class CameraPreviewStore: StoreProtocol {
         case setIsTransferring(Bool)
         case captureCompleted
         case resetCaptureCompleted
-        case isMirroringDisconnected
+        case setIsPrimaryDeviceDisconnected
     }
 
     private(set) var state: State
     private let browser: Browser
     private let cameraManager: CameraManageable
+    private let remoteType: DeviceType?
+    private let watchConnectionManager: WatchConnectionManager?
     private var cancellables = Set<AnyCancellable>()
     private var heartbeatTask: Task<Void, Never>?
 
@@ -58,12 +60,17 @@ final class CameraPreviewStore: StoreProtocol {
         browser: Browser,
         manager: CameraManageable,
         deviceName: String,
+        remoteType: DeviceType?,
+        watchConnectionManager: WatchConnectionManager?
     ) {
         self.browser = browser
         self.cameraManager = manager
+        self.remoteType = remoteType
+        self.watchConnectionManager = watchConnectionManager
         self.state = State(deviceName: deviceName)
 
         setupHeartbeatListener()
+        setupWatchConnectionListener()
     }
 
     deinit {
@@ -89,8 +96,8 @@ final class CameraPreviewStore: StoreProtocol {
         case .updateAngle(let rawValue):
             return [.updateAngle(rawValue)]
 
-        case .isMirroringDisconnected:
-            return [.isMirroringDisconnected]
+        case .isPrimaryDeviceDisconnected:
+            return [.setIsPrimaryDeviceDisconnected]
 
         case .browserEvent(let event):
             return handleBrowserEvent(event)
@@ -122,8 +129,8 @@ final class CameraPreviewStore: StoreProtocol {
         case .resetCaptureCompleted:
             state.isCaptureCompleted = false
 
-        case .isMirroringDisconnected:
-            state.isMirroringDisconnected = true
+        case .setIsPrimaryDeviceDisconnected:
+            state.isPrimaryDeviceDisconnected = true
         }
         self.state = state
     }
@@ -187,14 +194,35 @@ extension CameraPreviewStore {
                 await MainActor.run {
                     switch event {
                     case .heartbeatTimeout:
-                        self.send(.isMirroringDisconnected)
+                        self.send(.isPrimaryDeviceDisconnected)
                         self.browser.disconnect(useType: .remote)
                     case .remoteHeartbeatTimeout:
-                        self.browser.sendCommand(.switchSelectModeView)
+                        // 타이머 모드면 리모트 감지 안 함
+                        guard self.remoteType != nil else { return }
+                        self.handleDisconnection()
                     }
                 }
             }
         }
+    }
+
+    private func setupWatchConnectionListener() {
+        // 타이머 모드면 리모트 감지 안 함
+        guard remoteType == .watch else { return }
+
+        watchConnectionManager?.onReachableChanged = { [weak self] isReachable in
+            guard let self else { return }
+            Task { @MainActor in
+                if !isReachable {
+                    self.handleDisconnection()
+                }
+            }
+        }
+    }
+
+    private func handleDisconnection() {
+        send(.isPrimaryDeviceDisconnected)
+        browser.disconnect()
     }
 
     private func handleBrowserEvent(_ event: CameraStreamEvents) -> [Result] {

@@ -19,9 +19,17 @@ struct CameraPreview: View {
     init(
         _ browser: Browser,
         mirroringName: String,
+        remoteType: DeviceType?,
+        watchConnectionManager: WatchConnectionManager?,
         onDismissByCaptureCompletion: (() -> Void)? = nil
     ) {
-        self.store = .init(browser: browser, manager: CameraManager(), deviceName: mirroringName)
+        self.store = .init(
+            browser: browser,
+            manager: CameraManager(),
+            deviceName: mirroringName,
+            remoteType: remoteType,
+            watchConnectionManager: watchConnectionManager
+        )
         self.onDismissByCaptureCompletion = onDismissByCaptureCompletion
     }
 
@@ -93,7 +101,7 @@ struct CameraPreview: View {
         }
         .homeAlert(
             isPresented: Binding(
-                get: { store.state.isMirroringDisconnected },
+                get: { store.state.isPrimaryDeviceDisconnected },
                 set: { _ in }
             ),
             message: "기기 연결이 끊겼습니다.",
