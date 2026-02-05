@@ -161,11 +161,13 @@ TestFlight가 처음이라면 → [설치 가이드](https://drive.google.com/fi
 
 | 경험 | 설명 | 링크 |
 |---|---|---|
-| **멀티 디바이스 통신** | MultipeerConnectivity로 Apple 기기 간 실시간 스트리밍을 구현한 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-2D9CDB?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-%ED%86%B5%EC%8B%A0-%EA%B3%BC%EC%A0%95) |
-| **재연결 로직** | 디바이스 별 연결이 끊어졌을 때 어떻게 대응하는지 설명합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-9B59B6?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%F0%9F%94%AA-%EC%97%B0%EA%B2%B0-%EB%81%8A%EA%B9%80-%EB%8C%80%EC%9D%91) |
+| **연결 끊김 대응** | Multipeer Connectivity 환경에서 Heartbeat와 재연결 로직으로 연결 안정성을 확보한 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-9B59B6?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%F0%9F%94%AA-%EC%97%B0%EA%B2%B0-%EB%81%8A%EA%B9%80-%EB%8C%80%EC%9D%91) |
+| **권한 요청** | 카메라, 로컬 네트워크, 앨범 접근 권한을 단계별로 요청하고 거부 시 설정 유도까지 처리했습니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-E67E22?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%F0%9F%94%AB-%EA%B6%8C%ED%95%9C-%EC%9A%94%EC%B2%AD) |
+| **Connectivity 통신 과정** | MultipeerConnectivity와 WatchConnectivity로 기기 간 통신 구조를 설계한 과정을 소개합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-2D9CDB?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-%ED%86%B5%EC%8B%A0-%EA%B3%BC%EC%A0%95) |
+| **사용자 피드백 대응** | TestFlight와 설문을 통해 사용자 피드백을 수집하고 UX 개선에 반영했습니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-FF9500?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EC%82%AC%EC%9A%A9%EC%9E%90-%ED%94%BC%EB%93%9C%EB%B0%B1-%EB%8C%80%EC%9D%91) |
+| **동적 UI** | GeometryReader를 활용해 iPhone, iPad, Mac에서 반응형 UI를 구현한 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-1ABC9C?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EB%8F%99%EC%A0%81-UI) |
+| **AI PR 자동 리뷰** | n8n을 활용해 PR 생성 시 AI가 자동으로 코드 리뷰를 수행하는 파이프라인을 구축했습니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-27AE60?style=flat-square)](https://daegom.notion.site/n8n-PR-2eb1833ac003807ba1f7ec97515ea243) |
 | **CI/CD 자동화** | GitHub Actions로 빌드 자동화, 에셋 자동 병합 시스템 구축을 진행했습니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-E74C3C?style=flat-square)](https://github.com/boostcampwm2025/iOS03-dolAwang/pull/68) |
-| **AI PR 자동 리뷰** | n8n을 활용한 AI PR 자동 리뷰 파이프라인 구축을 진행한 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-27AE60?style=flat-square)](https://daegom.notion.site/n8n-PR-2eb1833ac003807ba1f7ec97515ea243) |
-| **사용자 테스트** | 실사용자 피드백 기반 UX 개선 (공유 시트, 토스트 컴포넌트 등)을 진행한 기록입니다. | [![Wiki](https://img.shields.io/badge/↗_Wiki-FF9500?style=flat-square)](#) |
 
 ---
 
