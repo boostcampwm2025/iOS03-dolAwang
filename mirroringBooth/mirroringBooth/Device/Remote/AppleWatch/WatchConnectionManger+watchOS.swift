@@ -158,6 +158,14 @@ final class WatchConnectionManager: NSObject {
         )
     }
 
+    /// 사용자가 X 버튼을 눌러 연결을 해제했음을 iPhone에 알립니다.
+    func sendDisconnectRequest() {
+        self.sendMessage(
+            action: .disconnect,
+            rejectedActionString: "연결 해제 요청을 보낼 수 없습니다."
+        )
+    }
+
     private nonisolated func handleAppStateUpdate(_ applicationContext: [String: Any]) {
         let appStateRawValue = applicationContext[MessageKey.appState.rawValue] as? String
         let appStateValue = appStateRawValue.flatMap { AppStateValue(rawValue: $0) }
