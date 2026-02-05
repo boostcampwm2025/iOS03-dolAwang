@@ -102,7 +102,7 @@ final class WatchConnectionManager: NSObject {
     }
 
     /// iPhone에게 Watch 앱 상태를 전달합니다.
-    private func pushWatchAppState(_ state: AppStateValue) {
+    private func pushWatchAppState(_ state: AppStateValue, retryCount: Int = 0) {
         guard let session = self.session else {
             self.logger.error("WCSession이 지원되지 않아 상태를 푸시할 수 없습니다.")
             return
@@ -112,7 +112,16 @@ final class WatchConnectionManager: NSObject {
             try session.updateApplicationContext([MessageKey.appState.rawValue: state.rawValue])
             self.logger.info("Watch 앱 상태 푸시: \(state.rawValue)")
         } catch {
-            self.logger.error("Watch 앱 상태 푸시 실패: \(error.localizedDescription)")
+            self.logger.error("실패: \(error.localizedDescription) (시도: \(retryCount + 1))")
+            // 최대 3번까지만 재시도
+            if retryCount < 3 {
+                let nextRetry = retryCount + 1
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    self?.pushWatchAppState(state, retryCount: nextRetry)
+                }
+            } else {
+                self.logger.error("최대 재시도 횟수 초과. 포기합니다.")
+            }
         }
     }
 
