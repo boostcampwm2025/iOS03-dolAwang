@@ -99,6 +99,8 @@ struct ConnectionCheckView: View {
             store.send(.entry)
         }
         .onChange(of: store.state.isMirroringDisconnected) {
+            guard !store.state.showPreview else { return }
+
             store.browser.disconnect(useType: .mirroring)
             router.pop()
         }
