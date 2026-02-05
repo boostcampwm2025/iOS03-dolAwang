@@ -47,7 +47,6 @@ final class CameraPreviewStore: StoreProtocol {
     private(set) var state: State
     private let browser: Browser
     private let cameraManager: CameraManageable
-    private let remoteType: DeviceType?
     private let watchConnectionManager: WatchConnectionManager?
     private var cancellables = Set<AnyCancellable>()
     private var heartbeatTask: Task<Void, Never>?
@@ -60,12 +59,10 @@ final class CameraPreviewStore: StoreProtocol {
         browser: Browser,
         manager: CameraManageable,
         deviceName: String,
-        remoteType: DeviceType?,
         watchConnectionManager: WatchConnectionManager?
     ) {
         self.browser = browser
         self.cameraManager = manager
-        self.remoteType = remoteType
         self.watchConnectionManager = watchConnectionManager
         self.state = State(deviceName: deviceName)
 
@@ -197,8 +194,6 @@ extension CameraPreviewStore {
                         self.send(.isPrimaryDeviceDisconnected)
                         self.browser.disconnect(useType: .remote)
                     case .remoteHeartbeatTimeout:
-                        // 타이머 모드면 리모트 감지 안 함
-                        guard self.remoteType != nil else { return }
                         self.handleDisconnection()
                     }
                 }
@@ -207,9 +202,6 @@ extension CameraPreviewStore {
     }
 
     private func setupWatchConnectionListener() {
-        // 타이머 모드면 리모트 감지 안 함
-        guard remoteType == .watch else { return }
-
         watchConnectionManager?.onWatchDisconnected = { [weak self] in
             guard let self else { return }
             Task { @MainActor in
