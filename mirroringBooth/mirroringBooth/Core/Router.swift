@@ -35,7 +35,6 @@ struct ConnectionList: Hashable {
     let cameraName: String
     let mirroringName: String
     let remoteName: String?
-    let remoteType: DeviceType?
 }
 
 enum MirroringRoute: Hashable {
