@@ -10,13 +10,11 @@ import SwiftUI
 struct AdvertisingView: View {
     @Environment(Router.self) var router: Router
     @Environment(RootStore.self) var rootStore: RootStore
-    @State private var store: AdvertisingStore
-    private let advertiser: Advertiser
-
-    init() {
-        self.advertiser = Advertiser(photoCacheManager: PhotoCacheManager.shared)
-        self.store = AdvertisingStore(advertiser)
-    }
+    @State private var store = AdvertisingStore(
+        Advertiser(
+            photoCacheManager: PhotoCacheManager.shared
+        )
+    )
 
     var body: some View {
         ZStack {
@@ -70,7 +68,7 @@ struct AdvertisingView: View {
                     router.push(to: RemoteRoute.remoteCapture(store.advertiser))
                 case .navigateToHome:
                     router.reset()
-                    self.advertiser.disconnect()
+                    store.send(.disconnect)
                 }
             }
         }
