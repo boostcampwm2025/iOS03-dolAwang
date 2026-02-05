@@ -108,6 +108,7 @@ struct ModeSelectionView: View {
                 title: "리모콘 모드",
                 description: "나의 Apple Watch에서 \n직접 셔터를 누르세요."
             ) {
+                noticeShootingMode(isTimer: false)
                 router.push(to: MirroringRoute.poseSuggestionSelection(isTimerMode: false))
             }
             .disabled(!store.flag)
