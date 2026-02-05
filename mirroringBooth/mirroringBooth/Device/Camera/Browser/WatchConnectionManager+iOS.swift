@@ -40,6 +40,7 @@ final class WatchConnectionManager: NSObject {
     var onReachableChanged: ((Bool) -> Void)?
     var onReceiveCaptureRequest: (() -> Void)?
     var onReceiveConnectionAck: (() -> Void)?
+    var onWatchDisconnected: (() -> Void)?
 
     override init() {
         if WCSession.isSupported() {
@@ -238,6 +239,11 @@ extension WatchConnectionManager: WCSessionDelegate {
                 if shouldPrepareToCapture {
                     self.prepareWatchToCapture()
                 }
+            }
+        } else if actionValue == ActionValue.disconnect.rawValue {
+            self.logger.info("워치에서 연결 해제 요청 수신됨.")
+            Task { @MainActor in
+                self.onWatchDisconnected?()
             }
         }
     }

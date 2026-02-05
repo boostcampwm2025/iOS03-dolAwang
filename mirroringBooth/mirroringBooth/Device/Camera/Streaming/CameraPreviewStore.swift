@@ -210,12 +210,12 @@ extension CameraPreviewStore {
         // 타이머 모드면 리모트 감지 안 함
         guard remoteType == .watch else { return }
 
-        watchConnectionManager?.onReachableChanged = { [weak self] isReachable in
+        watchConnectionManager?.onWatchDisconnected = { [weak self] in
             guard let self else { return }
             Task { @MainActor in
-                if !isReachable {
-                    self.handleDisconnection()
-                }
+                // 타이머 모드가 선택되었으면 워치 disconnect 무시
+                guard !self.browser.isTimerModeSelected else { return }
+                self.handleDisconnection()
             }
         }
     }
