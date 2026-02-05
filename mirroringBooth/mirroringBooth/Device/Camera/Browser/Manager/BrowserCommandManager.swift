@@ -10,6 +10,7 @@ import Foundation
 protocol BrowserCommandDelegate: AnyObject {
     func capturePhoto()
     func sendRemoteCommand(_ command: RemoteDeviceCommand)
+    func disconnect(useType: DeviceUseType, onPurpose: Bool)
     var onRemoteModeCommand: (() -> Void)? { get }
     var onSelectedTimerModeCommand: (() -> Void)? { get }
     var mirroringHeartBeater: HeartBeater { get }
@@ -49,6 +50,8 @@ final class BrowserCommandManager {
             DispatchQueue.main.async { [weak self] in
                 self?.delegate?.onSelectedTimerModeCommand?()
                 self?.delegate?.sendRemoteCommand(.navigateToHome)
+                self?.delegate?.sendRemoteCommand(.stopHeartBeat)
+                self?.delegate?.disconnect(useType: .remote, onPurpose: true)
             }
         case .heartBeat:
             delegate?.mirroringHeartBeater.beat()
