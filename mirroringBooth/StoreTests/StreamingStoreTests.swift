@@ -27,12 +27,6 @@ struct StreamingStoreTests {
         )
     }
 
-    private func makePoseList(count: Int = 3) -> [Pose] {
-        (0..<count).map { i in
-            Pose(emoji: "🧍", description: "포즈\(i)", summary: "요약\(i)")
-        }
-    }
-
     // MARK: - 화면 진입 (entry)
 
     @Test func 진입하면_스트리밍이_시작됨() {
@@ -53,7 +47,6 @@ struct StreamingStoreTests {
 
     @Test func 포즈_리스트와_함께_진입하면_포즈_제안_오버레이가_추가됨() {
         let store = makeSUT(isPoseMode: true)
-        let poses = makePoseList()
 
         store.send(.entry)
 
@@ -78,7 +71,6 @@ struct StreamingStoreTests {
 
     @Test func 현재_제안_포즈는_최대_2개까지_표시됨() {
         let store = makeSUT(isPoseMode: true)
-        let poses = makePoseList(count: 5)
 
         store.send(.entry)
 

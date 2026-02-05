@@ -202,9 +202,6 @@ final class BrowsingStore: StoreProtocol {
         case .setShowTutorial(let bool):
             state.showTutorial = bool
 
-        case .setShowMirroringDisconnectedAlert(let bool):
-            state.showMirroringDisconnectedAlert = bool
-
         case .setIsMovingToNextStep(let bool):
             state.isMovingToNextStep = bool
         }
