@@ -45,6 +45,9 @@ final class Browser: NSObject, BrowserCommandDelegate {
     /// 타이머 모드 선택 명령 수신 콜백
     var onSelectedTimerModeCommand: (() -> Void)?
 
+    /// 타이머 모드가 선택되었는지 여부 (워치 disconnect 무시용)
+    var isTimerModeSelected: Bool = false
+
     // MARK: - Stream Manager
 
     let streamManager = BrowserStreamManager()
