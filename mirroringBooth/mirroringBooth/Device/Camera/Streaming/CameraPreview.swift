@@ -27,7 +27,6 @@ struct CameraPreview: View {
             browser: browser,
             manager: CameraManager(),
             deviceName: mirroringName,
-            remoteType: remoteType,
             watchConnectionManager: watchConnectionManager
         )
         self.onDismissByCaptureCompletion = onDismissByCaptureCompletion
