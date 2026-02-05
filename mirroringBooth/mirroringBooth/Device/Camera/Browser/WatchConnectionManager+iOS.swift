@@ -12,6 +12,7 @@ import WatchConnectivity
 
 final class WatchConnectionManager: NSObject {
     private enum ActionValue: String {
+        case pushState
         case capture
         case connect
         case prepare
@@ -198,6 +199,12 @@ extension WatchConnectionManager: WCSessionDelegate {
         if let error: Error = error {
             self.logger.error("WCSession 활성화 실패: 오류=\(error.localizedDescription)")
         } else {
+            session.sendMessage(
+                [MessageKey.action.rawValue: ActionValue.pushState.rawValue],
+                replyHandler: nil
+            ) { error in
+                self.logger.warning("WCSession handshake 실패: \(error)")
+            }
             self.logger.info("WCSession 활성화 성공")
         }
     }
