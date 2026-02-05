@@ -168,6 +168,7 @@ TestFlight가 처음이라면 → [설치 가이드](https://drive.google.com/fi
 | **동적 UI** | GeometryReader를 활용해 iPhone, iPad, Mac에서 반응형 UI를 구현한 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/Wiki-1ABC9C?style=flat)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/%EB%8F%99%EC%A0%81-UI) |
 | **AI PR 자동 리뷰** | n8n을 활용해 PR 생성 시 AI가 자동으로 코드 리뷰를 수행하는 파이프라인을 구축했습니다. | [![Wiki](https://img.shields.io/badge/Wiki-27AE60?style=flat)](https://daegom.notion.site/n8n-PR-2eb1833ac003807ba1f7ec97515ea243) |
 | **CI/CD 자동화** | GitHub Actions로 빌드 자동화, 에셋 자동 병합 시스템 구축을 진행했습니다. | [![Wiki](https://img.shields.io/badge/Wiki-E74C3C?style=flat)](https://github.com/boostcampwm2025/iOS03-dolAwang/pull/68) |
+| **App Store 심사 대응** | App Store 심사 과정에서의 리젝 사유와 대응 경험을 소개합니다. | [![Wiki](https://img.shields.io/badge/Wiki-000000?style=flat)](https://github.com/boostcampwm2025/iOS03-dolAwang/wiki/App-Store-%EC%8B%AC%EC%82%AC-%EB%8C%80%EC%9D%91-%EA%B8%B0%EB%A1%9D) |
 
 ---
 
