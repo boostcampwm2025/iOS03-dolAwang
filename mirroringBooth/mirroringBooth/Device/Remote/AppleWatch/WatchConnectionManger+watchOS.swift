@@ -69,11 +69,11 @@ final class WatchConnectionManager: NSObject {
 
         session.delegate = self
 
-        // iPhone에게 Watch 앱이 active 상태임을 전달
-        pushWatchAppState(.active)
-
         if session.activationState == .activated {
             self.logger.info("WCSession이 이미 활성화되어 있습니다.")
+            
+            // 이미 활성화된 경우 상태 푸시
+            pushWatchAppState(.active)
 
             // 이미 활성화된 경우에도 현재 상태를 확인하여 콜백 호출
             let context: [String: Any] = session.receivedApplicationContext
@@ -190,6 +190,9 @@ extension WatchConnectionManager: WCSessionDelegate {
             self.logger.error("WCSession 활성화 실패: 오류=\(error.localizedDescription)")
         } else {
             self.logger.info("WCSession 활성화 성공")
+            Task { @MainActor in
+                self.pushWatchAppState(.active)
+            }
         }
 
         let context: [String: Any] = session.receivedApplicationContext
