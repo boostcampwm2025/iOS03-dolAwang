@@ -467,9 +467,7 @@ extension Browser: MCSessionDelegate {
                     self.onSelectedTimerModeCommand?()
                     self.sendRemoteCommand(.navigateToHome)
                     self.sendRemoteCommand(.stopHeartBeat)
-                    Task {
-                        self.disconnect(useType: .remote, onPurpose: true)
-                    }
+                    self.disconnect(useType: .remote, onPurpose: true)
                 }
             case .heartBeat:
                 mirroringHeartBeater.beat()
