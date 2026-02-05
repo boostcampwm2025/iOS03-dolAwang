@@ -69,9 +69,7 @@ final class WatchConnectionManager: NSObject {
             self.logger.info("WCSession이 이미 활성화되어 있습니다.")
 
             // 이미 활성화된 경우 현재 reachable 상태를 확인하여 콜백 호출
-            Task { @MainActor in
-                self.onReachableChanged?(session.isReachable)
-            }
+            handleWatchReachability(session: session)
             return
         }
 
@@ -201,6 +199,7 @@ extension WatchConnectionManager: WCSessionDelegate {
         } else {
             self.logger.info("WCSession 활성화 성공")
         }
+        handleWatchReachability(session: session)
     }
 
     nonisolated func session(
