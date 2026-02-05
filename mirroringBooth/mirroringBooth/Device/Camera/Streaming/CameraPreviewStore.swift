@@ -159,6 +159,7 @@ private extension CameraPreviewStore {
         cameraManager.onAllPhotosStored = { [weak self] in
             Task { @MainActor in
                 self?.browser.sendCommand(.onStoreAllPhotos)
+                self?.watchConnectionManager?.sendCaptureComplete()
                 self?.reduce(.captureCompleted)
                 self?.reduce(.setTransferCount(0))
             }
