@@ -7,6 +7,7 @@
 
 import OSLog
 
+@Observable
 final class ModeSelectionStore: StoreProtocol {
     struct State {
         var showHomeAlert: Bool = false
