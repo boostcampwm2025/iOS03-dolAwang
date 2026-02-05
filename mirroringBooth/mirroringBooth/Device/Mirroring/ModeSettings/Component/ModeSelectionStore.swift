@@ -51,6 +51,7 @@ final class ModeSelectionStore: StoreProtocol {
             if let advertiser, !flag {
                 advertiser.sendCommand(.setRemoteMode)
             }
+
         case .timerMode:
             if let advertiser {
                 advertiser.sendCommand(.selectedTimerMode)
@@ -61,9 +62,13 @@ final class ModeSelectionStore: StoreProtocol {
     }
 
     func reduce(_ result: Result) {
+        var state = self.state
+
         switch result {
         case .setShowHomeAlert(let value):
             state.showHomeAlert = value
         }
+
+        self.state = state
     }
 }
