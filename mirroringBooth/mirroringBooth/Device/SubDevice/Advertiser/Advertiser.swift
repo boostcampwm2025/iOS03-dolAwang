@@ -134,9 +134,9 @@ extension Advertiser: MCSessionDelegate {
         let payload = data.dropFirst()
 
         if session === self.session {
-            if firstByte == 0x00 {
+            if firstByte == MultipeerHeader.command.rawValue {
                 commandManager.execute(data: payload, advertiserType: &advertiserType)
-            } else if firstByte == 0x01 {
+            } else if firstByte == MultipeerHeader.streaming.rawValue {
                 streamManager.yieldVideo(payload)
             }
         }
