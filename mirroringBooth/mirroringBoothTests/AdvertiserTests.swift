@@ -49,7 +49,9 @@ final class AdvertiserTests: XCTestCase {
         defer { streamTask.cancel() }
 
         // WHEN
-        await advertiser.session(session, didReceive: testData, fromPeer: peerID)
+        var payload = Data([MultipeerHeader.streaming.rawValue])
+        payload.append(testData)
+        await advertiser.session(session, didReceive: payload, fromPeer: peerID)
 
         // THEN
         await fulfillment(of: [expectation], timeout: 1.0)
@@ -61,7 +63,7 @@ final class AdvertiserTests: XCTestCase {
         // GIVEN
         let expectation = expectation(description: "연결 성공 이벤트 대기")
         let peerID = MCPeerID(displayName: "CommandPeer")
-        let session = try setupCommandSession(with: peerID)
+        let session = try setupSession(with: peerID)
 
         let streamTask = Task {
             for await event in await advertiser.advertisingStream {
@@ -86,7 +88,7 @@ final class AdvertiserTests: XCTestCase {
         let expectationWithoutRemote = expectation(description: "원격 미포함 모드 선택 명령 대기")
 
         let peerID = MCPeerID(displayName: "CommandPeer")
-        let session = try setupCommandSession(with: peerID)
+        let session = try setupSession(with: peerID)
 
         let streamTask = Task {
             for await event in await advertiser.advertisingStream {
@@ -105,11 +107,13 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN: 원격 포함 명령 수신
-        let commandWithRemote = MirroringDeviceCommand.navigateToSelectModeWithRemote.rawValue.data(using: .utf8)!
+        var commandWithRemote = Data([MultipeerHeader.command.rawValue])
+        commandWithRemote.append(MirroringDeviceCommand.navigateToSelectModeWithRemote.rawValue.data(using: .utf8)!)
         await advertiser.session(session, didReceive: commandWithRemote, fromPeer: peerID)
 
         // WHEN: 원격 미포함 명령 수신
-        let commandWithoutRemote = MirroringDeviceCommand.navigateToSelectModeWithoutRemote.rawValue.data(using: .utf8)!
+        var commandWithoutRemote = Data([MultipeerHeader.command.rawValue])
+        commandWithoutRemote.append(MirroringDeviceCommand.navigateToSelectModeWithoutRemote.rawValue.data(using: .utf8)!)
         await advertiser.session(session, didReceive: commandWithoutRemote, fromPeer: peerID)
 
         // THEN
@@ -120,7 +124,7 @@ final class AdvertiserTests: XCTestCase {
         // GIVEN
         let expectation = expectation(description: "리모트 연결 명령 대기")
         let peerID = MCPeerID(displayName: "CommandPeer")
-        let session = try setupCommandSession(with: peerID)
+        let session = try setupSession(with: peerID)
 
         let streamTask = Task {
             for await event in await advertiser.advertisingStream {
@@ -133,7 +137,8 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN
-        let command = RemoteDeviceCommand.navigateToRemoteConnected.rawValue.data(using: .utf8)!
+        var command = Data([MultipeerHeader.command.rawValue])
+        command.append(RemoteDeviceCommand.navigateToRemoteConnected.rawValue.data(using: .utf8)!)
         await advertiser.session(session, didReceive: command, fromPeer: peerID)
 
         // THEN
@@ -146,7 +151,7 @@ final class AdvertiserTests: XCTestCase {
         // GIVEN
         let expectation = expectation(description: "모드 선택 뷰 전환 명령 대기")
         let peerID = MCPeerID(displayName: "CommandPeer")
-        let session = try setupCommandSession(with: peerID)
+        let session = try setupSession(with: peerID)
 
         let streamTask = Task {
             for await event in await advertiser.modeSelectionStream {
@@ -159,7 +164,8 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN
-        let command = MirroringDeviceCommand.switchSelectModeView.rawValue.data(using: .utf8)!
+        var command = Data([MultipeerHeader.command.rawValue])
+        command.append(MirroringDeviceCommand.switchSelectModeView.rawValue.data(using: .utf8)!)
         await advertiser.session(session, didReceive: command, fromPeer: peerID)
 
         // THEN
@@ -174,7 +180,7 @@ final class AdvertiserTests: XCTestCase {
         let expectationHome = expectation(description: "홈 화면 이동 명령 대기")
 
         let peerID = MCPeerID(displayName: "CommandPeer")
-        let session = try setupCommandSession(with: peerID)
+        let session = try setupSession(with: peerID)
 
         let streamTask = Task {
             for await event in await advertiser.remoteConnectedViewStream {
@@ -190,11 +196,13 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN: Capture 명령
-        let commandCapture = RemoteDeviceCommand.navigateToRemoteCapture.rawValue.data(using: .utf8)!
+        var commandCapture = Data([MultipeerHeader.command.rawValue])
+        commandCapture.append(RemoteDeviceCommand.navigateToRemoteCapture.rawValue.data(using: .utf8)!)
         await advertiser.session(session, didReceive: commandCapture, fromPeer: peerID)
 
         // WHEN: Home 명령
-        let commandHome = RemoteDeviceCommand.navigateToHome.rawValue.data(using: .utf8)!
+        var commandHome = Data([MultipeerHeader.command.rawValue])
+        commandHome.append(RemoteDeviceCommand.navigateToHome.rawValue.data(using: .utf8)!)
         await advertiser.session(session, didReceive: commandHome, fromPeer: peerID)
 
         // THEN
@@ -207,7 +215,7 @@ final class AdvertiserTests: XCTestCase {
         // GIVEN
         let expectation = expectation(description: "리모트 완료 명령 대기")
         let peerID = MCPeerID(displayName: "CommandPeer")
-        let session = try setupCommandSession(with: peerID)
+        let session = try setupSession(with: peerID)
 
         let streamTask = Task {
             for await event in await advertiser.remoteCaptureViewStream {
@@ -220,7 +228,8 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN
-        let command = RemoteDeviceCommand.navigateToRemoteComplete.rawValue.data(using: .utf8)!
+        var command = Data([MultipeerHeader.command.rawValue])
+        command.append(RemoteDeviceCommand.navigateToRemoteComplete.rawValue.data(using: .utf8)!)
         await advertiser.session(session, didReceive: command, fromPeer: peerID)
 
         // THEN
@@ -237,7 +246,7 @@ final class AdvertiserTests: XCTestCase {
         let expectationPhotoReceived = expectation(description: "사진 수신 완료 대기")
 
         let peerID = MCPeerID(displayName: "CommandPeer")
-        let session = try setupCommandSession(with: peerID)
+        let session = try setupSession(with: peerID)
 
         let streamTask = Task {
             for await event in await advertiser.streamingStoreStream {
@@ -253,13 +262,16 @@ final class AdvertiserTests: XCTestCase {
 
 
         // WHEN
-        let commandAllStored = MirroringDeviceCommand.onStoreAllPhotos.rawValue.data(using: .utf8)!
+        var commandAllStored = Data([MultipeerHeader.command.rawValue])
+        commandAllStored.append(MirroringDeviceCommand.onStoreAllPhotos.rawValue.data(using: .utf8)!)
         await advertiser.session(session, didReceive: commandAllStored, fromPeer: peerID)
 
-        let commandUpdateCount = MirroringDeviceCommand.onUpdateCaptureCount.rawValue.data(using: .utf8)!
+        var commandUpdateCount = Data([MultipeerHeader.command.rawValue])
+        commandUpdateCount.append(MirroringDeviceCommand.onUpdateCaptureCount.rawValue.data(using: .utf8)!)
         await advertiser.session(session, didReceive: commandUpdateCount, fromPeer: peerID)
 
-        let commandCaptureEffect = MirroringDeviceCommand.captureEffect.rawValue.data(using: .utf8)!
+        var commandCaptureEffect = Data([MultipeerHeader.command.rawValue])
+        commandCaptureEffect.append(MirroringDeviceCommand.captureEffect.rawValue.data(using: .utf8)!)
         await advertiser.session(session, didReceive: commandCaptureEffect, fromPeer: peerID)
 
         // 사진 수신 시뮬레이션 (didFinishReceivingResource)
@@ -335,7 +347,7 @@ final class AdvertiserTests: XCTestCase {
         return session
     }
 
-    private func setupCommandSession(with peerID: MCPeerID) throws -> MCSession {
+    private func setupSession(with peerID: MCPeerID) throws -> MCSession {
         let context = "command".data(using: .utf8)
         let dummyAdvertiser = MCNearbyServiceAdvertiser(
             peer: peerID,
