@@ -144,7 +144,7 @@ final class Browser: NSObject, BrowserCommandDelegate {
             return
         }
 
-        var payload = Data([0x01])
+        var payload = Data([MultipeerHeader.streaming.rawValue])
         payload.append(data)
 
         do {
@@ -192,7 +192,7 @@ final class Browser: NSObject, BrowserCommandDelegate {
             return
         }
 
-        var payload = Data([0x00])
+        var payload = Data([MultipeerHeader.command.rawValue])
         payload.append(commandData)
 
         do {
@@ -219,7 +219,7 @@ final class Browser: NSObject, BrowserCommandDelegate {
             return
         }
 
-        var payload = Data([0x00])
+        var payload = Data([MultipeerHeader.command.rawValue])
         payload.append(commandData)
 
         do {
@@ -363,9 +363,9 @@ extension Browser: MCSessionDelegate {
         let payload = data.dropFirst()
 
         if session === mirroringSession || session === remoteSession {
-            if firstByte == 0x00 {
+            if firstByte == MultipeerHeader.command.rawValue {
                 commandManager.execute(data: payload)
-            } else if firstByte == 0x01 {
+            } else if firstByte == MultipeerHeader.streaming.rawValue {
                 logger.info("스트림 세션에서 데이터 수신: \(payload.count) bytes")
             }
         }

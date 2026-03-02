@@ -85,7 +85,7 @@ final class AdvertiserCommandManager {
             return
         }
 
-        var payload = Data([0x00])
+        var payload = Data([MultipeerHeader.command.rawValue])
         payload.append(commandData)
 
         do {
