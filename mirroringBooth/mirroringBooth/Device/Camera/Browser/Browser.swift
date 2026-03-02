@@ -123,7 +123,7 @@ final class Browser: NSObject, BrowserCommandDelegate {
             deviceID,
             to: targetSession,
             withContext: nil,
-            timeout: 10
+            timeout: 20
         )
         logger.info("연결 요청 전송: \(deviceID) (\(useType == .mirroring ? "미러링" : "리모트"))")
     }
