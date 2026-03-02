@@ -81,12 +81,15 @@ final class AdvertiserCommandManager {
         guard let session, let commandData = command.rawValue.data(using: .utf8) else { return }
         let connectedPeers = session.connectedPeers
         guard !connectedPeers.isEmpty else {
-            Logger.advertiserCommandmanager.warning("명령 전송 실패: commandSession에 연결된 피어가 없습니다")
+            Logger.advertiserCommandmanager.warning("명령 전송 실패: 연결된 피어가 없습니다")
             return
         }
 
+        var payload = Data([0x00])
+        payload.append(commandData)
+
         do {
-            try session.send(commandData, toPeers: connectedPeers, with: .reliable)
+            try session.send(payload, toPeers: connectedPeers, with: .reliable)
             if command != .heartBeat {
                 Logger.advertiserCommandmanager.info("촬영 명령 전송: \(command.rawValue)")
             }

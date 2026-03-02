@@ -10,7 +10,7 @@ import MultipeerConnectivity
 import OSLog
 
 protocol ConnectionManagerDelegate: AnyObject {
-    func connectionManager(_ manager: AdvertisingManager, didCreateSession session: MCSession, type: String)
+    func connectionManager(_ manager: AdvertisingManager, didCreateSession session: MCSession)
 }
 
 final class AdvertisingManager: NSObject {
@@ -51,41 +51,22 @@ extension AdvertisingManager: MCNearbyServiceAdvertiserDelegate {
                     didReceiveInvitationFromPeer peerID: MCPeerID,
                     withContext context: Data?,
                     invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        guard let context,
-              let type = String(data: context, encoding: .utf8) else {
-            Logger.advertisingManager.warning("초대 수신 실패: context 파싱 불가 - \(peerID.displayName)")
-            invitationHandler(false, nil)
-            return
-        }
-
         // 이미 연결된 피어인지 확인
         let isAlreadyConnected = connectedPeersCheck?(peerID) ?? false
         guard isBlockingInvitation == false || isAlreadyConnected else {
             invitationHandler(false, nil)
             return
         }
-        Logger.advertisingManager.info("초대 수신: \(peerID.displayName)(타입: \(type))")
+        Logger.advertisingManager.info("초대 수신: \(peerID.displayName)")
 
         // 세션 생성
-        let session: MCSession
-        if type == "streaming" {
-            session = MCSession(
-                peer: advertiser.myPeerID,
-                securityIdentity: nil,
-                encryptionPreference: .required
-            )
-        } else if type == "command" {
-            session = MCSession(
-                peer: advertiser.myPeerID,
-                securityIdentity: nil,
-                encryptionPreference: .none
-            )
-        } else {
-            invitationHandler(false, nil)
-            return
-        }
+        let session = MCSession(
+            peer: advertiser.myPeerID,
+            securityIdentity: nil,
+            encryptionPreference: .required
+        )
         // 델리게이트에게 알림 (Advertiser가 세션을 저장하고 Delegate를 설정하도록)
-        delegate?.connectionManager(self, didCreateSession: session, type: type)
+        delegate?.connectionManager(self, didCreateSession: session)
         invitationHandler(true, session)
     }
 }
