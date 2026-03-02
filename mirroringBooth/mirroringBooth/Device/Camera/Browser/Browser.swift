@@ -292,6 +292,12 @@ extension Browser: MCSessionDelegate {
             remoteHeartBeater?.start()
         }
 
+        if state == .connecting {
+            browsingManager.stopIfBrowsing()
+        } else if state == .notConnected || state == .connected {
+            browsingManager.startIfBrowsing()
+        }
+
         DispatchQueue.main.async {
             self.handleConnectionStateChange(newState, device: device, session: session, peerID: peerID)
         }
