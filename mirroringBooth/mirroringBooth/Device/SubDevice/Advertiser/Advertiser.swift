@@ -127,6 +127,11 @@ extension Advertiser: MCSessionDelegate {
             heartBeater.start()
             streamManager.yieldAdvertising(.onConnected)
         }
+        if state == .connecting {
+            connectionManager.stopIfAdvertising()
+        } else if state == .notConnected || state == .connected {
+            connectionManager.startIfAdvertising()
+        }
     }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {

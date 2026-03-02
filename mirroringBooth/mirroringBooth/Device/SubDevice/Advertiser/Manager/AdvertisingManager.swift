@@ -16,6 +16,7 @@ protocol ConnectionManagerDelegate: AnyObject {
 final class AdvertisingManager: NSObject {
     private let advertiser: MCNearbyServiceAdvertiser
     private var isBlockingInvitation: Bool = false
+    private var isAdvertising: Bool = false
 
     weak var delegate: ConnectionManagerDelegate?
     var connectedPeersCheck: ((MCPeerID) -> Bool)? // 특정 피어가 이미 연결되어 있는지 확인하는 클로저
@@ -32,6 +33,7 @@ final class AdvertisingManager: NSObject {
 
     func startAdvertising() {
         isBlockingInvitation = false
+        isAdvertising = true
         advertiser.startAdvertisingPeer()
         Logger.advertisingManager.info("광고를 시작합니다.")
     }
@@ -41,8 +43,21 @@ final class AdvertisingManager: NSObject {
             isBlockingInvitation = true
             return
         }
+        isAdvertising = false
         advertiser.stopAdvertisingPeer()
         Logger.advertisingManager.info("광고를 중단합니다.")
+    }
+
+    func startIfAdvertising() {
+        if isAdvertising {
+            advertiser.startAdvertisingPeer( )
+        }
+    }
+
+    func stopIfAdvertising() {
+        if isAdvertising {
+            advertiser.stopAdvertisingPeer( )
+        }
     }
 }
 
@@ -58,6 +73,8 @@ extension AdvertisingManager: MCNearbyServiceAdvertiserDelegate {
             return
         }
         Logger.advertisingManager.info("초대 수신: \(peerID.displayName)")
+
+        advertiser.stopAdvertisingPeer()
 
         // 세션 생성
         let session = MCSession(
