@@ -148,7 +148,11 @@ final class Browser: NSObject, BrowserCommandDelegate {
         payload.append(data)
 
         do {
-            try mirroringSession.send(payload, toPeers: connectedPeers, with: .unreliable)
+            try mirroringSession.send(
+                payload,
+                toPeers: connectedPeers,
+                with: .unreliable
+            )
         } catch {
             logger.warning("스트림 데이터 전송 실패 : \(error.localizedDescription)")
         }
