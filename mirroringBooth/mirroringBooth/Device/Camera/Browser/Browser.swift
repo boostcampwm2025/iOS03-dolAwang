@@ -375,8 +375,6 @@ extension Browser: MCSessionDelegate {
         if session === mirroringSession || session === remoteSession {
             if firstByte == MultipeerHeader.command.rawValue {
                 commandManager.execute(data: payload)
-            } else if firstByte == MultipeerHeader.streaming.rawValue {
-                logger.info("스트림 세션에서 데이터 수신: \(payload.count) bytes")
             }
         }
     }
