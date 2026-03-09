@@ -11,8 +11,17 @@ enum PhotoImageLoader {
     static func loadImages(from photos: [Photo]) async -> [UIImage?] {
         var loadedPhotoImages = [UIImage?](repeating: nil, count: photos.count)
 
-        for (index, photo) in photos.enumerated() {
-            loadedPhotoImages[index] = await loadImage(from: photo.url)
+        await withTaskGroup(of: (Int, UIImage?).self) { taskGroup in
+            for (index, photo) in photos.enumerated() {
+                taskGroup.addTask {
+                    let loadedPhotoImage = await loadImage(from: photo.url)
+                    return (index, loadedPhotoImage)
+                }
+            }
+
+            for await (index, loadedPhotoImage) in taskGroup {
+                loadedPhotoImages[index] = loadedPhotoImage
+            }
         }
 
         return loadedPhotoImages
