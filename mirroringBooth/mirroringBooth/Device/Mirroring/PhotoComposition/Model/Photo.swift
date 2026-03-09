@@ -13,10 +13,6 @@ struct Photo: Identifiable, Hashable {
     let url: URL
     var selectNumber: Int?
 
-    var imageData: Data? {
-        return try? Data(contentsOf: url)
-    }
-
     static func == (lhs: Photo, rhs: Photo) -> Bool {
         lhs.id == rhs.id
     }

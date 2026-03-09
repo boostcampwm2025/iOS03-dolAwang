@@ -150,7 +150,7 @@ struct ResultView: View {
         }
         .task {
             if let photoInformation = store.state.resultPhoto {
-                guard let image = PhotoComposer.render(with: photoInformation) else { return }
+                guard let image = await PhotoComposer.render(with: photoInformation) else { return }
                 store.send(.setRenderedImage(image: image))
             }
         }

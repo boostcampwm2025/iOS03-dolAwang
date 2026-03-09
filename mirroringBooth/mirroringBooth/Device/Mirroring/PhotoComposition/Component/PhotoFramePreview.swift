@@ -9,6 +9,23 @@ import SwiftUI
 
 struct PhotoFramePreview: View {
     let information: PhotoInformation
+    private let hasPreloadedPhotoImages: Bool
+    @State private var photoImages: [UIImage?]
+    @State private var cachedPhotoImages: [URL: UIImage]
+
+    init(information: PhotoInformation, photoImages: [UIImage?] = []) {
+        self.information = information
+        self.hasPreloadedPhotoImages = photoImages.isEmpty == false
+        _photoImages = State(initialValue: photoImages)
+        _cachedPhotoImages = State(
+            initialValue: Dictionary(
+                uniqueKeysWithValues: zip(information.photos, photoImages).compactMap { photo, photoImage in
+                    guard let photoImage else { return nil }
+                    return (photo.url, photoImage)
+                }
+            )
+        )
+    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -29,9 +46,8 @@ struct PhotoFramePreview: View {
                     context.drawLayer { layer in
                         layer.clip(to: Path(roundedRect: slot, cornerRadius: 5))
 
-                        if index < information.photos.count,
-                           let photoData = information.photos[index].imageData,
-                           let photo = UIImage(data: photoData) {
+                        if index < photoImages.count,
+                           let photo = photoImages[index] {
                             let target = aspectFillRect(for: photo.size, into: slot)
                             layer.draw(Image(uiImage: photo), in: target)
                         } else {
@@ -68,6 +84,26 @@ struct PhotoFramePreview: View {
             }
         }
         .aspectRatio(information.layout.previewAspect, contentMode: .fit)
+        .task(id: information.photos) {
+            guard !hasPreloadedPhotoImages else { return }
+            await synchronizePhotoImages()
+        }
+    }
+
+    private func synchronizePhotoImages() async {
+        let currentPhotos = information.photos
+        var updatedPhotoImages = currentPhotos.map { cachedPhotoImages[$0.url] }
+        photoImages = updatedPhotoImages
+
+        for (index, photo) in currentPhotos.enumerated() where updatedPhotoImages[index] == nil {
+            let loadedPhotoImage = await PhotoImageLoader.loadImage(from: photo.url)
+            guard Task.isCancelled == false else { return }
+            guard let loadedPhotoImage else { continue }
+
+            cachedPhotoImages[photo.url] = loadedPhotoImage
+            updatedPhotoImages[index] = loadedPhotoImage
+            photoImages = updatedPhotoImages
+        }
     }
 
     /// Cliping 될 때 크기에 맞게 잘 잘리도록 전처리
