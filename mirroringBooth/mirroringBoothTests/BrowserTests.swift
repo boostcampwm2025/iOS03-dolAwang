@@ -129,7 +129,7 @@ struct BrowserTests {
         // GIVEN
         let (browser, _) = makeSUT()
 
-        // WHEN - mirroringCommandSession이 nil인 상태
+        // WHEN - mirroringSession이 nil인 상태
         browser.sendCommand(.heartBeat)
 
         // THEN - 크래시하지 않으면 성공
@@ -193,7 +193,8 @@ struct BrowserTests {
         let mockSession = MCSession(peer: testPeerID, securityIdentity: nil, encryptionPreference: .none)
 
         // WHEN - heartBeat 명령 수신 (크래시 없이 처리되면 성공)
-        let commandData = Data("heartBeat".utf8)
+        var commandData = Data([0x00])
+        commandData.append(Data("heartBeat".utf8))
         browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
 
         // THEN - 크래시 없이 처리되면 성공
@@ -207,7 +208,8 @@ struct BrowserTests {
         let mockSession = MCSession(peer: testPeerID, securityIdentity: nil, encryptionPreference: .none)
 
         // WHEN - 알 수 없는 명령 수신
-        let commandData = Data("unknownCommand".utf8)
+        var commandData = Data([0x00])
+        commandData.append(Data("unknownCommand".utf8))
         browser.session(mockSession, didReceive: commandData, fromPeer: testPeerID)
 
         // THEN - 크래시 없이 처리되면 성공

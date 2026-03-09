@@ -17,7 +17,6 @@ final class Advertiser: NSObject {
     private let serviceType: String
     private let peerID: MCPeerID
     private var session: MCSession?
-    private var commandSession: MCSession?
     private let photoCacheManager: PhotoCacheManager
     private let heartBeater: HeartBeater
     var advertiserType: DeviceUseType = .mirroring // heartbeat 메시지 종류 구분을 위해 추가
@@ -82,7 +81,7 @@ final class Advertiser: NSObject {
 
         connectionManager.delegate = self
         connectionManager.connectedPeersCheck = { [weak self] peerID in
-            self?.commandSession?.connectedPeers.contains(peerID) == true
+            self?.session?.connectedPeers.contains(peerID) == true
         }
         heartBeater.delegate = self
     }
@@ -104,9 +103,7 @@ final class Advertiser: NSObject {
     /// 세션과 연결을 해제합니다.
     func disconnect() {
         session?.disconnect()
-        commandSession?.disconnect()
         session = nil
-        commandSession = nil
         heartBeater.stop()
         logger.info("연결 해제: \(self.peerID.displayName)")
     }
@@ -118,7 +115,7 @@ final class Advertiser: NSObject {
 
     /// 연결된 카메라 기기(iPhone)에게 명령을 전송합니다.
     func sendCommand(_ command: CameraDeviceCommand) {
-        commandManager.send(command, session: commandSession)
+        commandManager.send(command, session: session)
     }
 }
 
@@ -128,19 +125,25 @@ extension Advertiser: MCSessionDelegate {
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         if session === self.session, state == .connected {
             heartBeater.start()
-        }
-        if session === self.commandSession, state == .connected {
             streamManager.yieldAdvertising(.onConnected)
+        }
+        if state == .connecting {
+            connectionManager.stopIfAdvertising()
+        } else if state == .notConnected || state == .connected {
+            connectionManager.startIfAdvertising()
         }
     }
 
     func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+        guard let firstByte = data.first else { return }
+        let payload = data.dropFirst()
+
         if session === self.session {
-            // 스트림 세션에서 수신
-            streamManager.yieldVideo(data)
-        } else if session === commandSession {
-            // 명령 세션에서 수신
-            commandManager.execute(data: data, advertiserType: &advertiserType)
+            if firstByte == MultipeerHeader.command.rawValue {
+                commandManager.execute(data: payload, advertiserType: &advertiserType)
+            } else if firstByte == MultipeerHeader.streaming.rawValue {
+                streamManager.yieldVideo(payload)
+            }
         }
     }
 
@@ -193,13 +196,8 @@ extension Advertiser: MCSessionDelegate {
 
 // MARK: - ConnectionManager Delegate
 extension Advertiser: ConnectionManagerDelegate {
-    func connectionManager(_ manager: AdvertisingManager, didCreateSession session: MCSession, type: String) {
-        if type == "streaming" {
-            self.session = session
-            session.delegate = self
-        } else if type == "command" {
-            self.commandSession = session
-            session.delegate = self
-        }
+    func connectionManager(_ manager: AdvertisingManager, didCreateSession session: MCSession) {
+        self.session = session
+        session.delegate = self
     }
 }

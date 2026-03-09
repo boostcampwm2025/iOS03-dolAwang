@@ -15,6 +15,7 @@ final class BrowsingManager: NSObject {
     private let browser: MCNearbyServiceBrowser
     private let peerID: MCPeerID
     private let streamManager: BrowserStreamManager
+    private var isBrowsing: Bool = false
 
     /// 발견된 Peer 목록
     private(set) var discoveredPeers: [String: (peer: MCPeerID, type: DeviceType)] = [:]
@@ -28,14 +29,26 @@ final class BrowsingManager: NSObject {
     }
 
     func startSearching() {
+        isBrowsing = true
         browser.stopBrowsingForPeers()
         browser.startBrowsingForPeers()
         logger.info("주변 기기를 검색합니다.")
     }
 
     func stopSearching() {
+        isBrowsing = false
         browser.stopBrowsingForPeers()
         logger.info("주변 기기 검색을 중지합니다.")
+    }
+
+    func startIfBrowsing() {
+        guard isBrowsing else { return }
+        browser.startBrowsingForPeers()
+    }
+
+    func stopIfBrowsing() {
+        guard isBrowsing else { return }
+        browser.stopBrowsingForPeers()
     }
 
     /// 특정 기기에게 연결 초대를 전송합니다.
