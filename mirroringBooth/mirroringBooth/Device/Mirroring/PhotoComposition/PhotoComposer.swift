@@ -10,7 +10,10 @@ import SwiftUI
 struct PhotoComposer {
     static func render(with information: PhotoInformation) async -> UIImage? {
         let photoImages = await PhotoImageLoader.loadImages(from: information.photos)
-        return renderPreview(with: information, photoImages: photoImages)
+        //  CI의 Xcode 16.4는 Default Actor Isolation을 `nonisolated`이 기본 설정
+        //  Xcode 버전이 26.* 이라면 Default Actor Isolation을 `MainActor`이 기본 설정
+        //  CI와 로컬 환경의 버전이 달라 임시로 CI 환경에 맞는 형태로 코드를 작성하였음
+        return await renderPreview(with: information, photoImages: photoImages)
     }
 
     @MainActor
