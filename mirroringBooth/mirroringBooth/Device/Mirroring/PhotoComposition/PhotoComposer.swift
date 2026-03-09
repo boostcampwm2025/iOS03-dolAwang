@@ -8,14 +8,22 @@
 import SwiftUI
 
 struct PhotoComposer {
+    static func render(with information: PhotoInformation) async -> UIImage? {
+        let photoImages = await PhotoImageLoader.loadImages(from: information.photos)
+        return renderPreview(with: information, photoImages: photoImages)
+    }
+
     @MainActor
-    static func render(with information: PhotoInformation) -> UIImage? {
+    private static func renderPreview(with information: PhotoInformation, photoImages: [UIImage?]) -> UIImage? {
         // 출력 이미지 크기 결정 (예: 1080 x 1440 또는 레이아웃 비율에 맞춤)
         let targetWidth: CGFloat = 1080
         let targetHeight: CGFloat = targetWidth / information.layout.previewAspect
         let targetSize = CGSize(width: targetWidth, height: targetHeight)
 
-        let preview = PhotoFramePreview(information: information)
+        let preview = PhotoFramePreview(
+            information: information,
+            photoImages: photoImages
+        )
         .frame(width: targetSize.width, height: targetSize.height)
 
         let renderer = ImageRenderer(content: preview)
